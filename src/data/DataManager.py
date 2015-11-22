@@ -1,7 +1,4 @@
-'''
-'''
-
-import numpy as np
+from DataEntry import DataEntry
 
 class DataManager():
 
@@ -56,6 +53,7 @@ class DataManager():
         '''Constructor'''
         self.name = name
         self.__subDataManager = None
+        self.dataEntries = dict()
 
     @property
     def subDataManager(self):
@@ -70,3 +68,11 @@ class DataManager():
     def subDataManager(self):
         '''Getter for the subDataManager'''
         return self.__subDataManager
+
+    def addDataEntry(self, name, size, minValue=-1, maxValue=1):
+        '''
+        Function for adding a new data entry. If the same data entry already exists, then the properties are overwritten. minValue and maxValue are optional arguments (standard values are -1 and +1).
+        '''
+        # TODO: The function automatically adds a data alias pointing to the same data entry.
+        # TODO: Do minValue and maxValue have to be vectors?
+        self.dataEntries[name] = DataEntry(name, size, minValue, maxValue)
