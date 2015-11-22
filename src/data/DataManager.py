@@ -1,7 +1,9 @@
+from DataAlias import DataAlias
 from DataEntry import DataEntry
 
 
 class DataManager():
+    numStepsStorage = 1  # default size of a data object
 
     # TODO: check the comments
 
@@ -56,6 +58,7 @@ class DataManager():
         self.name = name
         self.__subDataManager = None
         self.dataEntries = dict()
+        self.dataAliases = dict()
 
     @property
     def subDataManager(self):
@@ -81,3 +84,27 @@ class DataManager():
         #       same data entry.
         # TODO: Do minValue and maxValue have to be vectors?
         self.dataEntries[name] = DataEntry(name, size, minValue, maxValue)
+        self.addDataAlias(name, name, [0])
+
+    def addDataAlias(self, aliasName, entryNames, indexList):
+        '''
+        Adds a data alias with the name "aliasName". entryNames should be a
+        cell array of data entries and indexList a cell array of subIndices to
+        these data entries. indexList is optional, the standard value is "0",
+        meaning the alias should point to all dimensions of the data entry. An
+        alias is the concatenation of all dataEntries in the entryNames list
+        (indiced with the corresponding indexList). The function addDataAlias
+        can also be called sequentially for the same alias. If a data alias
+        already exists, it will be overwritten.
+        '''
+        self.dataAliases[aliasName] = DataAlias(aliasName, entryNames,
+                                                indexList)
+
+    def getDataObject(self, numElements):
+        '''
+        Creates a new data object with numElements data points, whereas
+        numElements is a vector defining the number of elements for each layer
+        of the hierarchy. If no numElements are defined, the size of the data
+        object is the standard size (numStepsStorage).
+        '''
+        # TODO: implement this
