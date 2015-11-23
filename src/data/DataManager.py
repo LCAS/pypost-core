@@ -80,13 +80,11 @@ class DataManager():
         exists, then the properties are overwritten. minValue and maxValue are
         optional arguments (standard values are -1 and +1).
         '''
-        # TODO: The function automatically adds a data alias pointing to the
-        #       same data entry.
         # TODO: Do minValue and maxValue have to be vectors?
         self.dataEntries[name] = DataEntry(name, size, minValue, maxValue)
-        self.addDataAlias(name, name, [0])
+        self.addDataAlias(name, {name: Ellipsis})
 
-    def addDataAlias(self, aliasName, entryNames, indexList):
+    def addDataAlias(self, aliasName, entryList):
         '''
         Adds a data alias with the name "aliasName". entryNames should be a
         cell array of data entries and indexList a cell array of subIndices to
@@ -97,8 +95,7 @@ class DataManager():
         can also be called sequentially for the same alias. If a data alias
         already exists, it will be overwritten.
         '''
-        self.dataAliases[aliasName] = DataAlias(aliasName, entryNames,
-                                                indexList)
+        self.dataAliases[aliasName] = DataAlias(aliasName, entryList)
 
     def getDataObject(self, numElements):
         '''
