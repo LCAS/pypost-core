@@ -92,16 +92,28 @@ class DataManager():
         dict of data entries and slices to these data entries. If the whole
         data entry should be used, use "..." instead of a slice. This means
         the alias should point to all dimensions of the data entry.
-        If a data alias already exists, it will be overwritten.
         '''
-        for key, value in entryList.items():
 
-            if key not in self.dataEntries:
-                raise ValueError("The data entry " + key + " does not exist")
+        # Ensure that all referenced names are in the entry list
+        if all(entryName in dataEntries for entryName in entryList.keys()):
+            # Test if the alias has already been defined
+            if aliasName in self.dataAliases:
+                # Replace slices
+                for entryName, slice in entryList.items():
+                    self.dataAliases[aliasName][entryName] = slice
+            else:
+                self.dataAliases[aliasName] = entryList
 
-            print(key, value)
-
-        self.dataAliases[aliasName] = DataAlias(aliasName, entryList)
+            # Computes the total number of dimensions for the alias
+            numDim = 0
+            for entryName, slice in self.dataAliases[aliasName]:
+                numDim += len(self.dataAliases[entryName][slice])
+            # TODO Store alias dimensions somewhere
+        else:
+            if self.subDataManager() is not None:
+                self.subDataManager().addDataAlias(aliasName, entryList)
+            else:
+                raise ValueError("One or more of the alias entry names do not exist")
 
     def getDataObject(self, numElements):
         '''
