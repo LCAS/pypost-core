@@ -2,12 +2,12 @@ import unittest
 import sys
 import numpy as np
 sys.path.append('../src/data')
-from DataAlias import DataAlias
 from DataEntry import DataEntry
 from DataManager import DataManager
 
 
 class testDataManager(unittest.TestCase):
+
     def test_init(self):
         dataManager = DataManager('episodes')
         self.assertIsInstance(dataManager, DataManager)
@@ -36,7 +36,7 @@ class testDataManager(unittest.TestCase):
 
     def test_addDataEntry(self):
         dataManager = DataManager('episodes')
-        dataManager.addDataEntry('parameters', 5, -1*np.ones(5),
+        dataManager.addDataEntry('parameters', 5, -1 * np.ones(5),
                                  np.array([1, 1, 3, 1, 1]))
 
         self.assertIsInstance(dataManager.dataEntries, dict)
@@ -53,6 +53,7 @@ class testDataManager(unittest.TestCase):
         self.assertIsInstance(dataManager.dataAliases, dict)
 
         dataManager.addDataEntry('parameters', 5, -1, 1)
+        dataManager.addDataEntry('context', 5, -1, 1)
 
         dataManager.addDataAlias('parameterAlias', {'parameters':
                                                     slice(0, 1)})
@@ -65,6 +66,10 @@ class testDataManager(unittest.TestCase):
 
         self.assertEqual(dataManager.dataAliases['parameterAlias'].entryList,
                          {'parameters': slice(0, 2)})
+        
+        dataManager.addDataAlias('parameterAlias', {'context': ...})
+        
+        self.assertEqual(dataManager.dataAliases['parameterAlias'].entryList, {'parameters': slice(0, 2), 'context': ...})
 
 if __name__ == '__main__':
     unittest.main()

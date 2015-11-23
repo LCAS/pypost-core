@@ -1,7 +1,6 @@
 import numpy as np
-from Data import Data
-from DataAlias import DataAlias
-from DataEntry import DataEntry
+from data.Data import Data
+from data.DataEntry import DataEntry
 
 
 class DataManager():
@@ -85,6 +84,7 @@ class DataManager():
         dimensionality. The function automatically adds a data alias pointing
         to the same data entry.
         '''
+        
         self.dataEntries[name] = DataEntry(name, size, minRange, maxRange)
         self.addDataAlias(name, {name: Ellipsis})
 
@@ -95,21 +95,21 @@ class DataManager():
         data entry should be used, use "..." instead of a slice. This means
         the alias should point to all dimensions of the data entry.
         '''
-
+        
         # Ensure that all referenced names are in the entry list
-        if all(entryName in dataEntries for entryName in entryList.keys()):
+        if all(entryName in self.dataEntries for entryName in entryList.keys()):
             # Test if the alias has already been defined
             if aliasName in self.dataAliases:
                 # Replace slices
-                for entryName, slice in entryList.items():
-                    self.dataAliases[aliasName][entryName] = slice
+                for entryName, indices in entryList.items():
+                    self.dataAliases[aliasName][entryName] = indices
             else:
                 self.dataAliases[aliasName] = entryList
 
             # Computes the total number of dimensions for the alias
             numDim = 0
-            for entryName, slice in self.dataAliases[aliasName]:
-                numDim += len(self.dataAliases[entryName][slice])
+            for entryName, indices in self.dataAliases[aliasName]:
+                numDim += len(self.dataAliases[entryName][indices])
             # TODO Store alias dimensions somewhere
         else:
             if self.subDataManager() is not None:
