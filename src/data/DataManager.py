@@ -74,27 +74,33 @@ class DataManager():
         '''Getter for the subDataManager'''
         return self.__subDataManager
 
-    def addDataEntry(self, name, size, minValue=-1, maxValue=1):
+    def addDataEntry(self, name, size, minRange=-1, maxRange=1):
         '''
         Function for adding a new data entry. If the same data entry already
-        exists, then the properties are overwritten. minValue and maxValue are
-        optional arguments (standard values are -1 and +1).
+        exists, then the properties are overwritten. minRange and maxRange are
+        optional arguments (standard values are a vector of -1 and +1). Both
+        arguments need to be row vectors with the same size as the specified
+        dimensionality. The function automatically adds a data alias pointing
+        to the same data entry.
         '''
-        # TODO: Do minValue and maxValue have to be vectors?
-        self.dataEntries[name] = DataEntry(name, size, minValue, maxValue)
+        self.dataEntries[name] = DataEntry(name, size, minRange, maxRange)
         self.addDataAlias(name, {name: Ellipsis})
 
     def addDataAlias(self, aliasName, entryList):
         '''
-        Adds a data alias with the name "aliasName". entryNames should be a
-        cell array of data entries and indexList a cell array of subIndices to
-        these data entries. indexList is optional, the standard value is "0",
-        meaning the alias should point to all dimensions of the data entry. An
-        alias is the concatenation of all dataEntries in the entryNames list
-        (indiced with the corresponding indexList). The function addDataAlias
-        can also be called sequentially for the same alias. If a data alias
-        already exists, it will be overwritten.
+        Adds a data alias with the name "aliasName". entryList should be a
+        dict of data entries and slices to these data entries. If the whole
+        data entry should be used, use "..." instead of a slice. This means
+        the alias should point to all dimensions of the data entry.
+        If a data alias already exists, it will be overwritten.
         '''
+        for key, value in entryList.items():
+
+            if key not in self.dataEntries:
+                raise ValueError("The data entry " + key + " does not exist")
+
+            print(key, value)
+
         self.dataAliases[aliasName] = DataAlias(aliasName, entryList)
 
     def getDataObject(self, numElements):

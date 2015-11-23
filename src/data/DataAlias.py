@@ -12,18 +12,3 @@ class DataAlias():
         '''
         self.aliasName = aliasName
         self.entryList = entryList
-
-        for key, value in entryList.items():
-            print(key, value)
-
-        # assert len(indexlist) == len(entryNames)
-
-    def __getitem__(self, k):
-        # Overwrite the getter
-        # TODO: get data from the right data entry
-        return 42
-
-    def __setitem__(self, k, v):
-        # Overwrite the setter
-        # TODO: store the data in the right data entry
-        return 42

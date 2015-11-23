@@ -3,9 +3,9 @@ class DataEntry():
     DataEntry stores the properties of a data entry.
     '''
 
-    def __init__(self, name, size, minValue, maxValue):
+    def __init__(self, name, size, minRange, maxRange):
         '''Constructor'''
         self.name = name
         self.size = size
-        self.minValue = minValue
-        self.maxValue = maxValue
+        self.minRange = minRange
+        self.maxRange = maxRange
