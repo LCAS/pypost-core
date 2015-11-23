@@ -1,3 +1,5 @@
+import numpy as np
+from Data import Data
 from DataAlias import DataAlias
 from DataEntry import DataEntry
 
@@ -95,11 +97,8 @@ class DataManager():
         If a data alias already exists, it will be overwritten.
         '''
         for key, value in entryList.items():
-
             if key not in self.dataEntries:
                 raise ValueError("The data entry " + key + " does not exist")
-
-            print(key, value)
 
         self.dataAliases[aliasName] = DataAlias(aliasName, entryList)
 
@@ -110,4 +109,30 @@ class DataManager():
         of the hierarchy. If no numElements are defined, the size of the data
         object is the standard size (numStepsStorage).
         '''
-        # TODO: implement this
+        print(self.getDataStructure(numElements))
+        return Data(self, self.getDataStructure(numElements))
+
+    def getDataStructure(self, numElements):
+        '''
+        Creates the data structure (containing real data) for the data object
+        '''
+        if isinstance(numElements, list):
+            numElementsCurrentLayer = numElements[0]
+            numElements = numElements[1:]
+        else:
+            numElementsCurrentLayer = numElements
+
+        print(numElements)
+
+        dataStructure = dict()
+        for dataEntryName, dataEntry in self.dataEntries.items():
+            print(dataEntryName, dataEntry.size)
+            dataStructure[dataEntryName] = np.zeros((numElementsCurrentLayer,
+                                                    dataEntry.size),
+                                                    dtype=np.float64)
+
+        if (self.subDataManager is not None):
+            subStructure = self.subDataManager.getDataStructure(numElements)
+            dataStructure[self.subDataManager.name] = subStructure
+
+        return dataStructure

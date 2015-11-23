@@ -2,6 +2,7 @@ import unittest
 import sys
 import numpy as np
 sys.path.append('../src/data')
+from DataAlias import DataAlias
 from DataEntry import DataEntry
 from DataManager import DataManager
 
@@ -24,6 +25,15 @@ class testDataManager(unittest.TestCase):
         self.assertIs(dataManager.subDataManager.subDataManager,
                       subSubDataManager)
 
+        dataManager.addDataEntry('parameters', 5)
+        dataManager.addDataEntry('context', 2)
+        subDataManager.addDataEntry('states', 1)
+        subDataManager.addDataEntry('actions', 2)
+        subSubDataManager.addDataEntry('subStates', 1)
+        subSubDataManager.addDataEntry('subActions', 2)
+
+        dataManager.getDataObject([10, 5, 1])
+
     def test_addDataEntry(self):
         dataManager = DataManager('episodes')
         dataManager.addDataEntry('parameters', 5, -1*np.ones(5),
@@ -45,17 +55,16 @@ class testDataManager(unittest.TestCase):
         dataManager.addDataEntry('parameters', 5, -1, 1)
 
         dataManager.addDataAlias('parameterAlias', {'parameters':
-                                                    slices(0, 1)})
+                                                    slice(0, 1)})
 
-        self.assertEqual(dataManager.dataAliases['parameterAlias'],
-                         DataAlias('subparameters', {'parameters':
-                                                     slices(0, 1)}))
+        self.assertEqual(dataManager.dataAliases['parameterAlias'].entryList,
+                         {'parameters': slice(0, 1)})
 
         dataManager.addDataAlias('parameterAlias', {'parameters':
-                                                    slices(0, 2)})
+                                                    slice(0, 2)})
 
-        self.assertEqual(dataManager.dataAliases['parameterAlias'],
-                         DataAlias({'parameters': slices(0, 1)}))
+        self.assertEqual(dataManager.dataAliases['parameterAlias'].entryList,
+                         {'parameters': slice(0, 2)})
 
 if __name__ == '__main__':
     unittest.main()
