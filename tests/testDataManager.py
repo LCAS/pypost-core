@@ -33,5 +33,19 @@ class testDataManager(unittest.TestCase):
         self.assertEqual(dataManager.dataEntries['parameters'].minValue, -1)
         self.assertEqual(dataManager.dataEntries['parameters'].maxValue, 1)
 
+    def test_addAlias(self):
+        dataManager = DataManager('episodes')
+        
+        self.assertIsInstance(dataManager.dataAliases, dict)
+        
+        dataManager.addDataEntry('parameters', 5, -1, 1)
+        
+        dataManager.addDataAlias('parameterAlias', {'parameters' : slices(0,1)}) 
+        self.assertEqual(dataManager.dataAliases['parameterAlias'], DataAlias('subparameters', {'parameters': slices(0, 1)}))
+        
+        dataManager.addDataAlias('parameterAlias', {'parameters': slices(0, 2)})
+        self.assertEqual(dataManager.dataAliases['parameterAlias'], DataAlias({'parameters': slices(0, 1)}))
+        
+
 if __name__ == '__main__':
     unittest.main()
