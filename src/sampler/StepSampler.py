@@ -5,8 +5,8 @@ Created on 22.11.2015
 '''
 
 import numpy as np
-from src.sampler import SequentialSampler
-from src.sampler import SamplerPool
+from sampler import SequentialSampler as SequentialSampler
+from sampler import SamplerPool as SamplerPool
 
 class StepSampler(SequentialSampler):
     '''

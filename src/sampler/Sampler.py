@@ -3,23 +3,23 @@ Created on 21.11.2015
 
 @author: Moritz
 '''
-from src.interfaces import SamplerInterface
+from interfaces import SamplerInterface as SamplerInterface
 
 class Sampler(SamplerInterface):
     '''
     Sampler serves as a base class for all other samplers. But you should
     consider using the subclasses SequentialSampler, IndependentSampler or for
     a learning scenario EpisodeSampler or EpisodeWithStepSampler.
-
+    
     Every sampler models a sampling scenario. Various sampler pools will be
     used to handle action policy, simulating the environment, rewards and
     such. Each of those pools may contain a number of sampler functions acting
     on a given Data.Data structure. The task of the sampler is organizing
     those pools and their execution.
     '''
-
+    
     # attributes
-
+    
     def __init__(self, dataManager, samplerName):
         '''
         Constructor for setting-up an empty sampler

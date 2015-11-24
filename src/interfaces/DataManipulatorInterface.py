@@ -8,8 +8,7 @@ class DataManipulatorInterface(object):
     '''
     FIXME
     '''
-
-
+    
     def __init__(self):
         '''
         Constructor

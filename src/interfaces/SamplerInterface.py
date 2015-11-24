@@ -3,18 +3,18 @@ Created on 21.11.2015
 
 @author: Moritz
 '''
-from src.interfaces.DataManipulatorInterface import DataManipulatorInterface
+from interfaces import DataManipulatorInterface as DataManipulatorInterface
 
 class SamplerInterface(DataManipulatorInterface):
     '''
     The SamplerInterface
     '''
-
+    
     def __init__(self):
         '''
         Constructor
         '''
-        super().__init__();
+        super().__init__()
     
     def getSamplerName(self):
         '''

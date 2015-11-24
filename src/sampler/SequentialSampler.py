@@ -3,8 +3,8 @@ Created on 22.11.2015
 
 @author: Moritz
 '''
-from src.sampler import Sampler
-from src.sampler.isActiveSampler.IsActiveNumSteps import IsActiveNumSteps
+from sampler import Sampler as Sampler
+from sampler.isActiveSampler import IsActiveNumSteps as IsActiveNumSteps
 
 class SequentialSampler(Sampler):
     '''

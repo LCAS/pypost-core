@@ -3,7 +3,7 @@ Created on 24.11.2015
 
 @author: Moritz
 '''
-from src.sampler.isActiveSampler.IsActiveStepSampler import IsActiveStepSampler
+from sampler.isActiveSampler.IsActiveStepSampler import IsActiveStepSampler
 
 class IsActiveNumSteps(IsActiveStepSampler):
     '''
