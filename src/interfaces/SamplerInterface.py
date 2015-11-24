@@ -5,35 +5,36 @@ Created on 21.11.2015
 '''
 from interfaces import DataManipulatorInterface as DataManipulatorInterface
 
+
 class SamplerInterface(DataManipulatorInterface):
     '''
     The SamplerInterface
     '''
-    
+
     def __init__(self):
         '''
         Constructor
         '''
         super().__init__()
-    
+
     def getSamplerName(self):
         '''
         Get the sampler name
         '''
         raise NotImplementedError("Not implemented")
-    
+
     def _setSamplerName(self, samplerName):
         '''
         Set the sampler name
         '''
         raise NotImplementedError("Not implemented")
-    
+
     def setSamplerIteration(self, iteration):
         '''
         Set the iteration index
         '''
         raise NotImplementedError("Not implemented")
-        #ASK what is the use of this?
+        # ASK what is the use of this?
 
     def appendNewSamples(self):
         '''
