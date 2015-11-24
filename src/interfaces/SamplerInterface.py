@@ -7,9 +7,8 @@ from src.interfaces.DataManipulatorInterface import DataManipulatorInterface
 
 class SamplerInterface(DataManipulatorInterface):
     '''
-    The SamplerInterface 
+    The SamplerInterface
     '''
-
 
     def __init__(self):
         '''
@@ -34,18 +33,16 @@ class SamplerInterface(DataManipulatorInterface):
         Set the iteration index
         '''
         raise NotImplementedError("Not implemented")
-    
-    #ASk what is the use of this?
+        #ASK what is the use of this?
+
     def appendNewSamples(self):
         '''
         Sets the append attribute to true
         '''
         raise NotImplementedError("Not implemented")
-    
+
     def createSamples(self, newData, *args):
         '''
         Create samples from data and additional arguments
         '''
         raise NotImplementedError("Not implemented")
-    
-    

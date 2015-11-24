@@ -4,31 +4,31 @@ Created on 21.11.2015
 @author: Moritz
 '''
 
+
 class SamplerPool(object):
     '''
     A collection of samplers
     '''
 
-    def __init__(self,name,priority):
+    def __init__(self, name, priority):
         '''
         Creates a sampler pool with an empty sampler list
         '''
-        self.samplerList=[]
+        self.samplerList = []
         self.setName(name)
         self.setPriority(priority)
-    
-    #getters & setters
-    
+
+    # getters & setters
+
     def getName(self):
         return self._name
-    
+
     def _setName(self, name):
-        self._name=name
-    
+        self._name = name
+
     def getPriority(self):
         return self._priority
-    
-     
+
     def _setPriority(self, priority):
         '''
         @change: only positive priorities are allowed [0,...] 
@@ -41,4 +41,5 @@ class SamplerPool(object):
         '''
         Clear all samplers in this pool
         '''
-        self.samplerList.clear(); 
+        self.samplerList.clear();
+
