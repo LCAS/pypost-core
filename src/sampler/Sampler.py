@@ -3,11 +3,9 @@ Created on 21.11.2015
 
 @author: Moritz
 '''
-from src.interfaces.SamplerInterface import SamplerInterface
-from scipy import Inf
-from src.sampler.SamplerPool import SamplerPool
+from src.interfaces import SamplerInterface
 
-class Sampler(object, SamplerInterface):
+class Sampler(SamplerInterface):
     '''
     Sampler serves as a base class for all other samplers. But you should consider using the subclasses SequentialSampler,
     IndependentSampler or for a learning scenario EpisodeSampler or EpisodeWithStepSampler.
@@ -21,19 +19,24 @@ class Sampler(object, SamplerInterface):
     
     def __init__(self, dataManager, samplerName):
         '''
-        Constructor
+        Constructor for setting-up an empty sampler
+        @param dataManager: DataManager this sampler operates on
+        @param samplerName: name of this sampler 
         '''
+        super().__init__()
         
-        super(SamplerInterface, self).__init__();
-        
-        self._samplerPools={}
+        self._dataManager=dataManager
         '''
-        All functions in a given pool
+        The data manager responsible for this sampler
         '''
         self._samplerName=samplerName
         '''
         String of the sampler name
-        #CHANGE now holds samplerPool instances instead of their names
+        @change: now holds samplerPool instances instead of their names
+        '''
+        self._samplerPools={}
+        '''
+        Map of all sampler pools by name
         '''
         self._samplerPoolPriorityList=[]
         '''
@@ -42,8 +45,9 @@ class Sampler(object, SamplerInterface):
         self._samplerMap={}
         '''
         List of lower level samplers after finalizing the sampler
+        @change iteration indices now start at 0
         '''
-        self._iterationIndex
+        self._iterationIndex=0
         '''
         Index of the current iteration
         '''
@@ -55,67 +59,105 @@ class Sampler(object, SamplerInterface):
     
     # getters & setters
 
-    def _setSamplerName(self, samplerName):
-        self._samplerName=samplerName
-    
     def getSamplerName(self):
+        '''
+        Get the sampler name
+        '''
         return self._samplerName
     
-    # functions
+    def _setSamplerName(self, samplerName):
+        '''
+        Set the sampler name
+        '''
+        self._samplerName=samplerName
+    
     
     def setSamplerIteration(self, iteration):
-        self.iterationIndex=iteration
+        '''
+        Set the iteration index
+        '''
+        self._iterationIndex=iteration
     
     #ASK is this function necessary?
     #def getDataManagerFromSampler(self):
     #    return self.datamanager;
     
-    #CHANGE finalizeData is no longer optional
+    # functions
+    
+    #FIXME see parent class comment
+    def appendNewSamples(self):
+        '''
+        Sets the append attribute to true
+        '''
+        self.append=True
+    
     def finalizeSampler(self, finalizeData):
+        '''
+        Finalize the samplerMap and the data
+        @param finalizeData: Set to true if the dataManager should finalize the data
+        @change: finalizeData is no longer optional
+        '''
         lowLevelsamplers=self.getLowLevelSamplers()
-        for samplerName in lowLevelsamplers.getKeys():
-            sampler=lowLevelsamplers[samplerName]
-            if sampler in self.lowLevelsamplers:
-                raise RuntimeError("Added already added lower-level sampler \""+samplerName+"\"")
+        for sampler in lowLevelsamplers:
+            if sampler in self._samplerMap:
+                raise RuntimeError("Added already added lower-level sampler \""+sampler.getSamplerName()+"\"")
             sampler.finalizeSampler(False)
-            self._samplerMap[sampler.getsamplerName()]=sampler
+            self._samplerMap[sampler.getSamplerName()]=sampler
         
         if finalizeData:
             self._dataManager.finalizeDataManager()
     
     def copyPoolsFromSampler(self, sampler):
+        '''
+        Clears this sampler and copies all sampler pools and their corresponding priority
+        @param sampler: sampler to copy the sampler pools from
+        '''
         self._samplerPools=sampler._samplerPools.copy()
         self._samplerPoolPriorityList=sampler._samplerPoolPriorityList.copy()
         #ASK the line below was commented out in matlab code is there a reason for that? ^mw
         #self._lowerLevelSamplers=sampler.lowerLevelSamplers
-        self._samplerMap=sampler._samplerMap
+        #ASK the line has nothing to do with sampler pools, is this still correct? ^mw
+        self._samplerMap=sampler._samplerMap.copy()
     
     def copySamplerFunctionsFromPool(self,sampler,poolName):
         '''
-        Copies all sampler functions from 'poolName' in sampler
-        to to sample pool in 'this' sampler
+        Copies a sampler pool into this sampler
+        @param sampler: sampler to copy the pool from
+        @param poolName: sampler pool name to copy 
         '''
         self._samplerPools[poolName]=sampler._samplerPools[poolName]
     
     def isSamplerFunction(self, samplerName):
+        '''
+        Checks if a sampler function is part of this sampler
+        @param samplerName: name of the sampler function to test 
+        @return: true if the sampler is a sampler function of this sampler; false otherwise
+        '''
         if self.getSamplerName()==samplerName:
             return True
         else:
-            return super(DataManipulatorInterface,self).isSamplerFunction(samplerName)
+            return super().isSamplerFunction(samplerName)
     
     def callDataFunction(self,samplerName,newData,*args):
+        '''
+        Calls a data function on a given sampler
+        @param samplerName: sampler to call the function on
+        @param newData: data to pass to the function
+        @param args: further parameters to pass
+        '''
         if self.getSamplerName()==samplerName:
-            self._createSamples(newData, args)
+            self._createSamples(newData, *args)
         else:
-            super(DataManipulatorInterface,self).callDataFunction(samplerName,newData,args)
-    
-    #CHANGE we explicitly require a sampler pool in case the pool class will be altered in the future
+            super().callDataFunction(samplerName,newData,*args)
+
     def addSamplerPool(self, samplerPool):
         '''
         Adds a sampler pool to the sampler pool list
         
         @throws If a sampler pool with the same name already exists
-        @throws If a sampler pool with the same priority already exists 
+        @throws If a sampler pool with the same priority already exists
+        
+        @change: we explicitly require a sampler pool in case the pool class will be altered in the future
         '''
         if samplerPool.getName() in self._samplerPools.keys():
             raise RuntimeError("A sampler pool with the name \""+samplerPool.getName()+"\" already exists")
@@ -133,17 +175,33 @@ class Sampler(object, SamplerInterface):
                 break
         
         self._samplerPoolPriorityList.insert(index, samplerPool)
-        
-    #CHANGE flushSamplerPool got deleted. Call samplerPool[name].flush()
+    
+    def getSamplerPool(self,name):
+        '''
+        Get a reference to a sampler pool
+        @param name: Name of the sampler pool
+        @return: requested pool
+        @raise NameError: if no pool is registered under the given name
+        '''
+        return self._samplerPools[name]
+    
+    #CHANGE flushSamplerPool got deleted. Call getSamplerPool(name).flush()
         
     def addLowerLevelSampler(self, samplerPool,lowerLevelSampler,isBeginning):
+        '''
+        Adds a lower-level sampler to this sampler
+        @param samplerPool: name of the sampler pool
+        @param lowerLevelSampler: sampler to add to the pool
+        @param isBeginning: ASK what is this doing?
+        #ASK where is addSamplerFunction defined,
+        '''
         self.addSamplerFunction(samplerPool, lowerLevelSampler, isBeginning)
         self._lowerLevelSamplers.append(lowerLevelSampler)
 
     #ASK unify names as low- or lowerLevelSamplers?
     def getLowerLevelSamplers(self):
         '''
-        get all recursively invoked lower-level samplers
+        Get a list of all recursively invoked lower-level samplers
         @return: list of all lower-level samplers
         '''
         
@@ -154,20 +212,17 @@ class Sampler(object, SamplerInterface):
         
         return lowerLevelSamplersRecursive
     
-    def addSamplerFunctionToPool(self,samplerPool,samplerName,objHandle,addLocationFlag):
+    def addSamplerFunctionToPool(self,samplerPoolName,samplerName,objHandle,addLocationFlag=1):
         '''
-        #FIXME bad design?
-        #FIXME only allow 1
-        #CHANGE addLocationFlag is no longer optional
+        #FIXME this function does multiple things a once. bad design?
         Add a function or sampler to a sampler pool
         
         The function behaves differently for different values of addLocationFlag  
-        -1 will add the new samplerfunction to the beginning of the sampler pool
+        -1 will add the new sampler function to the beginning of the sampler pool
         0 will flush the entire sampler pool and only add samplerPool afterward
         1 will add the new sampler function at the end of the sampler pool.
         
-        
-        @param samplerPool: sampler pool to whom the sampler function will be included
+        @param samplerPoolName: sampler pool to whom the sampler function will be included
         @param samplerName: name of the new sampler function
         @param objHandle: function handle of the new sampler function
         @param addLocationFlag: Determines to determines the behaviour of the function.
@@ -181,13 +236,15 @@ class Sampler(object, SamplerInterface):
         sampleFunction.samplerName=samplerName
         sampleFunction.objHandle=objHandle
         
+        pool=self._samplerPools[samplerPoolName]
+        
         def case0(self):
-            self._samplerPools[samplerName].samplerList.insert(0,sampleFunction)
+            pool.samplerList.insert(0,sampleFunction)
         def case1(self):
-            self._samplerPools[samplerName].clear()
-            self._samplerPools[samplerName].append()
+            pool.clear()
+            pool.append()
         def case2(self):
-            self._samplerPools[samplerName].append()
+            pool.append()
         switch={
             0: case0,
             1: case1,
@@ -197,7 +254,7 @@ class Sampler(object, SamplerInterface):
             
     def createSamplesFromPool(self,pool,data,*args):
         '''
-        executes all functions on the samplerList of a given pool
+        Executes all functions on the samplerList of a given pool
         
         @param poolName: name of the selected pool
         @param data: the data structure the pool operates on
@@ -205,17 +262,17 @@ class Sampler(object, SamplerInterface):
         '''
         for sampler in pool.samplerList:
             objectPointer=sampler.objHandle
-            objectPointer.callDataFunction(sampler.getName(),data,args)
+            objectPointer.callDataFunction(sampler.getName(),data,*args)
 
     def sampleAllPools(self,data,*args):
         '''
-        Samples all pools
+        Sample all pools
         
         @param newData: the data structure the pool operates on
         @param *args: hierarchical indexing of the data structure
         '''
         for pool in self._samplerPoolPriorityList:
-            self.createSamplesFromPool(pool,data, args)        
+            self.createSamplesFromPool(pool,data, *args)        
     
     def createSamplesFromPoolWithPriority(self,lowPriority,highPriority,data,*args):
         '''
@@ -231,7 +288,7 @@ class Sampler(object, SamplerInterface):
                 #break if we exceed to upper bound
                 if pool.getPriority()>highPriority:
                     break
-                self.createSamplesFromPool(pool,data, args)
+                self.createSamplesFromPool(pool,data, *args)
         
     #TASK where was _addSamplerToPoolInternal used?
     #ASK addSamplerFunction referenced in MatLab code does not exists

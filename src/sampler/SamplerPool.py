@@ -28,11 +28,17 @@ class SamplerPool(object):
     def getPriority(self):
         return self._priority
     
-    #CHANGE only positive priorities are allowed [0,...] 
+     
     def _setPriority(self, priority):
+        '''
+        @change: only positive priorities are allowed [0,...] 
+        '''
         if priority<0:
-            raise RuntimeError("Priority has to be greater than zero")
+            raise RuntimeError("Priority has to be greater or equal to zero")
         self._priority=priority
     
     def flush(self):
+        '''
+        Clear all samplers in this pool
+        '''
         self.samplerList.clear(); 
