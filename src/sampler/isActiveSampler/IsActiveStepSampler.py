@@ -4,7 +4,7 @@ Created on 24.11.2015
 @author: Moritz
 '''
 
-from interfaces import DataManipulatorInterface as DataManipulatorInterface
+from interfaces import DataManipulatorInterface
 
 
 class IsActiveStepSampler(DataManipulatorInterface):

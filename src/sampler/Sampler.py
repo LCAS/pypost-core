@@ -3,7 +3,7 @@ Created on 21.11.2015
 
 @author: Moritz
 '''
-from interfaces import SamplerInterface as SamplerInterface
+from interfaces import SamplerInterface
 
 
 class Sampler(SamplerInterface):
