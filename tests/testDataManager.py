@@ -25,6 +25,14 @@ class testDataManager(unittest.TestCase):
         self.assertIs(dataManager.subDataManager.subDataManager,
                       subSubDataManager)
 
+    def test_getDataObject(self):
+        dataManager = DataManager('episodes')
+        subDataManager = DataManager('steps')
+        subSubDataManager = DataManager('subSteps')
+
+        dataManager.subDataManager = subDataManager
+        subDataManager.subDataManager = subSubDataManager
+
         dataManager.addDataEntry('parameters', 5)
         dataManager.addDataEntry('context', 2)
         subDataManager.addDataEntry('states', 1)
@@ -33,8 +41,28 @@ class testDataManager(unittest.TestCase):
         subSubDataManager.addDataEntry('subActions', 2)
 
         dataObject = dataManager.getDataObject([10, 5, 1])
-
         print(dataObject.dataStructure)
+
+        self.assertEqual(len(dataObject.dataStructure['parameters']), 10)
+        self.assertEqual(len(dataObject.dataStructure['context']), 10)
+        self.assertEqual(len(dataObject.dataStructure['parameters'][0]), 5)
+        self.assertEqual(len(dataObject.dataStructure['parameters'][9]), 5)
+        self.assertEqual(len(dataObject.dataStructure['context'][0]), 2)
+        self.assertEqual(len(dataObject.dataStructure['context'][9]), 2)
+        self.assertEqual(len(dataObject.dataStructure['steps']), 3)
+        self.assertEqual(len(dataObject.dataStructure['steps']['states']), 5)
+        self.assertEqual(len(dataObject.dataStructure['steps']['states'][0]),
+                         1)
+        self.assertEqual(len(dataObject.dataStructure['steps']['actions']), 5)
+        self.assertEqual(len(dataObject.dataStructure['steps']['actions'][0]),
+                         2)
+        self.assertEqual(len(dataObject.dataStructure['steps']['actions'][1]),
+                         2)
+        self.assertEqual(len(dataObject.dataStructure['steps']['subSteps']
+                             ['subActions']), 1)
+        self.assertEqual(len(dataObject.dataStructure['steps']['subSteps']
+                             ['subActions'][0]), 2)
+
 
     def test_addDataEntry(self):
         dataManager = DataManager('episodes')
