@@ -58,18 +58,18 @@ class testDataManager(unittest.TestCase):
         dataManager.addDataAlias('parameterAlias', {'parameters':
                                                     slice(0, 1)})
 
-        self.assertEqual(dataManager.dataAliases['parameterAlias'].entryList,
+        self.assertEqual(dataManager.dataAliases['parameterAlias'],
                          {'parameters': slice(0, 1)})
 
         dataManager.addDataAlias('parameterAlias', {'parameters':
                                                     slice(0, 2)})
 
-        self.assertEqual(dataManager.dataAliases['parameterAlias'].entryList,
+        self.assertEqual(dataManager.dataAliases['parameterAlias'],
                          {'parameters': slice(0, 2)})
-        
+
         dataManager.addDataAlias('parameterAlias', {'context': ...})
-        
-        self.assertEqual(dataManager.dataAliases['parameterAlias'].entryList, {'parameters': slice(0, 2), 'context': ...})
+
+        self.assertEqual(dataManager.dataAliases['parameterAlias'], {'parameters': slice(0, 2), 'context': ...})
 
 if __name__ == '__main__':
     unittest.main()
