@@ -87,6 +87,20 @@ class DataManager():
 
         self.dataEntries[name] = DataEntry(name, size, minRange, maxRange)
         self.addDataAlias(name, {name: Ellipsis})
+        
+    def _checkForAliasCycle(self, aliasName, entryList):
+        '''
+        Detects circular dependencies between aliases.
+        It is assumed that the entryList is valid, i.e. all entry names 
+        correspond either to valid entries or aliases.
+        '''
+        for entryName in entryList:
+            if entryName not in self.dataEntries:
+                if aliasName == entryName:
+                    return True
+                return self._checkForAliasCycle(aliasName, self.dataAliases[entryName])
+        return False
+                    
 
     def addDataAlias(self, aliasName, entryList):
         '''
@@ -97,8 +111,12 @@ class DataManager():
         '''
 
         # Ensure that all referenced names are in the entry list
-        if all(entryName in self.dataEntries for entryName in
+        if all(entryName in self.dataAliases or entryName in self.dataEntries for entryName in
                entryList.keys()):
+            
+            if self._checkForAliasCycle(aliasName, entryList):
+                raise ValueError("Alias cycle detected!")
+            
             # Test if the alias has already been defined
             if aliasName in self.dataAliases:
                 # Replace slices

@@ -57,22 +57,31 @@ class testDataManager(unittest.TestCase):
         dataManager.addDataEntry('parameters', 5, -1, 1)
         dataManager.addDataEntry('context', 5, -1, 1)
 
+        # Add alias
         dataManager.addDataAlias('parameterAlias', {'parameters':
                                                     slice(0, 1)})
-
         self.assertEqual(dataManager.dataAliases['parameterAlias'],
                          {'parameters': slice(0, 1)})
 
+        # Replace entry of same alias
         dataManager.addDataAlias('parameterAlias', {'parameters':
                                                     slice(0, 2)})
-
         self.assertEqual(dataManager.dataAliases['parameterAlias'],
                          {'parameters': slice(0, 2)})
 
+        # Add another entry to alias
         dataManager.addDataAlias('parameterAlias', {'context': ...})
-
         self.assertEqual(dataManager.dataAliases['parameterAlias'],
                          {'parameters': slice(0, 2), 'context': ...})
+        
+        # Recursive alias
+        dataManager.addDataAlias('aliasToParameterAlias', {'parameterAlias': ...})
+        self.assertEqual(dataManager.dataAliases['aliasToParameterAlias'], {'parameterAlias': ...})
+        
+        # Alias cycle
+        dataManager.addDataAlias('badAlias', {'aliasToParameterAlias' : ...})
+        self.assertRaises(ValueError, dataManager.addDataAlias, 'aliasToParameterAlias', {'badAlias' : ...})
+        self.assertRaises(ValueError, dataManager.addDataAlias, 'badAlias', {'badAlias': ...})
 
 if __name__ == '__main__':
     unittest.main()
