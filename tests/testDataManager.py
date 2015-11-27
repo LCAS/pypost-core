@@ -41,7 +41,6 @@ class testDataManager(unittest.TestCase):
         subSubDataManager.addDataEntry('subActions', 2)
 
         dataObject = dataManager.getDataObject([10, 5, 1])
-        print(dataObject.dataStructure)
 
         self.assertEqual(len(dataObject.dataStructure['parameters']), 10)
         self.assertEqual(len(dataObject.dataStructure['context']), 10)
@@ -62,7 +61,6 @@ class testDataManager(unittest.TestCase):
                              ['subActions']), 1)
         self.assertEqual(len(dataObject.dataStructure['steps']['subSteps']
                              ['subActions'][0]), 2)
-
 
     def test_addDataEntry(self):
         dataManager = DataManager('episodes')
@@ -86,30 +84,91 @@ class testDataManager(unittest.TestCase):
         dataManager.addDataEntry('context', 5, -1, 1)
 
         # Add alias
-        dataManager.addDataAlias('parameterAlias', {'parameters':
-                                                    slice(0, 1)})
+        dataManager.addDataAlias('parameterAlias', [('parameters',
+                                                    slice(0, 1))])
         self.assertEqual(dataManager.dataAliases['parameterAlias'],
-                         {'parameters': slice(0, 1)})
+                         [('parameters', slice(0, 1))])
 
         # Replace entry of same alias
-        dataManager.addDataAlias('parameterAlias', {'parameters':
-                                                    slice(0, 2)})
+        dataManager.addDataAlias('parameterAlias', [('parameters',
+                                                    slice(0, 2))])
         self.assertEqual(dataManager.dataAliases['parameterAlias'],
-                         {'parameters': slice(0, 2)})
+                         [('parameters', slice(0, 2))])
 
         # Add another entry to alias
-        dataManager.addDataAlias('parameterAlias', {'context': ...})
+        dataManager.addDataAlias('parameterAlias', [('context', ...)])
         self.assertEqual(dataManager.dataAliases['parameterAlias'],
-                         {'parameters': slice(0, 2), 'context': ...})
-        
+                         [('parameters', slice(0, 2)), ('context', ...)])
+
         # Recursive alias
-        dataManager.addDataAlias('aliasToParameterAlias', {'parameterAlias': ...})
-        self.assertEqual(dataManager.dataAliases['aliasToParameterAlias'], {'parameterAlias': ...})
-        
+        dataManager.addDataAlias('aliasToParameterAlias',
+                                 [('parameterAlias', ...)])
+        self.assertEqual(dataManager.dataAliases['aliasToParameterAlias'],
+                         [('parameterAlias', ...)])
+
         # Alias cycle
-        dataManager.addDataAlias('badAlias', {'aliasToParameterAlias' : ...})
-        self.assertRaises(ValueError, dataManager.addDataAlias, 'aliasToParameterAlias', {'badAlias' : ...})
-        self.assertRaises(ValueError, dataManager.addDataAlias, 'badAlias', {'badAlias': ...})
+        dataManager.addDataAlias('badAlias', [('aliasToParameterAlias', ...)])
+        self.assertRaises(ValueError,
+                          dataManager.addDataAlias,
+                          'aliasToParameterAlias', [('badAlias', ...)])
+        self.assertRaises(ValueError,
+                          dataManager.addDataAlias, 'badAlias',
+                          [('badAlias', ...)])
+        self.assertRaises(ValueError,
+                          dataManager.addDataAlias, 'context',
+                          [('context', ...)])
+
+
+    def test_getAliasData(self):
+        dataManager = DataManager('episodes')
+        dataManager.addDataEntry('parameters', 5)
+        dataManager.addDataEntry('context', 5)
+        dataManager.addDataAlias('parameterAlias', [('parameters',
+                                                    slice(0, 2))])
+
+        dataManager.addDataAlias('twoAlias',
+                                 [('parameters', slice(0, 2)),
+                                  ('context', slice(4, -1))])
+
+        dataObject = dataManager.getDataObject([10, 5, 1])
+
+        dataObject.dataStructure['context'][:] = np.ones(5)*2
+        dataObject.dataStructure['parameters'][:] = np.ones(5)
+
+        paramAlias = dataObject.dataStructure['parameterAlias']
+        paramAlias[0] = np.ones(5)*3
+        paramAlias[0][2] = 10
+        dataObject.dataStructure['parameterAlias'] = paramAlias
+
+        self.assertEqual(dataObject.dataStructure['parameters'][0][1], 3)
+        self.assertEqual(dataObject.dataStructure['parameters'][0][2], 10)
+
+        twoAlias = dataObject.dataStructure['twoAlias']
+        print("twoAlias", twoAlias)
+        twoAlias[0] = np.ones(5)*4
+        twoAlias[1] = np.ones(5)*5
+        twoAlias[2] = np.ones(5)*6
+        twoAlias[-1] = np.ones(5)*7
+
+        print("twoAlias", twoAlias)
+        dataObject.dataStructure['twoAlias'] = twoAlias
+
+        self.assertEqual(dataObject.dataStructure['twoAlias'][0][3], 4)
+        self.assertEqual(dataObject.dataStructure['twoAlias'][-1][3], 7)
+        self.assertEqual(dataObject.dataStructure['parameters'][0][3], 4)
+        self.assertEqual(dataObject.dataStructure['parameters'][1][3], 5)
+        self.assertEqual(dataObject.dataStructure['context'][4][3], 6)
+        self.assertEqual(dataObject.dataStructure['context'][-2][3], 7)
+
+        # TODO: remove print()s
+        print("parameters", dataObject.dataStructure['parameters'])
+        print("context", dataObject.dataStructure['context'])
+        print("parameterAlias", dataObject.dataStructure['parameterAlias'])
+        print("twoAlias", dataObject.dataStructure['twoAlias'])
+
+    def test_getAliasAliasData(self):
+        # getting the date from an alias that points to an alias
+        pass
 
 if __name__ == '__main__':
     unittest.main()

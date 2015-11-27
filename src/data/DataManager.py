@@ -1,6 +1,7 @@
 import numpy as np
 from Data import Data
 from DataEntry import DataEntry
+from DataStructure import DataStructure
 
 
 class DataManager():
@@ -84,23 +85,27 @@ class DataManager():
         dimensionality. The function automatically adds a data alias pointing
         to the same data entry.
         '''
+        # Ensure that the name of the DataEntry does not conflict with an
+        # alias name
+        if name in self.dataAliases:
+            raise ValueError("The name of an alias conflicts with a data " +
+                             "entry name: " + name)
 
         self.dataEntries[name] = DataEntry(name, size, minRange, maxRange)
-        self.addDataAlias(name, {name: Ellipsis})
-        
+
     def _checkForAliasCycle(self, aliasName, entryList):
         '''
         Detects circular dependencies between aliases.
-        It is assumed that the entryList is valid, i.e. all entry names 
+        It is assumed that the entryList is valid, i.e. all entry names
         correspond either to valid entries or aliases.
         '''
-        for entryName in entryList:
-            if entryName not in self.dataEntries:
-                if aliasName == entryName:
+        for entry in entryList:
+            if entry[0] not in self.dataEntries:
+                if aliasName == entry[0]:
                     return True
-                return self._checkForAliasCycle(aliasName, self.dataAliases[entryName])
+                return self._checkForAliasCycle(aliasName,
+                                                self.dataAliases[entry[0]])
         return False
-                    
 
     def addDataAlias(self, aliasName, entryList):
         '''
@@ -109,20 +114,40 @@ class DataManager():
         data entry should be used, use "..." instead of a slice. This means
         the alias should point to all dimensions of the data entry.
         '''
+        # TODO: check that all entries are of the same dimension
+
+        # Ensure that the name of the alias does not conflict with an
+        # DataEntry name
+        if aliasName in self.dataEntries:
+            raise ValueError("The name of an alias conflicts with a data " +
+                             "entry name: " + aliasName)
 
         # Ensure that all referenced names are in the entry list
-        if all(entryName in self.dataAliases or entryName in self.dataEntries for entryName in
-               entryList.keys()):
-            
+        if all((entry[0] in self.dataAliases or
+                entry[0] in self.dataEntries) for entry in entryList):
+
             if self._checkForAliasCycle(aliasName, entryList):
                 raise ValueError("Alias cycle detected!")
-            
+
             # Test if the alias has already been defined
             if aliasName in self.dataAliases:
-                # Replace slices
-                for entryName, sl in entryList.items():
-                    self.dataAliases[aliasName][entryName] = sl
+                # the alias exists. Check all entries of the new alias
+                for entry in entryList:
+                    i = 0
+                    entryFound = False
+                    for aliasEntryName, _ in self.dataAliases[aliasName]:
+                        if entry[0] == aliasEntryName:
+                            # replace existing entry
+                            self.dataAliases[aliasName][i] = entry
+                            entryFound = True
+                            break
+                        i += 1
+
+                    if not entryFound:
+                        # add new entry to existing entries
+                        self.dataAliases[aliasName] += [entry]
             else:
+                # add the entryList
                 self.dataAliases[aliasName] = entryList
 
             # TODO: move to Data.py
@@ -132,8 +157,8 @@ class DataManager():
             #    numDim += len(self.dataEntries[entryName][sl])
             # TODO Store alias dimensions somewhere
         else:
-            if self.subDataManager() is not None:
-                self.subDataManager().addDataAlias(aliasName, entryList)
+            if self.subDataManager is not None:
+                self.subDataManager.addDataAlias(aliasName, entryList)
             else:
                 raise ValueError("One or more of the alias entry names do " +
                                  "not exist")
@@ -187,11 +212,14 @@ class DataManager():
         else:
             numElementsCurrentLayer = numElements
 
-        dataStructure = dict()
+        dataStructure = DataStructure()
         for dataEntryName, dataEntry in self.dataEntries.items():
             dataStructure[dataEntryName] = np.zeros((numElementsCurrentLayer,
                                                     dataEntry.size),
                                                     dtype=np.float64)
+
+        for dataAliasName, dataAlias in self.dataAliases.items():
+            dataStructure[dataAliasName] = dataAlias
 
         if (self.subDataManager is not None):
             subStructure = self.subDataManager.getDataStructure(numElements)
