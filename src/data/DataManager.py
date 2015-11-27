@@ -97,28 +97,29 @@ class DataManager():
         '''
 
         # Ensure that all referenced names are in the entry list
-        if all(entryName in self.dataEntries for entryName in entryList.keys()):
+        if all(entryName in self.dataEntries for entryName in
+               entryList.keys()):
             # Test if the alias has already been defined
             if aliasName in self.dataAliases:
                 # Replace slices
-                for entryName, indices in entryList.items():
-                    self.dataAliases[aliasName][entryName] = indices
+                for entryName, sl in entryList.items():
+                    self.dataAliases[aliasName][entryName] = sl
             else:
                 self.dataAliases[aliasName] = entryList
 
             # TODO: move to Data.py
             # Computes the total number of dimensions for the alias
             #numDim = 0
-            #for entryName, indices in self.dataAliases[aliasName].items():
-            #    print("dd", entryName, indices)
-            #    numDim += len(self.dataEntries[entryName][indices])
+            #for entryName, sl in self.dataAliases[aliasName].items():
+            #    numDim += len(self.dataEntries[entryName][sl])
             # TODO Store alias dimensions somewhere
         else:
             if self.subDataManager() is not None:
                 self.subDataManager().addDataAlias(aliasName, entryList)
             else:
-                raise ValueError("One or more of the alias entry names do not exist")
-            
+                raise ValueError("One or more of the alias entry names do " +
+                                 "not exist")
+
     def getAliasNames(self):
         '''
         Returns the names of all aliases (including subdatamanagers)
@@ -127,7 +128,7 @@ class DataManager():
         if (self.subDataManager() is not None):
             names += self.subDataManager().getAliasNames()
         return names;
-    
+
     def getElementNames(self):
         '''
         Returns the names of all data entries (including subdatamanagers)
@@ -136,20 +137,19 @@ class DataManager():
         if (self.subDataManager() is not None):
             names += self.subDataManager().getElementNames()
         return names
-    
+
     def getAliasNamesLocal(self):
         '''
         Returns the names of all aliases (only of this data manager)
         '''
         return self.dataAliases.keys()
-    
+
     def getElementNamesLocal(self):
         '''
         Returns the names of all data entries (only of this data manager)
         '''
         return self.dataEntries.keys()
-    
-        
+
     def getDataObject(self, numElements):
         '''
         Creates a new data object with numElements data points, whereas
@@ -157,7 +157,6 @@ class DataManager():
         of the hierarchy. If no numElements are defined, the size of the data
         object is the standard size (numStepsStorage).
         '''
-        print(self.getDataStructure(numElements))
         return Data(self, self.getDataStructure(numElements))
 
     def getDataStructure(self, numElements):
@@ -170,11 +169,8 @@ class DataManager():
         else:
             numElementsCurrentLayer = numElements
 
-        print(numElements)
-
         dataStructure = dict()
         for dataEntryName, dataEntry in self.dataEntries.items():
-            print(dataEntryName, dataEntry.size)
             dataStructure[dataEntryName] = np.zeros((numElementsCurrentLayer,
                                                     dataEntry.size),
                                                     dtype=np.float64)

@@ -32,7 +32,9 @@ class testDataManager(unittest.TestCase):
         subSubDataManager.addDataEntry('subStates', 1)
         subSubDataManager.addDataEntry('subActions', 2)
 
-        dataManager.getDataObject([10, 5, 1])
+        dataObject = dataManager.getDataObject([10, 5, 1])
+
+        print(dataObject.dataStructure)
 
     def test_addDataEntry(self):
         dataManager = DataManager('episodes')
@@ -69,7 +71,8 @@ class testDataManager(unittest.TestCase):
 
         dataManager.addDataAlias('parameterAlias', {'context': ...})
 
-        self.assertEqual(dataManager.dataAliases['parameterAlias'], {'parameters': slice(0, 2), 'context': ...})
+        self.assertEqual(dataManager.dataAliases['parameterAlias'],
+                         {'parameters': slice(0, 2), 'context': ...})
 
 if __name__ == '__main__':
     unittest.main()
