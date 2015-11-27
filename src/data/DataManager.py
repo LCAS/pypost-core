@@ -118,7 +118,38 @@ class DataManager():
                 self.subDataManager().addDataAlias(aliasName, entryList)
             else:
                 raise ValueError("One or more of the alias entry names do not exist")
-
+            
+    def getAliasNames(self):
+        '''
+        Returns the names of all aliases (including subdatamanagers)
+        '''
+        names = self.dataAliases.keys()
+        if (self.subDataManager() is not None):
+            names += self.subDataManager().getAliasNames()
+        return names;
+    
+    def getElementNames(self):
+        '''
+        Returns the names of all data entries (including subdatamanagers)
+        '''
+        names = self.dataEntries.keys()
+        if (self.subDataManager() is not None):
+            names += self.subDataManager().getElementNames()
+        return names
+    
+    def getAliasNamesLocal(self):
+        '''
+        Returns the names of all aliases (only of this data manager)
+        '''
+        return self.dataAliases.keys()
+    
+    def getElementNamesLocal(self):
+        '''
+        Returns the names of all data entries (only of this data manager)
+        '''
+        return self.dataEntries.keys()
+    
+        
     def getDataObject(self, numElements):
         '''
         Creates a new data object with numElements data points, whereas
