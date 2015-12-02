@@ -1,5 +1,6 @@
 import numpy as np
 from Data import Data
+from DataAlias import DataAlias
 from DataEntry import DataEntry
 from DataStructure import DataStructure
 
@@ -109,10 +110,14 @@ class DataManager():
 
     def addDataAlias(self, aliasName, entryList):
         '''
-        Adds a data alias with the name "aliasName". entryList should be a
-        dict of data entries and slices to these data entries. If the whole
-        data entry should be used, use "..." instead of a slice. This means
-        the alias should point to all dimensions of the data entry.
+        Add a new data alias.
+        @param aliasName the name of the alias
+        @param entryList a dict of data entries and slices to these data
+                         entries. If the whole data entry should be used, use
+                         "..." instead of a slice. This means the alias should
+                         point to all dimensions of the data entry.
+                         see DataAlias.py for more information about the format
+                         of this parameter
         '''
         # TODO: check that all entries are of the same dimension
 
@@ -152,8 +157,8 @@ class DataManager():
 
             # TODO: move to Data.py
             # Computes the total number of dimensions for the alias
-            #numDim = 0
-            #for entryName, sl in self.dataAliases[aliasName].items():
+            # numDim = 0
+            # for entryName, sl in self.dataAliases[aliasName].items():
             #    numDim += len(self.dataEntries[entryName][sl])
             # TODO Store alias dimensions somewhere
         else:
@@ -168,17 +173,17 @@ class DataManager():
         Returns the names of all aliases (including subdatamanagers)
         '''
         names = self.dataAliases.keys()
-        if (self.subDataManager() is not None):
-            names += self.subDataManager().getAliasNames()
-        return names;
+        if (self.subDataManager is not None):
+            names += self.subDataManager.getAliasNames()
+        return names
 
     def getElementNames(self):
         '''
         Returns the names of all data entries (including subdatamanagers)
         '''
         names = self.dataEntries.keys()
-        if (self.subDataManager() is not None):
-            names += self.subDataManager().getElementNames()
+        if (self.subDataManager is not None):
+            names += self.subDataManager.getElementNames()
         return names
 
     def getAliasNamesLocal(self):
@@ -195,16 +200,21 @@ class DataManager():
 
     def getDataObject(self, numElements):
         '''
-        Creates a new data object with numElements data points, whereas
-        numElements is a vector defining the number of elements for each layer
-        of the hierarchy. If no numElements are defined, the size of the data
-        object is the standard size (numStepsStorage).
+        Creates a new data object with numElements data points.
+        @param numElements a vector defining the number of elements for each
+                           layer of the hierarchy.
+                           This parameter may also be an integer, in which case
+                           all layers will have the same number of data points
         '''
-        return Data(self, self.getDataStructure(numElements))
+        return Data(self, self._createDataStructure(numElements))
 
-    def getDataStructure(self, numElements):
+    def _createDataStructure(self, numElements):
         '''
         Creates the data structure (containing real data) for the data object
+        @param numElements a vector defining the number of elements for each
+                           layer of the hierarchy.
+                           This parameter may also be an integer, in which case
+                           all layers will have the same number of data points
         '''
         if isinstance(numElements, list):
             numElementsCurrentLayer = numElements[0]
@@ -219,10 +229,15 @@ class DataManager():
                                                     dtype=np.float64)
 
         for dataAliasName, dataAlias in self.dataAliases.items():
-            dataStructure[dataAliasName] = dataAlias
+            dataStructure[dataAliasName] = DataAlias(dataAliasName, dataAlias)
 
         if (self.subDataManager is not None):
-            subStructure = self.subDataManager.getDataStructure(numElements)
-            dataStructure[self.subDataManager.name] = subStructure
+            subDataStructures = []
+
+            for i in range(0, numElementsCurrentLayer):
+                subDS = self.subDataManager._createDataStructure(numElements)
+                subDataStructures.append(subDS)
+
+            dataStructure[self.subDataManager.name] = subDataStructures
 
         return dataStructure
