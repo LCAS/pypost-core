@@ -48,19 +48,29 @@ class testDataManager(unittest.TestCase):
         self.assertEqual(len(dataObject.dataStructure['parameters'][9]), 5)
         self.assertEqual(len(dataObject.dataStructure['context'][0]), 2)
         self.assertEqual(len(dataObject.dataStructure['context'][9]), 2)
-        self.assertEqual(len(dataObject.dataStructure['steps']), 3)
-        self.assertEqual(len(dataObject.dataStructure['steps']['states']), 5)
-        self.assertEqual(len(dataObject.dataStructure['steps']['states'][0]),
-                         1)
-        self.assertEqual(len(dataObject.dataStructure['steps']['actions']), 5)
-        self.assertEqual(len(dataObject.dataStructure['steps']['actions'][0]),
-                         2)
-        self.assertEqual(len(dataObject.dataStructure['steps']['actions'][1]),
-                         2)
-        self.assertEqual(len(dataObject.dataStructure['steps']['subSteps']
-                             ['subActions']), 1)
-        self.assertEqual(len(dataObject.dataStructure['steps']['subSteps']
-                             ['subActions'][0]), 2)
+        self.assertEqual(len(dataObject.dataStructure['steps']), 10)
+        self.assertEqual(len(dataObject.dataStructure['steps'][0]), 3)
+        self.assertEqual(
+            len(dataObject.dataStructure['steps'][0]['states']), 5)
+        self.assertEqual(
+            len(dataObject.dataStructure['steps'][0]['states'][0]), 1)
+        self.assertEqual(
+            len(dataObject.dataStructure['steps'][0]['actions']), 5)
+        self.assertEqual(
+            len(dataObject.dataStructure['steps'][0]['actions'][0]), 2)
+        self.assertEqual(
+            len(dataObject.dataStructure['steps'][0]['actions'][1]), 2)
+        self.assertEqual(
+            len(dataObject.dataStructure['steps'][0]['subSteps']), 5)
+        self.assertEqual(
+            len(dataObject.dataStructure['steps'][0]['subSteps'][0]
+                ['subActions']), 1)
+        self.assertEqual(
+            len(dataObject.dataStructure['steps'][0]['subSteps'][0]
+                ['subActions']), 1)
+        self.assertEqual(
+            len(dataObject.dataStructure['steps'][0]['subSteps'][0]
+                ['subActions'][0]), 2)
 
     def test_addDataEntry(self):
         dataManager = DataManager('episodes')
@@ -117,7 +127,6 @@ class testDataManager(unittest.TestCase):
         self.assertRaises(ValueError,
                           dataManager.addDataAlias, 'context',
                           [('context', ...)])
-
 
     def test_getAliasData(self):
         dataManager = DataManager('episodes')
