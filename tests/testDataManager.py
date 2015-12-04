@@ -178,6 +178,52 @@ class testDataManager(unittest.TestCase):
     def test_getAliasAliasData(self):
         # getting the date from an alias that points to an alias
         pass
+    
+    def test_reserveStorage(self):
+        dataManager = DataManager('episodes')
+        dataManager.addDataEntry('parameters', 5)
+        dataManager.addDataEntry('context', 2)
+        
+        subDataManager = DataManager('steps')
+        subDataManager.addDataEntry('states', 2)
+        subDataManager.addDataEntry('actions', 2)
+        
+        dataManager.subDataManager = subDataManager
+        
+        data = dataManager.getDataObject([100, 20])
+        
+        data.reserveStorage([20, 20])
+        
+        self.assertEqual(data.dataStructure['context'].shape[0], 20)
+        self.assertEqual(data.dataStructure['parameters'].shape[0], 20)
+        
+        for i in range(0, 20):
+            self.assertEqual(data.dataStructure['steps'][i]['states'].shape[0],
+                              20)
+            self.assertEqual(data.dataStructure['steps'][i]['actions'].shape[0],
+                              20)
+        
+        data.reserveStorage([50, 100])
+
+        self.assertEqual(data.dataStructure['context'].shape[0], 50)
+        self.assertEqual(data.dataStructure['parameters'].shape[0], 50)
+        
+        for i in range(0, 50):
+            self.assertEqual(data.dataStructure['steps'][i]['states'].shape[0],
+                              100)
+            self.assertEqual(data.dataStructure['steps'][i]['actions'].shape[0],
+                              100)
+            
+        data.reserveStorage([50, 0])
+        
+        self.assertEqual(data.dataStructure['context'].shape[0], 50)
+        self.assertEqual(data.dataStructure['parameters'].shape[0], 50)
+        
+        for i in range(0, 50):
+            self.assertEqual(data.dataStructure['steps'][i]['states'].shape[0],
+                              0)
+            self.assertEqual(data.dataStructure['steps'][i]['actions'].shape[0],
+                              0)
 
 if __name__ == '__main__':
     unittest.main()

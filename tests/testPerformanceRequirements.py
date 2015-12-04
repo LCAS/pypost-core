@@ -57,6 +57,8 @@ class testPerformanceRequirements(unittest.TestCase):
         end = time.time()
         self.assertFastEnough("getDataObject", end - start)
         
+        print(end - start)
+        
         start = time.time()
         #Data.reserveStorage([100, 20, 5]) # FIXME Not implemented yet
         end = time.time()

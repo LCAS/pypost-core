@@ -20,7 +20,7 @@ class Data(object):
         '''
         Constructor
         '''
-        self.dataManger = dataManager
+        self.dataManager = dataManager
         self.dataStructure = dataStructure
 
         self.initDataStructureEntries()
@@ -76,3 +76,6 @@ class Data(object):
             indices = [indices]
 
         return self.dataStructure.setDataEntry(path, indices, data)
+
+    def reserveStorage(self, numElements):
+        self.dataManager.reserveStorage(self.dataStructure, numElements)
