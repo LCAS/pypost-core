@@ -116,3 +116,4 @@ class DataStructure():
                     data = np.vstack((data, subData))
 
             return data
+            

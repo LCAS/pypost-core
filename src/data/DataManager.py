@@ -225,7 +225,7 @@ class DataManager():
         dataStructure = DataStructure()
         for dataEntryName, dataEntry in self.dataEntries.items():
             dataStructure[dataEntryName] = np.zeros((numElementsCurrentLayer,
-                                                    dataEntry.size),
+                                                     dataEntry.size),
                                                     dtype=np.float64)
 
         for dataAliasName, dataAlias in self.dataAliases.items():
@@ -241,3 +241,34 @@ class DataManager():
             dataStructure[self.subDataManager.name] = subDataStructures
 
         return dataStructure
+
+    def reserveStorage(self, dataStructure, numElements):
+        '''
+        Reserves more storage for a data structure. numElements can be a vector
+        that also contains the number of data points to add to the lower levels
+        of the hierarchy. This function should only be called by the data
+        object.
+        @param dataStructure the DataStructure to be modified
+        @param numElements a vector containing the number of elements to add
+               for each layer
+        '''
+        numElementsLocal = numElements
+        if isinstance(numElements, list):
+            numElementsLocal = numElements[0]
+            numElements = numElements[1:]
+
+        for name, entry in self.dataEntries.items():
+            currentSize = dataStructure.dataStructureLocalLayer[
+                name].shape[0]
+            if currentSize < numElementsLocal:
+                dataStructure.dataStructureLocalLayer[name] = np.vstack(
+                    (dataStructure.dataStructureLocalLayer[name],
+                     np.zeros((numElementsLocal - currentSize, entry.size))))
+            else:
+                dataStructure.dataStructureLocalLayer[name] = np.delete(
+                    dataStructure.dataStructureLocalLayer[name],
+                    slice(numElementsLocal, None, None), 0)
+
+        if self.subDataManager is not None and numElements:
+            for subStructure in dataStructure.dataStructureLocalLayer[self.subDataManager.name]:
+                self.subDataManager.reserveStorage(subStructure, numElements)
