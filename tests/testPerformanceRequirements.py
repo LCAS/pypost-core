@@ -13,6 +13,8 @@ from DataManager import DataManager
 class testPerformanceRequirements(unittest.TestCase):
 
     def __init__(self, methodName='runTest'):
+        self.startTime = 0
+        self.endTime = 0
         self.performanceTests = {}
 
         with open('performance_tests.tsv', 'r') as file:
@@ -25,14 +27,22 @@ class testPerformanceRequirements(unittest.TestCase):
                     'domain': domain, 'description': description, 'time': float(time)}
 
         unittest.TestCase.__init__(self, methodName=methodName)
+        
+    def start(self):
+        self.startTime = time.time()
+        
+    def stop(self):
+        self.endTime = time.time()
 
-
-    def assertFastEnough(self, testName, time):
+    def compareToReferenceTime(self, testName):
+        delta = self.endTime - self.startTime
         self.assertIn(
             testName, self.performanceTests, "Performance test %s is not defined" % testName)
-        reference = self.performanceTests[testName]['time']
-        self.assertLessEqual(
-            time, reference, "Time requirement for %s not met (Expected less than %f, measured %f)" % (testName, reference, time))
+        referenceTime = self.performanceTests[testName]['time']
+        if delta <= referenceTime:
+            print("Time requirement for %s met: Expected less than %f, measured %f. Speedup: %f" % (testName, referenceTime, delta, referenceTime / delta))
+        else:
+            self.fail("Time requirement for %s not met (Expected less than %f, measured %f)" % (testName, referenceTime, delta))
 
     def test_DataManager(self):
         dataManager = DataManager("episodes")
@@ -52,16 +62,30 @@ class testPerformanceRequirements(unittest.TestCase):
         dataManager.subDataManager = subDataManager
         subDataManager.subDataManager = subSubDataManager
 
-        start = time.time()
+        self.start()
         myData = dataManager.getDataObject([100, 10, 5])
-        end = time.time()
-        self.assertFastEnough("getDataObject", end - start)
+        self.stop()
+        self.compareToReferenceTime('getDataObject')
         
-        print(end - start)
+        self.start()
+        myData.reserveStorage([100, 20, 5])
+        self.stop()
+        self.compareToReferenceTime('reserveStorage')
         
-        start = time.time()
-        #Data.reserveStorage([100, 20, 5]) # FIXME Not implemented yet
-        end = time.time()
-        self.assertFastEnough("reserveStorage", end - start)
+        actions = np.random.random((2000, 2))
+        subActions = np.random.random((10000, 2))
         
+        self.start()
+        myData.setDataEntry(['steps', 'actions'], [..., ...], actions)
+        self.stop()
+        self.compareToReferenceTime('setDataEntry1')
         
+        self.start()
+        myData.setDataEntry(['steps', 'substeps', 'subActions'], [..., ..., ...], subActions)
+        self.stop()
+        self.compareToReferenceTime('setDataEntry2')
+        
+        self.start()
+        myData.getDataEntry(['steps', 'substeps', 'subActions'])
+        self.stop()
+        self.compareToReferenceTime('getDataEntry')
