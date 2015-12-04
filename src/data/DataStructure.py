@@ -46,6 +46,9 @@ class DataStructure():
             self.dataStructureLocalLayer[name] = item
 
     def __getitem__(self, name):
+        if name not in self.dataStructureLocalLayer:
+            raise ValueError("The element '" + str(name) + "' does not exist.")
+
         if isinstance(self.dataStructureLocalLayer[name], np.ndarray):
             # directly return the data from the data array
             return self.dataStructureLocalLayer[name]
@@ -91,11 +94,11 @@ class DataStructure():
             raise ValueError("Empty paths are not allowed")
         elif len(path) == 1:
             # get the data from the current layer
-            if indices[0] == 1:
+            if indices[0] == Ellipsis:
+                return self.dataStructureLocalLayer[path[0]]
+            else:
                 return np.array(
                     [self.dataStructureLocalLayer[path[0]][indices[0]]])
-            else:
-                return self.dataStructureLocalLayer[path[0]][indices[0]]
 
         else:
             # get the data from lower layers
@@ -116,4 +119,66 @@ class DataStructure():
                     data = np.vstack((data, subData))
 
             return data
-            
+
+    def setDataEntry(self, path, indices, data):
+        '''
+        Sets the data points for the required data entry (or
+        alias).
+        @param path the path to the requested entry as an array.
+                    e.g. ['steps', 'subSteps', 'subActions']
+        @param indices the hierarchical indices (depending on the hierarchy, it
+                       can have different number of elements) as an array.
+                       If the number of indices is less than the depth of the
+                       hierarchy (less than the length of the path), all other
+                       indices will be treated as "...".
+                       indices may also be a number which is equivalent to an
+                       array containing only one element
+        '''
+
+        while len(indices) < len(path):
+            indices.append(...)
+
+        if len(path) == 0:
+            raise ValueError("Empty paths are not allowed")
+        elif len(path) == 1:
+            # set the data in the current layer
+
+            if indices[0] == Ellipsis:
+                # set the data for all iterations of the requested entry
+                self.dataStructureLocalLayer[path[0]] = data
+            else:
+                # set the data for a single iteration of the requested entry
+
+                if len(data.shape) == 2:
+                    # we only want to store a single vector, not an array
+                    # containing only this vector (we want [1, 1] instead of
+                    # [[1,1]])
+
+                    if data.shape[0] != 1:
+                        raise ValueError('The given data object is a ' +
+                                         'matrix, not a vector.')
+
+                    data = data[0]
+
+                self.dataStructureLocalLayer[path[0]][indices[0]] = data
+
+        else:
+            # set the data in lower layers
+            subLayers = None
+
+            if indices[0] == Ellipsis:
+                # devide the data into len(subLayers) parts and pass each of
+                # these subData's to the corresponding subLayer
+                subLayers = self.dataStructureLocalLayer[path[0]]
+                subDataLen = int(data.shape[0]/len(subLayers))
+
+                i = 0
+                for subDS in subLayers:
+                    subData = data[i*subDataLen:(i+1)*subDataLen]
+                    subDS.setDataEntry(path[1:], indices[1:], subData)
+                    i += 1
+
+            else:
+                # pass the data to excaltly one lower layer
+                subDS = self.dataStructureLocalLayer[path[0]][indices[0]]
+                subDS.setDataEntry(path[1:], indices[1:], data)

@@ -40,36 +40,36 @@ class testDataManager(unittest.TestCase):
         subSubDataManager.addDataEntry('subStates', 1)
         subSubDataManager.addDataEntry('subActions', 2)
 
-        dataObject = dataManager.getDataObject([10, 5, 1])
+        myData = dataManager.getDataObject([10, 5, 1])
 
-        self.assertEqual(len(dataObject.dataStructure['parameters']), 10)
-        self.assertEqual(len(dataObject.dataStructure['context']), 10)
-        self.assertEqual(len(dataObject.dataStructure['parameters'][0]), 5)
-        self.assertEqual(len(dataObject.dataStructure['parameters'][9]), 5)
-        self.assertEqual(len(dataObject.dataStructure['context'][0]), 2)
-        self.assertEqual(len(dataObject.dataStructure['context'][9]), 2)
-        self.assertEqual(len(dataObject.dataStructure['steps']), 10)
-        self.assertEqual(len(dataObject.dataStructure['steps'][0]), 3)
+        self.assertEqual(len(myData.dataStructure['parameters']), 10)
+        self.assertEqual(len(myData.dataStructure['context']), 10)
+        self.assertEqual(len(myData.dataStructure['parameters'][0]), 5)
+        self.assertEqual(len(myData.dataStructure['parameters'][9]), 5)
+        self.assertEqual(len(myData.dataStructure['context'][0]), 2)
+        self.assertEqual(len(myData.dataStructure['context'][9]), 2)
+        self.assertEqual(len(myData.dataStructure['steps']), 10)
+        self.assertEqual(len(myData.dataStructure['steps'][0]), 3)
         self.assertEqual(
-            len(dataObject.dataStructure['steps'][0]['states']), 5)
+            len(myData.dataStructure['steps'][0]['states']), 5)
         self.assertEqual(
-            len(dataObject.dataStructure['steps'][0]['states'][0]), 1)
+            len(myData.dataStructure['steps'][0]['states'][0]), 1)
         self.assertEqual(
-            len(dataObject.dataStructure['steps'][0]['actions']), 5)
+            len(myData.dataStructure['steps'][0]['actions']), 5)
         self.assertEqual(
-            len(dataObject.dataStructure['steps'][0]['actions'][0]), 2)
+            len(myData.dataStructure['steps'][0]['actions'][0]), 2)
         self.assertEqual(
-            len(dataObject.dataStructure['steps'][0]['actions'][1]), 2)
+            len(myData.dataStructure['steps'][0]['actions'][1]), 2)
         self.assertEqual(
-            len(dataObject.dataStructure['steps'][0]['subSteps']), 5)
+            len(myData.dataStructure['steps'][0]['subSteps']), 5)
         self.assertEqual(
-            len(dataObject.dataStructure['steps'][0]['subSteps'][0]
+            len(myData.dataStructure['steps'][0]['subSteps'][0]
                 ['subActions']), 1)
         self.assertEqual(
-            len(dataObject.dataStructure['steps'][0]['subSteps'][0]
+            len(myData.dataStructure['steps'][0]['subSteps'][0]
                 ['subActions']), 1)
         self.assertEqual(
-            len(dataObject.dataStructure['steps'][0]['subSteps'][0]
+            len(myData.dataStructure['steps'][0]['subSteps'][0]
                 ['subActions'][0]), 2)
 
     def test_addDataEntry(self):
@@ -139,20 +139,20 @@ class testDataManager(unittest.TestCase):
                                  [('parameters', slice(0, 2)),
                                   ('context', slice(4, -1))])
 
-        dataObject = dataManager.getDataObject([10, 5, 1])
+        myData = dataManager.getDataObject([10, 5, 1])
 
-        dataObject.dataStructure['context'][:] = np.ones(5)*2
-        dataObject.dataStructure['parameters'][:] = np.ones(5)
+        myData.dataStructure['context'][:] = np.ones(5)*2
+        myData.dataStructure['parameters'][:] = np.ones(5)
 
-        paramAlias = dataObject.dataStructure['parameterAlias']
+        paramAlias = myData.dataStructure['parameterAlias']
         paramAlias[0] = np.ones(5)*3
         paramAlias[0][2] = 10
-        dataObject.dataStructure['parameterAlias'] = paramAlias
+        myData.dataStructure['parameterAlias'] = paramAlias
 
-        self.assertEqual(dataObject.dataStructure['parameters'][0][1], 3)
-        self.assertEqual(dataObject.dataStructure['parameters'][0][2], 10)
+        self.assertEqual(myData.dataStructure['parameters'][0][1], 3)
+        self.assertEqual(myData.dataStructure['parameters'][0][2], 10)
 
-        twoAlias = dataObject.dataStructure['twoAlias']
+        twoAlias = myData.dataStructure['twoAlias']
         print("twoAlias", twoAlias)
         twoAlias[0] = np.ones(5)*4
         twoAlias[1] = np.ones(5)*5
@@ -160,20 +160,20 @@ class testDataManager(unittest.TestCase):
         twoAlias[-1] = np.ones(5)*7
 
         print("twoAlias", twoAlias)
-        dataObject.dataStructure['twoAlias'] = twoAlias
+        myData.dataStructure['twoAlias'] = twoAlias
 
-        self.assertEqual(dataObject.dataStructure['twoAlias'][0][3], 4)
-        self.assertEqual(dataObject.dataStructure['twoAlias'][-1][3], 7)
-        self.assertEqual(dataObject.dataStructure['parameters'][0][3], 4)
-        self.assertEqual(dataObject.dataStructure['parameters'][1][3], 5)
-        self.assertEqual(dataObject.dataStructure['context'][4][3], 6)
-        self.assertEqual(dataObject.dataStructure['context'][-2][3], 7)
+        self.assertEqual(myData.dataStructure['twoAlias'][0][3], 4)
+        self.assertEqual(myData.dataStructure['twoAlias'][-1][3], 7)
+        self.assertEqual(myData.dataStructure['parameters'][0][3], 4)
+        self.assertEqual(myData.dataStructure['parameters'][1][3], 5)
+        self.assertEqual(myData.dataStructure['context'][4][3], 6)
+        self.assertEqual(myData.dataStructure['context'][-2][3], 7)
 
         # TODO: remove print()s
-        print("parameters", dataObject.dataStructure['parameters'])
-        print("context", dataObject.dataStructure['context'])
-        print("parameterAlias", dataObject.dataStructure['parameterAlias'])
-        print("twoAlias", dataObject.dataStructure['twoAlias'])
+        print("parameters", myData.dataStructure['parameters'])
+        print("context", myData.dataStructure['context'])
+        print("parameterAlias", myData.dataStructure['parameterAlias'])
+        print("twoAlias", myData.dataStructure['twoAlias'])
 
     def test_getAliasAliasData(self):
         # getting the date from an alias that points to an alias
