@@ -93,6 +93,7 @@ class DataManager():
                              "entry name: " + name)
 
         self.dataEntries[name] = DataEntry(name, size, minRange, maxRange)
+        self.dataAliases[name] = DataAlias(name, {'name': ...}, size)
 
     def _checkForAliasCycle(self, aliasName, entryList):
         '''
@@ -105,7 +106,8 @@ class DataManager():
                 if aliasName == entry[0]:
                     return True
                 return self._checkForAliasCycle(aliasName,
-                                                self.dataAliases[entry[0]])
+                                                self.dataAliases[entry[0]]
+                                                .entryList)
         return False
 
     def addDataAlias(self, aliasName, entryList):
@@ -140,27 +142,30 @@ class DataManager():
                 for entry in entryList:
                     i = 0
                     entryFound = False
-                    for aliasEntryName, _ in self.dataAliases[aliasName]:
+                    for aliasEntryName, _ in self.dataAliases[aliasName].entryList:
                         if entry[0] == aliasEntryName:
                             # replace existing entry
-                            self.dataAliases[aliasName][i] = entry
+                            self.dataAliases[aliasName].entryList[i] = entry
                             entryFound = True
                             break
                         i += 1
 
                     if not entryFound:
                         # add new entry to existing entries
-                        self.dataAliases[aliasName] += [entry]
+                        self.dataAliases[aliasName].entryList.append(entry)
             else:
                 # add the entryList
-                self.dataAliases[aliasName] = entryList
+                self.dataAliases[aliasName] = DataAlias(aliasName, entryList, 0)
 
-            # TODO: move to Data.py
             # Computes the total number of dimensions for the alias
-            # numDim = 0
-            # for entryName, sl in self.dataAliases[aliasName].items():
-            #    numDim += len(self.dataEntries[entryName][sl])
-            # TODO Store alias dimensions somewhere
+            numDim = 0
+            for entryName, _slice in self.dataAliases[aliasName].entryList:
+                if entryName in self.dataEntries:
+                    tmpArray = np.empty((self.dataEntries[entryName].size,))
+                    numDim += len(tmpArray[_slice])
+                else:
+                    numDim += self.dataAliases[entryName].numDimensions
+            self.dataAliases[aliasName].numDimensions = numDim
         else:
             if self.subDataManager is not None:
                 self.subDataManager.addDataAlias(aliasName, entryList)
@@ -229,12 +234,13 @@ class DataManager():
                                                     dtype=np.float64)
 
         for dataAliasName, dataAlias in self.dataAliases.items():
-            dataStructure[dataAliasName] = DataAlias(dataAliasName, dataAlias)
+            if dataAliasName not in self.dataEntries:
+                dataStructure[dataAliasName] = dataAlias
 
         if (self.subDataManager is not None):
             subDataStructures = []
 
-            for i in range(0, numElementsCurrentLayer):
+            for _ in range(0, numElementsCurrentLayer):
                 subDS = self.subDataManager._createDataStructure(numElements)
                 subDataStructures.append(subDS)
 
