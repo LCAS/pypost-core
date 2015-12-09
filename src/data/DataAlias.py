@@ -3,7 +3,7 @@ class DataAlias():
     DataAliases are subsets or concatinations of DataEntries.
     '''
 
-    def __init__(self, aliasName, entryList):
+    def __init__(self, aliasName, entryList, numDimensions):
         '''
         @param aliasName The name of the alias
         @param entryList A list of entry names and the corresponding slices
@@ -12,3 +12,4 @@ class DataAlias():
         '''
         self.aliasName = aliasName
         self.entryList = entryList
+        self.numDimensions = numDimensions
