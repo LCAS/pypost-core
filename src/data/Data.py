@@ -9,6 +9,7 @@ Notes: matlab.getDataEntry('actions', :, 1, -1)
 '''
 
 import numpy as np
+#from DataManager import DataManager
 
 
 class Data(object):
@@ -27,6 +28,9 @@ class Data(object):
 
     def initDataStructureEntries(self):
         pass
+
+    def getDataEntryInfo(self, entryPath):
+        return self.dataManager.getDataEntryInfo()
 
     def getDataEntry(self, path, indices=[]):
         '''
@@ -76,6 +80,47 @@ class Data(object):
             indices = [indices]
 
         return self.dataStructure.setDataEntry(path, indices, data)
+
+    def getDataEntryList(self, entryPaths, indices):
+        '''
+        Similar to getDataEntry, but returns a list of results for each entry.
+        '''
+        dataEntryList = []
+        for entry in entryPaths:
+            if isinstance(entry[0], list):
+                stackedEntry = []
+                for subEntry in entry:
+                    if not stackedEntry:
+                        stackedEntry = self.getDataEntry(subEntry, indices)
+                    else:
+                        stackedEntry = np.hstack(stackedEntry,
+                                                 self.getDataEntry(subEntry,
+                                                                   indices))
+                dataEntryList.append(stackedEntry)
+            else:
+                dataEntryList.append(self.getDataEntry(entry, indices))
+        return dataEntryList
+
+    def setDataEntryList(self, entryPaths, dataEntryList, indices):
+        '''
+        Similar to setDataEntry, but works for lists of entries.
+        '''
+        for i in range(0, len(entryPaths)):
+            entry = entryPaths[i]
+            if isinstance(entry[0], list):
+                index = 0
+                for j in range(0, len(entry)):
+                    subEntry = entry[j]
+                    # TODO: This is terribly inefficient and should be improved
+                    # by looking up entry data
+                    numDimensions = self.getDataEntry(subEntry, ...).shape[1]
+                    dataMatrix = \
+                        dataEntryList[i][:, index:(index+numDimensions)]
+                    self.setDataEntry(subEntry, indices, dataMatrix)
+                    index += numDimensions
+                pass
+            else:
+                self.setDataEntry(entry, indices, dataEntryList[i])
 
     def reserveStorage(self, numElements):
         self.dataManager.reserveStorage(self.dataStructure, numElements)
