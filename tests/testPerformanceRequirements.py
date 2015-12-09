@@ -4,7 +4,6 @@ import csv
 import sys
 import numpy as np
 from numpy import ones
-from numpy.doc import performance
 sys.path.append('../src/data')
 from DataEntry import DataEntry
 from DataManager import DataManager

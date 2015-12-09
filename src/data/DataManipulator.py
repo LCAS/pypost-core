@@ -170,6 +170,11 @@ class DataManipulator(DataManipulatorInterface):
 
     def _callDataFunctionInternal(self, dataManipulationStruct, data,
                                   registerOutput, indices):
+        '''
+        Calls the data function using the right call type.
+        If registerOutput is set, the resulting data will be written back
+        into the object.
+        '''
 
         if dataManipulationStruct.callType is CallType.PER_EPISODE:
             indices = data.completeLayerIndex(2, indices)  # TODO: Not implemented yet
@@ -182,3 +187,13 @@ class DataManipulator(DataManipulatorInterface):
             for i in range(0, numLayers):
                 # TODO: wtf am I supposed to do here?
                 pass
+            
+    def _callDataFuntionInternalMatrices(self, dataManipulationStruct, numElements, data, inputArgs):
+        '''
+        Directly calls the manipulation function and returns the result matrix.
+        '''
+        # It is here assumed that the sampler function doesn't take data. 
+        # Not sure where this would be useful?
+        result = dataManipulationStruct.function(numElements, inputArgs)
+        return result
+        

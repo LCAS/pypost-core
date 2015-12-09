@@ -1,6 +1,7 @@
 import unittest
 import sys
 import numpy as np
+from numpy.core.numeric import ones
 sys.path.append('../src/data')
 from DataEntry import DataEntry
 from DataManager import DataManager
@@ -214,6 +215,54 @@ class testDataManager(unittest.TestCase):
                                 [2, 3, 2]) ==
             np.array([[1, 1]])
         ).all())
+        
+    def test_getDataEntryList(self):
+        dataManager = DataManager('episodes')
+        dataManager.addDataEntry('parameters', 5)
+        dataManager.addDataEntry('context', 3)
+        myData = dataManager.getDataObject([1])
+
+        # set the data for the parameters and context of all episodes
+        myData.setDataEntry(['parameters'], [...], np.ones((5)))
+        myData.setDataEntry(['context'], [...], np.ones((3)))
+        
+        result = myData.getDataEntryList([['parameters'], ['context']], [...])
+        
+        self.assertTrue(isinstance(result, list))
+        self.assertTrue((result[0] == np.ones((5))).all())
+        self.assertTrue((result[1] == np.ones((3))).all())
+        
+        result = myData.getDataEntryList([[['parameters'], ['context']]], [...])
+        
+        self.assertEqual(len(result), 1)
+        self.assertTrue((result[0] == np.ones((8))).all())
+        
+        
+    def test_setDataEntryList(self):
+        dataManager = DataManager('episodes')
+        dataManager.addDataEntry('parameters', 5)
+        dataManager.addDataEntry('context', 3)
+        myData = dataManager.getDataObject([1])
+
+        # set the data for the parameters and context of all episodes
+        myData.setDataEntry(['parameters'], [...], np.ones((5)))
+        myData.setDataEntry(['context'], [...], np.ones((3)))
+
+        myData.setDataEntryList(['parameters', 'context'], [...],
+                                 [np.zeros((5)), np.zeros((3))])
+        
+        self.assertTrue((myData.getDataEntry('parameters', [...]) ==
+                          np.zeros((5))).all())
+        self.assertTrue((myData.getDataEntry('context', [...]) ==
+                          np.zeros((3))).all())
+
+        myData.setDataEntryList([[['parameters'], ['context']]], [...],
+                                np.hstack((np.ones((5)), 2 * np.ones((3)))))
+        
+        self.assertTrue((myData.getDataEntry('parameters', [...]) ==
+                          np.ones((5))).all())
+        self.assertTrue((myData.getDataEntry('context', [...]) ==
+                          2 * np.ones((5))).all())
 
 if __name__ == '__main__':
     unittest.main()

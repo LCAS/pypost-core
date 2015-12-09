@@ -9,7 +9,6 @@ Notes: matlab.getDataEntry('actions', :, 1, -1)
 '''
 
 import numpy as np
-#from DataManager import DataManager
 
 
 class Data(object):
@@ -88,20 +87,20 @@ class Data(object):
         dataEntryList = []
         for entry in entryPaths:
             if isinstance(entry[0], list):
-                stackedEntry = []
+                stackedEntry = None
                 for subEntry in entry:
-                    if not stackedEntry:
+                    if stackedEntry is None:
                         stackedEntry = self.getDataEntry(subEntry, indices)
                     else:
-                        stackedEntry = np.hstack(stackedEntry,
+                        stackedEntry = np.hstack((stackedEntry,
                                                  self.getDataEntry(subEntry,
-                                                                   indices))
+                                                                   indices)))
                 dataEntryList.append(stackedEntry)
             else:
                 dataEntryList.append(self.getDataEntry(entry, indices))
         return dataEntryList
 
-    def setDataEntryList(self, entryPaths, dataEntryList, indices):
+    def setDataEntryList(self, entryPaths, indices, dataEntryList):
         '''
         Similar to setDataEntry, but works for lists of entries.
         '''

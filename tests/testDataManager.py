@@ -96,24 +96,24 @@ class testDataManager(unittest.TestCase):
         # Add alias
         dataManager.addDataAlias('parameterAlias', [('parameters',
                                                     slice(0, 1))])
-        self.assertEqual(dataManager.dataAliases['parameterAlias'],
+        self.assertEqual(dataManager.dataAliases['parameterAlias'].entryList,
                          [('parameters', slice(0, 1))])
 
         # Replace entry of same alias
         dataManager.addDataAlias('parameterAlias', [('parameters',
                                                     slice(0, 2))])
-        self.assertEqual(dataManager.dataAliases['parameterAlias'],
+        self.assertEqual(dataManager.dataAliases['parameterAlias'].entryList,
                          [('parameters', slice(0, 2))])
 
         # Add another entry to alias
         dataManager.addDataAlias('parameterAlias', [('context', ...)])
-        self.assertEqual(dataManager.dataAliases['parameterAlias'],
+        self.assertEqual(dataManager.dataAliases['parameterAlias'].entryList,
                          [('parameters', slice(0, 2)), ('context', ...)])
 
         # Recursive alias
         dataManager.addDataAlias('aliasToParameterAlias',
                                  [('parameterAlias', ...)])
-        self.assertEqual(dataManager.dataAliases['aliasToParameterAlias'],
+        self.assertEqual(dataManager.dataAliases['aliasToParameterAlias'].entryList,
                          [('parameterAlias', ...)])
 
         # Alias cycle
