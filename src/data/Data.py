@@ -162,7 +162,7 @@ class Data(object):
         '''
         dataEntryList = []
         for entry in entryPaths:
-            if isinstance(entry[0], list):
+            if isinstance(entry, tuple):
                 stackedEntry = None
                 for subEntry in entry:
                     if stackedEntry is None:
@@ -182,18 +182,19 @@ class Data(object):
         '''
         for i in range(0, len(entryPaths)):
             entry = entryPaths[i]
-            if isinstance(entry[0], list):
+            if isinstance(entry, tuple):
                 index = 0
                 for j in range(0, len(entry)):
                     subEntry = entry[j]
-                    # TODO: This is terribly inefficient and should be improved
-                    # by looking up entry data
-                    numDimensions = self.entryInfoMap[subEntry[-1]].numDimensions
+                    subEntryName = subEntry
+                    if isinstance(subEntryName, list):
+                        subEntryName = subEntry[-1]
+                    numDimensions = self.entryInfoMap[subEntryName].numDimensions
                     dataMatrix = dataEntryList[i]
                     if len(dataMatrix.shape) == 1:
-                        dataMatrix = dataMatrix[index:(index+numDimensions)]
+                        dataMatrix = dataMatrix[index:(index + numDimensions)]
                     else:
-                        dataMatrix = dataMatrix[:, index:(index+numDimensions)]
+                        dataMatrix = dataMatrix[:, index:(index + numDimensions)]
                     self.setDataEntry(subEntry, indices, dataMatrix)
                     index += numDimensions
                 pass

@@ -227,13 +227,13 @@ class testDataManager(unittest.TestCase):
         myData.setDataEntry(['parameters'], [...], np.ones((5)))
         myData.setDataEntry(['context'], [...], np.ones((3)))
         
-        result = myData.getDataEntryList([['parameters'], ['context']], [...])
+        result = myData.getDataEntryList(['parameters', 'context'], [...])
         
         self.assertTrue(isinstance(result, list))
         self.assertTrue((result[0] == np.ones((5))).all())
         self.assertTrue((result[1] == np.ones((3))).all())
         
-        result = myData.getDataEntryList([[['parameters'], ['context']]], [...])
+        result = myData.getDataEntryList([('parameters', 'context')], [...])
         
         self.assertEqual(len(result), 1)
         self.assertTrue((result[0] == np.ones((8))).all())
@@ -257,7 +257,7 @@ class testDataManager(unittest.TestCase):
         self.assertTrue((myData.getDataEntry('context', [...]) ==
                           np.zeros((3))).all())
 
-        myData.setDataEntryList([[['parameters'], ['context']]], [...],
+        myData.setDataEntryList([('parameters', 'context')], [...],
                                 [np.hstack((np.ones((5)), 2 * np.ones((3))))])
         
         self.assertTrue((myData.getDataEntry('parameters', [...]) ==
