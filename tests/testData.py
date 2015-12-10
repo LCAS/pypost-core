@@ -5,6 +5,7 @@ from numpy.core.numeric import ones
 sys.path.append('../src/data')
 from DataEntry import DataEntry
 from DataManager import DataManager
+import DataUtil
 
 
 class testDataManager(unittest.TestCase):
@@ -257,12 +258,41 @@ class testDataManager(unittest.TestCase):
                           np.zeros((3))).all())
 
         myData.setDataEntryList([[['parameters'], ['context']]], [...],
-                                np.hstack((np.ones((5)), 2 * np.ones((3)))))
+                                [np.hstack((np.ones((5)), 2 * np.ones((3))))])
         
         self.assertTrue((myData.getDataEntry('parameters', [...]) ==
                           np.ones((5))).all())
         self.assertTrue((myData.getDataEntry('context', [...]) ==
-                          2 * np.ones((5))).all())
+                          2 * np.ones((3))).all())
+        
+    def test_getNumElements(self):
+        manager = DataUtil.createTestManager()
+        data = manager.getDataObject([3, 4, 5])
+        
+        self.assertEqual(data.getNumElements(), 3)
+        self.assertEqual(data.getNumElements('states'), 12)
+        self.assertEqual(data.getNumElements('subActions'), 60)
+        self.assertEqual(data.getNumElements('context'), 3)
+        
+    def test_getNumElementsForIndex(self):
+        manager = DataUtil.createTestManager()
+        data = manager.getDataObject([3, 4, 5])
+        
+        self.assertEqual(data.getNumElementsForIndex(0), 3)
+        self.assertEqual(data.getNumElementsForIndex(0, [...]), 3)
+        self.assertEqual(data.getNumElementsForIndex(1), 12)
+        self.assertEqual(data.getNumElementsForIndex(1, [...]), 12)
+        self.assertEqual(data.getNumElementsForIndex(1, [..., ...]), 12)
+        self.assertEqual(data.getNumElementsForIndex(1, [..., slice(0,2)]), 6)
+        self.assertEqual(data.getNumElementsForIndex(1, [slice(2,3), slice(0,2)]), 2)
+        self.assertEqual(data.getNumElementsForIndex(2), 60)
+        self.assertEqual(data.getNumElementsForIndex(2, [...]), 60)
+        self.assertEqual(data.getNumElementsForIndex(2, [..., ...]), 60)
+        self.assertEqual(data.getNumElementsForIndex(2, [..., ..., ...]), 60)
+        self.assertEqual(data.getNumElementsForIndex(2, [..., ..., slice(0,2)]), 24)
+        self.assertEqual(data.getNumElementsForIndex(2, [..., slice(1,4), slice(0,2)]), 18)
+        self.assertEqual(data.getNumElementsForIndex(2, [slice(0,1), slice(2,3), slice(0,2)]), 2)
+
 
 if __name__ == '__main__':
     unittest.main()

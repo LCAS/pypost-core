@@ -73,7 +73,7 @@ class testPerformanceRequirements(unittest.TestCase):
         
         actions = np.random.random((2000, 2))
         subActions = np.random.random((10000, 2))
-        
+    
         self.start()
         myData.setDataEntry(['steps', 'actions'], [..., ...], actions)
         self.stop()
@@ -88,3 +88,19 @@ class testPerformanceRequirements(unittest.TestCase):
         myData.getDataEntry(['steps', 'substeps', 'subActions'])
         self.stop()
         self.compareToReferenceTime('getDataEntry')
+   
+        self.start()
+        for i in range(0, 100):
+            entryList = myData.getDataEntryList([['steps', 'actions'], ['steps', 'substeps', 'subActions']], [0, 1, 0])
+        self.stop()
+        self.compareToReferenceTime('getDataEntryCellArray')
+
+        entryList[1] = 2 * entryList[1]
+        self.start()
+        for i in range(0, 100):
+            myData.setDataEntryList([['steps', 'actions'], ['steps', 'substeps', 'subActions']], [0, 1, 0], entryList)
+        self.stop()
+        self.compareToReferenceTime('setDataEntryCellArray')
+        
+if __name__ == '__main__':
+    unittest.main()

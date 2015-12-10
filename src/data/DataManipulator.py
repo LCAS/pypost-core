@@ -7,6 +7,7 @@ Created on Dec 7, 2015
 from DataManager import DataManager
 from interfaces.DataManipulatorInterface import DataManipulatorInterface
 from enum import Enum
+import numpy as np
 
 CallType = Enum('CallType', 'SINGLE_SAMPLE ALL_AT_ONCE PER_EPISODE')
 
@@ -16,14 +17,15 @@ class DataManipulationFunction(object):
     Represents a data manipulation function used in the DataManipulator class.
     '''
 
-    def __init__(self, function, inputArguments, outputArguments, indices,
-                 callType, takesNumElements):
+    def __init__(self, function, inputArguments, outputArguments, depthEntry, indices,
+                 takesNumElements, callType):
         '''
         Constructor
         '''
         self.function = function
         self.inputArguments = inputArguments
         self.outputArguments = outputArguments
+        self.depthEntry = depthEntry
         self.indices = indices
         self.callType = callType
         self.takesNumElements = takesNumElements
@@ -149,11 +151,20 @@ class DataManipulator(DataManipulatorInterface):
         if not isinstance(outputArguments, list):
             outputArguments = [outputArguments]
 
+        depthEntry = ''
+        if outputArguments:
+            depthEntry = outputArguments[0]
+        else:
+            for inputArg in inputArguments:
+                if inputArg:
+                    depthEntry = inputArg
+                    break
+
         indices = [] # FIXME: ??
 
         dmf = DataManipulationFunction(function, inputArguments,
-                                       outputArguments, indices,
-                                       callType, takesNumElements)
+                                       outputArguments, depthEntry,
+                                       indices, takesNumElements, callType)
         self._manipulationFunctions[function.__name__] = dmf
 
         if function.__name__ in self._samplerFunctions:
@@ -175,25 +186,76 @@ class DataManipulator(DataManipulatorInterface):
         If registerOutput is set, the resulting data will be written back
         into the object.
         '''
+        callData = True
 
         if dataManipulationStruct.callType is CallType.PER_EPISODE:
             indices = data.completeLayerIndex(2, indices)  # TODO: Not implemented yet
 
         if dataManipulationStruct.callType is CallType.SINGLE_SAMPLE or \
                 dataManipulationStruct.callType is CallType.PER_EPISODE:
+            outArgs = None
             numLayers = len(indices)
             if dataManipulationStruct.callType is CallType.PER_EPISODE:
                 numLayers = 1
             for i in range(0, numLayers):
-                # TODO: wtf am I supposed to do here?
-                pass
-            
-    def _callDataFuntionInternalMatrices(self, dataManipulationStruct, numElements, data, inputArgs):
+                # This is somewhat hacky
+                indexRange = range(0, indices[i].stop)[indices[i]]
+                if len(indexRange) > 1:
+                    callData = False
+                    for j in indexRange:
+                        indicesSingle = indices
+                        indicesSingle[i] = slice(j, j+1)
+                        if registerOutput:
+                            self._callDataFunctionInternal(
+                                dataManipulationStruct,
+                                data,
+                                registerOutput,
+                                indicesSingle)
+                        else:
+                            tempOut = self._callDataFunctionInternal(
+                                    dataManipulationStruct,
+                                    data,
+                                    registerOutput,
+                                    indicesSingle)
+                            if outArgs is None:
+                                outArgs = tempOut
+                            else:
+                                outArgs = np.vstack((outArgs, tempOut))
+            # Do something here with outArgs
+            return outArgs
+
+        if callData:
+            inputArgs = data.getDataEntryList(
+                            dataManipulationStruct.inputArguments, indices)
+
+            for i, arg in enumerate(inputArgs):
+                inputArgs[i] = arg # TODO: Select columns based on indices
+                
+            if dataManipulationStruct.takesNumElements:
+                outputDepth = self._dataManager.getDataEntryDepth(dataManipulationStruct.depthEntry)
+                numElements = data.getNumElementsForIndex(outputDepth, indices)
+
+            outArgs = self._callDataFuntionInternalMatrices(
+                            dataManipulationStruct, data, numElements, inputArgs)
+            if registerOutput:
+                data.setDataEntryList(dataManipulationStruct.outputArguments,
+                                      indices, outArgs)
+
+            return outArgs
+
+    def _callDataFuntionInternalMatrices(self, dataManipulationStruct,
+                                         data, numElements, inputArgs):
         '''
         Directly calls the manipulation function and returns the result matrix.
         '''
-        # It is here assumed that the sampler function doesn't take data. 
+        # It is here assumed that the sampler function doesn't take data.
         # Not sure where this would be useful?
-        result = dataManipulationStruct.function(numElements, inputArgs)
+        if inputArgs:
+            result = self._unpackAndInvoke(dataManipulationStruct.function, numElements, inputArgs)
+        else:
+            result = self._unpackAndInvoke(dataManipulationStruct.function, numElements)
         return result
-        
+
+    def _unpackAndInvoke(self, function, *args):
+        print(*args)
+        return function(*args)

@@ -1,4 +1,5 @@
 import numpy as np
+import numbers
 from Data import Data
 from DataAlias import DataAlias
 from DataEntry import DataEntry
@@ -62,6 +63,18 @@ class DataManager():
         self.__subDataManager = None
         self.dataEntries = dict()
         self.dataAliases = dict()
+        self._dirty = True
+        self._finalized = False
+        self._depthMap = {}
+        self._subDataManagerList = []
+
+    @property
+    def finalized(self):
+        return self._finalized
+
+    @finalized.getter
+    def finalized(self):
+        return self._finalized
 
     @property
     def subDataManager(self):
@@ -77,7 +90,7 @@ class DataManager():
         '''Getter for the subDataManager'''
         return self.__subDataManager
 
-    def addDataEntry(self, name, size, minRange=-1, maxRange=1):
+    def addDataEntry(self, name, numDimensions, minRange=-1, maxRange=1):
         '''
         Function for adding a new data entry. If the same data entry already
         exists, then the properties are overwritten. minRange and maxRange are
@@ -86,14 +99,26 @@ class DataManager():
         dimensionality. The function automatically adds a data alias pointing
         to the same data entry.
         '''
+        if self.finalized:
+            raise RuntimeError("The data manager cannot be modified after "
+                               "it has been finalized")
+
         # Ensure that the name of the DataEntry does not conflict with an
         # alias name
         if name in self.dataAliases:
             raise ValueError("The name of an alias conflicts with a data " +
                              "entry name: " + name)
 
-        self.dataEntries[name] = DataEntry(name, size, minRange, maxRange)
-        self.dataAliases[name] = DataAlias(name, {'name': ...}, size)
+        if isinstance(minRange, numbers.Number):
+            minRange = minRange * np.ones((numDimensions))
+
+        if isinstance(maxRange, numbers.Number):
+            maxRange = maxRange * np.ones((numDimensions))
+
+        self.dataEntries[name] = DataEntry(name, numDimensions, minRange, maxRange)
+        self.dataAliases[name] = DataAlias(name, [(name, ...)], numDimensions)
+
+        self._dirty = True
 
     def _checkForAliasCycle(self, aliasName, entryList):
         '''
@@ -121,6 +146,11 @@ class DataManager():
                          see DataAlias.py for more information about the format
                          of this parameter
         '''
+
+        if self.finalized:
+            raise RuntimeError("The data manager cannot be modified after "
+                               "it has been finalized")
+
         # TODO: check that all entries are of the same dimension
 
         # Ensure that the name of the alias does not conflict with an
@@ -142,7 +172,8 @@ class DataManager():
                 for entry in entryList:
                     i = 0
                     entryFound = False
-                    for aliasEntryName, _ in self.dataAliases[aliasName].entryList:
+                    for aliasEntryName, _ in \
+                            self.dataAliases[aliasName].entryList:
                         if entry[0] == aliasEntryName:
                             # replace existing entry
                             self.dataAliases[aliasName].entryList[i] = entry
@@ -155,13 +186,15 @@ class DataManager():
                         self.dataAliases[aliasName].entryList.append(entry)
             else:
                 # add the entryList
-                self.dataAliases[aliasName] = DataAlias(aliasName, entryList, 0)
+                self.dataAliases[aliasName] = DataAlias(aliasName, entryList,
+                                                        0)
 
             # Computes the total number of dimensions for the alias
             numDim = 0
             for entryName, _slice in self.dataAliases[aliasName].entryList:
                 if entryName in self.dataEntries:
-                    tmpArray = np.empty((self.dataEntries[entryName].size,))
+                    tmpArray = np.empty((self.dataEntries[entryName]
+                                         .numDimensions))
                     numDim += len(tmpArray[_slice])
                 else:
                     numDim += self.dataAliases[entryName].numDimensions
@@ -172,23 +205,98 @@ class DataManager():
             else:
                 raise ValueError("One or more of the alias entry names do " +
                                  "not exist")
+        self._dirty = True
+
+    def getDataAlias(self, aliasName):
+        if aliasName in self.dataAliases:
+            return self.dataAliases[aliasName]
+        if self.subDataManager is not None:
+            return self.subDataManager.getDataAlias(aliasName)
+        raise ValueError("Alias of name %s is not defined" % aliasName)
+
+    def getDataEntryDepth(self, entryName):
+        if self._dirty:
+            self.updateDepthMap(False)
+        if entryName not in self._depthMap:
+            raise ValueError("Entry %s is not registered!" % entryName)
+        return self._depthMap[entryName]
+
+    def getMinRange(self, entryNames):
+        '''
+        Returns a list of vectors with the minRange values for each entry.
+        Also works for a single entry name.
+        '''
+        if isinstance(entryNames, list):
+            minRange = []
+            for name in entryNames:
+                minRange.append(self.getMinRange(name))
+            return minRange
+        name = entryNames
+
+        if name in self.dataAliases:
+            alias = self.dataAliases[name]
+            minRange = np.zeros((alias.numDimensions))
+            index = 0
+            for entryName, _slice in alias.entryList:
+                entry = self.dataEntries[entryName]
+                tempMinRange = entry.minRange[_slice]
+                minRange[index:(index + len(tempMinRange))] = tempMinRange
+                index += len(tempMinRange)
+            return minRange
+
+        if self.subDataManager is not None:
+            return self.subDataManager.getMinRange(name)
+
+        raise ValueError("Entry %s is not registered!" % name)
+
+    def getMaxRange(self, entryNames):
+        '''
+        Returns a list of vectors with the maxRange values for each entry.
+        Also works for a single entry name.
+        '''
+        if isinstance(entryNames, list):
+            maxRange = []
+            for name in entryNames:
+                maxRange.append(self.getMaxRange(name))
+            return maxRange
+        name = entryNames
+
+        if name in self.dataAliases:
+            alias = self.dataAliases[name]
+            maxRange = np.zeros((alias.numDimensions))
+            index = 0
+            for entryName, _slice in alias.entryList:
+                entry = self.dataEntries[entryName]
+                tempMaxRange = entry.maxRange[_slice]
+                maxRange[index:(index + len(tempMaxRange))] = tempMaxRange
+                index += len(tempMaxRange)
+            return maxRange
+
+        if self.subDataManager is not None:
+            return self.subDataManager.getMinRange(name)
+
+        raise ValueError("Entry %s is not registered!" % name)
 
     def getAliasNames(self):
         '''
         Returns the names of all aliases (including subdatamanagers)
         '''
-        names = self.dataAliases.keys()
+        names = []
+        for name in self.dataAliases.keys():
+            names.append(name)
         if (self.subDataManager is not None):
-            names += self.subDataManager.getAliasNames()
+            names.extend(self.subDataManager.getAliasNames())
         return names
 
     def getElementNames(self):
         '''
         Returns the names of all data entries (including subdatamanagers)
         '''
-        names = self.dataEntries.keys()
+        names = []
+        for name in self.dataEntries.keys():
+            names.append(name)
         if (self.subDataManager is not None):
-            names += self.subDataManager.getElementNames()
+            names.extend(self.subDataManager.getElementNames())
         return names
 
     def getAliasNamesLocal(self):
@@ -211,7 +319,37 @@ class DataManager():
                            This parameter may also be an integer, in which case
                            all layers will have the same number of data points
         '''
+        if not self.finalized:
+            self.finalize()
         return Data(self, self._createDataStructure(numElements))
+
+    def finalize(self):
+        self.updateDepthMap(True)
+
+    def updateDepthMap(self, _finalize):
+        if self._dirty:
+            subManager = self
+            depth = 0
+
+            self._subDataManagerList.append(self)
+
+            while subManager is not None:
+
+                entryNames = subManager.getAliasNamesLocal()
+                for entryName in entryNames:
+                    self._depthMap[entryName] = depth
+
+                if depth > 0:
+                    subManager.updateDepthMap(_finalize)
+                    self._subDataManagerList.append(subManager)
+
+                depth += 1
+                subManager = subManager.subDataManager
+
+        self._dirty = False
+
+        if _finalize:
+            self._finalized = True
 
     def _createDataStructure(self, numElements):
         '''
@@ -230,7 +368,7 @@ class DataManager():
         dataStructure = DataStructure()
         for dataEntryName, dataEntry in self.dataEntries.items():
             dataStructure[dataEntryName] = np.zeros((numElementsCurrentLayer,
-                                                     dataEntry.size),
+                                                     dataEntry.numDimensions),
                                                     dtype=np.float64)
 
         for dataAliasName, dataAlias in self.dataAliases.items():
@@ -269,12 +407,13 @@ class DataManager():
             if currentSize < numElementsLocal:
                 dataStructure.dataStructureLocalLayer[name] = np.vstack(
                     (dataStructure.dataStructureLocalLayer[name],
-                     np.zeros((numElementsLocal - currentSize, entry.size))))
+                     np.zeros((numElementsLocal - currentSize, entry.numDimensions))))
             else:
                 dataStructure.dataStructureLocalLayer[name] = np.delete(
                     dataStructure.dataStructureLocalLayer[name],
                     slice(numElementsLocal, None, None), 0)
 
         if self.subDataManager is not None and numElements:
-            for subStructure in dataStructure.dataStructureLocalLayer[self.subDataManager.name]:
+            for subStructure in dataStructure. \
+                    dataStructureLocalLayer[self.subDataManager.name]:
                 self.subDataManager.reserveStorage(subStructure, numElements)

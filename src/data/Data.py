@@ -11,6 +11,20 @@ Notes: matlab.getDataEntry('actions', :, 1, -1)
 import numpy as np
 
 
+class DataEntryInfo(object):
+    '''
+    Stores meta data about entries and aliases.
+    '''
+
+    def __init__(self, depth, entryList, numDimensions,
+                 minRange, maxRange):
+        self.depth = depth
+        self.entryList = entryList
+        self.numDimensions = numDimensions
+        self.minRange = minRange
+        self.maxRange = maxRange
+
+
 class Data(object):
     '''
     classdocs
@@ -22,14 +36,63 @@ class Data(object):
         '''
         self.dataManager = dataManager
         self.dataStructure = dataStructure
+        self.entryInfoMap = {}
 
-        self.initDataStructureEntries()
+        self.init()
 
-    def initDataStructureEntries(self):
-        pass
+    def init(self):
+        '''
+        Stores meta data for each data entry to make access simple and fast.
+        '''
+        aliasNames = self.dataManager.getAliasNames()
+        for name in aliasNames:
+            depth = self.dataManager.getDataEntryDepth(name)
+            alias = self.dataManager.getDataAlias(name)
+            self.entryInfoMap[name] = \
+                DataEntryInfo(depth, alias.entryList, alias.numDimensions,
+                              self.dataManager.getMinRange(name),
+                              self.dataManager.getMaxRange(name))
 
-    def getDataEntryInfo(self, entryPath):
-        return self.dataManager.getDataEntryInfo()
+    def getNumElements(self, entryName=None):
+        '''
+        Returns the number of elements for the given data entry.
+        (depends on the hierarchy level of the entry).
+        '''
+        depth = 0
+        if entryName is not None:
+            depth = self.entryInfoMap[entryName].depth
+        return self.getNumElementsForDepth(depth)
+
+    def getNumElementsForDepth(self, depth):
+        '''
+        Returns the number of elements for the given depth of
+        the hierarchy.
+        '''
+        return self.getNumElementsForIndex(depth, [])
+
+    def getNumElementsForIndex(self, depth, indices=[]):
+        while len(indices) <= depth:
+            indices.append(...)
+
+        numElements = 1
+        dm = self.dataManager
+        subStructure = self.dataStructure
+        while depth > 0:
+            dm = dm.subDataManager
+            subStructureList = subStructure[dm.name]
+            if indices[0] is not Ellipsis:
+                subStructureList = subStructureList[indices[0]]
+            numElements *= len(subStructureList)
+            subStructure = subStructureList[0]
+            indices = indices[1:]
+            depth -= 1
+
+        for name, entry in subStructure.dataStructureLocalLayer.items():
+            if isinstance(entry, np.ndarray):
+                numElements *= subStructure[name][indices[0]].shape[0]
+                break
+
+        return numElements
 
     def getDataEntry(self, path, indices=[]):
         '''
@@ -112,9 +175,12 @@ class Data(object):
                     subEntry = entry[j]
                     # TODO: This is terribly inefficient and should be improved
                     # by looking up entry data
-                    numDimensions = self.getDataEntry(subEntry, ...).shape[1]
-                    dataMatrix = \
-                        dataEntryList[i][:, index:(index+numDimensions)]
+                    numDimensions = self.entryInfoMap[subEntry[-1]].numDimensions
+                    dataMatrix = dataEntryList[i]
+                    if len(dataMatrix.shape) == 1:
+                        dataMatrix = dataMatrix[index:(index+numDimensions)]
+                    else:
+                        dataMatrix = dataMatrix[:, index:(index+numDimensions)]
                     self.setDataEntry(subEntry, indices, dataMatrix)
                     index += numDimensions
                 pass

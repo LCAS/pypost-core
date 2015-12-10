@@ -90,6 +90,9 @@ class DataStructure():
         while len(indices) < len(path):
             indices.append(...)
 
+        if len(indices) > len(path):
+            indices = indices[0:len(path)]
+
         if len(path) == 0:
             raise ValueError("Empty paths are not allowed")
         elif len(path) == 1:

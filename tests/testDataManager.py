@@ -79,7 +79,7 @@ class testDataManager(unittest.TestCase):
 
         self.assertIsInstance(dataManager.dataEntries, dict)
         self.assertIsInstance(dataManager.dataEntries['parameters'], DataEntry)
-        self.assertEqual(dataManager.dataEntries['parameters'].size, 5)
+        self.assertEqual(dataManager.dataEntries['parameters'].numDimensions, 5)
         self.assertTrue((dataManager.dataEntries['parameters'].minRange ==
                          [-1, -1, -1, -1, -1]).all())
         self.assertTrue((dataManager.dataEntries['parameters'].maxRange ==
