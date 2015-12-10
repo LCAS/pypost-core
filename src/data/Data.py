@@ -9,6 +9,7 @@ Notes: matlab.getDataEntry('actions', :, 1, -1)
 '''
 
 import numpy as np
+from IPython.external.path._path import path
 
 
 class DataEntryInfo(object):
@@ -70,6 +71,19 @@ class Data(object):
         '''
         return self.getNumElementsForIndex(depth, [])
 
+    def _resolveEntryPath(self, name):
+        path = []
+        if name in self.entryInfoMap:
+            depth = self.entryInfoMap[name].depth
+            dataManager = self.dataManager.subDataManager
+            while dataManager is not None and depth > 0:
+                path.append(dataManager.name)
+                dataManager = dataManager.subDataManager
+                depth -= 1
+        path.append(name)
+        # print("%s -> %s" % (name, path))
+        return path
+
     def getNumElementsForIndex(self, depth, indices=[]):
         while len(indices) <= depth:
             indices.append(...)
@@ -97,10 +111,9 @@ class Data(object):
     def getDataEntry(self, path, indices=[]):
         '''
         Returns the data points from the required data entry (or alias).
-        @param path the path to the requested entry as an array.
-                    e.g. ['steps', 'subSteps', 'subActions']
-                    path may also be a string which is equivalent to an array
-                    containing only one element
+        @param path the path to the requested entry as an array
+                    e.g. ['steps', 'subSteps', 'subActions'] or
+                    simply the name of the entry.
         @param indices the hierarchical indices (depending on the hierarchy, it
                        can have different number of elements) as an array.
                        If this parameter is omitted or the number of indices is
@@ -111,7 +124,7 @@ class Data(object):
                        array containing only one element
         '''
         if isinstance(path, str):
-            path = [path]
+            path = self._resolveEntryPath(path)
 
         if isinstance(indices, int) or indices == Ellipsis:
             indices = [indices]
@@ -136,7 +149,7 @@ class Data(object):
                        second episode has the index '1'.
         '''
         if isinstance(path, str):
-            path = [path]
+            path = self._resolveEntryPath(path)
 
         if isinstance(indices, int) or indices == Ellipsis:
             indices = [indices]

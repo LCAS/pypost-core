@@ -90,6 +90,17 @@ class DataManager():
         '''Getter for the subDataManager'''
         return self.__subDataManager
 
+    def getSubDataManagerForDepth(self, depth):
+        '''
+        Returns the DataManager for the given depth.
+        Returns None if depth is out of range.
+        '''
+        if self._dirty:
+            self.updateDepthMap(False)
+        if depth >= 0 and depth < len(self._subDataManagerList):
+            return self._subDataManagerList[depth]
+        return None
+
     def addDataEntry(self, name, numDimensions, minRange=-1, maxRange=1):
         '''
         Function for adding a new data entry. If the same data entry already

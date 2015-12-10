@@ -265,6 +265,35 @@ class testDataManager(unittest.TestCase):
         self.assertTrue((myData.getDataEntry('context', [...]) ==
                           2 * np.ones((3))).all())
         
+    def test_resolvePath(self):
+        manager = DataUtil.createTestManager()
+        data = manager.getDataObject([10, 20 , 30])
+        
+        self.assertTrue(['context'] == data._resolveEntryPath('context'))
+        self.assertTrue(['steps', 'states'] == data._resolveEntryPath('states'))
+        self.assertTrue(['steps', 'subSteps', 'subActions'] == data._resolveEntryPath('subActions'))
+        
+        data.setDataEntry(['parameters'], [...], np.zeros((10)))
+        data.setDataEntry('parameters', [...], np.ones((10)))
+        self.assertTrue((data.getDataEntry(['parameters'], [...]) == 
+                         np.ones((10))).all())
+        self.assertTrue((data.getDataEntry('parameters', [...]) == 
+                         np.ones((10))).all())
+        
+        data.setDataEntry(['steps', 'actions'], [0, ...], np.zeros((20)))
+        data.setDataEntry('actions', [0, ...], np.ones((20)))
+        self.assertTrue((data.getDataEntry(['steps', 'actions'], [0, ...]) == 
+                         np.ones((20))).all())
+        self.assertTrue((data.getDataEntry('actions', [0, ...]) == 
+                         np.ones((20))).all())
+                
+        data.setDataEntry(['steps', 'subSteps', 'subStates'], [0, 0, ...], np.zeros((30)))
+        data.setDataEntry('subStates', [0, 0, ...], np.ones((30)))
+        self.assertTrue((data.getDataEntry(['steps', 'subSteps', 'subStates'], [0, 0, ...]) == 
+                         np.ones((30))).all())
+        self.assertTrue((data.getDataEntry('subStates', [0, 0, ...]) == 
+                         np.ones((30))).all())
+                
     def test_getNumElements(self):
         manager = DataUtil.createTestManager()
         data = manager.getDataObject([3, 4, 5])
