@@ -1,6 +1,9 @@
 import numpy as np
-from data.Data import Data
-from data.DataEntry import DataEntry
+import numbers
+from Data import Data
+from DataAlias import DataAlias
+from DataEntry import DataEntry
+from DataStructure import DataStructure
 
 
 class DataManager():
@@ -60,6 +63,18 @@ class DataManager():
         self.__subDataManager = None
         self.dataEntries = dict()
         self.dataAliases = dict()
+        self._dirty = True
+        self._finalized = False
+        self._depthMap = {}
+        self._subDataManagerList = []
+
+    @property
+    def finalized(self):
+        return self._finalized
+
+    @finalized.getter
+    def finalized(self):
+        return self._finalized
 
     @property
     def subDataManager(self):
@@ -75,7 +90,18 @@ class DataManager():
         '''Getter for the subDataManager'''
         return self.__subDataManager
 
-    def addDataEntry(self, name, size, minRange=-1, maxRange=1):
+    def getSubDataManagerForDepth(self, depth):
+        '''
+        Returns the DataManager for the given depth.
+        Returns None if depth is out of range.
+        '''
+        if self._dirty:
+            self.updateDepthMap(False)
+        if depth >= 0 and depth < len(self._subDataManagerList):
+            return self._subDataManagerList[depth]
+        return None
+
+    def addDataEntry(self, name, numDimensions, minRange=-1, maxRange=1):
         '''
         Function for adding a new data entry. If the same data entry already
         exists, then the properties are overwritten. minRange and maxRange are
@@ -84,52 +110,265 @@ class DataManager():
         dimensionality. The function automatically adds a data alias pointing
         to the same data entry.
         '''
-        
-        self.dataEntries[name] = DataEntry(name, size, minRange, maxRange)
-        self.addDataAlias(name, {name: Ellipsis})
+        if self.finalized:
+            raise RuntimeError("The data manager cannot be modified after "
+                               "it has been finalized")
+
+        # Ensure that the name of the DataEntry does not conflict with an
+        # alias name
+        if name in self.dataAliases:
+            raise ValueError("The name of an alias conflicts with a data " +
+                             "entry name: " + name)
+
+        if isinstance(minRange, numbers.Number):
+            minRange = minRange * np.ones((numDimensions))
+
+        if isinstance(maxRange, numbers.Number):
+            maxRange = maxRange * np.ones((numDimensions))
+
+        self.dataEntries[name] = DataEntry(name, numDimensions, minRange, maxRange)
+        self.dataAliases[name] = DataAlias(name, [(name, ...)], numDimensions)
+
+        self._dirty = True
+
+    def _checkForAliasCycle(self, aliasName, entryList):
+        '''
+        Detects circular dependencies between aliases.
+        It is assumed that the entryList is valid, i.e. all entry names
+        correspond either to valid entries or aliases.
+        '''
+        for entry in entryList:
+            if entry[0] not in self.dataEntries:
+                if aliasName == entry[0]:
+                    return True
+                return self._checkForAliasCycle(aliasName,
+                                                self.dataAliases[entry[0]]
+                                                .entryList)
+        return False
 
     def addDataAlias(self, aliasName, entryList):
         '''
-        Adds a data alias with the name "aliasName". entryList should be a
-        dict of data entries and slices to these data entries. If the whole
-        data entry should be used, use "..." instead of a slice. This means
-        the alias should point to all dimensions of the data entry.
+        Add a new data alias.
+        @param aliasName the name of the alias
+        @param entryList a dict of data entries and slices to these data
+                         entries. If the whole data entry should be used, use
+                         "..." instead of a slice. This means the alias should
+                         point to all dimensions of the data entry.
+                         see DataAlias.py for more information about the format
+                         of this parameter
         '''
-        
+
+        if self.finalized:
+            raise RuntimeError("The data manager cannot be modified after "
+                               "it has been finalized")
+
+        # TODO: check that all entries are of the same dimension
+
+        # Ensure that the name of the alias does not conflict with an
+        # DataEntry name
+        if aliasName in self.dataEntries:
+            raise ValueError("The name of an alias conflicts with a data " +
+                             "entry name: " + aliasName)
+
         # Ensure that all referenced names are in the entry list
-        if all(entryName in self.dataEntries for entryName in entryList.keys()):
+        if all((entry[0] in self.dataAliases or
+                entry[0] in self.dataEntries) for entry in entryList):
+
+            if self._checkForAliasCycle(aliasName, entryList):
+                raise ValueError("Alias cycle detected!")
+
             # Test if the alias has already been defined
             if aliasName in self.dataAliases:
-                # Replace slices
-                for entryName, indices in entryList.items():
-                    self.dataAliases[aliasName][entryName] = indices
+                # the alias exists. Check all entries of the new alias
+                for entry in entryList:
+                    i = 0
+                    entryFound = False
+                    for aliasEntryName, _ in \
+                            self.dataAliases[aliasName].entryList:
+                        if entry[0] == aliasEntryName:
+                            # replace existing entry
+                            self.dataAliases[aliasName].entryList[i] = entry
+                            entryFound = True
+                            break
+                        i += 1
+
+                    if not entryFound:
+                        # add new entry to existing entries
+                        self.dataAliases[aliasName].entryList.append(entry)
             else:
-                self.dataAliases[aliasName] = entryList
+                # add the entryList
+                self.dataAliases[aliasName] = DataAlias(aliasName, entryList,
+                                                        0)
 
             # Computes the total number of dimensions for the alias
             numDim = 0
-            for entryName, indices in self.dataAliases[aliasName]:
-                numDim += len(self.dataAliases[entryName][indices])
-            # TODO Store alias dimensions somewhere
+            for entryName, _slice in self.dataAliases[aliasName].entryList:
+                if entryName in self.dataEntries:
+                    tmpArray = np.empty((self.dataEntries[entryName]
+                                         .numDimensions))
+                    numDim += len(tmpArray[_slice])
+                else:
+                    numDim += self.dataAliases[entryName].numDimensions
+            self.dataAliases[aliasName].numDimensions = numDim
         else:
-            if self.subDataManager() is not None:
-                self.subDataManager().addDataAlias(aliasName, entryList)
+            if self.subDataManager is not None:
+                self.subDataManager.addDataAlias(aliasName, entryList)
             else:
-                raise ValueError("One or more of the alias entry names do not exist")
+                raise ValueError("One or more of the alias entry names do " +
+                                 "not exist")
+        self._dirty = True
+
+    def getDataAlias(self, aliasName):
+        if aliasName in self.dataAliases:
+            return self.dataAliases[aliasName]
+        if self.subDataManager is not None:
+            return self.subDataManager.getDataAlias(aliasName)
+        raise ValueError("Alias of name %s is not defined" % aliasName)
+
+    def getDataEntryDepth(self, entryName):
+        if self._dirty:
+            self.updateDepthMap(False)
+        if entryName not in self._depthMap:
+            raise ValueError("Entry %s is not registered!" % entryName)
+        return self._depthMap[entryName]
+
+    def getMinRange(self, entryNames):
+        '''
+        Returns a list of vectors with the minRange values for each entry.
+        Also works for a single entry name.
+        '''
+        if isinstance(entryNames, list):
+            minRange = []
+            for name in entryNames:
+                minRange.append(self.getMinRange(name))
+            return minRange
+        name = entryNames
+
+        if name in self.dataAliases:
+            alias = self.dataAliases[name]
+            minRange = np.zeros((alias.numDimensions))
+            index = 0
+            for entryName, _slice in alias.entryList:
+                entry = self.dataEntries[entryName]
+                tempMinRange = entry.minRange[_slice]
+                minRange[index:(index + len(tempMinRange))] = tempMinRange
+                index += len(tempMinRange)
+            return minRange
+
+        if self.subDataManager is not None:
+            return self.subDataManager.getMinRange(name)
+
+        raise ValueError("Entry %s is not registered!" % name)
+
+    def getMaxRange(self, entryNames):
+        '''
+        Returns a list of vectors with the maxRange values for each entry.
+        Also works for a single entry name.
+        '''
+        if isinstance(entryNames, list):
+            maxRange = []
+            for name in entryNames:
+                maxRange.append(self.getMaxRange(name))
+            return maxRange
+        name = entryNames
+
+        if name in self.dataAliases:
+            alias = self.dataAliases[name]
+            maxRange = np.zeros((alias.numDimensions))
+            index = 0
+            for entryName, _slice in alias.entryList:
+                entry = self.dataEntries[entryName]
+                tempMaxRange = entry.maxRange[_slice]
+                maxRange[index:(index + len(tempMaxRange))] = tempMaxRange
+                index += len(tempMaxRange)
+            return maxRange
+
+        if self.subDataManager is not None:
+            return self.subDataManager.getMinRange(name)
+
+        raise ValueError("Entry %s is not registered!" % name)
+
+    def getAliasNames(self):
+        '''
+        Returns the names of all aliases (including subdatamanagers)
+        '''
+        names = []
+        for name in self.dataAliases.keys():
+            names.append(name)
+        if (self.subDataManager is not None):
+            names.extend(self.subDataManager.getAliasNames())
+        return names
+
+    def getElementNames(self):
+        '''
+        Returns the names of all data entries (including subdatamanagers)
+        '''
+        names = []
+        for name in self.dataEntries.keys():
+            names.append(name)
+        if (self.subDataManager is not None):
+            names.extend(self.subDataManager.getElementNames())
+        return names
+
+    def getAliasNamesLocal(self):
+        '''
+        Returns the names of all aliases (only of this data manager)
+        '''
+        return self.dataAliases.keys()
+
+    def getElementNamesLocal(self):
+        '''
+        Returns the names of all data entries (only of this data manager)
+        '''
+        return self.dataEntries.keys()
 
     def getDataObject(self, numElements):
         '''
-        Creates a new data object with numElements data points, whereas
-        numElements is a vector defining the number of elements for each layer
-        of the hierarchy. If no numElements are defined, the size of the data
-        object is the standard size (numStepsStorage).
+        Creates a new data object with numElements data points.
+        @param numElements a vector defining the number of elements for each
+                           layer of the hierarchy.
+                           This parameter may also be an integer, in which case
+                           all layers will have the same number of data points
         '''
-        print(self.getDataStructure(numElements))
-        return Data(self, self.getDataStructure(numElements))
+        if not self.finalized:
+            self.finalize()
+        return Data(self, self._createDataStructure(numElements))
 
-    def getDataStructure(self, numElements):
+    def finalize(self):
+        self.updateDepthMap(True)
+
+    def updateDepthMap(self, _finalize):
+        if self._dirty:
+            subManager = self
+            depth = 0
+
+            self._subDataManagerList.append(self)
+
+            while subManager is not None:
+
+                entryNames = subManager.getAliasNamesLocal()
+                for entryName in entryNames:
+                    self._depthMap[entryName] = depth
+
+                if depth > 0:
+                    subManager.updateDepthMap(_finalize)
+                    self._subDataManagerList.append(subManager)
+
+                depth += 1
+                subManager = subManager.subDataManager
+
+        self._dirty = False
+
+        if _finalize:
+            self._finalized = True
+
+    def _createDataStructure(self, numElements):
         '''
         Creates the data structure (containing real data) for the data object
+        @param numElements a vector defining the number of elements for each
+                           layer of the hierarchy.
+                           This parameter may also be an integer, in which case
+                           all layers will have the same number of data points
         '''
         if isinstance(numElements, list):
             numElementsCurrentLayer = numElements[0]
@@ -137,17 +376,55 @@ class DataManager():
         else:
             numElementsCurrentLayer = numElements
 
-        print(numElements)
-
-        dataStructure = dict()
+        dataStructure = DataStructure()
         for dataEntryName, dataEntry in self.dataEntries.items():
-            print(dataEntryName, dataEntry.size)
             dataStructure[dataEntryName] = np.zeros((numElementsCurrentLayer,
-                                                    dataEntry.size),
+                                                     dataEntry.numDimensions),
                                                     dtype=np.float64)
 
+        for dataAliasName, dataAlias in self.dataAliases.items():
+            if dataAliasName not in self.dataEntries:
+                dataStructure[dataAliasName] = dataAlias
+
         if (self.subDataManager is not None):
-            subStructure = self.subDataManager.getDataStructure(numElements)
-            dataStructure[self.subDataManager.name] = subStructure
+            subDataStructures = []
+
+            for _ in range(0, numElementsCurrentLayer):
+                subDS = self.subDataManager._createDataStructure(numElements)
+                subDataStructures.append(subDS)
+
+            dataStructure[self.subDataManager.name] = subDataStructures
 
         return dataStructure
+
+    def reserveStorage(self, dataStructure, numElements):
+        '''
+        Reserves more storage for a data structure. numElements can be a vector
+        that also contains the number of data points to add to the lower levels
+        of the hierarchy. This function should only be called by the data
+        object.
+        @param dataStructure the DataStructure to be modified
+        @param numElements a vector containing the number of elements to add
+               for each layer
+        '''
+        numElementsLocal = numElements
+        if isinstance(numElements, list):
+            numElementsLocal = numElements[0]
+            numElements = numElements[1:]
+
+        for name, entry in self.dataEntries.items():
+            currentSize = dataStructure.dataStructureLocalLayer[
+                name].shape[0]
+            if currentSize < numElementsLocal:
+                dataStructure.dataStructureLocalLayer[name] = np.vstack(
+                    (dataStructure.dataStructureLocalLayer[name],
+                     np.zeros((numElementsLocal - currentSize, entry.numDimensions))))
+            else:
+                dataStructure.dataStructureLocalLayer[name] = np.delete(
+                    dataStructure.dataStructureLocalLayer[name],
+                    slice(numElementsLocal, None, None), 0)
+
+        if self.subDataManager is not None and numElements:
+            for subStructure in dataStructure. \
+                    dataStructureLocalLayer[self.subDataManager.name]:
+                self.subDataManager.reserveStorage(subStructure, numElements)

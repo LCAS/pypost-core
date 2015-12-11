@@ -1,0 +1,8 @@
+Name	Bereich	Beschreibung	Zeitmessung [s] (Poolrechner)
+getDataObject	DataManager	Erzeugung eines Datenobjekts mit 100 Episoden, 10 Steps und 5 Sub-Steps	0.461
+reserveStorage	DataManager	Reservierung von mehr Speicherplatz, Erweiterung auf 20 Steps	0.725
+setDataEntry1	DataManager	Füllen des bestehenden Datenobjekts (Actions)	0.022
+setDataEntry2	DataManager	Füllen des bestehenden Datenobjekts (SubActions)	0.043
+getDataEntry	DataManager	Auslesen der Daten (SubActions)	0.039
+getDataEntryCellArray	DataManager	Auslesen verschiedener Einträge als cell array, 100 mal	0.223
+setDataEntryCellArray	DataManager	Setzen von verschiedenen Einträgen als cell array, 100 mal	0.082
