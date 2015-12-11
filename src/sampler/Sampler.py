@@ -160,7 +160,7 @@ class Sampler(SamplerInterface):
 
         @throws If a sampler pool with the same name already exists
         @throws If a sampler pool with the same priority already exists
-        @change: we explicitly require a sampler pool in case the pool class will be altered in the future
+        @change: we explicitly require a sampler pool instance in case the pool class will be altered in the future
         '''
         if samplerPool.getName() in self._samplerPools.keys():
             raise RuntimeError("A sampler pool with the name \"" +
@@ -227,7 +227,7 @@ class Sampler(SamplerInterface):
 
         The function behaves differently for different values of addLocationFlag
         -1 will add the new sampler function to the beginning of the sampler pool
-        0 will flush the entire sampler pool and only add samplerPool afterward
+        0 will flush the entire sampler pool and only add samplerPool afterwards
         1 will add the new sampler function at the end of the sampler pool.
 
         @param samplerPoolName: sampler pool to whom the sampler function will be included
@@ -303,6 +303,8 @@ class Sampler(SamplerInterface):
                     break
                 self.createSamplesFromPool(pool, data, *args)
 
-    # TASK where was _addSamplerToPoolInternal used?
+    # change _addSamplerToPoolInternal was deleted because it can be replaced by
+    # addSamplerFunctionToPool with addLoctionFlag 0
+
     # ASK addSamplerFunction referenced in MatLab code does not exists
     # CHANGE removed _addSamplerToPoolInternal

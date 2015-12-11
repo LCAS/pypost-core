@@ -22,14 +22,15 @@ class IndependentSampler(Sampler):
         Determines if the episodes are samples parallel or in sequentially
         '''
 
+        # FIXME magic number ...
         self._numSamples = 10
         '''
-        The number of samples to use
+        The number of samples to use for after the initial iteration
         '''
 
         self._numInitialSamples = -1
         '''
-        FIXME
+        The number of samples to use for for the initial iteration
         '''
 
         # change
@@ -67,6 +68,7 @@ class IndependentSampler(Sampler):
                     if self.isValidEpisode():
                         index = index + 1
 
+    # TODO this seems like an interface function. refactor ...
     def isValidEpisode(self):
         return True
 

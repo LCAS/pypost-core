@@ -24,5 +24,14 @@ class DataManipulatorInterface(object):
 
     def callDataFunction(self, samplerName, newData, *args):
         '''
+        FIXME needed by Sampler
+        '''
+        raise NotImplementedError("Not implemented")
+
+    def addDataManipulationFunction(
+            self, functionName, inputArguments, outputArguments,
+            dataFunctioncallType):
+        '''
+        FIXME needed by Sampler
         '''
         raise NotImplementedError("Not implemented")
