@@ -9,7 +9,6 @@ Notes: matlab.getDataEntry('actions', :, 1, -1)
 '''
 
 import numpy as np
-from IPython.external.path._path import path
 
 
 class DataEntryInfo(object):

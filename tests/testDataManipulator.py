@@ -2,6 +2,7 @@ import unittest
 import sys
 import numpy as np
 sys.path.append('../src/data')
+sys.path.append('../src/interfaces')
 import DataUtil
 from DataManipulator import DataManipulator
 
@@ -13,7 +14,9 @@ class TestManipulator(DataManipulator):
     
     def sampleParameters(self, numElements):
         return np.ones((numElements, 10))
-
+    
+    def sampleStates(self, numElements, parameters):
+        return np.ones(())
 
 class testDataManipulator(unittest.TestCase):
     

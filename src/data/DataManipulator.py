@@ -5,7 +5,7 @@ Created on Dec 7, 2015
 '''
 
 from DataManager import DataManager
-from interfaces.DataManipulatorInterface import DataManipulatorInterface
+from interfaces import DataManipulatorInterface
 from enum import Enum
 import numpy as np
 
