@@ -53,6 +53,22 @@ class Data(object):
                               self.dataManager.getMinRange(name),
                               self.dataManager.getMaxRange(name))
 
+    def completeLayerIndex(self, depth, indices):
+        if not isinstance(indices, list):
+            indices = [indices]
+        while len(indices) <= depth:
+            indices.append(...)
+        if len(indices) > depth + 1:
+            indices = indices[0:depth+1]
+        manager = self.dataManager
+        dataStructure = self.dataStructure
+        for i in range(0, len(indices)):
+            manager = manager.subDataManager
+            if indices[i] == Ellipsis:
+                indices[i] = slice(0, len(dataStructure[manager.name]))
+            dataStructure = dataStructure[manager.name][0]
+        return indices
+
     def getNumElements(self, entryName=None):
         '''
         Returns the number of elements for the given data entry.
