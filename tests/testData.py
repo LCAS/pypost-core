@@ -104,28 +104,28 @@ class testDataManager(unittest.TestCase):
         myData = dataManager.getDataObject([10, 5, 3])
 
         # set the data for the parameters of all episodes
-        myData.setDataEntry(['parameters'], [...], [1, 2, 3, 4, 5])
+        myData.setDataEntry(['parameters'], [...], np.ones((10, 5)))
 
         # the first episode should have different parameters
-        myData.setDataEntry(['parameters'], [0], [1, 1, 1, 1, 1])
+        myData.setDataEntry(['parameters'], [0], [1, 2, 3, 4, 5])
 
         self.assertTrue((myData.dataStructure['parameters'][0] ==
-                         np.array([1, 1, 1, 1, 1])).all())
+                         np.array([1, 2, 3, 4, 5])).all())
         self.assertTrue((myData.dataStructure['parameters'][1] ==
-                         np.array([1, 2, 3, 4, 5])).all())
+                         np.array([1, 1, 1, 1, 1])).all())
         self.assertTrue((myData.dataStructure['parameters'][9] ==
-                         np.array([1, 2, 3, 4, 5])).all())
+                         np.array([1, 1, 1, 1, 1])).all())
 
         # this should not change anything
-        myData.setDataEntry(['parameters'], [], np.array([1, 2, 3, 4, 5]))
-        myData.setDataEntry(['parameters'], [0], np.array([1, 1, 1, 1, 1]))
+        myData.setDataEntry(['parameters'], [], np.array([1, 1, 1, 1, 1]))
+        myData.setDataEntry(['parameters'], [0], np.array([1, 2, 3, 4, 5]))
 
         self.assertTrue((myData.dataStructure['parameters'][0] ==
-                         np.array([1, 1, 1, 1, 1])).all())
+                         np.array([1, 2, 3, 4, 5])).all())
         self.assertTrue((myData.dataStructure['parameters'][1] ==
-                         np.array([1, 2, 3, 4, 5])).all())
+                         np.array([1, 1, 1, 1, 1])).all())
         self.assertTrue((myData.dataStructure['parameters'][9] ==
-                         np.array([1, 2, 3, 4, 5])).all())
+                         np.array([1, 1, 1, 1, 1])).all())
 
         # tests for getDataEntry
         self.assertTrue((myData.getDataEntry('parameters') ==
@@ -154,7 +154,7 @@ class testDataManager(unittest.TestCase):
 
         # set the data for all subActions of all episodes, steps and subSteps
         myData.setDataEntry(['steps', 'subSteps', 'subActions'],
-                            [], np.ones(300).reshape(150, 2))
+                            [], np.ones((150, 2)))
 
         # all subActions in the 3rd subSteps of all steps of the 2nd episode
         # should have different parameters
