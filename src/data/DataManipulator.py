@@ -179,6 +179,18 @@ class DataManipulator(DataManipulatorInterface):
             dmf = self._manipulationFunctions[functionName]
             self._callDataFunctionInternal(dmf, data, True, indices)
 
+    def callDataFunctionOutput(self, samplerName, data, indices):
+        # TODO: In what format does the output have to be returned?
+        # TODO: Include all output or just that of the first/last function?
+        if samplerName not in self._samplerFunctions:
+            raise ValueError("Data function %s is not defined" % samplerName)
+        functionNames = self._samplerFunctions[samplerName]
+        output = []
+        for functionName in functionNames:
+            dmf = self._manipulationFunctions[functionName]
+            output.append(self._callDataFunctionInternal(dmf, data, False, indices))
+        return output
+
     def _callDataFunctionInternal(self, dataManipulationStruct, data,
                                   registerOutput, indices):
         '''
@@ -189,7 +201,7 @@ class DataManipulator(DataManipulatorInterface):
         callData = True
 
         if dataManipulationStruct.callType is CallType.PER_EPISODE:
-            indices = data.completeLayerIndex(2, indices)  # TODO: Not implemented yet
+            indices = data.completeLayerIndex(1, indices)
 
         if dataManipulationStruct.callType is CallType.SINGLE_SAMPLE or \
                 dataManipulationStruct.callType is CallType.PER_EPISODE:
@@ -198,7 +210,7 @@ class DataManipulator(DataManipulatorInterface):
             if dataManipulationStruct.callType is CallType.PER_EPISODE:
                 numLayers = 1
             for i in range(0, numLayers):
-                # This is somewhat hacky
+                # This is somewhat hacky, but it works!
                 indexRange = range(0, indices[i].stop)[indices[i]]
                 if len(indexRange) > 1:
                     callData = False
@@ -222,7 +234,6 @@ class DataManipulator(DataManipulatorInterface):
                             else:
                                 outArgs = np.vstack((outArgs, tempOut))
             # Do something here with outArgs
-            return outArgs
 
         if callData:
             inputArgs = data.getDataEntryList(
@@ -237,6 +248,10 @@ class DataManipulator(DataManipulatorInterface):
 
             outArgs = self._callDataFuntionInternalMatrices(
                             dataManipulationStruct, data, numElements, inputArgs)
+
+            if not isinstance(outArgs, list):
+                outArgs = [outArgs]
+
             if registerOutput:
                 data.setDataEntryList(dataManipulationStruct.outputArguments,
                                       indices, outArgs)
