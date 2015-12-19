@@ -272,5 +272,4 @@ class DataManipulator(DataManipulatorInterface):
         return result
 
     def _unpackAndInvoke(self, function, *args):
-        print(*args)
         return function(*args)

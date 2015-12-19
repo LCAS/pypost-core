@@ -111,7 +111,7 @@ class testDataManipulator(unittest.TestCase):
         self.assertTrue((data.getDataEntry('states', [slice(0, 1), ...]) ==
                           np.ones((30, 1))).all())
         self.assertTrue((data.getDataEntry('states', [slice(1, 20), ...]) ==
-                         7 * np.ones((570, 1)).all()))
+                         7 * np.ones((570, 1))).all())
 
 if __name__ == '__main__':
     unittest.main()
