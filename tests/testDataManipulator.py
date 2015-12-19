@@ -88,6 +88,8 @@ class testDataManipulator(unittest.TestCase):
         data.setDataEntry('parameters', [...], 7 * np.ones((20, 10)))
         self.assertTrue((data.getDataEntry('parameters', [...]) ==
                           7 * np.ones((20, 10))).all())
+        
+        data.setDataEntry(['parameters'], [slice(0,10)], np.ones((10,10)))
                 
         manipulator.callDataFunction('sampleParameters', data, [slice(0,10)])
         self.assertTrue((data.getDataEntry('parameters', [...]) == 

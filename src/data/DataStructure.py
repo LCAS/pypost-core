@@ -150,6 +150,9 @@ class DataStructure():
                 # set the data for all iterations of the requested entry
                 self.dataStructureLocalLayer[path[0]] = data
             else:
+                if isinstance(indices[0], slice):
+                    start = indices[0].start
+                    stop = indices[0].stop
                 # set the data for a single iteration of the requested entry
 
                 if len(data.shape) == 2:

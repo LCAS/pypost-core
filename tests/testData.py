@@ -98,13 +98,15 @@ class testDataManager(unittest.TestCase):
             myData.getDataEntry(['steps', 'subSteps', 'subActions'],
                                 [1, 1, 1]).shape[0], 1)
 
-    def test_setgetDataEntryLocalLayer(self):
+    def test_setgetDataEntryLocalLayer1(self):
         dataManager = DataManager('episodes')
         dataManager.addDataEntry('parameters', 5)
+        
         myData = dataManager.getDataObject([10, 5, 3])
 
         # set the data for the parameters of all episodes
         myData.setDataEntry(['parameters'], [...], np.ones((10, 5)))
+        myData.setDataEntry(['parameters'], [slice(0, 5)], np.ones((5, 5)))
 
         # the first episode should have different parameters
         myData.setDataEntry(['parameters'], [0], [1, 2, 3, 4, 5])
@@ -140,7 +142,7 @@ class testDataManager(unittest.TestCase):
         self.assertTrue((myData.getDataEntry('parameters', [4]) ==
                          myData.dataStructure['parameters'][4]).all())
 
-    def test_setgetDataEntryLocalLayer(self):
+    def test_setgetDataEntryLocalLayer2(self):
         dataManager = DataManager('episodes')
         subDataManager = DataManager('steps')
         subSubDataManager = DataManager('subSteps')
@@ -155,7 +157,7 @@ class testDataManager(unittest.TestCase):
         # set the data for all subActions of all episodes, steps and subSteps
         myData.setDataEntry(['steps', 'subSteps', 'subActions'],
                             [], np.ones((150, 2)))
-
+        
         # all subActions in the 3rd subSteps of all steps of the 2nd episode
         # should have different parameters
         myData.setDataEntry(['steps', 'subSteps', 'subActions'],
