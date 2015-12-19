@@ -98,7 +98,7 @@ class testDataManager(unittest.TestCase):
             myData.getDataEntry(['steps', 'subSteps', 'subActions'],
                                 [1, 1, 1]).shape[0], 1)
 
-    def test_setgetDataEntryLocalLayer1(self):
+    def test_setgetDataEntryLocalLayer(self):
         dataManager = DataManager('episodes')
         dataManager.addDataEntry('parameters', 5)
         
@@ -142,7 +142,7 @@ class testDataManager(unittest.TestCase):
         self.assertTrue((myData.getDataEntry('parameters', [4]) ==
                          myData.dataStructure['parameters'][4]).all())
 
-    def test_setgetDataEntryLocalLayer2(self):
+    def test_setgetDataEntry(self):
         dataManager = DataManager('episodes')
         subDataManager = DataManager('steps')
         subSubDataManager = DataManager('subSteps')
@@ -218,6 +218,37 @@ class testDataManager(unittest.TestCase):
                                 [2, 3, 2]) ==
             np.array([[1, 1]])
         ).all())
+    
+    def test_setgetDataEntryAlias(self):
+        dataManager = DataUtil.createTestManager()
+        dataManager.addDataAlias('statesAlias', [('states', ...)])
+        dataManager.addDataAlias('pcAlias', [('parameters', ...),
+                                             ('context', ...)])
+
+        data = dataManager.getDataObject([10, 20, 30])
+        
+        data.setDataEntry('states', [], np.ones((200, 1)))
+        
+        self.assertTrue((data.getDataEntry('statesAlias', []) ==
+                          np.ones((200, 1))).all())
+        
+        data.setDataEntry('statesAlias', [], np.zeros((200, 1)))
+        
+        self.assertTrue((data.getDataEntry('states', []) ==
+                          np.ones((200, 1))).all())
+
+        data.setDataEntry('parameters', [], np.ones((10, 5)))
+        data.setDataEntry('context', [], np.ones((10, 2)))
+        
+        self.assertTrue((data.getDataEntry('pcAlias', []) ==
+                          np.ones((10, 7))).all())
+
+        data.setDataEntry('pcAlias', [], np.zeros((10, 7)))
+        
+        self.assertTrue((data.getDataEntry('parameters', []) ==
+                          np.zeros((10, 5))).all())
+        self.assertTrue((data.getDataEntry('context', []) ==
+                          np.zeros((10, 2))).all())
         
     def test_getDataEntryList(self):
         dataManager = DataManager('episodes')
@@ -240,6 +271,7 @@ class testDataManager(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertTrue((result[0] == np.ones((8))).all())
         
+    
         
     def test_setDataEntryList(self):
         dataManager = DataManager('episodes')
