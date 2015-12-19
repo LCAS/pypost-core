@@ -105,11 +105,11 @@ class testDataManager(unittest.TestCase):
         myData = dataManager.getDataObject([10, 5, 3])
 
         # set the data for the parameters of all episodes
-        myData.setDataEntry(['parameters'], [...], np.ones((10, 5)))
+        myData.setDataEntry(['parameters'], [], np.ones((10, 5)))
         myData.setDataEntry(['parameters'], [slice(0, 5)], np.ones((5, 5)))
 
         # the first episode should have different parameters
-        myData.setDataEntry(['parameters'], [0], [1, 2, 3, 4, 5])
+        myData.setDataEntry(['parameters'], [0], np.array([1, 2, 3, 4, 5]))
 
         self.assertTrue((myData.dataStructure['parameters'][0] ==
                          np.array([1, 2, 3, 4, 5])).all())
@@ -119,7 +119,7 @@ class testDataManager(unittest.TestCase):
                          np.array([1, 1, 1, 1, 1])).all())
 
         # this should not change anything
-        myData.setDataEntry(['parameters'], [], np.array([1, 1, 1, 1, 1]))
+        myData.setDataEntry(['parameters'], [], np.ones((10, 5)))
         myData.setDataEntry(['parameters'], [0], np.array([1, 2, 3, 4, 5]))
 
         self.assertTrue((myData.dataStructure['parameters'][0] ==

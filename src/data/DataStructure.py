@@ -149,10 +149,13 @@ class DataStructure():
             if indices[0] == Ellipsis:
                 # set the data for all iterations of the requested entry
                 self.dataStructureLocalLayer[path[0]] = data
+            elif isinstance(indices[0], slice):
+                indexRange = range(indices[0].start,
+                                   indices[0].stop)[indices[0]]
+                if len(data.shape) != 2 or data.shape[0] != len(indexRange):
+                    raise ValueError("Invalid data format")
+                self.dataStructureLocalLayer[path[0]][indices[0]] = data
             else:
-                if isinstance(indices[0], slice):
-                    start = indices[0].start
-                    stop = indices[0].stop
                 # set the data for a single iteration of the requested entry
 
                 if len(data.shape) == 2:
@@ -183,7 +186,14 @@ class DataStructure():
                     subData = data[i*subDataLen:(i+1)*subDataLen]
                     subDS.setDataEntry(path[1:], indices[1:], subData)
                     i += 1
-
+            elif isinstance(indices[0], slice):
+                subLayers = self.dataStructureLocalLayer[path[0]]
+                indexRange = range(indices[0].start,
+                                   indices[0].stop)[indices[0]]
+                subDataLen = int(data.shape[0]/len(indexRange))
+                for i in indexRange:
+                    subData = data[i*subDataLen:(i+1)*subDataLen]
+                    subLayers[i].setDataEntry(path[1:], indices[1:], subData)
             else:
                 # pass the data to excaltly one lower layer
                 subDS = self.dataStructureLocalLayer[path[0]][indices[0]]
