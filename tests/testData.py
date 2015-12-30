@@ -227,6 +227,9 @@ class testDataManager(unittest.TestCase):
 
         data = dataManager.getDataObject([10, 20, 30])
         
+        self.assertTrue('statesAlias' in dataManager.getAliasNames() 
+                       and 'pcAlias' in dataManager.getAliasNames())
+        
         data.setDataEntry('states', [], np.ones((200, 1)))
         
         self.assertTrue((data.getDataEntry('statesAlias', []) ==

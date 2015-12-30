@@ -98,10 +98,10 @@ class DataStructure():
         elif len(path) == 1:
             # get the data from the current layer
             if indices[0] == Ellipsis:
-                return self.dataStructureLocalLayer[path[0]]
+                return self[path[0]]
             else:
                 return np.array(
-                    [self.dataStructureLocalLayer[path[0]][indices[0]]])
+                    [self[path[0]][indices[0]]])
 
         else:
             # get the data from lower layers
@@ -150,12 +150,12 @@ class DataStructure():
 
             if indices[0] == Ellipsis:
                 # set the data for all iterations of the requested entry
-                self.dataStructureLocalLayer[path[0]] = data
+                self[path[0]] = data
             elif isinstance(indices[0], slice):
                 indexRange = range(0, indices[0].stop)[indices[0]]
                 if len(data.shape) != 2 or data.shape[0] != len(indexRange):
                     raise ValueError("Invalid data format")
-                self.dataStructureLocalLayer[path[0]][indices[0]] = data
+                self[path[0]][indices[0]] = data
             else:
                 # set the data for a single iteration of the requested entry
 
@@ -170,7 +170,7 @@ class DataStructure():
 
                     data = data[0]
 
-                self.dataStructureLocalLayer[path[0]][indices[0]] = data
+                self[path[0]][indices[0]] = data
 
         else:
             # set the data in lower layers
