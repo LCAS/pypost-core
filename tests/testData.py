@@ -238,7 +238,7 @@ class testDataManager(unittest.TestCase):
         data.setDataEntry('statesAlias', [], np.zeros((200, 1)))
         
         self.assertTrue((data.getDataEntry('states', []) ==
-                          np.ones((200, 1))).all())
+                          np.zeros((200, 1))).all())
 
         data.setDataEntry('parameters', [], np.ones((10, 5)))
         data.setDataEntry('context', [], np.ones((10, 2)))

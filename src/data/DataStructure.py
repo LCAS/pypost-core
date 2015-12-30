@@ -34,8 +34,10 @@ class DataStructure():
                 currentIndexInItem = 0
 
                 for entryName, slice_ in dataAlias.entryList:
-                    l = len(self.dataStructureLocalLayer[entryName][slice_])
-                    self.dataStructureLocalLayer[entryName][slice_] = item[currentIndexInItem:currentIndexInItem+l]
+                    l = self.dataStructureLocalLayer[entryName][slice_].\
+                            shape[1]
+                    self.dataStructureLocalLayer[entryName][slice_] = \
+                        item[:, currentIndexInItem:currentIndexInItem+l]
                     currentIndexInItem += l
             else:
                 raise ValueError("unknown data type:",
@@ -63,7 +65,7 @@ class DataStructure():
                     data = self.dataStructureLocalLayer[entryName][slice_]
                 else:
                     entryData = self.dataStructureLocalLayer[entryName][slice_]
-                    data = np.concatenate((data, entryData))
+                    data = np.hstack((data, entryData))
 
             return data
         elif isinstance(self.dataStructureLocalLayer[name], list):
