@@ -4,7 +4,7 @@ from DataAlias import DataAlias
 
 class DataStructure():
     '''
-    DataStructure handles the date structure (containing real data) for the
+    DataStructure handles the data structure (containing real data) for the
     data object.
     '''
 
@@ -33,10 +33,13 @@ class DataStructure():
 
                 currentIndexInItem = 0
 
+
                 for entryName, slice_ in dataAlias.entryList:
-                    l = self.dataStructureLocalLayer[entryName][slice_].\
+                    # TODO: self.dataStructureLocalLayer[entryName] can be an
+                    # alias
+                    l = self.dataStructureLocalLayer[entryName][:, slice_].\
                             shape[1]
-                    self.dataStructureLocalLayer[entryName][slice_] = \
+                    self.dataStructureLocalLayer[entryName][:, slice_] = \
                         item[:, currentIndexInItem:currentIndexInItem+l]
                     currentIndexInItem += l
             else:
@@ -60,11 +63,12 @@ class DataStructure():
             dataAlias = self.dataStructureLocalLayer[name]
 
             for entryName, slice_ in dataAlias.entryList:
-                # TODO: alias to alias
                 if data is None:
-                    data = self.dataStructureLocalLayer[entryName][slice_]
+                    data = self.dataStructureLocalLayer[entryName][:, slice_]
+                    # TODO: ^ this can be an alias
                 else:
-                    entryData = self.dataStructureLocalLayer[entryName][slice_]
+                    entryData = self.dataStructureLocalLayer[entryName][:,
+                                                                        slice_]
                     data = np.hstack((data, entryData))
 
             return data
@@ -114,8 +118,10 @@ class DataStructure():
                 subLayers = self.dataStructureLocalLayer[path[0]]
             elif isinstance(indices[0], slice):
                 subLayers = self.dataStructureLocalLayer[path[0]][indices[0]]
-            else:
+            elif isinstance(indices[0], int):
                 subLayers = [self.dataStructureLocalLayer[path[0]][indices[0]]]
+            else:
+                raise ValueError("Invalid data type: indices[0]")
 
             for subDataStructure in subLayers:
                 subData = subDataStructure.getDataEntry(path[1:], indices[1:])
@@ -154,11 +160,13 @@ class DataStructure():
                 # set the data for all iterations of the requested entry
                 self[path[0]] = data
             elif isinstance(indices[0], slice):
+                # set the data for the selected iterations of the requested
+                # entry
                 indexRange = range(0, indices[0].stop)[indices[0]]
                 if len(data.shape) != 2 or data.shape[0] != len(indexRange):
                     raise ValueError("Invalid data format")
                 self[path[0]][indices[0]] = data
-            else:
+            elif isinstance(indices[0], int):
                 # set the data for a single iteration of the requested entry
 
                 if len(data.shape) == 2:
@@ -173,6 +181,8 @@ class DataStructure():
                     data = data[0]
 
                 self[path[0]][indices[0]] = data
+            else:
+                raise ValueError("Invalid data type: indices[0]")
 
         else:
             # set the data in lower layers

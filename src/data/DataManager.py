@@ -159,10 +159,8 @@ class DataManager():
         '''
 
         if self.finalized:
-            raise RuntimeError("The data manager cannot be modified after "
+            raise RuntimeError("The data manager cannot be modified after " +
                                "it has been finalized")
-
-        # TODO: check that all entries are of the same dimension
 
         # Ensure that the name of the alias does not conflict with an
         # DataEntry name
@@ -418,7 +416,8 @@ class DataManager():
             if currentSize < numElementsLocal:
                 dataStructure.dataStructureLocalLayer[name] = np.vstack(
                     (dataStructure.dataStructureLocalLayer[name],
-                     np.zeros((numElementsLocal - currentSize, entry.numDimensions))))
+                     np.zeros((numElementsLocal - currentSize,
+                               entry.numDimensions))))
             else:
                 dataStructure.dataStructureLocalLayer[name] = np.delete(
                     dataStructure.dataStructureLocalLayer[name],

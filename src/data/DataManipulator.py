@@ -3,9 +3,11 @@ Created on Dec 7, 2015
 
 @author: Sebastian Kreutzer
 '''
+import sys
 
 from DataManager import DataManager
-from interfaces import DataManipulatorInterface
+sys.path.append('interfaces')
+from DataManipulatorInterface import DataManipulatorInterface
 from enum import Enum
 import numpy as np
 
@@ -241,7 +243,7 @@ class DataManipulator(DataManipulatorInterface):
 
             for i, arg in enumerate(inputArgs):
                 inputArgs[i] = arg # TODO: Select columns based on indices
-                
+
             if dataManipulationStruct.takesNumElements:
                 outputDepth = self._dataManager.getDataEntryDepth(dataManipulationStruct.depthEntry)
                 numElements = data.getNumElementsForIndex(outputDepth, indices)
