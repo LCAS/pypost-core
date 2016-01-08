@@ -2,6 +2,7 @@ import unittest
 import sys
 import numpy as np
 sys.path.append('../src/data')
+import DataUtil
 from DataEntry import DataEntry
 from DataManager import DataManager
 
@@ -182,8 +183,39 @@ class testDataManager(unittest.TestCase):
         self.assertEqual(myData.dataStructure['context'][5][2], 5)
 
     def test_getAliasAliasData(self):
-        # getting the date from an alias that points to an alias
-        pass
+        # reading and manipulating data from an alias that points to another
+        # alias
+        dataManager = DataUtil.createTestManager()
+        dataManager.addDataAlias('alias1',
+                                 [('parameters', slice(2, 5))])
+        dataManager.addDataAlias('alias2',
+                                 [('parameters', slice(0, 2)),
+                                  ('alias1', ...)])
+
+        myData = dataManager.getDataObject([3, 5, 10])
+
+        alias1 = myData.getDataEntry('alias1')
+        alias1[0] = [2, 3, 4]
+        alias1[2] = [2, 3, 4]
+        alias1[2][0] = 22
+        myData.setDataEntry('alias1', [], alias1)
+
+        self.assertEqual(myData.dataStructure['parameters'][0][0], 0)
+        self.assertEqual(myData.dataStructure['parameters'][0][2], 2)
+        self.assertEqual(myData.dataStructure['parameters'][0][4], 4)
+        self.assertEqual(myData.dataStructure['parameters'][1][4], 0)
+        self.assertEqual(myData.dataStructure['parameters'][2][4], 4)
+        self.assertEqual(myData.dataStructure['parameters'][2][2], 22)
+
+        alias2 = myData.getDataEntry('alias2')
+        alias2[1] = [0, 1, 2, 3, 4]
+        myData.setDataEntry('alias2', [], alias2)
+
+        self.assertEqual(myData.dataStructure['parameters'][1][0], 0)
+        self.assertEqual(myData.dataStructure['parameters'][1][3], 3)
+        self.assertEqual(myData.dataStructure['parameters'][1][4], 4)
+        self.assertEqual(myData.dataStructure['parameters'][0][0], 0)
+        self.assertEqual(myData.dataStructure['parameters'][2][4], 4)
 
     def test_reserveStorage(self):
         dataManager = DataManager('episodes')

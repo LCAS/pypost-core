@@ -247,8 +247,14 @@ class DataManager():
             minRange = np.zeros((alias.numDimensions))
             index = 0
             for entryName, _slice in alias.entryList:
-                entry = self.dataEntries[entryName]
-                tempMinRange = entry.minRange[_slice]
+                tempMinRange = None
+                if entryName in self.dataEntries:
+                    tempMinRange = self.dataEntries[entryName].minRange[_slice]
+                elif entryName in self.dataAliases:
+                    tempMinRange = self.getMinRange(entryName)
+                else:
+                    raise ValueError("Unknown entry.")
+
                 minRange[index:(index + len(tempMinRange))] = tempMinRange
                 index += len(tempMinRange)
             return minRange
@@ -275,8 +281,14 @@ class DataManager():
             maxRange = np.zeros((alias.numDimensions))
             index = 0
             for entryName, _slice in alias.entryList:
-                entry = self.dataEntries[entryName]
-                tempMaxRange = entry.maxRange[_slice]
+                tempMaxRange = None
+                if entryName in self.dataEntries:
+                    tempMaxRange = self.dataEntries[entryName].maxRange[_slice]
+                elif entryName in self.dataAliases:
+                    tempMaxRange = self.getMaxRange(entryName)
+                else:
+                    raise ValueError("Unknown entry.")
+
                 maxRange[index:(index + len(tempMaxRange))] = tempMaxRange
                 index += len(tempMaxRange)
             return maxRange

@@ -33,14 +33,26 @@ class DataStructure():
 
                 currentIndexInItem = 0
 
-
                 for entryName, slice_ in dataAlias.entryList:
-                    # TODO: self.dataStructureLocalLayer[entryName] can be an
-                    # alias
-                    l = self.dataStructureLocalLayer[entryName][:, slice_].\
-                            shape[1]
-                    self.dataStructureLocalLayer[entryName][:, slice_] = \
-                        item[:, currentIndexInItem:currentIndexInItem+l]
+                    # calculate the dimensions (width) of the current entry
+                    l = self[entryName][:, slice_].shape[1]
+                    entry = self.dataStructureLocalLayer[entryName]
+
+                    if isinstance(entry, DataAlias):
+                        # dataAlias contains another DataAlias (entry)
+                        # we have to update it manually (explicit read and
+                        # write)
+                        entry = self[entryName]
+                        entry[:, slice_] = \
+                            item[:, currentIndexInItem:currentIndexInItem+l]
+                        self[entryName] = entry
+                    elif isinstance(entry, np.ndarray):
+                        # writing directly to the ndarray...
+                        entry[:, slice_] = \
+                            item[:, currentIndexInItem:currentIndexInItem+l]
+                    else:
+                        raise ValueError("Unknown type of the data entry")
+
                     currentIndexInItem += l
             else:
                 raise ValueError("unknown data type:",
@@ -63,12 +75,18 @@ class DataStructure():
             dataAlias = self.dataStructureLocalLayer[name]
 
             for entryName, slice_ in dataAlias.entryList:
+                entry = self.dataStructureLocalLayer[entryName]
+
+                if isinstance(entry, DataAlias):
+                    # dataAlias contains another DataAlias (entry)
+                    entry = self[entryName]
+                elif not isinstance(entry, np.ndarray):
+                    raise ValueError("Unknown type of the data alias entry")
+
                 if data is None:
-                    data = self.dataStructureLocalLayer[entryName][:, slice_]
-                    # TODO: ^ this can be an alias
+                    data = entry[:, slice_]
                 else:
-                    entryData = self.dataStructureLocalLayer[entryName][:,
-                                                                        slice_]
+                    entryData = entry[:, slice_]
                     data = np.hstack((data, entryData))
 
             return data
