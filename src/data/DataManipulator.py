@@ -19,8 +19,8 @@ class DataManipulationFunction(object):
     Represents a data manipulation function used in the DataManipulator class.
     '''
 
-    def __init__(self, function, inputArguments, outputArguments, depthEntry, indices,
-                 takesNumElements, callType):
+    def __init__(self, function, inputArguments, outputArguments, depthEntry,
+                 indices, takesNumElements, callType):
         '''
         Constructor
         '''
@@ -65,7 +65,8 @@ class DataManipulator(DataManipulatorInterface):
     manipulation function get the number of elements as input can be specified
     by a flag when publishing the function (addDataManipulationFunction).
 
-    @subsection datamanipulation_call_modes Call modes for DataManipulation functions
+    @subsection datamanipulation_call_modes Call modes for DataManipulation
+    functions
     Data manipulation functions can be called in three different modes.
     The modes are defined in DataFunctionType and can have the values
      - SINGLE_SAMPLE: The data manipulation function is called for each
@@ -87,7 +88,8 @@ class DataManipulator(DataManipulatorInterface):
     data manipulation functions can be applied to only a subset of the
     elements of a data object.
 
-    @section datamanipulation_additionalparameters DataManipulation function aliases
+    @section datamanipulation_additionalparameters DataManipulation function
+    aliases
     We can also define aliases for data manipulation functions. An alias
     can point to a single data manipulation function (hence, it serves as
     a different name for the same data manipulation function), or it can
@@ -162,7 +164,7 @@ class DataManipulator(DataManipulatorInterface):
                     depthEntry = inputArg
                     break
 
-        indices = [] # FIXME: ??
+        indices = []  # FIXME: ??
 
         dmf = DataManipulationFunction(function, inputArguments,
                                        outputArguments, depthEntry,
@@ -190,7 +192,8 @@ class DataManipulator(DataManipulatorInterface):
         output = []
         for functionName in functionNames:
             dmf = self._manipulationFunctions[functionName]
-            output.append(self._callDataFunctionInternal(dmf, data, False, indices))
+            output.append(self._callDataFunctionInternal(dmf, data, False,
+                                                         indices))
         return output
 
     def _callDataFunctionInternal(self, dataManipulationStruct, data,
@@ -242,14 +245,16 @@ class DataManipulator(DataManipulatorInterface):
                             dataManipulationStruct.inputArguments, indices)
 
             for i, arg in enumerate(inputArgs):
-                inputArgs[i] = arg # TODO: Select columns based on indices
+                inputArgs[i] = arg  # TODO: Select columns based on indices
 
             if dataManipulationStruct.takesNumElements:
-                outputDepth = self._dataManager.getDataEntryDepth(dataManipulationStruct.depthEntry)
+                outputDepth = self._dataManager.getDataEntryDepth(
+                    dataManipulationStruct.depthEntry)
                 numElements = data.getNumElementsForIndex(outputDepth, indices)
 
             outArgs = self._callDataFuntionInternalMatrices(
-                            dataManipulationStruct, data, numElements, inputArgs)
+                            dataManipulationStruct, data, numElements,
+                            inputArgs)
 
             if not isinstance(outArgs, list):
                 outArgs = [outArgs]
@@ -268,9 +273,11 @@ class DataManipulator(DataManipulatorInterface):
         # It is here assumed that the sampler function doesn't take data.
         # Not sure where this would be useful?
         if inputArgs:
-            result = self._unpackAndInvoke(dataManipulationStruct.function, numElements, inputArgs)
+            result = self._unpackAndInvoke(
+                dataManipulationStruct.function, numElements, inputArgs)
         else:
-            result = self._unpackAndInvoke(dataManipulationStruct.function, numElements)
+            result = self._unpackAndInvoke(
+                dataManipulationStruct.function, numElements)
         return result
 
     def _unpackAndInvoke(self, function, *args):
