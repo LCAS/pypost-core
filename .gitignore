@@ -58,3 +58,6 @@ docs/_build/
 # PyBuilder
 target/
 
+
+#user specific pydev project settings
+.pydevproject
