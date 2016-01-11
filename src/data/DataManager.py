@@ -239,6 +239,7 @@ class DataManager():
             numDim = 0
             for name in entryNames:
                 numDim += self.getNumDimensions(name)
+            return numDim
         else:
             name = entryNames
             if name in self.dataAliases:

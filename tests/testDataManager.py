@@ -216,6 +216,17 @@ class testDataManager(unittest.TestCase):
         self.assertEqual(myData.dataStructure['parameters'][1][4], 4)
         self.assertEqual(myData.dataStructure['parameters'][0][0], 0)
         self.assertEqual(myData.dataStructure['parameters'][2][4], 4)
+        
+    def test_getNumDimensions(self):
+        dataManager = DataUtil.createTestManager()
+        
+        self.assertEqual(dataManager.getNumDimensions('parameters'), 5)
+        self.assertEqual(dataManager.getNumDimensions('context'), 2)
+        self.assertEqual(dataManager.getNumDimensions(['parameters']), 5)
+        self.assertEqual(dataManager.getNumDimensions(['parameters', 'context']), 7)
+        self.assertEqual(dataManager.getNumDimensions('states'), 1)
+        self.assertEqual(dataManager.getNumDimensions('subStates'), 1)
+        self.assertEqual(dataManager.getNumDimensions(['parameters', 'context', 'states', 'subStates']), 9)
 
     def test_reserveStorage(self):
         dataManager = DataManager('episodes')
