@@ -230,6 +230,24 @@ class DataManager():
             raise ValueError("Entry %s is not registered!" % entryName)
         return self._depthMap[entryName]
 
+    def getNumDimensions(self, entryNames):
+        '''
+        Returns the dimensionality of a given data entry (or alias).
+        Also works if the name has been registered in a submanager.
+        '''
+        if isinstance(entryNames, list):
+            numDim = 0
+            for name in entryNames:
+                numDim += self.getNumDimensions(name)
+        else:
+            name = entryNames
+            if name in self.dataAliases:
+                return self.dataAliases[name].numDimensions
+            elif self.subDataManager is not None:
+                return self.subDataManager.getNumDimensions(name)
+            else:
+                raise ValueError("Entry %s is not registered!" % name)
+
     def getMinRange(self, entryNames):
         '''
         Returns a list of vectors with the minRange values for each entry.
