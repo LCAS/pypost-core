@@ -5,13 +5,11 @@ Created on Dec 7, 2015
 '''
 import sys
 
-from DataManager import DataManager
 sys.path.append('interfaces')
 from DataManipulatorInterface import DataManipulatorInterface
-from enum import Enum
+from DataManipulatorInterface import CallType
+from DataManager import DataManager
 import numpy as np
-
-CallType = Enum('CallType', 'SINGLE_SAMPLE ALL_AT_ONCE PER_EPISODE')
 
 
 class DataManipulationFunction(object):
@@ -174,6 +172,9 @@ class DataManipulator(DataManipulatorInterface):
         if function.__name__ in self._samplerFunctions:
             del self._samplerFunctions[function.__name__]
         self.addDataFunctionAlias(function.__name__, function.__name__)
+
+    def isSamplerFunction(self, samplerName):
+        return samplerName in self.samplerFunctions
 
     def callDataFunction(self, samplerName, data, indices):
         if samplerName not in self._samplerFunctions:
