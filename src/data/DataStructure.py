@@ -8,9 +8,10 @@ class DataStructure():
     data object.
     '''
 
-    def __init__(self):
+    def __init__(self, numElements):
         '''Constructor'''
         self.dataStructureLocalLayer = dict()
+        self.numElements = numElements
 
     def __len__(self):
         return len(self.dataStructureLocalLayer)

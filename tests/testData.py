@@ -10,6 +10,24 @@ import DataUtil
 
 class testDataManager(unittest.TestCase):
 
+    def test_completeLayerIndex(self):
+        dataManager = DataUtil.createTestManager()
+        data = dataManager.getDataObject([10, 20, 30])
+
+        self.assertEqual(data.completeLayerIndex(0, ...),
+                         [slice(0, 10, None)])
+
+        self.assertEqual(data.completeLayerIndex(2, [..., slice(0, 5)]),
+                         [slice(0, 10, None), slice(0, 5, None),
+                          slice(0, 30, None)])
+
+        self.assertEqual(data.completeLayerIndex(2, ...),
+                         [slice(0, 10, None), slice(0, 20, None),
+                          slice(0, 30, None)])
+
+        self.assertEqual(data.completeLayerIndex(1, [..., ..., ...]),
+                         [slice(0, 10, None), slice(0, 20, None)])
+
     def test_getDataEntryDimensions(self):
         dataManager = DataManager('episodes')
         subDataManager = DataManager('steps')
@@ -314,7 +332,7 @@ class testDataManager(unittest.TestCase):
                          6 * np.ones((3))).all())
 
 
-    def test_resolvePath(self):
+    def test_resolveEntryPath(self):
         manager = DataUtil.createTestManager()
         data = manager.getDataObject([10, 20, 30])
 

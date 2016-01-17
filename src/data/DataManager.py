@@ -397,7 +397,7 @@ class DataManager():
         else:
             numElementsCurrentLayer = numElements
 
-        dataStructure = DataStructure()
+        dataStructure = DataStructure(numElementsCurrentLayer)
         for dataEntryName, dataEntry in self.dataEntries.items():
             dataStructure[dataEntryName] = np.zeros((numElementsCurrentLayer,
                                                      dataEntry.numDimensions),
