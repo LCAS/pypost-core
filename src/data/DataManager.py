@@ -72,23 +72,15 @@ class DataManager():
     def finalized(self):
         return self._finalized
 
-    @finalized.getter
-    def finalized(self):
-        return self._finalized
-
     @property
     def subDataManager(self):
+        '''Getter for the subDataManager'''
         return self.__subDataManager
 
     @subDataManager.setter
     def subDataManager(self, subDataManager):
         '''Sets the subDataManager for this DataManager'''
         self.__subDataManager = subDataManager
-
-    @subDataManager.getter
-    def subDataManager(self):
-        '''Getter for the subDataManager'''
-        return self.__subDataManager
 
     def getSubDataManagerForDepth(self, depth):
         '''
@@ -97,6 +89,7 @@ class DataManager():
         '''
         if self._dirty:
             self.updateDepthMap(False)
+
         if depth >= 0 and depth < len(self._subDataManagerList):
             return self._subDataManagerList[depth]
         return None
@@ -257,10 +250,10 @@ class DataManager():
         if isinstance(entryNames, list):
             minRange = []
             for name in entryNames:
-                minRange.append(self.getMinRange(name))
+                minRange = np.hstack((minRange, self.getMinRange(name)))
             return minRange
-        name = entryNames
 
+        name = entryNames
         if name in self.dataAliases:
             alias = self.dataAliases[name]
             minRange = np.zeros((alias.numDimensions))
@@ -291,7 +284,7 @@ class DataManager():
         if isinstance(entryNames, list):
             maxRange = []
             for name in entryNames:
-                maxRange.append(self.getMaxRange(name))
+                maxRange = np.hstack((maxRange, self.getMaxRange(name)))
             return maxRange
         name = entryNames
 
@@ -313,7 +306,7 @@ class DataManager():
             return maxRange
 
         if self.subDataManager is not None:
-            return self.subDataManager.getMinRange(name)
+            return self.subDataManager.getMaxRange(name)
 
         raise ValueError("Entry %s is not registered!" % name)
 
@@ -366,7 +359,7 @@ class DataManager():
     def finalize(self):
         self.updateDepthMap(True)
 
-    def updateDepthMap(self, _finalize):
+    def updateDepthMap(self, finalize):
         if self._dirty:
             subManager = self
             depth = 0
@@ -374,13 +367,12 @@ class DataManager():
             self._subDataManagerList.append(self)
 
             while subManager is not None:
-
                 entryNames = subManager.getAliasNamesLocal()
                 for entryName in entryNames:
                     self._depthMap[entryName] = depth
 
                 if depth > 0:
-                    subManager.updateDepthMap(_finalize)
+                    subManager.updateDepthMap(finalize)
                     self._subDataManagerList.append(subManager)
 
                 depth += 1
@@ -388,7 +380,7 @@ class DataManager():
 
         self._dirty = False
 
-        if _finalize:
+        if finalize:
             self._finalized = True
 
     def _createDataStructure(self, numElements):
