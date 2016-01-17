@@ -1,13 +1,3 @@
-'''
-Created on 12.11.2015
-
-@author: sebastian
-
-
-Notes: matlab.getDataEntry('actions', :, 1, -1)
-       statt ':' könnte man 0 verwenden
-'''
-
 import numpy as np
 
 
@@ -27,7 +17,7 @@ class DataEntryInfo(object):
 
 class Data(object):
     '''
-    classdocs
+    Stores meta data for each data entry to make access simple and fast.
     '''
 
     def __init__(self, dataManager, dataStructure):
@@ -41,9 +31,6 @@ class Data(object):
         self.init()
 
     def init(self):
-        '''
-        Stores meta data for each data entry to make access simple and fast.
-        '''
         aliasNames = self.dataManager.getAliasNames()
         for name in aliasNames:
             depth = self.dataManager.getDataEntryDepth(name)
