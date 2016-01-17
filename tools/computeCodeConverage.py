@@ -11,3 +11,4 @@ if __name__ == '__main__':
    
     c.stop()
     c.report()
+    c.html_report()

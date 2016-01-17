@@ -216,10 +216,10 @@ class testDataManager(unittest.TestCase):
         self.assertEqual(myData.dataStructure['parameters'][1][4], 4)
         self.assertEqual(myData.dataStructure['parameters'][0][0], 0)
         self.assertEqual(myData.dataStructure['parameters'][2][4], 4)
-        
+
     def test_getNumDimensions(self):
         dataManager = DataUtil.createTestManager()
-        
+
         self.assertEqual(dataManager.getNumDimensions('parameters'), 5)
         self.assertEqual(dataManager.getNumDimensions('context'), 2)
         self.assertEqual(dataManager.getNumDimensions(['parameters']), 5)
