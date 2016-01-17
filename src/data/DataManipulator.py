@@ -157,6 +157,7 @@ class DataManipulator(DataManipulatorInterface):
         if outputArguments:
             depthEntry = outputArguments[0]
         else:
+            # FIXME: outputArguments is required
             for inputArg in inputArguments:
                 if inputArg:
                     depthEntry = inputArg
@@ -174,7 +175,7 @@ class DataManipulator(DataManipulatorInterface):
         self.addDataFunctionAlias(function.__name__, function.__name__)
 
     def isSamplerFunction(self, samplerName):
-        return samplerName in self.samplerFunctions
+        return samplerName in self._samplerFunctions
 
     def callDataFunction(self, samplerName, data, indices):
         if samplerName not in self._samplerFunctions:

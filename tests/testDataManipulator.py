@@ -24,6 +24,9 @@ class TestManipulator(DataManipulator):
 
 
 class testDataManipulator(unittest.TestCase):
+    def test_init(self):
+        self.assertRaises(ValueError, DataManipulator, None)
+
     def test_addDataManipulationFunction(self):
         dataManager = DataUtil.createTestManager()
         manipulator = DataManipulator(dataManager)
@@ -31,17 +34,46 @@ class testDataManipulator(unittest.TestCase):
         def f(numElements):
             return np.ones((numElements, 10))
 
-        manipulator.addDataManipulationFunction(f, [], ['parameters'])
+        manipulator.addDataManipulationFunction(f, [1], ['parameters'])
 
         manipulationFunction = manipulator._manipulationFunctions['f']
+        self.assertEqual(str(manipulationFunction), "f: [1] -> ['parameters']")
         self.assertIsNotNone(manipulationFunction)
         self.assertEqual(manipulationFunction.function, f)
-        self.assertEqual(manipulationFunction.inputArguments, [])
+        self.assertEqual(manipulationFunction.inputArguments, [1])
         self.assertEqual(manipulationFunction.outputArguments, ['parameters'])
 
         samplerFunction = manipulator._samplerFunctions['f']
         self.assertIsNotNone(samplerFunction)
         self.assertEqual(manipulator._samplerFunctions['f'], ['f'])
+
+        manipulator.addDataManipulationFunction(f, 1, ['parameters'])
+        self.assertEqual(str(manipulationFunction), "f: [1] -> ['parameters']")
+        self.assertEqual(manipulationFunction.inputArguments, [1])
+
+    def test_isSamplerFunction(self):
+        dataManager = DataUtil.createTestManager()
+        manipulator = DataManipulator(dataManager)
+
+        def f(numElements):
+            return np.ones((numElements, 10))
+
+        manipulator.addDataManipulationFunction(f, [1], ['parameters'])
+        self.assertTrue(manipulator.isSamplerFunction('f'))
+        self.assertFalse(manipulator.isSamplerFunction('g'))
+
+    def test_callDataFunction(self):
+        dataManager = DataUtil.createTestManager()
+        manipulator = DataManipulator(dataManager)
+
+        def f(numElements):
+            return np.ones((numElements, 10))
+
+        manipulator.addDataManipulationFunction(f, [1], ['parameters'])
+        self.assertRaises(ValueError, manipulator.callDataFunction,
+                          'g', dataManager.getDataObject(5), [...])
+
+        # TODO: FIXME print(manipulator.callDataFunction('f', dataManager.getDataObject(5), [...]))
 
     def test_addDataFunctionAlias(self):
         dataManager = DataUtil.createTestManager()
