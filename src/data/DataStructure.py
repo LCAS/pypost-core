@@ -123,6 +123,8 @@ class DataStructure():
             # get the data from the current layer
             if indices[0] == Ellipsis:
                 return self[path[0]]
+            elif isinstance(indices[0], slice):
+                return self[path[0]][indices]
             else:
                 return np.array(
                     [self[path[0]][indices[0]]])

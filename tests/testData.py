@@ -275,22 +275,22 @@ class testDataManager(unittest.TestCase):
         dataManager = DataManager('episodes')
         dataManager.addDataEntry('parameters', 5)
         dataManager.addDataEntry('context', 3)
-        myData = dataManager.getDataObject([1])
+        myData = dataManager.getDataObject([10])
 
         # set the data for the parameters and context of all episodes
-        myData.setDataEntry(['parameters'], [...], np.ones((5)))
-        myData.setDataEntry(['context'], [...], np.ones((3)))
+        myData.setDataEntry(['parameters'], [...], np.ones((10, 5)))
+        myData.setDataEntry(['context'], [...], np.ones((10, 3)))
 
         result = myData.getDataEntryList(['parameters', 'context'], [...])
 
         self.assertTrue(isinstance(result, list))
-        self.assertTrue((result[0] == np.ones((5))).all())
-        self.assertTrue((result[1] == np.ones((3))).all())
+        self.assertTrue((result[0] == np.ones((10, 5))).all())
+        self.assertTrue((result[1] == np.ones((10, 3))).all())
 
         result = myData.getDataEntryList([('parameters', 'context')], [...])
 
         self.assertEqual(len(result), 1)
-        self.assertTrue((result[0] == np.ones((8))).all())
+        self.assertTrue((result[0] == np.ones((10, 8))).all())
 
     def test_set_data_entry_int(self):
         manager = DataUtil.createTestManager()
