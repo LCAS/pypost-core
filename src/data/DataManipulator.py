@@ -4,7 +4,6 @@ Created on Dec 7, 2015
 @author: Sebastian Kreutzer
 '''
 import sys
-
 sys.path.append('interfaces')
 from DataManipulatorInterface import DataManipulatorInterface
 from DataManipulatorInterface import CallType
@@ -27,6 +26,7 @@ class DataManipulationFunction(object):
         self.outputArguments = outputArguments
         self.depthEntry = depthEntry
         self.indices = indices
+        self.takesData = False
         self.callType = callType
         self.takesNumElements = takesNumElements
 
@@ -156,14 +156,11 @@ class DataManipulator(DataManipulatorInterface):
         depthEntry = ''
         if outputArguments:
             depthEntry = outputArguments[0]
-        else:
-            # FIXME: outputArguments is required
-            for inputArg in inputArguments:
-                if inputArg:
-                    depthEntry = inputArg
-                    break
+        elif len(inputArguments) != 0:
+            depthEntry = inputArguments[0]
 
-        indices = []  # FIXME: ??
+        # A None entry indicates that the whole entry should be used
+        indices = [None] * len(inputArguments)
 
         dmf = DataManipulationFunction(function, inputArguments,
                                        outputArguments, depthEntry,
@@ -177,6 +174,20 @@ class DataManipulator(DataManipulatorInterface):
     def isSamplerFunction(self, samplerName):
         return samplerName in self._samplerFunctions
 
+    def setIndices(self, name, numInput, indices):
+        if name not in self._manipulationFunctions:
+            raise ValueError("Data function %s is not defined" % name)
+        dataFunction = self._manipulationFunctions[name]
+        if len(dataFunction.inputArguments) <= numInput:
+            raise ValueError("Input argument of index %d is not defined" %
+                             numInput)
+        dataFunction.indices[numInput] = indices
+
+    def setTakesData(self, name, takesData):
+        if name not in self._manipulationFunctions:
+            raise ValueError("Data function %s is not defined" % name)
+        self._manipulationFunctions[name].takesData = takesData
+
     def callDataFunction(self, samplerName, data, indices):
         if samplerName not in self._samplerFunctions:
             raise ValueError("Data function %s is not defined" % samplerName)
@@ -186,8 +197,6 @@ class DataManipulator(DataManipulatorInterface):
             self._callDataFunctionInternal(dmf, data, True, indices)
 
     def callDataFunctionOutput(self, samplerName, data, indices):
-        # TODO: In what format does the output have to be returned?
-        # TODO: Include all output or just that of the first/last function?
         if samplerName not in self._samplerFunctions:
             raise ValueError("Data function %s is not defined" % samplerName)
         functionNames = self._samplerFunctions[samplerName]
@@ -209,6 +218,11 @@ class DataManipulator(DataManipulatorInterface):
 
         if dataManipulationStruct.callType is CallType.PER_EPISODE:
             indices = data.completeLayerIndex(1, indices)
+        elif dataManipulationStruct.callType is CallType.SINGLE_SAMPLE:
+            indices = data.completeLayerIndex(
+                        data.dataManager.getDataEntryDepth(
+                                        dataManipulationStruct.depthEntry),
+                        indices)
 
         if dataManipulationStruct.callType is CallType.SINGLE_SAMPLE or \
                 dataManipulationStruct.callType is CallType.PER_EPISODE:
@@ -239,16 +253,20 @@ class DataManipulator(DataManipulatorInterface):
                             if outArgs is None:
                                 outArgs = tempOut
                             else:
-                                outArgs = np.vstack((outArgs, tempOut))
-            # Do something here with outArgs
+                                for i in range(0, len(outArgs)):
+                                    outArgs[i] = np.vstack((outArgs[i],
+                                                            tempOut[i]))
 
         if callData:
             inputArgs = data.getDataEntryList(
                             dataManipulationStruct.inputArguments, indices)
 
+            # Select columns according to given indices
             for i, arg in enumerate(inputArgs):
-                inputArgs[i] = arg  # TODO: Select columns based on indices
+                if dataManipulationStruct.indices[i] is not None:
+                    inputArgs[i] = arg[:, dataManipulationStruct.indices[i]]
 
+            numElements = None
             if dataManipulationStruct.takesNumElements:
                 outputDepth = self._dataManager.getDataEntryDepth(
                     dataManipulationStruct.depthEntry)
@@ -265,22 +283,19 @@ class DataManipulator(DataManipulatorInterface):
                 data.setDataEntryList(dataManipulationStruct.outputArguments,
                                       indices, outArgs)
 
-            return outArgs
+        return outArgs
 
     def _callDataFuntionInternalMatrices(self, dataManipulationStruct,
                                          data, numElements, inputArgs):
         '''
         Directly calls the manipulation function and returns the result matrix.
         '''
-        # It is here assumed that the sampler function doesn't take data.
-        # Not sure where this would be useful?
-        if inputArgs:
-            result = self._unpackAndInvoke(
-                dataManipulationStruct.function, numElements, inputArgs)
-        else:
-            result = self._unpackAndInvoke(
-                dataManipulationStruct.function, numElements)
-        return result
 
-    def _unpackAndInvoke(self, function, *args):
-        return function(*args)
+        args = []
+        if dataManipulationStruct.takesNumElements:
+            args.append(numElements)
+        if dataManipulationStruct.takesData:
+            args.append(data)
+        if inputArgs:
+            args.extend(inputArgs)
+        return dataManipulationStruct.function(*args)
