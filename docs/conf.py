@@ -20,6 +20,11 @@ import os
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../src'))
+sys.path.insert(0, os.path.abspath('../src/data'))
+sys.path.insert(0, os.path.abspath('../src/interfaces'))
+sys.path.insert(0, os.path.abspath('../src/sampler'))
+sys.path.insert(0, os.path.abspath('../src/policy'))
 
 # -- General configuration ------------------------------------------------
 
