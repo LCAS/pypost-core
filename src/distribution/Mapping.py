@@ -23,13 +23,13 @@ class Mapping(MappingInterface, DataManipulator):
     '''
 
     def __init__(
-            self, dataManager, inputVariables=None, outputVariables=None, mappingName=""):
+            self, dataManager, inputVariables=None, outputVariables=None, name=""):
         '''
         Constructor
         @param dataManager: the data manager the mapping is operating on
         @param inputVariables: iterable of input variable names
         @param outputVariable: name of the output variable
-        @param mappingName: name of the mapping
+        @param name: name of the mapping
 
         @change: dataManager was removed from function arguments and is now a constructor argument.
         @change: registeredMappingFunctions was never used and got deleted
@@ -44,7 +44,7 @@ class Mapping(MappingInterface, DataManipulator):
         The data manager the mapping is operating on
         '''
 
-        self.mappingName = mappingName
+        self.name = name
         '''
         Name of the mapping function
         TODO change to property
@@ -90,15 +90,9 @@ class Mapping(MappingInterface, DataManipulator):
         #FIXME see also DataManipulator -> DataManipulator has no addMappingFunction
         '''
         if outputVariables is None:
-            outputVariables = {}
+            outputVariables = self.outputVariables
 
-        outputVariables.extend(self.outputVariables)
         self.mappingFunctions.append(function)
-
-        self.mappingFunctionsOutputVariables.append([])
-        for outputVariable in self.outputVariables:
-            self.mappingFunctionsOutputVariables[-
-                                                 1].append([self.outputVariables, outputVariable])
 
         self.addDataManipulationFunction(
             self.mappingFunctions[-1],
@@ -106,7 +100,7 @@ class Mapping(MappingInterface, DataManipulator):
                 list(self.inputVariables),
                 list(self.additionalInputVariables)
             ],
-            self.mappingFunctionsOutputVars[-1],
+            outputVariables,
             CallType.ALL_AT_ONCE,
             True
         )
@@ -121,7 +115,8 @@ class Mapping(MappingInterface, DataManipulator):
         @param numDim: optional parameter. currently not supported!
         '''
 
-        if inputVariables and isinstance(inputVariables[1], numbers.Number):
+        if len(inputVariables) != 0 and isinstance(
+                inputVariables[0], numbers.Number):
             # Currently there are no number arguments supported.
             # Look into the Matlab code for more detail. It can be
             # simply replaced by a mapping function with zero inputs
