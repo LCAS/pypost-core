@@ -142,8 +142,14 @@ class DataManipulator(DataManipulatorInterface):
 
     def addDataManipulationFunction(self, function, inputArguments,
                                     outputArguments,
-                                    callType=CallType.ALL_AT_ONCE,
-                                    takesNumElements=False):
+                                    callType=None,
+                                    takesNumElements=None):
+        if callType is None:
+            callType = CallType.ALL_AT_ONCE
+
+        if takesNumElements is None:
+            takesNumElements = False
+
         if not inputArguments:
             takesNumElements = True
 

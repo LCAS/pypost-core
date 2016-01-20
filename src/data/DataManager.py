@@ -7,25 +7,31 @@ from DataStructure import DataStructure
 
 
 class DataManager():
-    numStepsStorage = 1  # default size of a data object
-
-    # TODO: check the comments
+    '''
+    Default size of data objects.
+    '''
+    numStepsStorage = 1
 
     '''
+    .. todo::
+       Move this shit somewhere sensible
+
     The data manager stores all properties of the data that we mantain for
     the different experiments. It is organized hierarchically for storing
     data on different time scales. For example, we can store data on the
     level of the "episodes", e.g., "parameters", or on the level of the
     single steps of an episode, e.g., "states" and "actions".
 
-    @section datamanager_entry Data Entry
+    Data Entry
+
     For each level of the hierarchy, we have an individual data manager,
     which need to be connected by setting a "subDataManager". For
     each data entry, we have to set the dimensionality. We also can set
     the range of the data entry and specify whether some dimensions of the
     data entry are periodic or not.
 
-    @section datamanager_alias Data Alias
+    Data Alias
+
     In addition to data entries, we can define data alias
     (see addDataAlias). A data alias can be seen as a pointer that points
     to other data entries. It can point to a subIndex set of a single
@@ -35,7 +41,8 @@ class DataManager():
     can define a data alias "parameters" that points to the
     concantenation of "weights", "goal" and "goalVel".
 
-    @section datamanager_functionality Additional functionality
+    Additional functionality
+
     The data manager also has the basic functionality you need to obtain
     the properties of the data or to compute the level of the hierarchy
     of a specific data entry. When registering a new data entry, always
@@ -43,7 +50,8 @@ class DataManager():
     the desired hierarchy. The data managers can be obtained by the
     functions getDataManagerForName or getDataManagerForDepth.
 
-    @section datamanager_lazy Lazy Feature Generation
+    Lazy Feature Generation
+
     Finally, the data managers also allow for lazy evaluations of features.
     In this case, we can add FeatureGenerators.FeatureGenerator for specify
     data entries.
@@ -58,7 +66,10 @@ class DataManager():
     '''
 
     def __init__(self, name):
-        '''Constructor'''
+        '''
+        Constructor
+        :param string name: The name of this DataManager
+        '''
         self.name = name
         self.__subDataManager = None
         self.dataEntries = dict()
@@ -70,6 +81,10 @@ class DataManager():
 
     @property
     def finalized(self):
+        '''
+        Returns True if the DataManager has been finalized,
+        False otherwise.
+        '''
         return self._finalized
 
     @property
@@ -86,6 +101,9 @@ class DataManager():
         '''
         Returns the DataManager for the given depth.
         Returns None if depth is out of range.
+
+        :return: The DataManager associated with the given depth
+        :rtype: data.DataManager
         '''
         if self._dirty:
             self.updateDepthMap(False)
@@ -97,11 +115,21 @@ class DataManager():
     def addDataEntry(self, name, numDimensions, minRange=-1, maxRange=1):
         '''
         Function for adding a new data entry. If the same data entry already
-        exists, then the properties are overwritten. minRange and maxRange are
-        optional arguments (standard values are a vector of -1 and +1). Both
-        arguments need to be row vectors with the same size as the specified
-        dimensionality. The function automatically adds a data alias pointing
-        to the same data entry.
+        exists, then the properties are overwritten.
+        minRange and maxRange are optional arguments (standard values are a
+        vector of -1 and +1). Both arguments need to be row vectors with the
+        same size as the specified dimensionality.
+        The function automatically adds a data alias pointing
+        to the new data entry.
+
+        :param string name: The name of the data entry
+        :param int numDimensions: The number of dimensions of the data entry
+        :param minRange: Minimum values (optional)
+        :param maxRange: Maximum values (optional)
+        :type minRange: list or number
+        :type maxRange: list or number
+        :raises ValueError: If the DataManager has been finalized already or
+                            there is a DataAlias of that name.
         '''
         if self.finalized:
             raise RuntimeError("The data manager cannot be modified after "
@@ -119,7 +147,8 @@ class DataManager():
         if isinstance(maxRange, numbers.Number):
             maxRange = maxRange * np.ones((numDimensions))
 
-        self.dataEntries[name] = DataEntry(name, numDimensions, minRange, maxRange)
+        self.dataEntries[name] = DataEntry(name, numDimensions,
+                                           minRange, maxRange)
         self.dataAliases[name] = DataAlias(name, [(name, ...)], numDimensions)
 
         self._dirty = True
@@ -141,14 +170,19 @@ class DataManager():
 
     def addDataAlias(self, aliasName, entryList):
         '''
-        Add a new data alias.
-        @param aliasName the name of the alias
-        @param entryList a dict of data entries and slices to these data
-                         entries. If the whole data entry should be used, use
+        Adds a new data alias.
+
+        :param string aliasName: The name of the alias
+        :param entryList: A list containing tuples of data entries and slices.
+                         If the whole data entry should be used, use
                          "..." instead of a slice. This means the alias should
                          point to all dimensions of the data entry.
-                         see DataAlias.py for more information about the format
-                         of this parameter
+                         See :mod:`~data.DataAlias` for more information about
+                         the format of this parameter
+        :type entryList: list of tuples
+        :raises RuntimeError: If the DataManager has been finalized already.
+        :raises ValueError: If the alias name is already used as data entry
+                            or an entry in the entryList doesn't exist.
         '''
 
         if self.finalized:
@@ -210,6 +244,14 @@ class DataManager():
         self._dirty = True
 
     def getDataAlias(self, aliasName):
+        '''
+        Retuns the data alias associated with the given name.
+
+        :param string aliasName: The alias name
+        :return: The data alias
+        :rtype: data.DataAlias
+        :raises ValueError: If the alias is not defined
+        '''
         if aliasName in self.dataAliases:
             return self.dataAliases[aliasName]
         if self.subDataManager is not None:
@@ -217,6 +259,13 @@ class DataManager():
         raise ValueError("Alias of name %s is not defined" % aliasName)
 
     def getDataEntryDepth(self, entryName):
+        '''
+        Returns the depth of the given entry.
+
+        :param string entryName: The entry name
+        :return: The depth of the entry
+        :rtype: int
+        '''
         if self._dirty:
             self.updateDepthMap(False)
         if entryName not in self._depthMap:
@@ -226,7 +275,14 @@ class DataManager():
     def getNumDimensions(self, entryNames):
         '''
         Returns the dimensionality of a given data entry (or alias).
-        Also works if the name has been registered in a submanager.
+        If multiple names are given, the dimensions are added up.
+        Also works if the name has been registered on a deeper layer.
+
+        :param entryNames: The name(s) of the entries or aliases
+        :type entryNames: string or list of strings
+        :return: The number of dimensions
+        :rtype: int
+        :raises ValueError: If an entry/alias is not defined
         '''
         if isinstance(entryNames, list):
             numDim = 0
@@ -244,8 +300,14 @@ class DataManager():
 
     def getMinRange(self, entryNames):
         '''
-        Returns a list of vectors with the minRange values for each entry.
+        Returns a vector with the minRange values for each entry.
         Also works for a single entry name.
+
+        :param entryNames: The entry/alias names
+        :type entryNames: string or list of strings
+        :return: A list containing the minRange values
+        :rtype: list of numbers
+        :raises ValueError: If an entry or alias is not defined
         '''
         if isinstance(entryNames, list):
             minRange = []
@@ -278,8 +340,14 @@ class DataManager():
 
     def getMaxRange(self, entryNames):
         '''
-        Returns a list of vectors with the maxRange values for each entry.
+        Returns a vector with the maxRange values for each entry.
         Also works for a single entry name.
+
+        :param entryNames: The entry/alias names
+        :type entryNames: string or list of strings
+        :return: A list containing the maxRange values
+        :rtype: list of numbers
+        :raises ValueError: If an entry or alias is not defined
         '''
         if isinstance(entryNames, list):
             maxRange = []
@@ -313,6 +381,9 @@ class DataManager():
     def getAliasNames(self):
         '''
         Returns the names of all aliases (including subdatamanagers)
+
+        :return: The alias names
+        :rtype: list of strings
         '''
         names = []
         for name in self.dataAliases.keys():
@@ -324,6 +395,9 @@ class DataManager():
     def getElementNames(self):
         '''
         Returns the names of all data entries (including subdatamanagers)
+
+        :return: The entry names
+        :rtype: list of strings
         '''
         names = []
         for name in self.dataEntries.keys():
@@ -335,31 +409,51 @@ class DataManager():
     def getAliasNamesLocal(self):
         '''
         Returns the names of all aliases (only of this data manager)
+
+        :return: The alias names
+        :rtype: list of strings
         '''
         return self.dataAliases.keys()
 
     def getElementNamesLocal(self):
         '''
         Returns the names of all data entries (only of this data manager)
+
+        :return: The entry names
+        :rtype: list of strings
         '''
         return self.dataEntries.keys()
 
     def getDataObject(self, numElements):
         '''
         Creates a new data object with numElements data points.
-        @param numElements a vector defining the number of elements for each
+
+        :param numElements: A vector defining the number of elements for each
                            layer of the hierarchy.
                            This parameter may also be an integer, in which case
                            all layers will have the same number of data points
+        :type numElements: int or list of ints
+        :return: The newly created data object
+        :rtype: data.Data
         '''
         if not self.finalized:
             self.finalize()
         return Data(self, self._createDataStructure(numElements))
 
     def finalize(self):
+        '''
+        Finalizes this data manager.
+        After finalization, the structure of the data cannot be modified.
+        '''
         self.updateDepthMap(True)
 
     def updateDepthMap(self, finalize):
+        '''
+        Updates the internal depth map used for fast data access.
+        This function is called automatically during finalization.
+
+        :param bool finalize: If true, the data manager is marked as finalized
+        '''
         if self._dirty:
             subManager = self
             depth = 0
@@ -385,11 +479,14 @@ class DataManager():
 
     def _createDataStructure(self, numElements):
         '''
-        Creates the data structure (containing real data) for the data object
-        @param numElements a vector defining the number of elements for each
+        Creates the data structure (containing real data) for the data object.
+
+        :param numElements: A vector defining the number of elements for each
                            layer of the hierarchy.
                            This parameter may also be an integer, in which case
-                           all layers will have the same number of data points
+                           all layers will have the same number of data points.
+        :return: The newly created data structure
+        :rtype: data.DataStructure
         '''
         if isinstance(numElements, list):
             numElementsCurrentLayer = numElements[0]
@@ -424,9 +521,12 @@ class DataManager():
         that also contains the number of data points to add to the lower levels
         of the hierarchy. This function should only be called by the data
         object.
-        @param dataStructure the DataStructure to be modified
-        @param numElements a vector containing the number of elements to add
-               for each layer
+
+        :param data.DataStructure dataStructure: The DataStructure to be
+                                                 modified
+        :param numElements: A vector containing the number of elements to add
+                            for each layer
+        :type numElemenst: list of ints
         '''
         numElementsLocal = numElements
         if isinstance(numElements, list):

@@ -185,11 +185,11 @@ class testDataManipulator(unittest.TestCase):
         
         manipulator.addDataManipulationFunction(singleSampleFunction, [], ['states'], CallType.SINGLE_SAMPLE, True)
         
-        manipulator.callDataFunction('singleSampleFunction', data, [..., ...])
-        print(data.getDataEntry('states', [..., ...]))
-        result = data.getDataEntry('states', [..., ...])
-        self.assertTrue(result.shape == (600, 1))
-        self.assertTrue((result == 12 * np.ones((600, 1))).all())
+        manipulator.callDataFunction('singleSampleFunction', data, [0, ...])
+        print(data.getDataEntry('states', [0, ...]))
+        result = data.getDataEntry('states', [0, ...])
+        self.assertTrue(result.shape == (30, 1))
+        self.assertTrue((result == 12 * np.ones((30, 1))).all())
         
     def test_callDataFunctionOutput(self):
         dataManager = DataUtil.createTestManager()

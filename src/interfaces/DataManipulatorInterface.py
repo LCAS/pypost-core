@@ -32,6 +32,12 @@ class DataManipulatorInterface(object):
     def isSamplerFunction(self, samplerName):
         raise NotImplementedError("Not implemented")
 
+    def setTakesData(self, name, takesData):
+        raise NotImplementedError("Not implemented")
+
+    def setIndices(self, name, numInput, indices):
+        raise NotImplementedError("Not implemented")
+
     def clearDataFunctionAlias(self, alias):
         raise NotImplementedError("Not implemented")
 
