@@ -24,7 +24,7 @@ class SequentialResetSampler(Sampler):
         '''
 
     def createSamples(self, newData, *args):
-        layerIndex = *args
+        layerIndex = args
 
         reservedStorage = toReserve()
         newData.reserveStorage(reservedStorage, layerIndex[:])

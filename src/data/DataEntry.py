@@ -4,7 +4,9 @@ class DataEntry():
     '''
 
     def __init__(self, name, numDimensions, minRange, maxRange):
-        '''Constructor'''
+        '''
+        Constructor
+        '''
         self.name = name
         self.numDimensions = numDimensions
         self.minRange = minRange

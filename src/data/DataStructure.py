@@ -8,9 +8,10 @@ class DataStructure():
     data object.
     '''
 
-    def __init__(self):
+    def __init__(self, numElements):
         '''Constructor'''
         self.dataStructureLocalLayer = dict()
+        self.numElements = numElements
 
     def __len__(self):
         return len(self.dataStructureLocalLayer)
@@ -46,12 +47,11 @@ class DataStructure():
                         entry[:, slice_] = \
                             item[:, currentIndexInItem:currentIndexInItem+l]
                         self[entryName] = entry
-                    elif isinstance(entry, np.ndarray):
+                    else:
+                        # the entry is an ndarray
                         # writing directly to the ndarray...
                         entry[:, slice_] = \
                             item[:, currentIndexInItem:currentIndexInItem+l]
-                    else:
-                        raise ValueError("Unknown type of the data entry")
 
                     currentIndexInItem += l
             else:
@@ -123,10 +123,11 @@ class DataStructure():
             # get the data from the current layer
             if indices[0] == Ellipsis:
                 return self[path[0]]
+            elif isinstance(indices[0], slice):
+                return self[path[0]][indices]
             else:
                 return np.array(
                     [self[path[0]][indices[0]]])
-
         else:
             # get the data from lower layers
             data = None
@@ -182,7 +183,7 @@ class DataStructure():
                 # entry
                 indexRange = range(0, indices[0].stop)[indices[0]]
                 if len(data.shape) != 2 or data.shape[0] != len(indexRange):
-                    raise ValueError("Invalid data format")
+                    raise ValueError("Invalid data shape")
                 self[path[0]][indices[0]] = data
             elif isinstance(indices[0], int):
                 # set the data for a single iteration of the requested entry

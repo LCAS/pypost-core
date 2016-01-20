@@ -10,6 +10,24 @@ import DataUtil
 
 class testDataManager(unittest.TestCase):
 
+    def test_completeLayerIndex(self):
+        dataManager = DataUtil.createTestManager()
+        data = dataManager.getDataObject([10, 20, 30])
+
+        self.assertEqual(data.completeLayerIndex(0, ...),
+                         [slice(0, 10, None)])
+
+        self.assertEqual(data.completeLayerIndex(2, [..., slice(0, 5)]),
+                         [slice(0, 10, None), slice(0, 5, None),
+                          slice(0, 30, None)])
+
+        self.assertEqual(data.completeLayerIndex(2, ...),
+                         [slice(0, 10, None), slice(0, 20, None),
+                          slice(0, 30, None)])
+
+        self.assertEqual(data.completeLayerIndex(1, [..., ..., ...]),
+                         [slice(0, 10, None), slice(0, 20, None)])
+
     def test_getDataEntryDimensions(self):
         dataManager = DataManager('episodes')
         subDataManager = DataManager('steps')
@@ -257,22 +275,27 @@ class testDataManager(unittest.TestCase):
         dataManager = DataManager('episodes')
         dataManager.addDataEntry('parameters', 5)
         dataManager.addDataEntry('context', 3)
-        myData = dataManager.getDataObject([1])
+        myData = dataManager.getDataObject([10])
 
         # set the data for the parameters and context of all episodes
-        myData.setDataEntry(['parameters'], [...], np.ones((5)))
-        myData.setDataEntry(['context'], [...], np.ones((3)))
+        myData.setDataEntry(['parameters'], [...], np.ones((10, 5)))
+        myData.setDataEntry(['context'], [...], np.ones((10, 3)))
 
         result = myData.getDataEntryList(['parameters', 'context'], [...])
 
         self.assertTrue(isinstance(result, list))
-        self.assertTrue((result[0] == np.ones((5))).all())
-        self.assertTrue((result[1] == np.ones((3))).all())
+        self.assertTrue((result[0] == np.ones((10, 5))).all())
+        self.assertTrue((result[1] == np.ones((10, 3))).all())
 
         result = myData.getDataEntryList([('parameters', 'context')], [...])
 
         self.assertEqual(len(result), 1)
-        self.assertTrue((result[0] == np.ones((8))).all())
+        self.assertTrue((result[0] == np.ones((10, 8))).all())
+
+    def test_set_data_entry_int(self):
+        manager = DataUtil.createTestManager()
+        data = manager.getDataObject([10, 20, 30])
+        data.setDataEntry('parameters', 1, np.ndarray((5)))
 
     def test_setDataEntryList(self):
         dataManager = DataManager('episodes')
@@ -292,7 +315,7 @@ class testDataManager(unittest.TestCase):
         self.assertTrue((myData.getDataEntry('context', [...]) ==
                          np.zeros((3))).all())
 
-        myData.setDataEntryList([('parameters', 'context')], [...],
+        myData.setDataEntryList([('parameters', ['context'])], [...],
                                 [np.hstack((np.ones((5)), 2 * np.ones((3))))])
 
         self.assertTrue((myData.getDataEntry('parameters', [...]) ==
@@ -300,10 +323,20 @@ class testDataManager(unittest.TestCase):
         self.assertTrue((myData.getDataEntry('context', [...]) ==
                          2 * np.ones((3))).all())
 
-    def test_resolvePath(self):
+        myData.setDataEntryList([('parameters', ['context'])], [...],
+                                [6 * np.ones((2, 8))])
+
+        self.assertTrue((myData.getDataEntry('parameters', [...]) ==
+                         6 * np.ones((5))).all())
+        self.assertTrue((myData.getDataEntry('context', [...]) ==
+                         6 * np.ones((3))).all())
+
+
+    def test_resolveEntryPath(self):
         manager = DataUtil.createTestManager()
         data = manager.getDataObject([10, 20, 30])
 
+        self.assertTrue(['parameters'] == data._resolveEntryPath('parameters'))
         self.assertTrue(['context'] == data._resolveEntryPath('context'))
         self.assertTrue(['steps', 'states'] ==
                         data._resolveEntryPath('states'))
@@ -364,6 +397,20 @@ class testDataManager(unittest.TestCase):
         self.assertEqual(data.getNumElementsForIndex(2, [slice(0, 1),
                          slice(2, 3), slice(0, 2)]), 2)
 
+        dataManager = DataManager('episodes')
+        subDataManager = DataManager('steps')
+        dataManager.subDataManager = subDataManager
+        dataManager.addDataEntry('parameters', 5)
+        dataManager.addDataAlias('pAlias', [('parameters', ...)])
+        dataManager.addDataEntry('context', 2)
+        data = dataManager.getDataObject([3, 4, 5])
+
+        self.assertEqual(data.getNumElementsForIndex(0), 3)
+        self.assertEqual(data.getNumElementsForIndex(0, [...]), 3)
+        self.assertEqual(data.getNumElementsForIndex(1), 3)
+        self.assertEqual(data.getNumElementsForIndex(1, [...]), 3)
+        self.assertEqual(data.getNumElementsForIndex(1, [..., ...]), 3)
+        self.assertEqual(data.getNumElementsForIndex(1, [slice(2, 3)]), 1)
 
 if __name__ == '__main__':
     unittest.main()

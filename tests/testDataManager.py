@@ -3,6 +3,7 @@ import sys
 import numpy as np
 sys.path.append('../src/data')
 import DataUtil
+from DataAlias import DataAlias
 from DataEntry import DataEntry
 from DataManager import DataManager
 
@@ -26,6 +27,35 @@ class testDataManager(unittest.TestCase):
         self.assertIs(dataManager.subDataManager.subDataManager,
                       subSubDataManager)
 
+    def test_getSubDataManagerForDepth(self):
+        dataManager = DataManager('episodes')
+        subDataManager = DataManager('steps')
+        subSubDataManager = DataManager('subSteps')
+        dataManager.subDataManager = subDataManager
+        subDataManager.subDataManager = subSubDataManager
+
+        self.assertEqual(dataManager.getSubDataManagerForDepth(0), dataManager)
+        self.assertEqual(dataManager.getSubDataManagerForDepth(0), dataManager)
+        self.assertEqual(dataManager.getSubDataManagerForDepth(0), dataManager)
+        self.assertEqual(dataManager.getSubDataManagerForDepth(1),
+                         subDataManager)
+        self.assertEqual(dataManager.getSubDataManagerForDepth(2),
+                         subSubDataManager)
+        self.assertEqual(dataManager.getSubDataManagerForDepth(3), None)
+
+    def test_addDataEntry_after_finalize(self):
+        dataManager = DataManager('episodes')
+        myData = dataManager.getDataObject(10)
+        self.assertRaises(RuntimeError,
+                          dataManager.addDataEntry, ('parameters', 5), 0)
+
+    def test_addDataEntry_name_conflict(self):
+        dataManager = DataManager('episodes')
+        dataManager.addDataEntry('parameters', 5)
+        dataManager.addDataAlias('conflict', [('parameters', ...)])
+        self.assertRaises(ValueError,
+                          dataManager.addDataEntry, 'conflict', 0)
+
     def test_getDataObject(self):
         dataManager = DataManager('episodes')
         subDataManager = DataManager('steps')
@@ -43,6 +73,7 @@ class testDataManager(unittest.TestCase):
 
         myData = dataManager.getDataObject([10, 5, 1])
 
+        self.assertTrue(dataManager.finalized)
         self.assertEqual(len(myData.dataStructure['parameters']), 10)
         self.assertEqual(len(myData.dataStructure['context']), 10)
         self.assertEqual(len(myData.dataStructure['parameters'][0]), 5)
@@ -73,6 +104,11 @@ class testDataManager(unittest.TestCase):
             len(myData.dataStructure['steps'][0]['subSteps'][0]
                 ['subActions'][0]), 2)
 
+    def test_getDataObject_twice(self):
+        dataManager = DataUtil.createTestManager()
+        myData = dataManager.getDataObject([10, 5, 1])
+        myData = dataManager.getDataObject([3, 1, 2])
+
     def test_addDataEntry(self):
         dataManager = DataManager('episodes')
         dataManager.addDataEntry('parameters', 5, -1 * np.ones(5),
@@ -87,7 +123,14 @@ class testDataManager(unittest.TestCase):
         self.assertTrue((dataManager.dataEntries['parameters'].maxRange ==
                          [1, 1, 3, 1, 1]).all())
 
-    def test_addAlias(self):
+    def test_getDataEntryDepth(self):
+        dataManager = DataUtil.createTestManager()
+        self.assertEqual(dataManager.getDataEntryDepth('context'), 0)
+        self.assertEqual(dataManager.getDataEntryDepth('states'), 1)
+        self.assertEqual(dataManager.getDataEntryDepth('subActions'), 2)
+        self.assertRaises(ValueError, dataManager.getDataEntryDepth, 'none')
+
+    def test_addDataAlias(self):
         dataManager = DataManager('episodes')
 
         self.assertIsInstance(dataManager.dataAliases, dict)
@@ -131,7 +174,21 @@ class testDataManager(unittest.TestCase):
                           dataManager.addDataAlias, 'context',
                           [('context', ...)])
 
-    def test_getAliasData(self):
+    def test_addDataAlias_missing_data_entry(self):
+        dataManager = DataManager('episodes')
+        self.assertRaises(ValueError,
+                          dataManager.addDataAlias, 'alias', [('none', ...)])
+
+    def test_addDataAlias_after_finalize(self):
+        dataManager = DataManager('episodes')
+        myData = dataManager.getDataObject([10])
+        self.assertRaises(RuntimeError, dataManager.addDataAlias, 'alias', [])
+
+    def test_getDataAlias_non_existing(self):
+        dataManager = DataUtil.createTestManager()
+        self.assertRaises(ValueError, dataManager.getDataAlias, 'none')
+
+    def test_get_alias_data(self):
         dataManager = DataManager('episodes')
         dataManager.addDataEntry('parameters', 5)
         dataManager.addDataEntry('context', 5)
@@ -182,7 +239,7 @@ class testDataManager(unittest.TestCase):
         self.assertEqual(myData.dataStructure['context'][4][2], 4)
         self.assertEqual(myData.dataStructure['context'][5][2], 5)
 
-    def test_getAliasAliasData(self):
+    def test_get_alias_alias_data(self):
         # reading and manipulating data from an alias that points to another
         # alias
         dataManager = DataUtil.createTestManager()
@@ -216,6 +273,66 @@ class testDataManager(unittest.TestCase):
         self.assertEqual(myData.dataStructure['parameters'][1][4], 4)
         self.assertEqual(myData.dataStructure['parameters'][0][0], 0)
         self.assertEqual(myData.dataStructure['parameters'][2][4], 4)
+
+    def test_getNumDimensions(self):
+        dataManager = DataUtil.createTestManager()
+
+        self.assertEqual(dataManager.getNumDimensions('parameters'), 5)
+        self.assertEqual(dataManager.getNumDimensions('context'), 2)
+        self.assertEqual(dataManager.getNumDimensions(['parameters']), 5)
+        self.assertEqual(dataManager.getNumDimensions(['parameters', 'context']), 7)
+        self.assertEqual(dataManager.getNumDimensions('states'), 1)
+        self.assertEqual(dataManager.getNumDimensions('subStates'), 1)
+        self.assertEqual(dataManager.getNumDimensions(['parameters', 'context', 'states', 'subStates']), 9)
+
+        self.assertRaises(ValueError, dataManager.getNumDimensions, 'none')
+
+    def test_getMinRange(self):
+        dataManager = DataUtil.createTestManager()
+        self.assertTrue(
+            (dataManager.getMinRange('parameters') == -np.ones(5)).all())
+
+        self.assertTrue((dataManager.getMinRange(['parameters', 'states']) ==
+                         -np.ones(6)).all())
+
+        self.assertRaises(ValueError, dataManager.getMinRange, 'none')
+
+        brokenAlias = DataAlias('alias', [('none', ...)], 0)
+        dataManager.dataAliases['alias'] = brokenAlias
+
+        self.assertRaises(ValueError, dataManager.getMinRange, 'alias')
+
+    def test_getMaxRange(self):
+        dataManager = DataUtil.createTestManager()
+        self.assertTrue(
+            (dataManager.getMaxRange('parameters') == np.ones(5)).all())
+
+        self.assertTrue((dataManager.getMaxRange(['parameters', 'states']) ==
+                         np.ones(6)).all())
+
+        self.assertRaises(ValueError, dataManager.getMaxRange, 'none')
+
+        brokenAlias = DataAlias('alias', [('none', ...)], 0)
+        dataManager.dataAliases['alias'] = brokenAlias
+
+        self.assertRaises(ValueError, dataManager.getMaxRange, 'alias')
+
+    def test_getElementNames(self):
+        dataManager = DataUtil.createTestManager()
+        self.assertEqual(sorted(dataManager.getElementNames()),
+                         ['actions', 'context', 'parameters', 'states',
+                          'subActions', 'subStates'])
+
+        dataManager = DataManager('testDM')
+        dataManager.addDataEntry('a', 5)
+        dataManager.addDataEntry('b', 10)
+        self.assertEqual(sorted(dataManager.getElementNames()),
+                         sorted(['a', 'b']))
+
+    def test_getElementNamesLocal(self):
+        dataManager = DataUtil.createTestManager()
+        self.assertEqual(sorted(dataManager.getElementNamesLocal()),
+                         ['context', 'parameters'])
 
     def test_reserveStorage(self):
         dataManager = DataManager('episodes')
@@ -262,6 +379,17 @@ class testDataManager(unittest.TestCase):
                 data.dataStructure['steps'][i]['states'].shape[0], 0)
             self.assertEqual(
                 data.dataStructure['steps'][i]['actions'].shape[0], 0)
+
+        data.reserveStorage(15)
+
+        self.assertEqual(data.dataStructure['context'].shape[0], 15)
+        self.assertEqual(data.dataStructure['parameters'].shape[0], 15)
+
+        for i in range(0, 50):
+            self.assertEqual(
+                data.dataStructure['steps'][i]['states'].shape[0], 15)
+            self.assertEqual(
+                data.dataStructure['steps'][i]['actions'].shape[0], 15)
 
 if __name__ == '__main__':
     unittest.main()

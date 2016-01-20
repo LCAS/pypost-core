@@ -1,13 +1,3 @@
-'''
-Created on 12.11.2015
-
-@author: sebastian
-
-
-Notes: matlab.getDataEntry('actions', :, 1, -1)
-       statt ':' könnte man 0 verwenden
-'''
-
 import numpy as np
 
 
@@ -27,7 +17,7 @@ class DataEntryInfo(object):
 
 class Data(object):
     '''
-    classdocs
+    Stores meta data for each data entry to make access simple and fast.
     '''
 
     def __init__(self, dataManager, dataStructure):
@@ -41,9 +31,6 @@ class Data(object):
         self.init()
 
     def init(self):
-        '''
-        Stores meta data for each data entry to make access simple and fast.
-        '''
         aliasNames = self.dataManager.getAliasNames()
         for name in aliasNames:
             depth = self.dataManager.getDataEntryDepth(name)
@@ -54,19 +41,27 @@ class Data(object):
                               self.dataManager.getMaxRange(name))
 
     def completeLayerIndex(self, depth, indices):
+        '''
+        This function completes the hierarchical indicing for the internal
+        functions for accessing the data. E.g., if not enough indices are
+        specified, it appends "..." (index for every data point).
+        '''
         if not isinstance(indices, list):
             indices = [indices]
         while len(indices) <= depth:
             indices.append(...)
         if len(indices) > depth + 1:
             indices = indices[0:depth+1]
+
         manager = self.dataManager
         dataStructure = self.dataStructure
+
         for i in range(0, len(indices)):
-            manager = manager.subDataManager
             if indices[i] == Ellipsis:
-                indices[i] = slice(0, len(dataStructure[manager.name]))
-            dataStructure = dataStructure[manager.name][0]
+                indices[i] = slice(0, dataStructure.numElements)
+            manager = manager.subDataManager
+            if manager is not None:
+                dataStructure = dataStructure[manager.name][0]
         return indices
 
     def getNumElements(self, entryName=None):
@@ -86,19 +81,6 @@ class Data(object):
         '''
         return self.getNumElementsForIndex(depth, [])
 
-    def _resolveEntryPath(self, name):
-        path = []
-        if name in self.entryInfoMap:
-            depth = self.entryInfoMap[name].depth
-            dataManager = self.dataManager.subDataManager
-            while dataManager is not None and depth > 0:
-                path.append(dataManager.name)
-                dataManager = dataManager.subDataManager
-                depth -= 1
-        path.append(name)
-        # print("%s -> %s" % (name, path))
-        return path
-
     def getNumElementsForIndex(self, depth, indices=[]):
         while len(indices) <= depth:
             indices.append(...)
@@ -116,12 +98,24 @@ class Data(object):
             indices = indices[1:]
             depth -= 1
 
-        for name, entry in subStructure.dataStructureLocalLayer.items():
-            if isinstance(entry, np.ndarray):
+        items = subStructure.dataStructureLocalLayer.items()
+        for name, entry in items:
+            if isinstance(entry, np.ndarray): # pragma: no branch
                 numElements *= subStructure[name][indices[0]].shape[0]
                 break
 
         return numElements
+
+    def _resolveEntryPath(self, name):
+        path = []
+        depth = self.entryInfoMap[name].depth
+        dataManager = self.dataManager.subDataManager
+        while dataManager is not None and depth > 0:
+            path.append(dataManager.name)
+            dataManager = dataManager.subDataManager
+            depth -= 1
+        path.append(name)
+        return path
 
     def getDataEntry(self, path, indices=[]):
         '''
