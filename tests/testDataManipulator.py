@@ -224,9 +224,8 @@ class testDataManipulator(unittest.TestCase):
             CallType.SINGLE_SAMPLE,
             True)
 
-        manipulator.callDataFunction('singleSampleFunction', data, [0, ...])
-        print(data.getDataEntry('states', [0, ...]))
-        result = data.getDataEntry('states', [0, ...])
+        manipulator.callDataFunction('singleSampleFunction', data, [slice(0, 1), ...])
+        result = data.getDataEntry('states', [slice(0, 1), ...])
         self.assertTrue(result.shape == (30, 1))
         self.assertTrue((result == 12 * np.ones((30, 1))).all())
 
