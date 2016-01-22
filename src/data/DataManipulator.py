@@ -3,11 +3,9 @@ Created on Dec 7, 2015
 
 @author: Sebastian Kreutzer
 '''
-import sys
-sys.path.append('interfaces')
-from interfaces import DataManipulatorInterface
-from interfaces import CallType
-from data import DataManager
+from interfaces.DataManipulatorInterface import DataManipulatorInterface
+from interfaces.DataManipulatorInterface import CallType
+from data.DataManager import DataManager
 import numpy as np
 
 

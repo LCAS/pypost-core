@@ -1,9 +1,10 @@
 import numpy as np
 import numbers
-from Data import Data
-from DataAlias import DataAlias
-from DataEntry import DataEntry
-from DataStructure import DataStructure
+
+from data.Data import Data
+from data.DataAlias import DataAlias
+from data.DataEntry import DataEntry
+from data.DataStructure import DataStructure
 
 
 class DataManager():

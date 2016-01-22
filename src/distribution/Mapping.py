@@ -5,9 +5,9 @@ Created on 09.01.2016
 '''
 import numbers
 
-from interfaces import MappingInterface
-from interfaces import CallType
-from data import DataManipulator
+from interfaces.MappingInterface import MappingInterface
+from interfaces.DataManipulatorInterface import CallType
+from data.DataManipulator import DataManipulator
 
 
 class Mapping(DataManipulator, MappingInterface):

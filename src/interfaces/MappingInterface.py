@@ -3,7 +3,7 @@ Created on 09.01.2016
 
 @author: Moritz
 '''
-from interfaces import DataManipulatorInterface
+from interfaces.DataManipulatorInterface import DataManipulatorInterface
 
 
 class MappingInterface(DataManipulatorInterface):
