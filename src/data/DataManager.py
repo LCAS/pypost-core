@@ -496,13 +496,14 @@ class DataManager():
 
         dataStructure = DataStructure(numElementsCurrentLayer)
         for dataEntryName, dataEntry in self.dataEntries.items():
-            dataStructure[dataEntryName] = np.zeros((numElementsCurrentLayer,
-                                                     dataEntry.numDimensions),
-                                                    dtype=np.float64)
+            dataStructure.createEntry(dataEntryName,
+                                      np.zeros((numElementsCurrentLayer,
+                                                dataEntry.numDimensions),
+                                               dtype=np.float64))
 
         for dataAliasName, dataAlias in self.dataAliases.items():
             if dataAliasName not in self.dataEntries:
-                dataStructure[dataAliasName] = dataAlias
+                dataStructure.createEntry(dataAliasName, dataAlias)
 
         if (self.subDataManager is not None):
             subDataStructures = []
@@ -511,7 +512,8 @@ class DataManager():
                 subDS = self.subDataManager._createDataStructure(numElements)
                 subDataStructures.append(subDS)
 
-            dataStructure[self.subDataManager.name] = subDataStructures
+            dataStructure.createEntry(self.subDataManager.name,
+                                      subDataStructures)
 
         return dataStructure
 

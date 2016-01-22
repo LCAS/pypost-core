@@ -13,6 +13,11 @@ class DataStructure():
         self.dataStructureLocalLayer = dict()
         self.numElements = numElements
 
+    def createEntry(self, name, entry):
+        if name in self.dataStructureLocalLayer:
+            raise ValueError("Cannot redefine entry")
+        self.dataStructureLocalLayer[name] = entry
+
     def __len__(self):
         return len(self.dataStructureLocalLayer)
 
@@ -23,10 +28,12 @@ class DataStructure():
         if isinstance(item, np.ndarray):
             # item contains 'real' data
             if name not in self.dataStructureLocalLayer:
-                # create the new data entry
-                self.dataStructureLocalLayer[name] = item
+                raise KeyError("The specified entry name is undefined")
             elif isinstance(self.dataStructureLocalLayer[name], np.ndarray):
                 # assigning to a 'real' data entry (a matrix)
+                if self.dataStructureLocalLayer[name].shape != item.shape:
+                    raise ValueError("The shape of the specified matrix"
+                                     " doesn't match the existing entry")
                 self.dataStructureLocalLayer[name] = item
             elif isinstance(self.dataStructureLocalLayer[name], DataAlias):
                 # asssigning to a data alias
@@ -59,8 +66,7 @@ class DataStructure():
                                  type(self.dataStructureLocalLayer[name]))
 
         else:
-            # assigning a definition of an alias or a subDataStructure
-            self.dataStructureLocalLayer[name] = item
+            raise ValueError("Cannot define new aliases or sub-DataStructures")
 
     def __getitem__(self, name):
         if name not in self.dataStructureLocalLayer:
