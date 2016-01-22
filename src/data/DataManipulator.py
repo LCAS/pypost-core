@@ -143,12 +143,16 @@ class DataManipulator(DataManipulatorInterface):
     def addDataManipulationFunction(self, function, inputArguments,
                                     outputArguments,
                                     callType=None,
-                                    takesNumElements=None):
+                                    takesNumElements=None,
+                                    name=None):
         if callType is None:
             callType = CallType.ALL_AT_ONCE
 
         if takesNumElements is None:
             takesNumElements = False
+
+        if name is None:
+            name = function.__name__
 
         if not inputArguments:
             takesNumElements = True
@@ -171,11 +175,11 @@ class DataManipulator(DataManipulatorInterface):
         dmf = DataManipulationFunction(function, inputArguments,
                                        outputArguments, depthEntry,
                                        indices, takesNumElements, callType)
-        self._manipulationFunctions[function.__name__] = dmf
+        self._manipulationFunctions[name] = dmf
 
-        if function.__name__ in self._samplerFunctions:
-            del self._samplerFunctions[function.__name__]
-        self.addDataFunctionAlias(function.__name__, function.__name__)
+        if name in self._samplerFunctions:
+            del self._samplerFunctions[name]
+        self.addDataFunctionAlias(name, name)
 
     def isSamplerFunction(self, samplerName):
         return samplerName in self._samplerFunctions

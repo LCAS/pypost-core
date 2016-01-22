@@ -15,12 +15,17 @@ class TestManipulator(DataManipulator):
                                          ['parameters'])
         self.addDataManipulationFunction(self.sampleStates, ['parameters'],
                                          'states', CallType.PER_EPISODE, True)
+        self.addDataManipulationFunction(self.sampleContextAndParameters, [],
+                                         ['context', 'parameters'])
 
     def sampleParameters(self, numElements):
         return np.ones((numElements, 5))
 
     def sampleStates(self, numElements, parameters):
         return np.ones((numElements, 1))
+    
+    def sampleContextAndParameters(self, numElements):
+        return [np.ones((numElements, 2)), 2 * np.ones((numElements, 5))]
 
 
 class testDataManipulator(unittest.TestCase):
@@ -64,6 +69,12 @@ class testDataManipulator(unittest.TestCase):
         # Add function without input or output. The depth entry should be ''
         manipulator.addDataManipulationFunction(h, [], [])
         self.assertEqual(manipulator._manipulationFunctions['h'].depthEntry, '')
+        
+        # Add lambda function
+        manipulator.addDataManipulationFunction(
+                        lambda numElements: np.ones((numElements, 10)),
+                        [], ['parameters'], None, None, 'lambdaFunction')
+        self.assertIn('lambdaFunction', manipulator._manipulationFunctions)
 
     def test_isSamplerFunction(self):
         dataManager = DataUtil.createTestManager()
@@ -180,13 +191,26 @@ class testDataManipulator(unittest.TestCase):
         self.assertTrue((data.getDataEntry('states', [slice(1, 20), ...]) ==
                          7 * np.ones((570, 1))).all())
         
+        data.setDataEntry('context', [...], 7 * np.ones((20, 2)))
+        self.assertTrue((data.getDataEntry('context', [...]) ==
+                         7 * np.ones((20, 2))).all())
+        data.setDataEntry('parameters', [...], 7 * np.ones((20, 5)))
+        self.assertTrue((data.getDataEntry('parameters', [...]) ==
+                         7 * np.ones((20, 5))).all())
+        
+        manipulator.callDataFunction('sampleContextAndParameters', data, [...])
+        self.assertTrue((data.getDataEntry('context', [...]) ==
+                         np.ones((20, 2))).all())
+        self.assertTrue((data.getDataEntry('parameters', [...]) == 
+                         2 * np.ones((20, 5))).all())
+        
         def singleSampleFunction(numElements):
             return 12 * np.ones((numElements, 1))
         
         manipulator.addDataManipulationFunction(singleSampleFunction, [], ['states'], CallType.SINGLE_SAMPLE, True)
         
-        manipulator.callDataFunction('singleSampleFunction', data, [0, ...])
-        print(data.getDataEntry('states', [0, ...]))
+        manipulator.callDataFunction('singleSampleFunction', data, [slice(0,1), ...])
+        #print(data.getDataEntry('states', [0, ...]))
         result = data.getDataEntry('states', [0, ...])
         self.assertTrue(result.shape == (30, 1))
         self.assertTrue((result == 12 * np.ones((30, 1))).all())
