@@ -12,12 +12,12 @@ sys.path.append('../')
 import DataUtil
 
 
-from data import DataAlias
-from data import DataEntry
-from data import DataManager
+from data.DataAlias import DataAlias
+from data.DataEntry import DataEntry
+from data.DataManager import DataManager
 
 
-from distribution import Mapping
+from distribution.Mapping import Mapping
 
 
 class testMapping(unittest.TestCase):
