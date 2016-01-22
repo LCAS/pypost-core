@@ -6,7 +6,7 @@ Created on 09.01.2016
 import numbers
 
 from interfaces import MappingInterface
-from data import DataManager
+from interfaces import CallType
 from data import DataManipulator
 
 
@@ -36,8 +36,8 @@ class Mapping(MappingInterface, DataManipulator):
         @change registerDataFunctions is eqivalent to inputVariables = empty
         #FIXME check registerDataFunctions invariant again, they are doing strange things ...
         '''
-        MappingInterface.__init__(self)
         DataManipulator.__init__(self, dataManager)
+        MappingInterface.__init__(self)
 
         self.dataManager = dataManager
         '''
@@ -70,9 +70,7 @@ class Mapping(MappingInterface, DataManipulator):
 
         # self.dimOutput = {}
 
-        self.mappingFunctions = {}
-
-        self.mappingFunctionsOutputVars = {}
+        self.mappingFunctions = []
 
     def addAdditionalInputVariables(self, variables):
         self.additionalInputVariables = variables

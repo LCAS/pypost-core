@@ -18,10 +18,24 @@ class testMapping(unittest.TestCase):
 
     def test_init(self):
         dataManager = DataManager('values')
+        dataManager.addDataEntry('X', 1)
+        dataManager.addDataEntry('Y', 1)
+
         mapping = Mapping(dataManager, ['X'], 'Y', "TestMapping")
 
         self.assertIsInstance(mapping, Mapping)
-        self.assertEqual(mapping.name, 'episodes')
+        self.assertEqual(mapping.name, 'TestMapping')
+
+    def txest_getInputVariables(self):
+        dataManager = DataManager('values')
+        dataManager.addDataEntry('X', 1)
+        dataManager.addDataEntry('Y', 1)
+
+        mapping = Mapping(dataManager, ['X'], 'Y', "TestMapping")
+
+        self.assertEqual(mapping.getInputVariables, ['X'])
+
+    # def getOutputVariable(self):
 
     def test_addDataEntry_simple_mapping(self):
         dataManager = DataManager('values')
