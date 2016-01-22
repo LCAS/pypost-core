@@ -10,7 +10,7 @@ from interfaces import CallType
 from data import DataManipulator
 
 
-class Mapping(MappingInterface, DataManipulator):
+class Mapping(DataManipulator, MappingInterface):
     '''
     The Mapping class is a DataManipulator that is able to combine a
     number of data manipulation functions.

@@ -55,16 +55,14 @@ class testMapping(unittest.TestCase):
         mapping.addMappingFunction(valueFunction)
         mapping.addMappingFunction(gradientFunction, {'Grad'})
 
-        data.setDataEntry('X', linspace(-pi, pi, 11).transpose())
-        mapping.callDataFunction('valueFunction', data)
+        data.setDataEntry(
+            'X', [], np.linspace(-np.pi, np.pi, 11).transpose())
+        mapping.callDataFunction('valueFunction', data, [])
 
         Y = myData.getDataEntry('Y')
         dY = functionCollection.callDataFunctionOutput(
             'gradientFunction',
-            data)
-
-        # self.assertRaises(RuntimeError,
-        #                  dataManager.addDataEntry, ('parameters', 5), 0)
+            data, ...)
 
     def test_addDataEntry_name_conflict(self):
         #dataManager = DataManager('episodes')
