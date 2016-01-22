@@ -11,13 +11,13 @@ class testDataStructure(unittest.TestCase):
         dataStructure = DataStructure(-1)
         self.assertEqual(len(dataStructure), 0)
 
-        dataStructure.setDataEntry(['parameters'], [], np.ndarray((3, 4)))
+        dataStructure.createEntry('parameters', np.ndarray((3, 4)))
 
         self.assertEqual(len(dataStructure), 1)
 
     def test_contains(self):
         dataStructure = DataStructure(-1)
-        dataStructure.setDataEntry(['parameters'], [], np.ndarray((3, 4)))
+        dataStructure.createEntry('parameters', np.ndarray((3,4)))
         self.assertEqual('parameters' in dataStructure, True)
         self.assertEqual('praamteres' in dataStructure, False)
 
@@ -26,15 +26,15 @@ class testDataStructure(unittest.TestCase):
                                 [('brokenAliasEntry', slice(0, 2))], 0)
 
         dataStructure = DataStructure(-1)
-        dataStructure['brokenAliasEntry'] = Exception()
-        dataStructure['brokenAlias'] = brokenAlias
+        dataStructure.createEntry('brokenAliasEntry', Exception())
+        dataStructure.createEntry('brokenAlias', brokenAlias)
 
         self.assertRaises(ValueError, dataStructure.__setitem__,
                           'brokenAlias', np.ndarray((1, 2)))
 
     def test_setitem_broken_entry(self):
         dataStructure = DataStructure(-1)
-        dataStructure['brokenEntry'] = Exception()
+        dataStructure.createEntry('brokenEntry', Exception())
         self.assertRaises(ValueError, dataStructure.__setitem__,
                           'brokenEntry', np.ndarray((1, 2)))
 
@@ -48,8 +48,8 @@ class testDataStructure(unittest.TestCase):
                                 [('brokenAliasEntry', slice(0, 2))], 0)
 
         dataStructure = DataStructure(-1)
-        dataStructure['brokenAliasEntry'] = Exception()
-        dataStructure['brokenAlias'] = brokenAlias
+        dataStructure.createEntry('brokenAliasEntry', Exception())
+        dataStructure.createEntry('brokenAlias', brokenAlias)
 
         self.assertRaises(ValueError, dataStructure.__getitem__,
                           'brokenAlias')

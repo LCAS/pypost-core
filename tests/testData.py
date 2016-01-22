@@ -301,35 +301,35 @@ class testDataManager(unittest.TestCase):
         dataManager = DataManager('episodes')
         dataManager.addDataEntry('parameters', 5)
         dataManager.addDataEntry('context', 3)
-        myData = dataManager.getDataObject([1])
+        myData = dataManager.getDataObject([10])
 
         # set the data for the parameters and context of all episodes
-        myData.setDataEntry(['parameters'], [...], np.ones((5)))
-        myData.setDataEntry(['context'], [...], np.ones((3)))
+        myData.setDataEntry(['parameters'], [...], np.ones((10, 5)))
+        myData.setDataEntry(['context'], [...], np.ones((10, 3)))
 
         myData.setDataEntryList(['parameters', 'context'], [...],
-                                [np.zeros((5)), np.zeros((3))])
+                                [np.zeros((10, 5)), np.zeros((10, 3))])
 
         self.assertTrue((myData.getDataEntry('parameters', [...]) ==
-                         np.zeros((5))).all())
+                         np.zeros((10, 5))).all())
         self.assertTrue((myData.getDataEntry('context', [...]) ==
-                         np.zeros((3))).all())
+                         np.zeros((10, 3))).all())
 
         myData.setDataEntryList([('parameters', ['context'])], [...],
-                                [np.hstack((np.ones((5)), 2 * np.ones((3))))])
+                                [np.hstack((np.ones((10, 5)), 2 * np.ones((10, 3))))])
 
         self.assertTrue((myData.getDataEntry('parameters', [...]) ==
-                         np.ones((5))).all())
+                         np.ones((10, 5))).all())
         self.assertTrue((myData.getDataEntry('context', [...]) ==
-                         2 * np.ones((3))).all())
+                         2 * np.ones((10, 3))).all())
 
         myData.setDataEntryList([('parameters', ['context'])], [...],
-                                [6 * np.ones((2, 8))])
+                                [6 * np.ones((10, 8))])
 
         self.assertTrue((myData.getDataEntry('parameters', [...]) ==
-                         6 * np.ones((5))).all())
+                         6 * np.ones((10, 5))).all())
         self.assertTrue((myData.getDataEntry('context', [...]) ==
-                         6 * np.ones((3))).all())
+                         6 * np.ones((10, 3))).all())
 
 
     def test_resolveEntryPath(self):
@@ -343,27 +343,27 @@ class testDataManager(unittest.TestCase):
         self.assertTrue(['steps', 'subSteps', 'subActions'] ==
                         data._resolveEntryPath('subActions'))
 
-        data.setDataEntry(['parameters'], [...], np.zeros((10)))
-        data.setDataEntry('parameters', [...], np.ones((10)))
+        data.setDataEntry(['parameters'], [...], np.zeros((10, 5)))
+        data.setDataEntry('parameters', [...], np.ones((10, 5)))
         self.assertTrue((data.getDataEntry(['parameters'], [...]) ==
-                         np.ones((10))).all())
+                         np.ones((10, 5))).all())
         self.assertTrue((data.getDataEntry('parameters', [...]) ==
-                         np.ones((10))).all())
+                         np.ones((10, 5))).all())
 
-        data.setDataEntry(['steps', 'actions'], [0, ...], np.zeros((20)))
-        data.setDataEntry('actions', [0, ...], np.ones((20)))
+        data.setDataEntry(['steps', 'actions'], [0, ...], np.zeros((20, 2)))
+        data.setDataEntry('actions', [0, ...], np.ones((20, 2)))
         self.assertTrue((data.getDataEntry(['steps', 'actions'], [0, ...]) ==
-                         np.ones((20))).all())
+                         np.ones((20, 2))).all())
         self.assertTrue((data.getDataEntry('actions', [0, ...]) ==
-                         np.ones((20))).all())
+                         np.ones((20, 2))).all())
 
         data.setDataEntry(['steps', 'subSteps', 'subStates'], [0, 0, ...],
-                          np.zeros((30)))
-        data.setDataEntry('subStates', [0, 0, ...], np.ones((30)))
+                          np.zeros((30, 1)))
+        data.setDataEntry('subStates', [0, 0, ...], np.ones((30, 1)))
         self.assertTrue((data.getDataEntry(['steps', 'subSteps', 'subStates'],
-                         [0, 0, ...]) == np.ones((30))).all())
+                         [0, 0, ...]) == np.ones((30, 1))).all())
         self.assertTrue((data.getDataEntry('subStates', [0, 0, ...]) ==
-                         np.ones((30))).all())
+                         np.ones((30, 1))).all())
 
     def test_getNumElements(self):
         manager = DataUtil.createTestManager()
