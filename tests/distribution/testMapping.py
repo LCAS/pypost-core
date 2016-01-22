@@ -4,18 +4,18 @@ import numpy as np
 
 # FIXME we should find a better ways than jsut including all the paths:
 # e.g. import from ToolBox.Data, ToolBox.Interfaces
-sys.path.append('../../src/data')
+sys.path.append('../../src/')
 
-sys.path.append('../../src/mapping')
+sys.path.append('../../src/')
 
 sys.path.append('../')
-import DataUtil
 
 
 from data.DataAlias import DataAlias
 from data.DataEntry import DataEntry
 from data.DataManager import DataManager
 
+import DataUtil
 
 from distribution.Mapping import Mapping
 
@@ -62,7 +62,7 @@ class testMapping(unittest.TestCase):
         mapping.addMappingFunction(gradientFunction, {'Grad'})
 
         data.setDataEntry(
-            'X', [], np.linspace(-np.pi, np.pi, 11).transpose())
+            'X', [], np.array([np.linspace(-np.pi, np.pi, 11)]))
         mapping.callDataFunction('valueFunction', data, [])
 
         Y = myData.getDataEntry('Y')
