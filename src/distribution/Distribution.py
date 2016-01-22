@@ -3,7 +3,7 @@ Created on 09.01.2016
 
 @author: Moritz
 '''
-from interfaces import DistributionInterface
+from interfaces.DistributionInterface import DistributionInterface
 
 
 class Distribution(DistributionInterface):

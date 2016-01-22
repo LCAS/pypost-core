@@ -1,11 +1,13 @@
 import unittest
 import sys
 import numpy as np
-sys.path.append('../src/data')
+
+sys.path.append('../src/')
+
+from data.DataAlias import DataAlias
+from data.DataEntry import DataEntry
+from data.DataManager import DataManager
 import DataUtil
-from DataAlias import DataAlias
-from DataEntry import DataEntry
-from DataManager import DataManager
 
 
 class testDataManager(unittest.TestCase):
@@ -140,13 +142,13 @@ class testDataManager(unittest.TestCase):
 
         # Add alias
         dataManager.addDataAlias('parameterAlias', [('parameters',
-                                                    slice(0, 1))])
+                                                     slice(0, 1))])
         self.assertEqual(dataManager.dataAliases['parameterAlias'].entryList,
                          [('parameters', slice(0, 1))])
 
         # Replace entry of same alias
         dataManager.addDataAlias('parameterAlias', [('parameters',
-                                                    slice(0, 2))])
+                                                     slice(0, 2))])
         self.assertEqual(dataManager.dataAliases['parameterAlias'].entryList,
                          [('parameters', slice(0, 2))])
 
@@ -193,7 +195,7 @@ class testDataManager(unittest.TestCase):
         dataManager.addDataEntry('parameters', 5)
         dataManager.addDataEntry('context', 5)
         dataManager.addDataAlias('parameterAlias', [('parameters',
-                                                    slice(0, 2))])
+                                                     slice(0, 2))])
 
         dataManager.addDataAlias('twoAlias',
                                  [('parameters', slice(0, 2)),
@@ -202,10 +204,10 @@ class testDataManager(unittest.TestCase):
         myData = dataManager.getDataObject([10, 5, 1])
 
         myData.dataStructure['parameters'][:] = np.ones(5)
-        myData.dataStructure['context'][:] = np.ones(5)*2
+        myData.dataStructure['context'][:] = np.ones(5) * 2
 
         paramAlias = myData.dataStructure['parameterAlias']
-        paramAlias[:] = np.ones(2)*3
+        paramAlias[:] = np.ones(2) * 3
         paramAlias[0][1] = 10
         myData.dataStructure['parameterAlias'] = paramAlias
 
@@ -215,10 +217,10 @@ class testDataManager(unittest.TestCase):
         self.assertEqual(myData.dataStructure['parameters'][5][3], 1)
 
         twoAlias = myData.dataStructure['twoAlias']
-        twoAlias[4] = np.ones(5)*4
-        twoAlias[5] = np.ones(5)*5
-        twoAlias[6] = np.ones(5)*6
-        twoAlias[-1] = np.ones(5)*9
+        twoAlias[4] = np.ones(5) * 4
+        twoAlias[5] = np.ones(5) * 5
+        twoAlias[6] = np.ones(5) * 6
+        twoAlias[-1] = np.ones(5) * 9
 
         myData.dataStructure['twoAlias'] = twoAlias
 
@@ -280,10 +282,12 @@ class testDataManager(unittest.TestCase):
         self.assertEqual(dataManager.getNumDimensions('parameters'), 5)
         self.assertEqual(dataManager.getNumDimensions('context'), 2)
         self.assertEqual(dataManager.getNumDimensions(['parameters']), 5)
-        self.assertEqual(dataManager.getNumDimensions(['parameters', 'context']), 7)
+        self.assertEqual(
+            dataManager.getNumDimensions(['parameters', 'context']), 7)
         self.assertEqual(dataManager.getNumDimensions('states'), 1)
         self.assertEqual(dataManager.getNumDimensions('subStates'), 1)
-        self.assertEqual(dataManager.getNumDimensions(['parameters', 'context', 'states', 'subStates']), 9)
+        self.assertEqual(dataManager.getNumDimensions(
+            ['parameters', 'context', 'states', 'subStates']), 9)
 
         self.assertRaises(ValueError, dataManager.getNumDimensions, 'none')
 

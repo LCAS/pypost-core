@@ -3,7 +3,7 @@ Created on 21.11.2015
 
 @author: Moritz
 '''
-from interfaces import DataManipulatorInterface
+from interfaces.DataManipulatorInterface import DataManipulatorInterface
 
 
 class SamplerInterface(DataManipulatorInterface):

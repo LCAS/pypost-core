@@ -4,8 +4,8 @@ Created on Dec 4, 2015
 @author: Sebastian Kreutzer
 '''
 
-from DataManager import DataManager
-from Data import Data
+from data.DataManager import DataManager
+from data.Data import Data
 
 
 def createTestManager():

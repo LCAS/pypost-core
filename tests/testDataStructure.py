@@ -1,9 +1,11 @@
 import unittest
 import sys
 import numpy as np
-sys.path.append('../src/data')
-from DataStructure import DataStructure
-from DataAlias import DataAlias
+
+sys.path.append('../src/')
+from data.DataStructure import DataStructure
+from data.DataAlias import DataAlias
+
 
 class testDataStructure(unittest.TestCase):
 
@@ -80,7 +82,6 @@ class testDataStructure(unittest.TestCase):
         dataStructure = DataStructure(-1)
         self.assertRaises(ValueError, dataStructure.setDataEntry, ['a'],
                           [Exception()], np.ndarray((2, 1)))
-
 
 
 if __name__ == '__main__':

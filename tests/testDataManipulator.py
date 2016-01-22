@@ -1,11 +1,11 @@
 import unittest
 import sys
 import numpy as np
-sys.path.append('../src/data')
-sys.path.append('../src/interfaces')
+
+sys.path.append('../src/')
+from data.DataManipulator import DataManipulator
+from interfaces.DataManipulatorInterface import CallType
 import DataUtil
-from DataManipulator import DataManipulator
-from DataManipulator import CallType
 
 
 class TestManipulator(DataManipulator):
@@ -29,6 +29,7 @@ class TestManipulator(DataManipulator):
 
 
 class testDataManipulator(unittest.TestCase):
+
     def test_init(self):
         self.assertRaises(ValueError, DataManipulator, None)
 
@@ -38,10 +39,10 @@ class testDataManipulator(unittest.TestCase):
 
         def f(numElements):
             return np.ones((numElements, 10))
-        
+
         def g(numElements, parameters):
             pass
-        
+
         def h():
             pass
 
@@ -53,11 +54,12 @@ class testDataManipulator(unittest.TestCase):
         self.assertEqual(manipulationFunction.function, f)
         self.assertEqual(manipulationFunction.inputArguments, [])
         self.assertEqual(manipulationFunction.outputArguments, ['parameters'])
-        
+
         # Add alias to f
         manipulator.addDataFunctionAlias('g', 'f', False)
 
-        # Now add new function of same name, the alias should then be overwritten
+        # Now add new function of same name, the alias should then be
+        # overwritten
         manipulator.addDataManipulationFunction(g, 'parameters', [])
         self.assertEqual(manipulator._samplerFunctions['g'], ['g'])
         self.assertEqual(manipulationFunction.depthEntry, 'parameters')
@@ -65,7 +67,7 @@ class testDataManipulator(unittest.TestCase):
         samplerFunction = manipulator._samplerFunctions['f']
         self.assertIsNotNone(samplerFunction)
         self.assertEqual(manipulator._samplerFunctions['f'], ['f'])
-        
+
         # Add function without input or output. The depth entry should be ''
         manipulator.addDataManipulationFunction(h, [], [])
         self.assertEqual(manipulator._manipulationFunctions['h'].depthEntry, '')
@@ -118,29 +120,45 @@ class testDataManipulator(unittest.TestCase):
         manipulator.addDataFunctionAlias('alias', 'sampleParameters', True)
         self.assertEqual(manipulator._samplerFunctions['alias'],
                          ['sampleParameters', 'sampleStates'])
-        
+
     def test_setIndices(self):
         dataManager = DataUtil.createTestManager()
         data = dataManager.getDataObject([20, 30, 40])
 
         manipulator = TestManipulator(dataManager)
-        
-        self.assertRaises(ValueError, manipulator.setIndices, 'nonExistant', 0, 0)
-        self.assertEqual(manipulator._manipulationFunctions['sampleStates'].indices, [None])
+
+        self.assertRaises(
+            ValueError,
+            manipulator.setIndices,
+            'nonExistant',
+            0,
+            0)
+        self.assertEqual(
+            manipulator._manipulationFunctions['sampleStates'].indices,
+            [None])
         manipulator.setIndices('sampleStates', 0, ...)
-        self.assertEqual(manipulator._manipulationFunctions['sampleStates'].indices, [...])
-        self.assertRaises(ValueError, manipulator.setIndices, 'sampleStates', 1, ...)
-        
+        self.assertEqual(
+            manipulator._manipulationFunctions['sampleStates'].indices,
+            [...])
+        self.assertRaises(
+            ValueError, manipulator.setIndices, 'sampleStates', 1, ...)
+
     def test_setData(self):
         dataManager = DataUtil.createTestManager()
         data = dataManager.getDataObject([20, 30, 40])
 
         manipulator = TestManipulator(dataManager)
-        
-        self.assertRaises(ValueError, manipulator.setTakesData, 'nonExistant', True)
-        self.assertFalse(manipulator._manipulationFunctions['sampleStates'].takesData)
+
+        self.assertRaises(
+            ValueError,
+            manipulator.setTakesData,
+            'nonExistant',
+            True)
+        self.assertFalse(
+            manipulator._manipulationFunctions['sampleStates'].takesData)
         manipulator.setTakesData('sampleStates', True)
-        self.assertTrue(manipulator._manipulationFunctions['sampleStates'].takesData)
+        self.assertTrue(
+            manipulator._manipulationFunctions['sampleStates'].takesData)
 
     def test_callDataFunction(self):
         dataManager = DataUtil.createTestManager()
@@ -152,7 +170,12 @@ class testDataManipulator(unittest.TestCase):
                         manipulator._manipulationFunctions)
         self.assertTrue('sampleStates' in manipulator._manipulationFunctions)
 
-        self.assertRaises(ValueError, manipulator.callDataFunction, 'nonExistant', data, [...])
+        self.assertRaises(
+            ValueError,
+            manipulator.callDataFunction,
+            'nonExistant',
+            data,
+            [...])
 
         data.setDataEntry('parameters', [...], 7 * np.ones((20, 5)))
         self.assertTrue((data.getDataEntry('parameters', [...]) ==
@@ -190,31 +213,23 @@ class testDataManipulator(unittest.TestCase):
                          np.ones((30, 1))).all())
         self.assertTrue((data.getDataEntry('states', [slice(1, 20), ...]) ==
                          7 * np.ones((570, 1))).all())
-        
-        data.setDataEntry('context', [...], 7 * np.ones((20, 2)))
-        self.assertTrue((data.getDataEntry('context', [...]) ==
-                         7 * np.ones((20, 2))).all())
-        data.setDataEntry('parameters', [...], 7 * np.ones((20, 5)))
-        self.assertTrue((data.getDataEntry('parameters', [...]) ==
-                         7 * np.ones((20, 5))).all())
-        
-        manipulator.callDataFunction('sampleContextAndParameters', data, [...])
-        self.assertTrue((data.getDataEntry('context', [...]) ==
-                         np.ones((20, 2))).all())
-        self.assertTrue((data.getDataEntry('parameters', [...]) == 
-                         2 * np.ones((20, 5))).all())
-        
+
         def singleSampleFunction(numElements):
             return 12 * np.ones((numElements, 1))
-        
-        manipulator.addDataManipulationFunction(singleSampleFunction, [], ['states'], CallType.SINGLE_SAMPLE, True)
-        
-        manipulator.callDataFunction('singleSampleFunction', data, [slice(0,1), ...])
-        #print(data.getDataEntry('states', [0, ...]))
+
+        manipulator.addDataManipulationFunction(
+            singleSampleFunction,
+            [],
+            ['states'],
+            CallType.SINGLE_SAMPLE,
+            True)
+
+        manipulator.callDataFunction('singleSampleFunction', data, [0, ...])
+        print(data.getDataEntry('states', [0, ...]))
         result = data.getDataEntry('states', [0, ...])
         self.assertTrue(result.shape == (30, 1))
         self.assertTrue((result == 12 * np.ones((30, 1))).all())
-        
+
     def test_callDataFunctionOutput(self):
         dataManager = DataUtil.createTestManager()
         data = dataManager.getDataObject([20, 30, 40])
@@ -224,41 +239,68 @@ class testDataManipulator(unittest.TestCase):
         self.assertTrue('sampleParameters' in
                         manipulator._manipulationFunctions)
         self.assertTrue('sampleStates' in manipulator._manipulationFunctions)
-        
-        self.assertRaises(ValueError, manipulator.callDataFunctionOutput, 'notExistant', data, [...])
 
-        parameters = manipulator.callDataFunctionOutput('sampleParameters', data, [...])
+        self.assertRaises(
+            ValueError,
+            manipulator.callDataFunctionOutput,
+            'notExistant',
+            data,
+            [...])
+
+        parameters = manipulator.callDataFunctionOutput(
+            'sampleParameters',
+            data,
+            [...])
         self.assertTrue((parameters == np.ones((20, 5))).all())
 
-        parameters = manipulator.callDataFunctionOutput('sampleParameters', data, [slice(0, 10)])
+        parameters = manipulator.callDataFunctionOutput(
+            'sampleParameters', data, [
+                slice(
+                    0, 10)])
         self.assertTrue((parameters == np.ones((10, 5))).all())
 
-        states = manipulator.callDataFunctionOutput('sampleStates', data, [..., ...])
+        states = manipulator.callDataFunctionOutput(
+            'sampleStates', data, [..., ...])
         self.assertTrue((states == np.ones((600, 1))).all())
 
-        states = manipulator.callDataFunctionOutput('sampleStates', data, [slice(0, 1), ...])
+        states = manipulator.callDataFunctionOutput(
+            'sampleStates', data, [
+                slice(
+                    0, 1), ...])
         self.assertTrue((states == np.ones((30, 1))).all())
-        
-        manipulator.setIndices('sampleStates', 0, slice(0,1))
-        states = manipulator.callDataFunctionOutput('sampleStates', data, [..., ...])
+
+        manipulator.setIndices('sampleStates', 0, slice(0, 1))
+        states = manipulator.callDataFunctionOutput(
+            'sampleStates', data, [..., ...])
         self.assertTrue((states == np.ones((600, 1))).all())
-        
+
         def functionWithoutNumElements(parameters):
             return 7 * np.ones(parameters.shape)
-        
+
         manipulator.addDataManipulationFunction(functionWithoutNumElements, ['parameters'],
-                                         'parameters', CallType.ALL_AT_ONCE, False)
-        
-        parameters = manipulator.callDataFunctionOutput('functionWithoutNumElements', data, [slice(0,10)])
+                                                'parameters', CallType.ALL_AT_ONCE, False)
+
+        parameters = manipulator.callDataFunctionOutput(
+            'functionWithoutNumElements', data, [
+                slice(
+                    0, 10)])
         self.assertTrue((parameters == 7 * np.ones((10, 5))).all())
-        
+
         def functionTakesData(numElements, data):
             return 9 * np.ones((numElements, 5))
-        
-        manipulator.addDataManipulationFunction(functionTakesData, [], ['parameters'], CallType.ALL_AT_ONCE, True)
+
+        manipulator.addDataManipulationFunction(
+            functionTakesData,
+            [],
+            ['parameters'],
+            CallType.ALL_AT_ONCE,
+            True)
         manipulator.setTakesData('functionTakesData', True)
-        
-        parameters = manipulator.callDataFunctionOutput('functionTakesData', data, [...])
+
+        parameters = manipulator.callDataFunctionOutput(
+            'functionTakesData',
+            data,
+            [...])
         self.assertTrue((parameters == 9 * np.ones((20, 5))).all())
 if __name__ == '__main__':
     unittest.main()

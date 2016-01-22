@@ -1,5 +1,6 @@
 import numpy as np
-from DataAlias import DataAlias
+
+from data.DataAlias import DataAlias
 
 
 class DataStructure():
@@ -52,13 +53,13 @@ class DataStructure():
                         # write)
                         entry = self[entryName]
                         entry[:, slice_] = \
-                            item[:, currentIndexInItem:currentIndexInItem+l]
+                            item[:, currentIndexInItem:currentIndexInItem + l]
                         self[entryName] = entry
                     else:
                         # the entry is an ndarray
                         # writing directly to the ndarray...
                         entry[:, slice_] = \
-                            item[:, currentIndexInItem:currentIndexInItem+l]
+                            item[:, currentIndexInItem:currentIndexInItem + l]
 
                     currentIndexInItem += l
             else:
@@ -217,20 +218,20 @@ class DataStructure():
                 # devide the data into len(subLayers) parts and pass each of
                 # these subData's to the corresponding subLayer
                 subLayers = self.dataStructureLocalLayer[path[0]]
-                subDataLen = int(data.shape[0]/len(subLayers))
+                subDataLen = int(data.shape[0] / len(subLayers))
 
                 i = 0
                 for subDS in subLayers:
-                    subData = data[i*subDataLen:(i+1)*subDataLen]
+                    subData = data[i * subDataLen:(i + 1) * subDataLen]
                     subDS.setDataEntry(path[1:], indices[1:], subData)
                     i += 1
             elif isinstance(indices[0], slice):
                 subLayers = self.dataStructureLocalLayer[path[0]]
                 indexRange = range(0, indices[0].stop)[indices[0]]
-                subDataLen = int(data.shape[0]/len(indexRange))
+                subDataLen = int(data.shape[0] / len(indexRange))
                 dataIndex = 0
                 for i in indexRange:
-                    subData = data[dataIndex:dataIndex+subDataLen]
+                    subData = data[dataIndex:dataIndex + subDataLen]
                     subLayers[i].setDataEntry(path[1:], indices[1:], subData)
                     dataIndex += subDataLen
             else:
