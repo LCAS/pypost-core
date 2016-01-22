@@ -2,15 +2,21 @@ import unittest
 import sys
 import numpy as np
 
+# FIXME we should find a better ways than jsut including all the paths:
+# e.g. import from ToolBox.Data, ToolBox.Interfaces
+sys.path.append('../../src/data')
+
+sys.path.append('../../src/mapping')
+
 sys.path.append('../')
 import DataUtil
 
-sys.path.append('../../src/data')
-from DataAlias import DataAlias
-from DataEntry import DataEntry
-from DataManager import DataManager
 
-sys.path.append('../../src/mapping')
+from data import DataAlias
+from data import DataEntry
+from data import DataManager
+
+
 from distribution import Mapping
 
 
@@ -39,11 +45,11 @@ class testMapping(unittest.TestCase):
 
     def test_addDataEntry_simple_mapping(self):
         dataManager = DataManager('values')
-        dataManager.addDataEntry('X', 1)
-        dataManager.addDataEntry('Y', 1)
+        dataManager.addDataEntry('X', 11)
+        dataManager.addDataEntry('Y', 11)
         dataManager.finalize()
 
-        data = dataManager.getDataObject(11)
+        data = dataManager.getDataObject(1)
 
         # functions to map
         valueFunction = lambda numElements, X: sin(X)
@@ -62,7 +68,7 @@ class testMapping(unittest.TestCase):
         Y = myData.getDataEntry('Y')
         dY = functionCollection.callDataFunctionOutput(
             'gradientFunction',
-            data, ...)
+            data, [])
 
     def test_addDataEntry_name_conflict(self):
         #dataManager = DataManager('episodes')

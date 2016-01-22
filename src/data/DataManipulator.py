@@ -5,9 +5,9 @@ Created on Dec 7, 2015
 '''
 import sys
 sys.path.append('interfaces')
-from DataManipulatorInterface import DataManipulatorInterface
-from DataManipulatorInterface import CallType
-from DataManager import DataManager
+from interfaces import DataManipulatorInterface
+from interfaces import CallType
+from data import DataManager
 import numpy as np
 
 
@@ -226,9 +226,9 @@ class DataManipulator(DataManipulatorInterface):
             indices = data.completeLayerIndex(1, indices)
         elif dataManipulationStruct.callType is CallType.SINGLE_SAMPLE:
             indices = data.completeLayerIndex(
-                        data.dataManager.getDataEntryDepth(
-                                        dataManipulationStruct.depthEntry),
-                        indices)
+                data.dataManager.getDataEntryDepth(
+                    dataManipulationStruct.depthEntry),
+                indices)
 
         if dataManipulationStruct.callType is CallType.SINGLE_SAMPLE or \
                 dataManipulationStruct.callType is CallType.PER_EPISODE:
@@ -243,7 +243,7 @@ class DataManipulator(DataManipulatorInterface):
                     callData = False
                     for j in indexRange:
                         indicesSingle = indices
-                        indicesSingle[i] = slice(j, j+1)
+                        indicesSingle[i] = slice(j, j + 1)
                         if registerOutput:
                             self._callDataFunctionInternal(
                                 dataManipulationStruct,
@@ -252,10 +252,10 @@ class DataManipulator(DataManipulatorInterface):
                                 indicesSingle)
                         else:
                             tempOut = self._callDataFunctionInternal(
-                                    dataManipulationStruct,
-                                    data,
-                                    registerOutput,
-                                    indicesSingle)
+                                dataManipulationStruct,
+                                data,
+                                registerOutput,
+                                indicesSingle)
                             if outArgs is None:
                                 outArgs = tempOut
                             else:
@@ -265,7 +265,7 @@ class DataManipulator(DataManipulatorInterface):
 
         if callData:
             inputArgs = data.getDataEntryList(
-                            dataManipulationStruct.inputArguments, indices)
+                dataManipulationStruct.inputArguments, indices)
 
             # Select columns according to given indices
             for i, arg in enumerate(inputArgs):
@@ -279,8 +279,8 @@ class DataManipulator(DataManipulatorInterface):
                 numElements = data.getNumElementsForIndex(outputDepth, indices)
 
             outArgs = self._callDataFuntionInternalMatrices(
-                            dataManipulationStruct, data, numElements,
-                            inputArgs)
+                dataManipulationStruct, data, numElements,
+                inputArgs)
 
             if not isinstance(outArgs, list):
                 outArgs = [outArgs]

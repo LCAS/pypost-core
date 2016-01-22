@@ -3,7 +3,9 @@ Created on 09.01.2016
 
 @author: Moritz
 '''
-from interfaces import MappingInterface
+
+# FIXME why is this needed?
+from interfaces.MappingInterface import MappingInterface
 
 
 class DistributionInterface(MappingInterface):
