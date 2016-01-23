@@ -1,11 +1,10 @@
 import unittest
 import sys
 import numpy as np
+import math
 
 # FIXME we should find a better ways than jsut including all the paths:
 # e.g. import from ToolBox.Data, ToolBox.Interfaces
-sys.path.append('../../src/')
-
 sys.path.append('../../src/')
 
 sys.path.append('../')
@@ -22,28 +21,52 @@ from distribution.Mapping import Mapping
 
 class testMapping(unittest.TestCase):
 
-    def test_init(self):
+    def test_init_givenNoInputNoOutputNoName_expectNoException(self):
         dataManager = DataManager('values')
         dataManager.addDataEntry('X', 1)
         dataManager.addDataEntry('Y', 1)
 
-        mapping = Mapping(dataManager, ['X'], 'Y', "TestMapping")
+        mapping = Mapping(dataManager)
+
+        self.assertIsInstance(mapping, Mapping)
+
+    def test_init_givenSingleInputSingleOutputNoName_expectNoException(self):
+        dataManager = DataManager('values')
+        dataManager.addDataEntry('X', 1)
+        dataManager.addDataEntry('Y', 1)
+
+        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
 
         self.assertIsInstance(mapping, Mapping)
         self.assertEqual(mapping.name, 'TestMapping')
 
-    def txest_getInputVariables(self):
+    def test_init_givenSingleInputMultipleOutputNoName_expectRuntimeError(
+            self):
+        # note that this test may start failing if multiple output variables
+        # are getting allowed
         dataManager = DataManager('values')
         dataManager.addDataEntry('X', 1)
         dataManager.addDataEntry('Y', 1)
 
-        mapping = Mapping(dataManager, ['X'], 'Y', "TestMapping")
+        self.assertRaises(
+            RuntimeError, lambda: Mapping(
+                dataManager, ['X'], [
+                    'Y', 'Z'], "TestMapping"))
 
-        self.assertEqual(mapping.getInputVariables, ['X'])
+    def test_getsetInputVariables_givenAdditionalIntputvariables_expectGivenInputVariables(
+            self):
+        dataManager = DataManager('values')
+        dataManager.addDataEntry('X', 1)
+        dataManager.addDataEntry('Y', 1)
 
-    # def getOutputVariable(self):
+        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
 
-    def test_addDataEntry_simple_mapping(self):
+        mapping.setAdditionalInputVariables(['W', 'Z'])
+
+        self.assertEqual(mapping.getAdditionalInputVariables(), ['W', 'Z'])
+
+    def test_addMappingFunction_givenOneToOneMappingFromMinusToPlusPi_expectSinAndSinGradientOutput(
+            self):
         dataManager = DataManager('values')
         dataManager.addDataEntry('X', 11)
         dataManager.addDataEntry('Y', 11)
@@ -52,31 +75,118 @@ class testMapping(unittest.TestCase):
         data = dataManager.getDataObject(1)
 
         # functions to map
-        valueFunction = lambda numElements, X: sin(X)
-        valueFunction.__name__ = 'valueFunction'
-        gradientFunction = lambda numElements, X: cos(X)
-        gradientFunction.__name__ = 'gradientFunction'
+        valueFunction = lambda numElements, X: np.sin(X)
+        gradientFunction = lambda numElements, X: np.cos(X)
 
-        mapping = Mapping(dataManager, 'X', 'Y', 'TestMapping')
-        mapping.addMappingFunction(valueFunction)
-        mapping.addMappingFunction(gradientFunction, {'Grad'})
+        mapping = Mapping(dataManager, ['X'], ['Y'], 'TestMapping')
+        mapping.addMappingFunction(
+            valueFunction,
+            None,
+            'valueFunction')
+        mapping.addMappingFunction(
+            gradientFunction,
+            [],
+            'gradientFunction')
 
         data.setDataEntry(
             'X', [], np.array([np.linspace(-np.pi, np.pi, 11)]))
+
         mapping.callDataFunction('valueFunction', data, [])
 
-        Y = myData.getDataEntry('Y')
-        dY = functionCollection.callDataFunctionOutput(
+        Y = data.getDataEntry('Y')
+        dY = mapping.callDataFunctionOutput(
             'gradientFunction',
             data, [])
 
-    def test_addDataEntry_name_conflict(self):
-        #dataManager = DataManager('episodes')
-        #dataManager.addDataEntry('parameters', 5)
-        #dataManager.addDataAlias('conflict', [('parameters', ...)])
-        # self.assertRaises(ValueError,
-        #                  dataManager.addDataEntry, 'conflict', 0)
-        pass
+        np.testing.assert_almost_equal(Y,
+                                       [[
+                                           0, -0.587785252,
+                                           -0.951056516, -0.951056516,
+                                           -0.587785252, 0,
+                                           0.587785252, 0.951056516,
+                                           0.951056516, 0.587785252,
+                                           0
+                                       ]])
+        np.testing.assert_almost_equal(dY[0][0],
+                                       [[
+                                           -1, -0.80901699,
+                                           -0.30901699, 0.30901699,
+                                           0.80901699, 1,
+                                           0.80901699, 0.30901699,
+                                           -0.30901699, -0.80901699,
+                                           -1
+                                       ]])
+
+    def test_getInputVariables_given_expectInputVariablesGivenToConstructor(
+            self):
+        dataManager = DataManager('values')
+        dataManager.addDataEntry('X', 1)
+        dataManager.addDataEntry('Y', 1)
+
+        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+
+        self.assertEqual(mapping.getInputVariables(), ['X'])
+
+    def test_setInputVariables_givenInputVariablesNoAppend_expectOnlySetInputVariables(
+            self):
+        dataManager = DataManager('values')
+        dataManager.addDataEntry('X', 1)
+        dataManager.addDataEntry('Y', 1)
+        dataManager.addDataEntry('A', 1)
+        dataManager.addDataEntry('B', 1)
+
+        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+
+        mapping.setInputVariables(['A', 'B'], None, False)
+
+        self.assertEqual(mapping.getInputVariables(), ['A', 'B'])
+
+    def test_setInputVariables_givenInputVariablesAppend_expectConstructorAndSetInputVariables(
+            self):
+        dataManager = DataManager('values')
+        dataManager.addDataEntry('X', 1)
+        dataManager.addDataEntry('Y', 1)
+        dataManager.addDataEntry('A', 1)
+        dataManager.addDataEntry('B', 1)
+
+        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+
+        mapping.setInputVariables(['A', 'B'], None, True)
+
+        self.assertEqual(mapping.getInputVariables(), ['X', 'A', 'B'])
+
+    def test_getOutputVariables_given_expectOutputVariablesGivenToConstructor(
+            self):
+        dataManager = DataManager('values')
+        dataManager.addDataEntry('X', 1)
+        dataManager.addDataEntry('Y', 1)
+
+        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+
+        self.assertEqual(mapping.getOutputVariables(), ['Y'])
+
+    def test_setOutputVariables_givenSingleOutputVariable_expectSetOutputVariables(
+            self):
+        dataManager = DataManager('values')
+        dataManager.addDataEntry('X', 1)
+        dataManager.addDataEntry('Y', 1)
+
+        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+
+        mapping.setOutputVariables(['A'])
+
+        self.assertEqual(mapping.getOutputVariables(), ['A'])
+
+    def test_setOutputVariables_givenMultipleOutputVariables_expectRuntimeError(
+            self):
+        dataManager = DataManager('values')
+        dataManager.addDataEntry('X', 1)
+        dataManager.addDataEntry('Y', 1)
+
+        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+
+        self.assertRaises(
+            RuntimeError, lambda: mapping.setOutputVariables(['A', 'B']))
 
 if __name__ == '__main__':
     unittest.main()

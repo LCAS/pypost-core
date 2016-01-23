@@ -50,16 +50,16 @@ class Mapping(DataManipulator, MappingInterface):
         TODO change to property
         '''
 
-        self.inputVariables = {}
+        self.inputVariables = []
         '''
         Input variables for mapping functions
         '''
         if inputVariables is not None:
             self.setInputVariables(inputVariables)
 
-        self.additionalInputVariables = {}
+        self.additionalInputVariables = []
 
-        self.outputVariables = {}
+        self.outputVariables = []
         '''
         Output variables for mapping functions
         '''
@@ -72,13 +72,18 @@ class Mapping(DataManipulator, MappingInterface):
 
         self.mappingFunctions = []
 
-    def addAdditionalInputVariables(self, variables):
+    def getAdditionalInputVariables(self):
+        return list(self.additionalInputVariables)
+
+    def setAdditionalInputVariables(self, variables):
         self.additionalInputVariables = variables
 
-    def addMappingFunction(self, function, outputVariables=None):
+    def addMappingFunction(
+            self, function, outputVariables=None, functionName=None):
         '''
         @param function: the function to add to the mapping
         @param outputVariables new output variables. defaults to the Mapping output variables if not set
+        @param functionName: name to register the function to
 
         By adding a new mapping function the Mapping will register
         a new DataManipulationFunction in the DataManager, with
@@ -92,54 +97,64 @@ class Mapping(DataManipulator, MappingInterface):
 
         self.mappingFunctions.append(function)
 
+        inputVars = []
+        inputVars.extend(self.inputVariables)
+        inputVars.extend(self.additionalInputVariables)
+
         self.addDataManipulationFunction(
             self.mappingFunctions[-1],
-            [
-                list(self.inputVariables),
-                list(self.additionalInputVariables)
-            ],
+            inputVars,
             outputVariables,
-            CallType.ALL_AT_ONCE,
-            True
+            None,
+            True,
+            functionName
         )
 
     # change registerMappingFunction was never used and referenced
     # obj.outputvariables[1] which doesn't even exist
 
-    def setInputVariables(self, inputVariables, numDim=0):
+    def setInputVariables(self, inputVariables, numDim=None, append=False):
         '''
         Sets the input variables given to each mapping function registered by this Mapping
         @param inputVariables: iterable of input variable names
-        @param numDim: optional parameter. currently not supported!
+        @param numDim: optional parameter indicating the input dimension. currently not supported!
+        @param append: set to true to keep the current input variables
         '''
+        if numDim is not None:
+            raise RuntimeError("Number arguments are not supported")
 
         if len(inputVariables) != 0 and isinstance(
                 inputVariables[0], numbers.Number):
+            '''
+            @trap catches 1:1 code translations from Matlab where the first
+            inputVairables argument could be a number. this functionality can
+            now be reached by using the numDim argument
             # Currently there are no number arguments supported.
-            # Look into the Matlab code for more detail. It can be
-            # simply replaced by a mapping function with zero inputs
-            # outputting the result for this mapping
-            #
-            # It seems like if the first inputvar was a number the self.dimInput was set to this
-            # search for a cleaner way to model this (e.g. pass as explicit
-            # argument and set a flag)
-            raise "Number arguments are not supported"
+            # Look into the Matlab code for more detail.
+            '''
+            raise RuntimeError("Function interface changed")
 
-        self.inputVariables = inputVariables
+        if append:
+            self.inputVariables.extend(inputVariables)
+        else:
+            self.inputVariables = list(inputVariables)
 
         self.dimInput = self.dataManager.getNumDimensions(self.inputVariables)
 
     def getInputVariables(self):
-        return self.inputVariables
+        return list(self.inputVariables)
 
-    def getOutputVariable(self):
-        return self.outputVariable
+    def getOutputVariables(self):
+        return list(self.outputVariables)
 
     def setOutputVariables(self, outputVariables):
+        if len(outputVariables) > 1:
+            raise RuntimeError("Only single output variable supported")
+
         self.outputVariables = outputVariables
 
-    def cloneDataManipulationFunctions(self, cloneDataManipulator):
-        raise "Not implemented"
+    # def cloneDataManipulationFunctions(self, cloneDataManipulator):
+        #raise "Not implemented"
         # FIXME design of this class is not finally finished
         #    obj.cloneDataManipulationFunctions@Data.DataManipulator(cloneDataManipulator);
         #    obj.inputVariables = cloneDataManipulator.inputVariables;
