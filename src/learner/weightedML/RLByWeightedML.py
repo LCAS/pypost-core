@@ -4,6 +4,8 @@ Created on 22.01.2016
 @author: Moritz
 '''
 
+import numpy as np
+
 from learner.RLLearner import RLLearner
 from data.DataManipulator import DataManipulator
 
@@ -79,19 +81,26 @@ class RLByWeightedML(RLLearner, DataManipulator, object):
 
         self._registerWeightingFunction()
 
-    '''
-    FIXME left here from Matlab code - is this still in use?
-        function [divKL] = getKLDivergence(obj, qWeighting, pWeighting)
+    def getKLDivergence(self, qWeighting, pWeighting):
+        p = np.copy(pWeighting)
+        p = p / np.sum(p)
 
-            p = pWeighting;
-            p = p / sum(p);
+        q = np.copy(qWeighting)
+        q = q / np.sum(q)
 
-            q = qWeighting;
-            q = q / sum(q);
+        # FIXME magic number
+        index = p > 10 ^ -10
 
-            index = p > 10^-10;
-            divKL = sum(p(index)  .* log(p(index) ./ q(index)));
-    '''
+        # calculate: divKL = sum(p(index)  .* log(p(index) ./ q(index)));
+        divKLElements = np.copy(pWeighting)
+        for x, y, z in np.nditer(
+                [divKL[index], p[index], q[index]], op_flags=['readwrite']):
+            for xx, yy in np.nditer([y, z], op_flags=['readwrite']):
+                xx[...] = np.log(xx / yy)
+            x[...] = x * y
+        divKL = np.sum(divKLElements)
+
+        return divKL
 
     def computeWeighting(self, **args):
         '''
