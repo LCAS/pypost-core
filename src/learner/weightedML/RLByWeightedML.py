@@ -89,7 +89,9 @@ class RLByWeightedML(RLLearner, DataManipulator, object):
         q = q / np.sum(q)
 
         # FIXME magic number
-        index = p > 10 ^ -10
+        index = np.copy(p)
+        for x in np.nditer(index):
+            index[...] = 1.0 if (p > 10 ^ -10) else 0.0
 
         # calculate: divKL = sum(p(index)  .* log(p(index) ./ q(index)));
         divKLElements = np.copy(pWeighting)
