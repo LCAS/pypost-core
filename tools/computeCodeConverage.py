@@ -1,3 +1,9 @@
+'''
+This tool requires coverage.py to be installed. See
+https://coverage.readthedocs.org/en/coverage-4.0.3/install.html
+for more information.
+'''
+
 import coverage
 import unittest
 
