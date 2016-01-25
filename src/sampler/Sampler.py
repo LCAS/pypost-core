@@ -91,7 +91,7 @@ class Sampler(SamplerInterface):
         '''
         Sets the append attribute to true
         '''
-        self.append = True
+        return True
 
     def finalizeSampler(self, finalizeData):
         '''
