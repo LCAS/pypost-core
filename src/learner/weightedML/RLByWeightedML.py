@@ -83,10 +83,10 @@ class RLByWeightedML(RLLearner, DataManipulator, object):
 
     def getKLDivergence(self, qWeighting, pWeighting):
         p = np.copy(pWeighting)
-        p = p / np.sum(p)
+        np.divide(p, np.sum(p), p)
 
         q = np.copy(qWeighting)
-        q = q / np.sum(q)
+        np.divide(q, np.sum(q), q)
 
         # FIXME magic number
         index = np.copy(p)
