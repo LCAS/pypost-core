@@ -6,6 +6,7 @@ Created on 26.01.2016
 from common.Settings import Settings
 from common import SettingsManager
 import os
+import traceback
 
 
 class Trial(object):
@@ -33,3 +34,40 @@ class Trial(object):
 
         self.index = index
         # TODO: Seed RNG here
+        self.settings = Settings()
+        self.isFinished = False
+        self.preConfigure = True
+
+    def storeTrial(self,):
+        return self.storeTrialInFile('trial.mat')
+
+    def storeTrialInFile(self, fileName, overwrite=True):
+        # TODO: Store data in file
+        # TODO: Store trial object in file
+        raise RuntimeError("Not implemented")
+
+    def configure(self, settings):
+        self.settings.copyProperties(settings)
+        self.preConfigure = False
+
+    def start(self, withCatch=False, withProfiling=False):
+        # FIXME: withProfiling is probably useless in python
+        if self.isFinished:
+            raise RuntimeError("Trial %s is already isFinished!" % self.trialDir)
+        # TODO: Add diary equivalent
+        SettingsManager.setRootSettings(self.settings) # FIXME: Not sure where self.settings is supposed to be defined...
+
+        if withCatch:
+            try:
+                self.startInternal()
+            except Exception:
+                traceback.print_exc()
+                # Log output
+        else:
+            self.startInternal()
+
+        self.isFinished = True
+        self.storeTrial()
+
+    def startInternal(self):
+        raise RuntimeError("Must be overwritten by the subclass")

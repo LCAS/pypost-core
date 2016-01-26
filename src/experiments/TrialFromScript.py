@@ -27,4 +27,15 @@ class TrialFromScript(Trial):
         raise RuntimeError("Not implemented")
 
     def storeTrial(self):
-        raise RuntimeError("Not implemented")
+        self.saveWorkspace()
+        super(Trial, self).storeTrial()
+
+    def startInternal(self):
+        self.isConfigure = False
+        self.isStart = True
+
+        exec(compile(open(self.scriptName, "rb").read(),
+                     self.scriptName, 'exec'))
+
+        
+        
