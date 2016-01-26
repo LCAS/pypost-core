@@ -1,1 +1,1 @@
-__all__ = ['Settings', 'SettingsClient', 'SettingsManager']
+__all__ = ['DataPrinter', 'Settings', 'SettingsClient', 'SettingsManager']
