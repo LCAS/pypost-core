@@ -10,7 +10,26 @@ from sampler import SamplerPool
 
 class EpisodeSampler(IndependentSampler):
     '''
-    Sets up an sampler for episodes
+    EpisodeSampler is a subclass of IndependentSampler that allows for a
+    more convenient implementation of an independent sampling.
+
+    There are a number of SamplingPools and corresponding  access
+    functions predefined. The Pools and their priority are
+    defined as follows:
+
+    - InitEpisode (Priority 1):  Sets the starting conditions for the
+    episode(s). For example: a random starting position state for each episode.
+
+    - Policy (Priority 3):  Determine the actions of the agent, usually
+    depended on the actual state.
+
+    - Episodes (Priority 5):  Run the sampler that handles each episode
+
+    - FinalReward (Priority 6): Evaluates the result of each episode and
+    returns an additional reward.
+
+    - Return (Priority 7):  Calculates the return of each episode by
+    summing the reward and the final reward
     '''
 
     def __init__(self, dataManager=None, samplerName=None):
