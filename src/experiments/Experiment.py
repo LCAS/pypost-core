@@ -10,6 +10,7 @@ import shutil
 import numpy as np
 
 from Experiments import Evaluation
+from common import Settings
 
 
 class Experiment(object):
@@ -29,8 +30,9 @@ class Experiment(object):
         self.evaluationCollections = {}
         self.nodes = {}
 
+        # FIXME where do we get a default trial from?
         self.defaultTrial = None
-        self.defaultSettings = None  # FIXME create Settings instance
+        self.defaultSettings = Settings("defaultSettings")
 
         self.user = getpass.getuser()
 
