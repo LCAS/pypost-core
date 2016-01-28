@@ -92,7 +92,10 @@ class Data(object):
             dm = dm.subDataManager
             subStructureList = subStructure[dm.name]
             if indices[0] is not Ellipsis:
-                subStructureList = subStructureList[indices[0]]
+                if  isinstance(indices[0], slice):
+                    subStructureList = subStructureList[indices[0]]
+                else:
+                    subStructureList = [subStructureList[indices[0]]]
             numElements *= len(subStructureList)
             subStructure = subStructureList[0]
             indices = indices[1:]
@@ -100,7 +103,8 @@ class Data(object):
 
         items = subStructure.dataStructureLocalLayer.items()
         for name, entry in items:
-            if isinstance(entry, np.ndarray): # pragma: no branch
+            if isinstance(entry, np.ndarray) and \
+                not isinstance(indices[0], int): # pragma: no branch
                 numElements *= subStructure[name][indices[0]].shape[0]
                 break
 

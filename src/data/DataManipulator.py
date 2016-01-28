@@ -227,6 +227,10 @@ class DataManipulator(DataManipulatorInterface):
         if dataManipulationStruct.callType is CallType.PER_EPISODE:
             indices = data.completeLayerIndex(1, indices)
         elif dataManipulationStruct.callType is CallType.SINGLE_SAMPLE:
+            for i in range(0, len(indices)):
+                if not isinstance(indices[i], int):
+                    raise ValueError("SINGLE_SAMPLE functions cannot be called"
+                                     " with multiple input values")
             indices = data.completeLayerIndex(
                 data.dataManager.getDataEntryDepth(
                     dataManipulationStruct.depthEntry),
@@ -239,31 +243,33 @@ class DataManipulator(DataManipulatorInterface):
             if dataManipulationStruct.callType is CallType.PER_EPISODE:
                 numLayers = 1
             for i in range(0, numLayers):
-                # This is somewhat hacky, but it works!
-                indexRange = range(0, indices[i].stop)[indices[i]]
-                if len(indexRange) > 1:
-                    callData = False
-                    for j in indexRange:
-                        indicesSingle = indices
-                        indicesSingle[i] = slice(j, j + 1)
-                        if registerOutput:
-                            self._callDataFunctionInternal(
-                                dataManipulationStruct,
-                                data,
-                                registerOutput,
-                                indicesSingle)
-                        else:
-                            tempOut = self._callDataFunctionInternal(
-                                dataManipulationStruct,
-                                data,
-                                registerOutput,
-                                indicesSingle)
-                            if outArgs is None:
-                                outArgs = tempOut
+                if isinstance(indices[i], slice):
+                    # This is somewhat hacky, but it works!
+                    indexRange = range(0, indices[i].stop)[indices[i]]
+                
+                    if len(indexRange) > 1:
+                        callData = False
+                        for j in indexRange:
+                            indicesSingle = indices
+                            indicesSingle[i] = slice(j, j + 1)
+                            if registerOutput:
+                                self._callDataFunctionInternal(
+                                            dataManipulationStruct,
+                                            data,
+                                            registerOutput,
+                                            indicesSingle)
                             else:
-                                for i in range(0, len(outArgs)):
-                                    outArgs[i] = np.vstack((outArgs[i],
-                                                            tempOut[i]))
+                                tempOut = self._callDataFunctionInternal(
+                                                    dataManipulationStruct,
+                                                    data,
+                                                    registerOutput,
+                                                    indicesSingle)
+                                if outArgs is None:
+                                    outArgs = tempOut
+                                else:
+                                    for i in range(0, len(outArgs)):
+                                        outArgs[i] = np.vstack((outArgs[i],
+                                                                tempOut[i]))
 
         if callData:
             inputArgs = data.getDataEntryList(
@@ -284,7 +290,7 @@ class DataManipulator(DataManipulatorInterface):
                 dataManipulationStruct, data, numElements,
                 inputArgs)
 
-            if not isinstance(outArgs, list):
+            if not isinstance(outArgs, list): # pragma: no branch
                 outArgs = [outArgs]
 
             if registerOutput:
