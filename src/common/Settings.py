@@ -22,6 +22,7 @@ class Settings(object):
     It is recommended to access the variables directly via the getter and setter instead of linking it, if you care about performance.
 
     @change: The notation 'id' has been replaced with 'name' due to name conflicts
+    @change: isSameSettings() has been replaced with getDifferentProperties()
     @change: getPropertyNames() and getNumProperties() are not implemented
     '''
 
@@ -168,8 +169,14 @@ class Settings(object):
         '''
         self.setProperties(settings.getProperties())
 
-    def isSameSettings(self, otherSettings):
-        raise NotImplementedError("Not implemented. What shall be achieved with this function?")
+    def getDifferentProperties(self, otherSettings):
+        '''Returns the names of the properties differing from those in the given Settings object.
+
+        @param otherSettings: The settings to compare with
+        @return: The names of the properties differing from those in the given Settings object
+        @change This should replace isSameSettings
+        '''
+        return set(self.getProperties()) - set(otherSettings.getProperties())
 
     def setToClients(self):
         '''Updates all linked properties of all clients. 

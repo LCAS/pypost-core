@@ -93,13 +93,12 @@ class testSettings(unittest.TestCase):
 
         self.assertIsNone(settings.getProperty('nonExistent'))
 
+        self.assertSetEqual(settings.getDifferentProperties(clonedSettings), set())
+
         try:
             settings.informClients('noProp')
         except KeyError:
             self.fail("Unhandled KeyError in Settings.informClients()!")
-
-        with self.assertRaises(NotImplementedError):
-            settings.isSameSettings(emptySettings)
 
         settings.removeClients()
         self.assertListEqual(settings._properties['A'].clients, [])
