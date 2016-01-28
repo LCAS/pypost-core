@@ -4,9 +4,9 @@ import csv
 import sys
 import numpy as np
 from numpy import ones
-sys.path.append('../src/data')
-from DataEntry import DataEntry
-from DataManager import DataManager
+sys.path.append('../src')
+from data.DataEntry import DataEntry
+from data.DataManager import DataManager
 
 
 class testPerformanceRequirements(unittest.TestCase):
@@ -72,20 +72,20 @@ class testPerformanceRequirements(unittest.TestCase):
         self.compareToReferenceTime('reserveStorage')
         
         actions = np.random.random((2000, 2))
-        subActions = np.random.random((10000, 2))
+        subActions = np.random.random((5000, 2))
     
         self.start()
-        myData.setDataEntry(['steps', 'actions'], [..., ...], actions)
+        myData.setDataEntry('actions', [..., ...], actions)
         self.stop()
         self.compareToReferenceTime('setDataEntry1')
         
         self.start()
-        myData.setDataEntry(['steps', 'substeps', 'subActions'], [..., ..., ...], subActions)
+        myData.setDataEntry('subActions', [..., ..., ...], subActions)
         self.stop()
         self.compareToReferenceTime('setDataEntry2')
         
         self.start()
-        myData.getDataEntry(['steps', 'substeps', 'subActions'])
+        myData.getDataEntry('subActions')
         self.stop()
         self.compareToReferenceTime('getDataEntry')
    

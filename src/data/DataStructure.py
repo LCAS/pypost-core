@@ -33,8 +33,10 @@ class DataStructure():
             elif isinstance(self.dataStructureLocalLayer[name], np.ndarray):
                 # assigning to a 'real' data entry (a matrix)
                 if self.dataStructureLocalLayer[name].shape != item.shape:
-                    raise ValueError("The shape of the specified matrix"
-                                     " doesn't match the existing entry")
+                    raise ValueError("The shape of the specified matrix (%s)"
+                            " doesn't match the existing entry (%s)"
+                             % (self.dataStructureLocalLayer[name].shape,
+                             item.shape))
                 self.dataStructureLocalLayer[name] = item
             elif isinstance(self.dataStructureLocalLayer[name], DataAlias):
                 # asssigning to a data alias
