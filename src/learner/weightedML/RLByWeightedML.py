@@ -83,13 +83,15 @@ class RLByWeightedML(RLLearner, DataManipulator, object):
 
     def getKLDivergence(self, qWeighting, pWeighting):
         p = np.copy(pWeighting)
-        p = p / np.sum(p)
+        np.divide(p, np.sum(p), p)
 
         q = np.copy(qWeighting)
-        q = q / np.sum(q)
+        np.divide(q, np.sum(q), q)
 
         # FIXME magic number
-        index = p > 10 ^ -10
+        index = np.copy(p)
+        for x in np.nditer(index):
+            index[...] = 1.0 if (p > 10 ^ -10) else 0.0
 
         # calculate: divKL = sum(p(index)  .* log(p(index) ./ q(index)));
         divKLElements = np.copy(pWeighting)
