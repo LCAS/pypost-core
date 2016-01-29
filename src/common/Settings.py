@@ -1,5 +1,6 @@
 from collections import namedtuple
 from common import DataPrinter
+import yaml
 
 
 class Settings(object):
@@ -190,3 +191,13 @@ class Settings(object):
         '''Prints the properties
         '''
         DataPrinter.printData(self.getProperties())
+        
+    def store(self, fileName):
+        stream = open(fileName, 'w')
+        yaml.dump(self._properties, stream)
+        
+    def load(self, fileName):
+        stream = open(fileName, 'r')
+        settings = yaml.load(stream)
+        print(settings)
+        
