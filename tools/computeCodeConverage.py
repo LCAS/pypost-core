@@ -6,6 +6,7 @@ for more information.
 
 import coverage
 import unittest
+import os
 
 if __name__ == '__main__':
     c = coverage.Coverage(
@@ -17,18 +18,10 @@ if __name__ == '__main__':
 
     c.start()
 
-    suite = unittest.TestLoader().discover('../tests', 'test*')
-    unittest.TextTestRunner().run(suite)
-
-    suite = unittest.TestLoader().discover('../tests/distribution', 'test*')
-    unittest.TextTestRunner().run(suite)
-    
-    suite = unittest.TestLoader().discover('../tests/dataPreprocessor', 'test*')
-    unittest.TextTestRunner().run(suite)
-    
-    suite = unittest.TestLoader().discover('../tests/data', 'test*')
-    unittest.TextTestRunner().run(suite)
-    
+    for root, _, _ in os.walk('../tests/'):
+        if not ("__pycache__" in root or "htmlcov" in root):
+            suite = unittest.TestLoader().discover(root, 'test*')
+            unittest.TextTestRunner().run(suite)
     c.stop()
     c.report()
     c.html_report()
