@@ -6,6 +6,7 @@ Created on 26.01.2016
 from common.Settings import Settings
 from common import SettingsManager
 import os
+import random
 import traceback
 import numpy as np
 from enum import Enum
@@ -24,10 +25,6 @@ class Trial(object):
         '''
         Constructor
         '''
-        # What use do these two lines have?
-        settingsTrial = Settings('new')
-        SettingsManager.setRootSettings(settingsTrial) # FIXME: Not implemented
-
         if os.path.isdir(evalDir):
             self.trialDir = os.path.join(evalDir, 'trial%03d' % index)
             os.mkdir(self.trialDir)
@@ -43,9 +40,11 @@ class Trial(object):
         self.properties = {}
         self.storePerIteration = []
         self.storePerTrial = []
-        # TODO: Seed RNG here
         self.settings = Settings()
         self.isFinished = False
+
+        random.seed(index)
+        self.rngState = random.getstate()
         self.configure()
 
     def store(self, name, value, mode=StoringType.STORE):
