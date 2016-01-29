@@ -22,7 +22,13 @@ if __name__ == '__main__':
 
     suite = unittest.TestLoader().discover('../tests/distribution', 'test*')
     unittest.TextTestRunner().run(suite)
-
+    
+    suite = unittest.TestLoader().discover('../tests/dataPreprocessor', 'test*')
+    unittest.TextTestRunner().run(suite)
+    
+    suite = unittest.TestLoader().discover('../tests/data', 'test*')
+    unittest.TextTestRunner().run(suite)
+    
     c.stop()
     c.report()
     c.html_report()

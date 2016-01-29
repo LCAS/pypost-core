@@ -40,4 +40,7 @@ class DataPreprocessor(object):
         dataCollection.addDataObject(newData, self.name)
 
     def setIteration(self, iteration):
+        if (iteration<0):
+            raise RuntimeError("Iteration value can not be negative")
+        
         self.iteration = iteration
