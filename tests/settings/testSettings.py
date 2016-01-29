@@ -1,4 +1,6 @@
 import unittest
+import sys
+sys.path.append('../src/')
 from common.Settings import Settings
 from common import SettingsManager
 from common.SettingsClient import SettingsClient
@@ -27,7 +29,7 @@ class testSettings(unittest.TestCase):
         SettingsManager.pushDefaultName('standard')
         self.assertEqual(SettingsManager.getDefaultName(), 'standard')
         self.assertEqual(SettingsManager.getDefaultSettings().name, 'standard')
-        
+
         self.assertEqual(SettingsManager.getRootName(), 'default')
         with self.assertRaises(NotImplementedError):
             SettingsManager.setRootSettings(None)
@@ -40,7 +42,7 @@ class testSettings(unittest.TestCase):
         cli.globalProperties['prop_b'] = False
         cli.linkProperty('prop_b', 'B')
         self.assertEqual(SettingsManager.getDefaultSettings().getProperty('B'), False)
-        
+
         cli.globalProperties['prop_c'] = 'testStr'
         cli.linkProperty('prop_c')
         self.assertEqual(SettingsManager.getDefaultSettings().getProperty('prop_c'), 'testStr')

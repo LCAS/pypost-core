@@ -1,9 +1,6 @@
 import unittest
-import sys
 import numpy as np
 from numpy.core.numeric import ones
-
-sys.path.append('../src/')
 from data.DataEntry import DataEntry
 from data.DataManager import DataManager
 import DataUtil
