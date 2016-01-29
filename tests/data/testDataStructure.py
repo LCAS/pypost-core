@@ -9,6 +9,13 @@ from data.DataAlias import DataAlias
 
 class testDataStructure(unittest.TestCase):
 
+    def test_createEntry_twice(self):
+        dataStructure = DataStructure(-1)
+        dataStructure.createEntry('parameters', np.ndarray((3, 4)))
+
+        self.assertRaises(ValueError, dataStructure.createEntry, 'parameters',
+                          np.ndarray((3, 4)))
+
     def test_len(self):
         dataStructure = DataStructure(-1)
         self.assertEqual(len(dataStructure), 0)
@@ -39,6 +46,23 @@ class testDataStructure(unittest.TestCase):
         dataStructure.createEntry('brokenEntry', Exception())
         self.assertRaises(ValueError, dataStructure.__setitem__,
                           'brokenEntry', np.ndarray((1, 2)))
+
+    def test_setitem_non_existing_entry(self):
+        dataStructure = DataStructure(-1)
+        self.assertRaises(KeyError, dataStructure.__setitem__,
+                          'noEntry', np.ndarray((1, 2)))
+
+    def test_setitem_non_ndarray(self):
+        dataStructure = DataStructure(-1)
+        self.assertRaises(ValueError, dataStructure.__setitem__,
+                          'entry', 0)
+
+    def test_setitem_invalid_shape(self):
+        dataStructure = DataStructure(-1)
+        dataStructure.createEntry('parameters', np.ndarray((3,4)))
+        self.assertRaises(ValueError, dataStructure.__setitem__,
+                          'parameters', np.ndarray((1, 2)))
+
 
     def test_getitem_nonexisting_entry(self):
         dataStructure = DataStructure(-1)
