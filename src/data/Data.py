@@ -139,7 +139,7 @@ class Data(object):
         if isinstance(path, str):
             path = self._resolveEntryPath(path)
 
-        if isinstance(indices, int) or indices == Ellipsis:
+        if not isinstance(indices, list):
             indices = [indices]
 
         return self.dataStructure.getDataEntry(path, indices)
@@ -164,7 +164,7 @@ class Data(object):
         if isinstance(path, str):
             path = self._resolveEntryPath(path)
 
-        if isinstance(indices, int) or indices == Ellipsis:
+        if not isinstance(indices, list):
             indices = [indices]
 
         return self.dataStructure.setDataEntry(path, indices, data)

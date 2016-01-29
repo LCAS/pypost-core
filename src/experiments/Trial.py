@@ -20,6 +20,8 @@ class Trial(object):
     TODO: Documentation
     '''
 
+    # TODO: add __main__ method
+
     def __init__(self, evalDir, index):
         '''
         Constructor
@@ -130,6 +132,7 @@ class Trial(object):
         self.storeTrial()
 
     def configure(self):
+        # TODO: this is not needed any more
         raise RuntimeError("Must be overwritten by subclass")
 
     def run(self):

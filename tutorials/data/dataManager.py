@@ -54,11 +54,12 @@ subDataManager.subDataManager = subSubDataManager
 
 # here we create new data object with 100 episodes, 10 steps and 5 sub-steps
 # (i.e. 5000 substeps in total)
+# this method will also finalize the dataManager
 myData = dataManager.getDataObject([100, 10, 5])
 
 # we could also have created a data object with 10 episodes, 10 steps and 10
 # sub-steps by using a scalar:
-# myData = dataManager.getDataObject(10);
+# myData = dataManager.getDataObject(10)
 
 # we can also reserve more data storage (i.e. the matrices for all
 # necessary data entries are enlarged)
@@ -77,9 +78,9 @@ print('the same subActions: \n',
       myData.getDataEntry('subActions', [1, 1]), '\n\n')
 
 # Next, we create some data and write it to "parameters".
-# The dimension of parameterData is (10, 5) because we created 20 episodes with
+# The dimension of parameterData is (10, 5) because we created 100 episodes with
 # a 5-dimensional parameter object each
-parameterData = np.ones((20, 5))*5
+parameterData = np.ones((100, 5))
 myData.setDataEntry('parameters', [], parameterData)
 
 # Retrieval of our data
@@ -96,15 +97,27 @@ tempParametersFirstEpisode = myData.getDataEntry('parameters', [1]);
 # there are layers. If an index is not specified, it is assumed to be "...".
 tempActions = myData.getDataEntry('subActions', [..., 1, 1]);
 
+# update the data
+tempActions[:, :] = 42
+tempActions[90, :] = 1
+tempActions[90, 1] = 2
+tempActions[91, 0] = 3
+tempActions[91, 1] = 4
+
 # indicing also works for the setting functions
-myData.setDataEntry('subActions', tempActions + 5, [..., 1, 1]);
+myData.setDataEntry('subActions', [..., 1, 1], tempActions);
+
+# retrieve the data again
+print('Updated subActions:\n', myData.getDataEntry('subActions', [..., 1, 1]), '\n')
+
 
 # We can also access the last element with negative indices.
-myData.getDataEntry('actions', [..., -1]) == myData.getDataEntry(
-    'actions', [..., 20])
+print('Both data entries should be the same:',
+    (myData.getDataEntry('actions', [..., -1]) == myData.getDataEntry(
+        'actions', [..., 19])).all())
 
-myData.getDataEntry('subActions', [..., 1, -1]) == myData.getDataEntry(
-    'subActions', [..., 1, 5])
+print('Both data entries should be the same:',
+    (myData.getDataEntry('subActions', [..., 1, -1]) == myData.getDataEntry(
+    'subActions', [..., 1, 4])).all())
 
-
-print('Thats it, the show is over...');
+print('\nThats it, the show is over...');

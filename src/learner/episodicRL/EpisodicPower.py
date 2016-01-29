@@ -53,8 +53,6 @@ class EpisodicPower(RLByWeightedML, object):
             self.temperatureScalingPower * (rewards - maxQ) / ((maxQ - minQ) + 10 ^ -6))
         weighting = weighting / np.sum(weighting)
 
-        # FIXME getKLDivergence is commented out on RLByWeightedML where should
-        # it be implemented / is it still needed
         self.divKL = self.getKLDivergence(
             np.onces(
                 np.size(weighting)),
