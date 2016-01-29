@@ -35,6 +35,8 @@ class DataManipulationFunction(object):
 
 class DataManipulator(DataManipulatorInterface):
     '''
+    TODO: update the class description
+
     The DataManipulator class defines the interfaces for manipulating the
     data structure. Hence this is the base class for almost all classes
     that interact with the data. It also stores the data manager for the
@@ -246,7 +248,7 @@ class DataManipulator(DataManipulatorInterface):
                 if isinstance(indices[i], slice):
                     # This is somewhat hacky, but it works!
                     indexRange = range(0, indices[i].stop)[indices[i]]
-                
+
                     if len(indexRange) > 1:
                         callData = False
                         for j in indexRange:
