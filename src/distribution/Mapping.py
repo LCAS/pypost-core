@@ -121,7 +121,7 @@ class Mapping(DataManipulator, MappingInterface):
         @param append: set to true to keep the current input variables
         '''
         if numDim is not None:
-            raise RuntimeError("Number arguments are not supported")
+            raise NotImplementedError("Number arguments are not supported")
 
         if len(inputVariables) != 0 and isinstance(
                 inputVariables[0], numbers.Number):
@@ -132,7 +132,8 @@ class Mapping(DataManipulator, MappingInterface):
             # Currently there are no number arguments supported.
             # Look into the Matlab code for more detail.
             '''
-            raise RuntimeError("Function interface changed")
+            raise DeprecationWarning(
+                "Function interface changed, the numDim parameter now hold the number of dimensions")
 
         if append:
             self.inputVariables.extend(inputVariables)

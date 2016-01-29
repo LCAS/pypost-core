@@ -155,6 +155,38 @@ class testMapping(unittest.TestCase):
 
         self.assertEqual(mapping.getInputVariables(), ['X', 'A', 'B'])
 
+    def test_setInputVariables_givenNumDim_expectNotSupportet(
+            self):
+        '''
+        This test may fail if the functionality gets implemented
+        '''
+        dataManager = DataManager('values')
+        dataManager.addDataEntry('X', 1)
+        dataManager.addDataEntry('Y', 1)
+        dataManager.addDataEntry('A', 1)
+        dataManager.addDataEntry('B', 1)
+
+        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+
+        self.assertRaises(
+            NotImplementedError, lambda: mapping.setInputVariables(['A', 'B'], 5))
+
+    def test_setInputVariables_givenNumberInInputvariables_expectNotSupportet(
+            self):
+        '''
+        This test may fail if the functionality gets implemented
+        '''
+        dataManager = DataManager('values')
+        dataManager.addDataEntry('X', 1)
+        dataManager.addDataEntry('Y', 1)
+        dataManager.addDataEntry('A', 1)
+        dataManager.addDataEntry('B', 1)
+
+        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+
+        self.assertRaises(
+            DeprecationWarning, lambda: mapping.setInputVariables([5, 'A', 'B'], None, True))
+
     def test_getOutputVariables_given_expectOutputVariablesGivenToConstructor(
             self):
         dataManager = DataManager('values')
