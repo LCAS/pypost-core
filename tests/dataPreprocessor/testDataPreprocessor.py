@@ -11,6 +11,7 @@ sys.path.append('data/')
 from data.DataAlias import DataAlias
 from data.DataEntry import DataEntry
 from data.DataManager import DataManager
+from data.DataCollection import DataCollection
 
 import DataUtil
 
@@ -37,6 +38,18 @@ class testDataPreprocessor(unittest.TestCase):
             self):
         self.assertRaises(
             RuntimeError, lambda: DataPreprocessor(""))
+
+    def test_preprocessData_NotImplementedError(self):
+        datapreprocessor = DataPreprocessor("TestName")
+        self.assertRaises(NotImplementedError,
+                          datapreprocessor.preprocessData, 1)
+
+    def test_preprocessDataCollection_NotImplementedError(self):
+        datapreprocessor = DataPreprocessor("TestName")
+        dataCollection = DataCollection()
+        self.assertRaises(NotImplementedError,
+                          datapreprocessor.preprocessDataCollection,
+                          dataCollection)
 
     def test_setIteration_givenPositiveIterationValue_expectGivenInputVariable(
             self):
