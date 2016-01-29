@@ -34,9 +34,9 @@ class DataStructure():
                 # assigning to a 'real' data entry (a matrix)
                 if self.dataStructureLocalLayer[name].shape != item.shape:
                     raise ValueError("The shape of the specified matrix (%s)"
-                            " doesn't match the existing entry (%s)"
-                             % (self.dataStructureLocalLayer[name].shape,
-                             item.shape))
+                                     " doesn't match the existing entry (%s)"
+                                     % (item.shape, self.\
+                                        dataStructureLocalLayer[name].shape))
                 self.dataStructureLocalLayer[name] = item
             elif isinstance(self.dataStructureLocalLayer[name], DataAlias):
                 # asssigning to a data alias
