@@ -29,13 +29,13 @@ class Learner(DataPreprocessor, object):
         self.dataNameLearner = dataName
 
     def addedData(self, data, newSampleIndices):
-        raise RuntimeError("Not implemented")
+        raise NotImplementedError("Not implemented")
 
     def deletedData(self, data, keepIndices):
-        raise RuntimeError("Not implemented")
+        raise NotImplementedError("Not implemented")
 
     def updateModel(self, data):
-        raise RuntimeError("Not implemented")
+        raise NotImplementedError("Not implemented")
 
     def updateModelCollection(self, dataCollection):
         self.preprocessData(dataCollection)
@@ -44,10 +44,10 @@ class Learner(DataPreprocessor, object):
                 self.dataNameLearner))
 
     def printMessage(self, data):
-        raise RuntimeError("Not implemented")
+        raise NotImplementedError("Not implemented")
 
     def addDefaultCriteria(self, trial, evaluationCriterium):
-        raise RuntimeError("Not implemented")
+        raise NotImplementedError("Not implemented")
 
     def preprocessDataCollection(self, dataCollection):
         for preprocessor in self.dataPreprocessors:
