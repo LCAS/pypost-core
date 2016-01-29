@@ -51,7 +51,7 @@ class DataManager():
         :param string name: The name of this DataManager
         '''
         self.name = name
-        self.__subDataManager = None
+        self.subDataManager = None
         self.dataEntries = dict()
         self.dataAliases = dict()
         self._dirty = True
@@ -66,16 +66,6 @@ class DataManager():
         False otherwise.
         '''
         return self._finalized
-
-    @property
-    def subDataManager(self):
-        '''Getter for the subDataManager'''
-        return self.__subDataManager
-
-    @subDataManager.setter
-    def subDataManager(self, subDataManager):
-        '''Sets the subDataManager for this DataManager'''
-        self.__subDataManager = subDataManager
 
     def getSubDataManagerForDepth(self, depth):
         '''
