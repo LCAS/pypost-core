@@ -176,7 +176,7 @@ class Settings(object):
         @return: The names of the properties differing from those in the given Settings object
         @change This should replace isSameSettings
         '''
-        return set(self.getProperties()) - set(otherSettings.getProperties())
+        return {n for n, v in self._properties.items() if otherSettings.getProperty(n) != v.value}
 
     def setToClients(self):
         '''Updates all linked properties of all clients. 
