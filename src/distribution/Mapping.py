@@ -22,8 +22,8 @@ class Mapping(DataManipulator, MappingInterface):
     added with the addMappingFunction()
     '''
 
-    def __init__(
-            self, dataManager, inputVariables=None, outputVariables=None, name=""):
+    def __init__(self, dataManager, inputVariables=None,
+                 outputVariables=None, name=""):
         '''
         Constructor
         @param dataManager: the data manager the mapping is operating on
@@ -31,10 +31,12 @@ class Mapping(DataManipulator, MappingInterface):
         @param outputVariable: name of the output variable
         @param name: name of the mapping
 
-        @change: dataManager was removed from function arguments and is now a constructor argument.
+        @change: dataManager was removed from function arguments and is now a
+                 constructor argument.
         @change: registeredMappingFunctions was never used and got deleted
         @change registerDataFunctions is eqivalent to inputVariables = empty
-        #FIXME check registerDataFunctions invariant again, they are doing strange things ...
+        #FIXME check registerDataFunctions invariant again,
+               they are doing strange things ...
         '''
         DataManipulator.__init__(self, dataManager)
         MappingInterface.__init__(self)
@@ -82,7 +84,8 @@ class Mapping(DataManipulator, MappingInterface):
             self, function, outputVariables=None, functionName=None):
         '''
         @param function: the function to add to the mapping
-        @param outputVariables new output variables. defaults to the Mapping output variables if not set
+        @param outputVariables new output variables. defaults to the Mapping
+               output variables if not set
         @param functionName: name to register the function to
 
         By adding a new mapping function the Mapping will register
@@ -90,7 +93,8 @@ class Mapping(DataManipulator, MappingInterface):
         the currently defined inputVariables and the current set of
         outputVariables also including the new outputVariables added
         in this function call. (see also Data.DataManipulator)
-        #FIXME see also DataManipulator -> DataManipulator has no addMappingFunction
+        #FIXME see also DataManipulator -> DataManipulator has no
+               addMappingFunction
         '''
         if outputVariables is None:
             outputVariables = self.outputVariables
@@ -115,9 +119,11 @@ class Mapping(DataManipulator, MappingInterface):
 
     def setInputVariables(self, inputVariables, numDim=None, append=False):
         '''
-        Sets the input variables given to each mapping function registered by this Mapping
+        Sets the input variables given to each mapping function registered by
+        this Mapping
         @param inputVariables: iterable of input variable names
-        @param numDim: optional parameter indicating the input dimension. currently not supported!
+        @param numDim: optional parameter indicating the input dimension.
+                       currently not supported!
         @param append: set to true to keep the current input variables
         '''
         if numDim is not None:
