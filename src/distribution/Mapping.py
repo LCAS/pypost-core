@@ -93,8 +93,6 @@ class Mapping(DataManipulator, MappingInterface):
         the currently defined inputVariables and the current set of
         outputVariables also including the new outputVariables added
         in this function call. (see also Data.DataManipulator)
-        #FIXME see also DataManipulator -> DataManipulator has no
-               addMappingFunction
         '''
         if outputVariables is None:
             outputVariables = self.outputVariables
