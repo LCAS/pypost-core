@@ -1,9 +1,3 @@
-'''
-Created on 22.01.2016
-
-@author: Moritz
-'''
-
 from learner.Learner import Learner
 
 

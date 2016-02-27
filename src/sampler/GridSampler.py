@@ -1,8 +1,3 @@
-'''
-Created on 27.11.2015
-
-@author: Moritz
-'''
 from sampler import IndependentSampler, SamplerPool
 from functools import reduce
 import numpy as np
@@ -15,12 +10,12 @@ class GridSampler(IndependentSampler):
 
     def __init__(self, dataManager, samplerName, outputVariable, nSamples):
         '''
-        @param dataManager: DataManager this sampler operates on
-        @param samplerName: name of this sampler
-        @param outputVariable: list containing aliases to output
-        @param nSamples: number of samples for each grid cell
+        :param dataManager: DataManager this sampler operates on
+        :param samplerName: name of this sampler
+        :param outputVariable: list containing aliases to output
+        :param nSamples: number of samples for each grid cell
 
-        @change outputVariable has to be an array of arrays
+        :change: outputVariable has to be an array of arrays
         #FIXME grid
         '''
         super().__init__(dataManager, samplerName)

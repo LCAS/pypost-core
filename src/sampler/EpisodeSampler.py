@@ -1,8 +1,3 @@
-'''
-Created on 26.01.2016
-
-@author: Moritz
-'''
 from sampler import IndependentSampler
 from data import DataManager
 from sampler import SamplerPool
@@ -34,8 +29,8 @@ class EpisodeSampler(IndependentSampler):
 
     def __init__(self, dataManager=None, samplerName=None):
         '''
-        @param dataManager: DataManager this sampler operates on
-        @param samplerName: name of this sampler
+        :param dataManager: DataManager this sampler operates on
+        :param samplerName: name of this sampler
         '''
         if samplerName is None:
             samplerName = "episodes"
@@ -61,8 +56,8 @@ class EpisodeSampler(IndependentSampler):
 
     def setFinalRewardSampler(self, rewardSampler, samplerName=None):
         '''
-        @param rewardSampler: sampler function to set
-        @param samplerName: name of the sampler function
+        :param rewardSampler: sampler function to set
+        :param samplerName: name of the sampler function
         #TODO require explicit sampler
         '''
         if samplerName is None:
@@ -76,8 +71,8 @@ class EpisodeSampler(IndependentSampler):
 
     def setParameterPolicy(self, parameterSampler, samplerName=None):
         '''
-        @param parameterSampler: sampler function to set
-        @param samplerName: name of the sampler function
+        :param parameterSampler: sampler function to set
+        :param samplerName: name of the sampler function
         #TODO require explicit sampler
         '''
         if samplerName is None:
@@ -92,8 +87,8 @@ class EpisodeSampler(IndependentSampler):
 
     def setContextsampler(self, contextSampler, samplerName=None):
         '''
-        @param contextSampler: sampler function to set
-        @param samplerName: name of the sampler function
+        :param contextSampler: sampler function to set
+        :param samplerName: name of the sampler function
         #TODO require explicit sampler
         '''
         if samplerName is None:

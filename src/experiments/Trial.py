@@ -1,8 +1,3 @@
-'''
-Created on 26.01.2016
-
-@author: Sebastian Kreutzer
-'''
 from common.Settings import Settings
 from common import SettingsManager
 import os

@@ -1,8 +1,3 @@
-'''
-Created on 09.01.2016
-
-@author: Moritz
-'''
 from interfaces.DistributionInterface import DistributionInterface
 
 
@@ -15,7 +10,7 @@ class Distribution(DistributionInterface):
         '''
         Constructor
 
-        @change: dataManager was removed from function arguments and is now a constructor argument.
+        :change: dataManager was removed from function arguments and is now a constructor argument.
         '''
         super().__init__()
 
@@ -52,7 +47,7 @@ class Distribution(DistributionInterface):
     def _registerMappingInterfaceDistribution(self):
         '''
         registers a mapping and data function
-        @change
+        :change
         '''
         raise NotImplementedError("Not implemented")
 
@@ -67,6 +62,6 @@ class Distribution(DistributionInterface):
         '''
         get the log likelihood for a given set of in- and output data to be related
         #TODO there where varargs, check if the are really needed
-        @return: log likelihood of in- and output data to be related
+        :returns: log likelihood of in- and output data to be related
         '''
         raise NotImplementedError("Not implemented")

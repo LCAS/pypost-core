@@ -1,8 +1,3 @@
-'''
-Created on 21.11.2015
-
-@author: Moritz
-'''
 from interfaces.DataManipulatorInterface import DataManipulatorInterface
 
 

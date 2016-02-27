@@ -20,6 +20,14 @@ data.DataAlias module
     :undoc-members:
     :show-inheritance:
 
+data.DataCollection module
+--------------------------
+
+.. automodule:: data.DataCollection
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 data.DataEntry module
 ---------------------
 

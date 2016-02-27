@@ -8,6 +8,15 @@ class DataEntryInfo(object):
 
     def __init__(self, depth, entryList, numDimensions,
                  minRange, maxRange):
+        """Constructor for DataEntryInfo
+
+        :param depth: The depth in which the DataEntryInfo resides within the
+                      data structure.
+        :param entryList: The entry list of the data entry.
+        :param numDimensions: The dimentsions of the data entry.
+        :param minRange: The minimum values of the data entry
+        :param maxRange: The maximum values of the data entry
+        """
         self.depth = depth
         self.entryList = entryList
         self.numDimensions = numDimensions
@@ -124,17 +133,18 @@ class Data(object):
     def getDataEntry(self, path, indices=[]):
         '''
         Returns the data points from the required data entry (or alias).
-        @param path the path to the requested entry as an array
-                    e.g. ['steps', 'subSteps', 'subActions'] or
-                    simply the name of the entry.
-        @param indices the hierarchical indices (depending on the hierarchy, it
-                       can have different number of elements) as an array.
-                       If this parameter is omitted or the number of indices is
-                       less than the depth of the hierarchy (less than the
-                       length of the path), all other indices will be treated
-                       as "...".
-                       indices may also be a number which is equivalent to an
-                       array containing only one element
+
+        :param path: the path to the requested entry as an array e.g.
+                     ['steps', 'subSteps', 'subActions'] or simply the name of
+                     the entry.
+        :param indices: the hierarchical indices (depending on the hierarchy, it
+                        can have different number of elements) as an array.
+                        If this parameter is omitted or the number of indices is
+                        less than the depth of the hierarchy (less than the
+                        length of the path), all other indices will be treated
+                        as "...".
+                        indices may also be a number which is equivalent to an
+                        array containing only one element
         '''
         if isinstance(path, str):
             path = self._resolveEntryPath(path)
@@ -147,19 +157,20 @@ class Data(object):
     def setDataEntry(self, path, indices, data):
         '''
         Sets the data points for the required data entry (or alias).
-        @param path the path to the requested entry as an array.
-                    e.g. ['steps', 'subSteps', 'subActions']
-                    path may also be a string which is equivalent to an array
-                    containing only one element
-        @param indices the hierarchical indices (depending on the hierarchy, it
-                       can have different number of elements) as an array.
-                       If the number of indices is less than the depth of the
-                       hierarchy (less than the length of the path), all other
-                       indices will be treated as "...".
-                       indices may also be a number which is equivalent to an
-                       array containing only one element
-                       WARNING: The indices are starting at '0'. Hence, the
-                       second episode has the index '1'.
+
+        :param path: the path to the requested entry as an array.
+                     e.g. ['steps', 'subSteps', 'subActions']
+                     path may also be a string which is equivalent to an array
+                     containing only one element
+        :param indices: the hierarchical indices (depending on the hierarchy, it
+                        can have different number of elements) as an array.
+                        If the number of indices is less than the depth of the
+                        hierarchy (less than the length of the path), all other
+                        indices will be treated as "...".
+                        indices may also be a number which is equivalent to an
+                        array containing only one element
+                        WARNING: The indices are starting at '0'. Hence, the
+                        second episode has the index '1'.
         '''
         if isinstance(path, str):
             path = self._resolveEntryPath(path)

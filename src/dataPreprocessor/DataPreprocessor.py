@@ -1,10 +1,3 @@
-'''
-Created on 22.01.2016
-
-@author: Moritz
-'''
-
-
 class DataPreprocessor(object):
     '''
     Base class for Data Preprocessors
@@ -27,14 +20,14 @@ class DataPreprocessor(object):
     def preprocessData(self, data):
         '''
         takes the given data and returns the preprocessed result
-        @param data: data to process
+        :param data: data to process
         '''
         raise NotImplementedError("Not implemented")
 
     def preprocessDataCollection(self, dataCollection):
         '''
         Preprocess a collection of data and store the new data back into the collection
-        @param dataCollection: the data collection to process
+        :param dataCollection: the data collection to process
         '''
         newData = self.preprocessData(dataCollection.getStandardData())
         dataCollection.addDataObject(newData, self.name)
@@ -42,5 +35,5 @@ class DataPreprocessor(object):
     def setIteration(self, iteration):
         if (iteration<0):
             raise RuntimeError("Iteration value can not be negative")
-        
+
         self.iteration = iteration

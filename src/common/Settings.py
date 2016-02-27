@@ -21,9 +21,9 @@ class Settings(object):
 
     It is recommended to access the variables directly via the getter and setter instead of linking it, if you care about performance.
 
-    @change: The notation 'id' has been replaced with 'name' due to name conflicts
-    @change: isSameSettings() has been replaced with getDifferentProperties()
-    @change: getPropertyNames() and getNumProperties() are not implemented
+    :change: The notation 'id' has been replaced with 'name' due to name conflicts
+    :change: isSameSettings() has been replaced with getDifferentProperties()
+    :change: getPropertyNames() and getNumProperties() are not implemented
     '''
 
     propertyInfo= namedtuple('PropertyInfo', ['value', 'clients'])
@@ -38,8 +38,8 @@ class Settings(object):
     def __init__(self, name):
         '''Creates a new Settings object with the given name.
 
-        @param name: The name of the Settings
-        @change: Just creates an object and doesn't care about existing instances in the SettingsManager. For getting the default settings use: SettingsManager.getDefaultSettings()
+        :param name: The name of the Settings
+        :change: Just creates an object and doesn't care about existing instances in the SettingsManager. For getting the default settings use: SettingsManager.getDefaultSettings()
         '''
         self.name = name
         '''
@@ -53,7 +53,7 @@ class Settings(object):
         '''
     def clean(self):
         '''Removes all properties in this pool.
-        ''' 
+        '''
         self._properties = {}
 
     def removeClients(self):
@@ -65,9 +65,8 @@ class Settings(object):
     def registerProperty(self, propName, value):
         '''Registers a the specified property.
 
-        Adds a new property to the settings.
-        @param propName: Name of the property in the settings
-        @param value: value of the property
+        :param propName: Name of the property in the settings
+        :param value: value of the property
         '''
         if propName in self._properties:
             self._properties[propName] = self.propertyInfo(value, self._properties[propName].clients)
@@ -79,18 +78,17 @@ class Settings(object):
     def unregisterProperty(self, propName):
         '''Unregisters the property with the given name.
 
-        @param propName: Name of the property to unregister
+        :param propName: Name of the property to unregister
         '''
         if propName in self._properties:
             del self._properties[propName]
 
     def linkProperty(self, client, clientPropName, settingsPropName):
-        '''Links a property in the settings with the specified property of the given client.
+        '''Links a property in the settings with the specified property of the given client. If the property isn't already present in the settings, it will be registered.
 
-        If the property isn't already present in the settings, it will be registered.
-        @param client: The client owning the property to be linked.
-        @param clientPropName: The property's name as defined in the client
-        @param settingsPropName: The property's name as (it should be) defined in the settings
+        :param client: The client owning the property to be linked.
+        :param clientPropName: The property's name as defined in the client
+        :param settingsPropName: The property's name as (it should be) defined in the settings
         '''
         if settingsPropName in self._properties:
             client.globalProperties[clientPropName] = self._properties[settingsPropName].value
@@ -102,8 +100,8 @@ class Settings(object):
     def getProperty(self, propName):
         '''Returns the value of the property that is registered in the parameter pool with the given name.
 
-        @param propName: Name of the property to return
-        @return: the value of the specified property
+        :param propName: Name of the property to return
+        :returns: the value of the specified property
         '''
         if propName in self._properties:
             return self._properties[propName].value
@@ -111,16 +109,16 @@ class Settings(object):
     def getProperties(self):
         '''Returns a dictionary containing the properties' names (as keys) and their values.
 
-        @return: Dictionary containing the properties
+        :returns: Dictionary containing the properties
         '''
         return {propName: prop.value for (propName, prop) in self._properties.items()}
 
     def setProperty(self, propName, value):
         '''Sets the property with the given name to the specified value.
-
         If the parameter with the propName isn't existent in this parameter pool, it will be registered.
-        @param propName: Name of the property to set
-        @param value: new value of the property
+
+        :param propName: Name of the property to set
+        :param value: new value of the property
         '''
         isRegistered = propName in self._properties
         self.registerProperty(propName, value)
@@ -130,8 +128,8 @@ class Settings(object):
     def setIfEmpty(self, propName, value):
         '''Sets the property with the given name only if it isn't already registered.
 
-        @param propName: Name of the property to set
-        @param value: new value of the property
+        :param propName: Name of the property to set
+        :param value: new value of the property
         '''
         if propName not in self._properties:
             self.setProperty(propName, value)
@@ -139,47 +137,51 @@ class Settings(object):
     def setProperties(self, properties):
         '''Sets multiple properties.
 
-        @param properties: A dictionary containing the names of the properties as keys and the values being the values of each property
+        :param properties: A dictionary containing the names of the properties
+                           as keys and the values being the values of each
+                           property
         '''
         for p, v in properties.items():
             self.setProperty(p, v)
 
     def hasValue(self, propertyName, value):
         '''Checks if a property with the given name and value exists.
-        
-        @param propertyName: Name of the property to check
-        @param value: value to check
-        @return True, if a property with the given name and value exists; otherwise: False
+
+        :param propertyName: Name of the property to check
+        :param value: value to check
+        :returns: True, if a property with the given name and value exists;
+                  otherwise: False
         '''
         return self._properties[propertyName].value == value
 
     def hasProperty(self, propName):
         '''Checks if there is a property registered with the given name.
 
-        @param propName: Name of the property to check
-        @return True, if there is a property registered with the given name; otherwise: False
+        :param propName: Name of the property to check
+        :returns: True, if there is a property registered with the given name;
+                  otherwise: False
         '''
         return propName in self._properties
 
     def copyProperties(self, settings):
-        '''Copies all properties from another Settings object to the parameter pool.
+        '''Copies all properties from another Settings object to the parameter pool. Clients won't be deleted.
 
-        Clients won't be deleted.
-        @param settings: The Settings object from which the parameters shall be copied.
+        :param settings: The Settings object from which the parameters shall be copied.
         '''
         self.setProperties(settings.getProperties())
 
     def getDifferentProperties(self, otherSettings):
         '''Returns the names of the properties differing from those in the given Settings object.
 
-        @param otherSettings: The settings to compare with
-        @return: The names of the properties differing from those in the given Settings object
-        @change This should replace isSameSettings
+        :param otherSettings: The settings to compare with
+        :returns: The names of the properties differing from those in the given Settings object
+
+        :change: This should replace isSameSettings
         '''
         return {n for n, v in self._properties.items() if otherSettings.getProperty(n) != v.value}
 
     def setToClients(self):
-        '''Updates all linked properties of all clients. 
+        '''Updates all linked properties of all clients.
         '''
         for p in self._properties.keys():
             self.informClients(p)
@@ -187,7 +189,7 @@ class Settings(object):
     def informClients(self, propName):
         '''Updates the client's property that is linked to the property with the given name.
 
-        @param propName: Name of the property in the pool
+        :param propName: Name of the property in the pool
         '''
         if propName in self._properties:
             for c, n in self._properties[propName].clients:

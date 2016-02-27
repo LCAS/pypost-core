@@ -1,9 +1,3 @@
-'''
-Created on 22.11.2015
-
-@author: Moritz
-'''
-
 import numpy as np
 from sampler import SequentialSampler
 from sampler import SamplerPool
@@ -35,10 +29,10 @@ class StepSampler(SequentialSampler):
     def __init__(self, dataManager, samplerName):
         '''
         Constructor for setting-up an empty step sampler
-        @param dataManager: DataManager this sampler operates on
-        @param samplerName: name of this sampler
-        @change: sampler name is no longer optional
-        @change: dataManager is no longer optional
+        :param dataManager: DataManager this sampler operates on
+        :param samplerName: name of this sampler
+        :change: sampler name is no longer optional
+        :change: dataManager is no longer optional
         '''
         super().__init__(
             dataManager.getDataManagerForName(samplerName), samplerName, [])
@@ -54,8 +48,8 @@ class StepSampler(SequentialSampler):
     def setInitStateFunction(self, initStateSampler, samplerName=None):
         '''
         Set the initState function
-        @param initStateSampler: the init state function to set
-        @param samplerName: The name of the init state function (default: "sampleInitState")
+        :param initStateSampler: the init state function to set
+        :param samplerName: The name of the init state function (default: "sampleInitState")
         '''
         if samplerName is None:
             samplerName = "sampleInitState"
@@ -65,8 +59,8 @@ class StepSampler(SequentialSampler):
     def setPolicy(self, policy, samplerName=None):
         '''
         Set the transition function
-        @param policy: the policy function to set
-        @param samplerName: The name of the sampler function (default: "sampleAction")
+        :param policy: the policy function to set
+        :param samplerName: The name of the sampler function (default: "sampleAction")
         '''
         if samplerName is None:
             samplerName = "sampleAction"
@@ -75,8 +69,8 @@ class StepSampler(SequentialSampler):
     def setTransitionFunction(self, transitionFunction, samplerName=None):
         '''
         Set the transition function
-        @param transitionFunction: the transition function to set
-        @param samplerName: The name of the sampler function (default: "samplerNextState")
+        :param transitionFunction: the transition function to set
+        :param samplerName: The name of the sampler function (default: "samplerNextState")
         '''
         if samplerName is None:
             samplerName = "sampleNextState"
@@ -86,8 +80,8 @@ class StepSampler(SequentialSampler):
     def setRewardFunction(self, rewardFunction, samplerName=None):
         '''
         Set the reward function
-        @param rewardFunction: the reward function to set
-        @param samplerName: The name of the reward function (default: "sampleReward")
+        :param rewardFunction: the reward function to set
+        :param samplerName: The name of the reward function (default: "sampleReward")
         '''
         if samplerName is None:
             samplerName = "sampleReward"
@@ -100,8 +94,8 @@ class StepSampler(SequentialSampler):
     def _endTransition(self, data, *args):
         '''
         End the transition and set data for the new time step
-        @param data: data to be operated on
-        @param args: index of the layer
+        :param data: data to be operated on
+        :param args: index of the layer
         '''
         super()._endTransition(data, *args)
 
@@ -115,8 +109,8 @@ class StepSampler(SequentialSampler):
     def _initSamples(self, data, *args):
         '''
         Initialize the data of the step sampler
-        @param data: data to be operated on
-        @param args: index of the layer
+        :param data: data to be operated on
+        :param args: index of the layer
         '''
         # the documentation states, that we set the following data entries:'states', 'nextStates' and 'timeSteps'
         # in matlab we have some lines commented out that set states &
@@ -128,7 +122,7 @@ class StepSampler(SequentialSampler):
     def _createSamplesForStep(self, data, *args):
         '''
         sample policy, transition and reward
-        @param data to be operated on
-        @param args: index of the layer
+        :param data: to be operated on
+        :param args: index of the layer
         '''
         self._createSamplePoolsWithPriority(10, 90, data, *args)

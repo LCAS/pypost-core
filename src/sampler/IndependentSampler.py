@@ -1,8 +1,3 @@
-'''
-Created on 27.11.2015
-
-@author: Moritz
-'''
 from sampler import Sampler
 
 

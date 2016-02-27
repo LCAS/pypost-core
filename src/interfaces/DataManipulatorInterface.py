@@ -1,9 +1,3 @@
-'''
-Created on 22.11.2015
-
-@author: Moritz
-'''
-
 from enum import Enum
 
 CallType = Enum('CallType', 'SINGLE_SAMPLE ALL_AT_ONCE PER_EPISODE')

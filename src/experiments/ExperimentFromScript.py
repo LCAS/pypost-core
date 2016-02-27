@@ -1,9 +1,3 @@
-'''
-Created on 26.01.2016
-
-@author: Sebastian Kreutzer
-'''
-
 from experiments.Experiment import Experiment
 from experiments.TrialFromScript import TrialFromScript
 from common.Settings import Settings

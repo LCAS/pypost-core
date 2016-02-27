@@ -1,9 +1,3 @@
-'''
-Created on 22.01.2016
-
-@author: Moritz
-'''
-
 import numpy as np
 
 from learner.RLLearner import RLLearner
@@ -106,7 +100,7 @@ class RLByWeightedML(RLLearner, DataManipulator, object):
 
     def computeWeighting(self, **args):
         '''
-        @return: weights
+        :returns: weights
         '''
         raise NotImplementedError("Not implemented")
 

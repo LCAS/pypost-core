@@ -1,8 +1,3 @@
-'''
-Created on Dec 7, 2015
-
-@author: Sebastian Kreutzer
-'''
 from interfaces.DataManipulatorInterface import DataManipulatorInterface
 from interfaces.DataManipulatorInterface import CallType
 from data.DataManager import DataManager

@@ -1,8 +1,3 @@
-'''
-Created on 09.01.2016
-
-@author: Moritz
-'''
 import numbers
 
 from interfaces.MappingInterface import MappingInterface
@@ -26,14 +21,14 @@ class Mapping(DataManipulator, MappingInterface):
             self, dataManager, inputVariables=None, outputVariables=None, name=""):
         '''
         Constructor
-        @param dataManager: the data manager the mapping is operating on
-        @param inputVariables: iterable of input variable names
-        @param outputVariable: name of the output variable
-        @param name: name of the mapping
+        :param dataManager: the data manager the mapping is operating on
+        :param inputVariables: iterable of input variable names
+        :param outputVariable: name of the output variable
+        :param name: name of the mapping
 
-        @change: dataManager was removed from function arguments and is now a constructor argument.
-        @change: registeredMappingFunctions was never used and got deleted
-        @change registerDataFunctions is eqivalent to inputVariables = empty
+        :change: dataManager was removed from function arguments and is now a constructor argument.
+        :change: registeredMappingFunctions was never used and got deleted
+        :change: registerDataFunctions is eqivalent to inputVariables = empty
         #FIXME check registerDataFunctions invariant again, they are doing strange things ...
         '''
         DataManipulator.__init__(self, dataManager)
@@ -81,9 +76,9 @@ class Mapping(DataManipulator, MappingInterface):
     def addMappingFunction(
             self, function, outputVariables=None, functionName=None):
         '''
-        @param function: the function to add to the mapping
-        @param outputVariables new output variables. defaults to the Mapping output variables if not set
-        @param functionName: name to register the function to
+        :param function: the function to add to the mapping
+        :param outputVariables: new output variables. defaults to the Mapping output variables if not set
+        :param functionName: name to register the function to
 
         By adding a new mapping function the Mapping will register
         a new DataManipulationFunction in the DataManager, with
@@ -116,9 +111,9 @@ class Mapping(DataManipulator, MappingInterface):
     def setInputVariables(self, inputVariables, numDim=None, append=False):
         '''
         Sets the input variables given to each mapping function registered by this Mapping
-        @param inputVariables: iterable of input variable names
-        @param numDim: optional parameter indicating the input dimension. currently not supported!
-        @param append: set to true to keep the current input variables
+        :param inputVariables: iterable of input variable names
+        :param numDim: optional parameter indicating the input dimension. currently not supported!
+        :param append: set to true to keep the current input variables
         '''
         if numDim is not None:
             raise NotImplementedError("Number arguments are not supported")

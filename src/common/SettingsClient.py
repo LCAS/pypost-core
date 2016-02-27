@@ -36,9 +36,9 @@ class SettingsClient(object):
         NOTE: ALL properties that are linked must be declared as
         'AbortSet' and 'SetObservable'!
 
-        @param clientPropName: Name of the property as defined in the client
-        @param settingsPropName: Name of the property as defined in the settings
-        @param settings: The Settings to be used
+        :param clientPropName: Name of the property as defined in the client
+        :param settingsPropName: Name of the property as defined in the settings
+        :param settings: The Settings to be used
         '''
         if settingsPropName is None:
             settingsPropName = clientPropName

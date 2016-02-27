@@ -1,10 +1,4 @@
-'''
-Created on 27.01.2016
-
-@author: Sebastian Kreutzer
-'''
 import os
-from experiments.Experiment import Experiment
 
 
 class Evaluaton(object):

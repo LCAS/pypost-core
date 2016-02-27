@@ -1,9 +1,3 @@
-'''
-Created on 09.01.2016
-
-@author: Moritz
-'''
-
 # FIXME why is this needed?
 from interfaces.MappingInterface import MappingInterface
 
@@ -63,6 +57,6 @@ class DistributionInterface(MappingInterface):
         '''
         get the log likelihood for a given set of in- and output data to be related
         #TODO there where varargs, check if the are really needed
-        @return: log likelihood of in- and output data to be related
+        :returns: log likelihood of in- and output data to be related
         '''
         raise NotImplementedError("Not implemented")

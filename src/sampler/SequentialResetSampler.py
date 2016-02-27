@@ -1,8 +1,3 @@
-'''
-Created on 26.11.2015
-
-@author: Moritz
-'''
 from sampler import Sampler
 
 
@@ -60,16 +55,16 @@ class SequentialResetSampler(Sampler):
     def _initSamples(self, data, *args):
         '''
         Initialize the data of the step sampler
-        @param data: data to be operated on
-        @param args: index of the layer
+        :param data: data to be operated on
+        :param args: index of the layer
         '''
         raise NotImplementedError("Not implemented")
 
     def _createSamplesForStep(self, data, *args):
         '''
         create samples for the current step
-        @param data to be operated on
-        @param args: index of the layer
+        :param data: to be operated on
+        :param args: index of the layer
         '''
         # FIXME this function is redefined in some other classes, refactor to
         # sequential sampler?
@@ -78,16 +73,16 @@ class SequentialResetSampler(Sampler):
     def _adjustReservedStorage(self, data, *args):
         '''
         Ends the transition
-        @param data to be operated on
-        @param args: index of the layer
+        :param data to be operated on
+        :param args: index of the layer
         '''
         raise NotImplementedError("Not implemented")
 
     def _selectActiveIdxs(self, data, *args):
         '''
         Ends the transition
-        @param data to be operated on
-        @param args: index of the layer
+        :param data: to be operated on
+        :param args: index of the layer
         '''
         # FIXME this function is redefined in some other classes, refactor to
         # sequential sampler?

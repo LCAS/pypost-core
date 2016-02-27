@@ -1,10 +1,3 @@
-'''
-Created on 22.01.2016
-
-@author: Moritz
-'''
-
-
 class DataCollection(object):
     '''
     A collection for storing data objects
@@ -14,7 +7,7 @@ class DataCollection(object):
         '''
         Set up a DataCollection with a standard data entry
 
-        @param standartData: the data object to store as standard data
+        :param standartData: the data object to store as standard data
         '''
         self.dataMap = {}
 

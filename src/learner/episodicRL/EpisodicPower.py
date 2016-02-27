@@ -1,9 +1,3 @@
-'''
-Created on 22.01.2016
-
-@author: Moritz
-'''
-
 import numpy as np
 
 from learner.weightedML.RLByWeightedML import RLByWeightedML

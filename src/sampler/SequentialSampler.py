@@ -1,8 +1,3 @@
-'''
-Created on 22.11.2015
-
-@author: Moritz
-'''
 from sampler import Sampler
 from sampler.isActiveSampler import IsActiveNumSteps
 
@@ -20,9 +15,9 @@ class SequentialSampler(Sampler):
     def __init__(self, dataManager, samplerName, stepNames):
         '''
         Constructor for setting-up an empty step sampler
-        @param dataManager: DataManager this sampler operates on
-        @param samplerName: name of this sampler
-        @param stepNames: array with the names of the steps
+        :param dataManager: DataManager this sampler operates on
+        :param samplerName: name of this sampler
+        :param stepNames: array with the names of the steps
         '''
         super().__init__(dataManager, samplerName)
 
@@ -51,8 +46,8 @@ class SequentialSampler(Sampler):
             self, transitionElementOld, transitionElementNew):
         '''
         Adds a transition from an old to a new element name
-        @param transitionElementOld: old name of the element
-        @param transitionElementNew: new name of the element
+        :param transitionElementOld: old name of the element
+        :param transitionElementNew: new name of the element
         #ASK is this the place where an automatic transition for old/new-name prefixes was requested?
         '''
         self._transitionElementOldStep.append(transitionElementOld)
@@ -69,8 +64,8 @@ class SequentialSampler(Sampler):
         still active and need processing. If isActiveSampler returns an empty vector, meaning every episode
         has terminated, the sampling is done.
 
-        @param data: the data structure the sampler operates on
-        @param args: hierarchical indexing of the data structure
+        :param data: the data structure the sampler operates on
+        :param args: hierarchical indexing of the data structure
         '''
 
         layerIndex = args
@@ -154,15 +149,15 @@ class SequentialSampler(Sampler):
     def _initSamples(self, data, *args):
         '''
         Initialize the data of the step sampler
-        @param data: data to be operated on
-        @param args: index of the layer
+        :param data: data to be operated on
+        :param args: index of the layer
         '''
         raise NotImplementedError("Not implemented")
 
     def _createSamplesForStep(self, data, *args):
         '''
         create samples for the current step
-        @param data to be operated on
-        @param args: index of the layer
+        :param data: to be operated on
+        :param args: index of the layer
         '''
         raise NotImplementedError("Not implemented")

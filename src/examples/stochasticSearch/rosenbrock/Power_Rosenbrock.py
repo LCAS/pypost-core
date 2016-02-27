@@ -1,9 +1,3 @@
-'''
-Created on 26.01.2016
-
-@author: Moritz
-'''
-
 from sampler import EpisodeSampler
 from common import Settings
 from learner.episodicRL import EpisodicPower

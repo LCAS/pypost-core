@@ -1,15 +1,9 @@
-'''
-Created on 26.01.2016
-
-@author: Sebastian Kreutzer
-'''
 import os
 import getpass
 import shutil
 
 import numpy as np
 
-from Experiments import Evaluation
 from common import Settings
 
 
@@ -166,7 +160,7 @@ class Experiment(object):
         for key, evaluation in self.evaluations.items():
             self.createDirectories(evaluation)
 
-    #@change renamed from changePath to setPath
+    #:change: renamed from changePath to setPath
     def setPath(self, path):
         self.path = path
 

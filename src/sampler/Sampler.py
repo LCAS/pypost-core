@@ -1,8 +1,3 @@
-'''
-Created on 21.11.2015
-
-@author: Moritz
-'''
 from interfaces import SamplerInterface
 
 
@@ -24,8 +19,8 @@ class Sampler(SamplerInterface):
     def __init__(self, dataManager, samplerName):
         '''
         Constructor for setting-up an empty sampler
-        @param dataManager: DataManager this sampler operates on
-        @param samplerName: name of this sampler
+        :param dataManager: DataManager this sampler operates on
+        :param samplerName: name of this sampler
         '''
         super().__init__()
 
@@ -36,7 +31,7 @@ class Sampler(SamplerInterface):
         self._samplerName = samplerName
         '''
         String of the sampler name
-        @change: now holds samplerPool instances instead of their names
+        :change: now holds samplerPool instances instead of their names
         '''
         self._samplerPools = {}
         '''
@@ -49,7 +44,7 @@ class Sampler(SamplerInterface):
         self._samplerMap = {}
         '''
         List of lower level samplers after finalizing the sampler
-        @change iteration indices now start at 0
+        :change: iteration indices now start at 0
         '''
         self._iterationIndex = 0
         '''
@@ -96,8 +91,8 @@ class Sampler(SamplerInterface):
     def finalizeSampler(self, finalizeData):
         '''
         Finalize the samplerMap and the data
-        @param finalizeData: Set to true if the dataManager should finalize the data
-        @change: finalizeData is no longer optional
+        :param finalizeData: Set to true if the dataManager should finalize the data
+        :change: finalizeData is no longer optional
         '''
         lowLevelsamplers = self.getLowLevelSamplers()
         for sampler in lowLevelsamplers:
@@ -113,7 +108,7 @@ class Sampler(SamplerInterface):
     def copyPoolsFromSampler(self, sampler):
         '''
         Clears this sampler and copies all sampler pools and their corresponding priority
-        @param sampler: sampler to copy the sampler pools from
+        :param sampler: sampler to copy the sampler pools from
         '''
         self._samplerPools = sampler._samplerPools.copy()
         self._samplerPoolPriorityList = sampler._samplerPoolPriorityList.copy()
@@ -126,16 +121,16 @@ class Sampler(SamplerInterface):
     def copySamplerFunctionsFromPool(self, sampler, poolName):
         '''
         Copies a sampler pool into this sampler
-        @param sampler: sampler to copy the pool from
-        @param poolName: sampler pool name to copy
+        :param sampler: sampler to copy the pool from
+        :param poolName: sampler pool name to copy
         '''
         self._samplerPools[poolName] = sampler._samplerPools[poolName]
 
     def isSamplerFunction(self, samplerName):
         '''
         Checks if a sampler function is part of this sampler
-        @param samplerName: name of the sampler function to test
-        @return: true if the sampler is a sampler function of this sampler; false otherwise
+        :param samplerName: name of the sampler function to test
+        :returns: true if the sampler is a sampler function of this sampler; false otherwise
         '''
         if self.getSamplerName() == samplerName:
             return True
@@ -145,9 +140,9 @@ class Sampler(SamplerInterface):
     def callDataFunction(self, samplerName, newData, *args):
         '''
         Calls a data function on a given sampler
-        @param samplerName: sampler to call the function on
-        @param newData: data to pass to the function
-        @param args: further parameters to pass
+        :param samplerName: sampler to call the function on
+        :param newData: data to pass to the function
+        :param args: further parameters to pass
         '''
         if self.getSamplerName() == samplerName:
             self._createSamples(newData, *args)
@@ -158,9 +153,11 @@ class Sampler(SamplerInterface):
         '''
         Adds a sampler pool to the sampler pool list
 
-        @throws If a sampler pool with the same name already exists
-        @throws If a sampler pool with the same priority already exists
-        @change: we explicitly require a sampler pool instance in case the pool class will be altered in the future
+        :raises: RuntimeError: If a sampler pool with the same name already
+                               exists
+        :raises: RuntimeError: If a sampler pool with the same priority already
+                               exists
+        :change: we explicitly require a sampler pool instance in case the pool class will be altered in the future
         '''
         if samplerPool.getName() in self._samplerPools.keys():
             raise RuntimeError("A sampler pool with the name \"" +
@@ -184,9 +181,9 @@ class Sampler(SamplerInterface):
     def getSamplerPool(self, name):
         '''
         Get a reference to a sampler pool
-        @param name: Name of the sampler pool
-        @return: requested pool
-        @raise NameError: if no pool is registered under the given name
+        :param name: Name of the sampler pool
+        :returns: requested pool
+        :raises: NameError: if no pool is registered under the given name
         '''
         return self._samplerPools[name]
 
@@ -196,9 +193,9 @@ class Sampler(SamplerInterface):
             self, samplerPool, lowerLevelSampler, isBeginning):
         '''
         Adds a lower-level sampler to this sampler
-        @param samplerPool: name of the sampler pool
-        @param lowerLevelSampler: sampler to add to the pool
-        @param isBeginning: ASK what is this doing?
+        :param samplerPool: name of the sampler pool
+        :param lowerLevelSampler: sampler to add to the pool
+        :param isBeginning: ASK what is this doing?
         #ASK where is addSamplerFunction defined,
         '''
         self.addSamplerFunction(samplerPool, lowerLevelSampler, isBeginning)
@@ -208,7 +205,7 @@ class Sampler(SamplerInterface):
     def getLowerLevelSamplers(self):
         '''
         Get a list of all recursively invoked lower-level samplers
-        @return: list of all lower-level samplers
+        :returns: list of all lower-level samplers
         '''
 
         lowerLevelSamplersRecursive = self._lowerLevelSamplers.copy()
@@ -230,10 +227,10 @@ class Sampler(SamplerInterface):
         0 will flush the entire sampler pool and only add samplerPool afterwards
         1 will add the new sampler function at the end of the sampler pool.
 
-        @param samplerPoolName: sampler pool to whom the sampler function will be included
-        @param samplerName: name of the new sampler function
-        @param objHandle: function handle of the new sampler function
-        @param addLocationFlag: Determines to determines the behaviour of the
+        :param samplerPoolName: sampler pool to whom the sampler function will be included
+        :param samplerName: name of the new sampler function
+        :param objHandle: function handle of the new sampler function
+        :param addLocationFlag: Determines to determines the behaviour of the
                                 function.
         '''
         if not self.isSamplerFunction(samplerName):
@@ -268,9 +265,9 @@ class Sampler(SamplerInterface):
         '''
         Executes all functions on the samplerList of a given pool
 
-        @param poolName: name of the selected pool
-        @param data: the data structure the pool operates on
-        @param args: hierarchical indexing of the data structure
+        :param poolName: name of the selected pool
+        :param data: the data structure the pool operates on
+        :param args: hierarchical indexing of the data structure
         '''
         for sampler in pool.samplerList:
             objectPointer = sampler.objHandle
@@ -280,8 +277,8 @@ class Sampler(SamplerInterface):
         '''
         Sample all pools
 
-        @param newData: the data structure the pool operates on
-        @param *args: hierarchical indexing of the data structure
+        :param newData: the data structure the pool operates on
+        :param *args: hierarchical indexing of the data structure
         '''
         for pool in self._samplerPoolPriorityList:
             self.createSamplesFromPool(pool, data, *args)
@@ -291,10 +288,10 @@ class Sampler(SamplerInterface):
         '''
         Samples all pools in a specific priority range
 
-        @param lowPriority: lower bound of pools that will be executed
-        @param highPriority: higher bound of pools that will be executed
-        @param newData: the data structure the pool operates on
-        @param *args: hierarchical indexing of the data structure
+        :param lowPriority: lower bound of pools that will be executed
+        :param highPriority: higher bound of pools that will be executed
+        :param newData: the data structure the pool operates on
+        :param *args: hierarchical indexing of the data structure
         '''
         for pool in self._samplerPoolPriorityList:
             if pool.getPriority() >= lowPriority:
