@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 
 
 class DataEntryInfo(object):
@@ -35,11 +36,9 @@ class Data(object):
         '''
         self.dataManager = dataManager
         self.dataStructure = dataStructure
+
+        # create the entryInfoMap
         self.entryInfoMap = {}
-
-        self.init()
-
-    def init(self):
         aliasNames = self.dataManager.getAliasNames()
         for name in aliasNames:
             depth = self.dataManager.getDataEntryDepth(name)
@@ -50,10 +49,13 @@ class Data(object):
                               self.dataManager.getMaxRange(name))
 
     def completeLayerIndex(self, depth, indices):
-        '''
-        This function completes the hierarchical indicing for the internal
+        '''This function completes the hierarchical indicing for the internal
         functions for accessing the data. E.g., if not enough indices are
-        specified, it appends "..." (index for every data point).
+        specified, it appends appropriate slices.
+
+        :param depth: The depth of the indices path
+        :param indices: The (potentially incomplete) indices
+        :returns: The complete indices array
         '''
         if not isinstance(indices, list):
             indices = [indices]
@@ -130,7 +132,7 @@ class Data(object):
         path.append(name)
         return path
 
-    def getDataEntry(self, path, indices=[]):
+    def getDataEntry(self, path, indices=[], cloneData=True):
         '''
         Returns the data points from the required data entry (or alias).
 
@@ -145,6 +147,13 @@ class Data(object):
                         as "...".
                         indices may also be a number which is equivalent to an
                         array containing only one element
+        :param cloneData: If true, a copy of the data will be returned. When
+                          `cloneData` is false, modifying the returned data may
+                          already impact the values stored in the data structure
+                          which improves performance. In any case, it is crucial
+                          to write all pending changes by using
+                          :func:`setDataEntry`.
+        :returns: the requested data
         '''
         if isinstance(path, str):
             path = self._resolveEntryPath(path)
@@ -152,7 +161,12 @@ class Data(object):
         if not isinstance(indices, list):
             indices = [indices]
 
-        return self.dataStructure.getDataEntry(path, indices)
+        data = self.dataStructure.getDataEntry(path, indices)
+
+        if cloneData:
+            return copy.deepcopy(data)
+        else:
+            return data
 
     def setDataEntry(self, path, indices, data):
         '''
@@ -171,6 +185,7 @@ class Data(object):
                         array containing only one element
                         WARNING: The indices are starting at '0'. Hence, the
                         second episode has the index '1'.
+        :param data: The data to set.
         '''
         if isinstance(path, str):
             path = self._resolveEntryPath(path)
@@ -215,6 +230,7 @@ class Data(object):
                         subEntryName = subEntry[-1]
                     numDimensions = self.entryInfoMap[subEntryName].numDimensions
                     dataMatrix = dataEntryList[i]
+
                     if len(dataMatrix.shape) == 1:
                         dataMatrix = dataMatrix[index:(index + numDimensions)]
                     else:
@@ -226,4 +242,9 @@ class Data(object):
                 self.setDataEntry(entry, indices, dataEntryList[i])
 
     def reserveStorage(self, numElements):
+        '''Allocates memory for `numElements` elements
+
+        :param numElements: The number of elements that the data structure
+                            should be able to handle.
+        '''
         self.dataManager.reserveStorage(self.dataStructure, numElements)

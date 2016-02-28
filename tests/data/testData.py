@@ -269,6 +269,55 @@ class testDataManager(unittest.TestCase):
         self.assertTrue((data.getDataEntry('context', []) ==
                          np.zeros((10, 2))).all())
 
+    def test_getDataEntryDeepCopy(self):
+        dataManager = DataManager('episodes')
+        subDataManager = DataManager('steps')
+        subSubDataManager = DataManager('subSteps')
+
+        dataManager.subDataManager = subDataManager
+        subDataManager.subDataManager = subSubDataManager
+
+        dataManager.addDataEntry('parameters', 5)
+        subDataManager.addDataEntry('states', 1)
+        subSubDataManager.addDataEntry('subActions', 2)
+
+        myData = dataManager.getDataObject([1, 1, 1])
+
+        # set the data for all subActions of all episodes, steps and subSteps
+        myData.setDataEntry('subActions', [], np.ones((1, 2)))
+
+        self.assertTrue((myData.dataStructure['steps'][0]['subSteps'][0]
+                         ['subActions'][0] == np.array([1, 1])).all())
+
+        data1 = myData.getDataEntry('subActions', [])
+        data2 = myData.getDataEntry('subActions', [], True)
+        data3 = myData.getDataEntry('subActions', [], False)
+        data4 = myData.getDataEntry('subActions', [], False)
+
+        self.assertTrue((data1 == data2).all())
+        self.assertTrue((data2 == data3).all())
+        self.assertTrue((data3 == data4).all())
+
+        data2[0, 1] = 7 # This should NOT have any impact on any other data
+
+        self.assertTrue((data2 != data1).any())
+        self.assertTrue((data2 != data3).any())
+        self.assertTrue((data2 != data4).any())
+
+        data5 = myData.getDataEntry('subActions', [])
+
+        data3[0, 0] = 8 # This MAY impact the data in the data structure,
+                        # but should not impact data1 or data2
+
+        self.assertTrue((data5 == data1).all())
+        self.assertTrue((data3 != data1).any())
+        self.assertTrue((data3 == data4).any())
+
+        myData.setDataEntry('subActions', [], data2) # still no impact on data1
+        self.assertTrue((data5 == data1).all())
+        self.assertTrue(((myData.getDataEntry('subActions', [])) ==
+                         [1, 7]).all())
+
     def test_getDataEntryList(self):
         dataManager = DataManager('episodes')
         dataManager.addDataEntry('parameters', 5)
@@ -328,6 +377,16 @@ class testDataManager(unittest.TestCase):
                          6 * np.ones((10, 5))).all())
         self.assertTrue((myData.getDataEntry('context', [...]) ==
                          6 * np.ones((3))).all())
+
+
+        myData.setDataEntryList([('parameters', ['context'])], [3],
+                                7 * np.ones((1, 8)))
+
+        self.assertTrue((myData.getDataEntry('parameters', [3]) ==
+                         7 * np.ones((5))).all())
+        self.assertTrue((myData.getDataEntry('context', 3) ==
+                         7 * np.ones((3))).all())
+
 
     def test_resolveEntryPath(self):
         manager = DataUtil.createTestManager()
