@@ -68,7 +68,14 @@ myData.reserveStorage([100, 20, 5])
 # the following command accesses all parameters of the first episode
 print('parameters: \n', myData.getDataEntry('parameters', 1), '\n\n')
 
-# and the following command the subActions of all subSteps of the first step of the first episode
+# by setting cloneData to False, references to the data in the data structure
+# are returned. Updates in the returned data may influence the data in the
+# data structure and in other references with cloneData==False. Nevertheless, it
+# is crucial to write all pending changes by using setDataEntry().
+print('parameters: \n', myData.getDataEntry('parameters', 1, False), '\n\n')
+
+# and the following command retreives the subActions of all subSteps of the
+# first step of the first episode
 print('subActions: \n', myData.getDataEntry(['steps', 'subSteps', 'subActions'],
                                             [1, 1, ...]), '\n\n')
 
