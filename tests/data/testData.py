@@ -238,9 +238,6 @@ class testDataManager(unittest.TestCase):
 
         # all subActions in every second subStep of all steps of the 2nd episode
         # should have different parameters
-        print(myData.getDataEntry(['steps', 'subSteps', 'subActions'],
-                            [1, ..., 2]))
-
         myData.setDataEntry(['steps', 'subSteps', 'subActions'],
                             [1, slice(0, 5, 2), 2], np.array([
                                 [3, 1],
@@ -273,6 +270,28 @@ class testDataManager(unittest.TestCase):
                       [1, 1], [1, 1], [2, 4],
                       [1, 1], [1, 1], [3, 3]])
         ).all())
+
+        self.assertRaises(ValueError, myData.setDataEntry,
+                          ['steps', 'subSteps', 'subActions'],
+                          [1, 2, slice(0,1)], np.array([[5, 1], [5, 2]]))
+
+        self.assertRaises(ValueError, myData.setDataEntry,
+                          ['steps', 'subSteps', 'subActions'],
+                          [1, ..., 0], np.array([[5, 1], [5, 2], [5, 3]]))
+
+        self.assertRaises(ValueError, myData.setDataEntry,
+                          ['steps', 'subSteps', 'subActions'],
+                          [1, slice(0, -2), 2], np.array([[5, 1], [5, 2]]))
+
+        self.assertRaises(ValueError, myData.setDataEntry,
+                          ['steps', 'subSteps', 'subActions'],
+                          [1, slice(0, -2), 2], np.array([]))
+
+        self.assertRaises(ValueError, myData.setDataEntry,
+                          ['steps', 'subSteps', 'subActions'],
+                          [1, slice(0, -2), 2], np.array([
+                          [5, 1], [5, 2], [5, 3], [5, 4]]))
+
 
     def test_setgetDataEntryRanges(self):
         dataManager = DataManager('episodes')

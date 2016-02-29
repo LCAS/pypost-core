@@ -15,6 +15,13 @@ class DataStructure():
         self.numElements = numElements
 
     def createEntry(self, name, entry):
+        '''Stores a new data entry in the local layer of the data structure
+
+        :param name: The name of the entry
+        :type name: string
+        :param entry: The entry that will be added to the local layer
+        :type entry: DataAlias or numpy.ndarray or DataStructure
+        '''
         if name in self.dataStructureLocalLayer:
             raise ValueError("Cannot redefine entry")
         self.dataStructureLocalLayer[name] = entry
@@ -110,6 +117,7 @@ class DataStructure():
         '''
         Returns the data points from the required data entry (or
         alias).
+
         :param path: the path to the requested entry as an array.
                      e.g. ['steps', 'subSteps', 'subActions']
         :param indices: the hierarchical indices (depending on the hierarchy, it
@@ -153,6 +161,7 @@ class DataStructure():
                 raise ValueError("Invalid data type: indices[0]")
 
             for subDataStructure in subLayers:
+                # get the data from the data structure of a lower layer
                 subData = subDataStructure.getDataEntry(path[1:], indices[1:])
 
                 if data is None:
@@ -166,6 +175,7 @@ class DataStructure():
         '''
         Sets the data points for the required data entry (or
         alias).
+
         :param path: the path to the requested entry as an array.
                      e.g. ['steps', 'subSteps', 'subActions']
         :param indices: the hierarchical indices (depending on the hierarchy, it
@@ -175,6 +185,7 @@ class DataStructure():
                         indices will be treated as "...".
                         indices may also be a number which is equivalent to an
                         array containing only one element
+        :param data: the data to be set
         '''
 
         while len(indices) < len(path):
@@ -225,6 +236,17 @@ class DataStructure():
                 subLayers = self.dataStructureLocalLayer[path[0]]
                 subDataLen = int(data.shape[0] / len(subLayers))
 
+                subDataShape = subLayers[0].getDataEntry(path[1:],
+                                                         indices[1:]).shape
+
+                if (data.shape[0] != subDataShape[0] * len(subLayers) or
+                    data.shape[1] != subDataShape[1]):
+                    raise ValueError("The shape of the specified matrix (%s)"
+                                     " doesn't match the expected shape (%s)"
+                                     % (data.shape,
+                                        (subDataShape[0] * len(subLayers),
+                                         subDataShape[1])))
+
                 i = 0
                 for subLayer in subLayers:
                     subData = data[i * subDataLen:(i + 1) * subDataLen]
@@ -232,6 +254,8 @@ class DataStructure():
                     i += 1
 
             elif isinstance(indices[0], slice):
+                # devide the data into several parts (depending on the given
+                # slice) and pass each of these to the corresponding subLayer.
                 subLayers = self.dataStructureLocalLayer[path[0]][indices[0]]
                 subDataLen = int(data.shape[0] / len(subLayers))
 
@@ -245,7 +269,6 @@ class DataStructure():
                                      % (data.shape,
                                         (subDataShape[0] * len(subLayers),
                                          subDataShape[1])))
-
 
                 i = 0
                 for subLayer in subLayers:
