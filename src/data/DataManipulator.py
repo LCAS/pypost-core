@@ -230,8 +230,7 @@ class DataManipulator(DataManipulatorInterface):
                                      " with multiple input values")
             indices = data.completeLayerIndex(
                 data.dataManager.getDataEntryDepth(
-                    dataManipulationStruct.depthEntry),
-                indices)
+                    dataManipulationStruct.depthEntry), indices)
 
         if dataManipulationStruct.callType is CallType.SINGLE_SAMPLE or \
                 dataManipulationStruct.callType is CallType.PER_EPISODE:

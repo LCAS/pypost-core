@@ -235,6 +235,45 @@ class testDataManager(unittest.TestCase):
             np.array([[1, 1]])
         ).all())
 
+
+        # all subActions in every second subStep of all steps of the 2nd episode
+        # should have different parameters
+        print(myData.getDataEntry(['steps', 'subSteps', 'subActions'],
+                            [1, ..., 2]))
+
+        myData.setDataEntry(['steps', 'subSteps', 'subActions'],
+                            [1, slice(0, 5, 2), 2], np.array([
+                                [3, 1],
+                                [3, 2],
+                                [3, 3]]))
+
+        self.assertTrue((
+            myData.getDataEntry(['steps', 'subSteps', 'subActions'], 1) ==
+            np.array([[1, 1], [1, 1], [3, 1],
+                      [1, 1], [1, 1], [2, 2],
+                      [1, 1], [1, 1], [3, 2],
+                      [1, 1], [1, 1], [2, 4],
+                      [1, 1], [1, 1], [3, 3]])
+        ).all())
+
+
+        # all subActions in the first 3 subSteps of all steps of the 2nd episode
+        # should have different parameters
+        myData.setDataEntry(['steps', 'subSteps', 'subActions'],
+                            [1, slice(0, -2), 2], np.array([
+                                [4, 1],
+                                [4, 2],
+                                [4, 3]]))
+
+        self.assertTrue((
+            myData.getDataEntry(['steps', 'subSteps', 'subActions'], 1) ==
+            np.array([[1, 1], [1, 1], [4, 1],
+                      [1, 1], [1, 1], [4, 2],
+                      [1, 1], [1, 1], [4, 3],
+                      [1, 1], [1, 1], [2, 4],
+                      [1, 1], [1, 1], [3, 3]])
+        ).all())
+
     def test_setgetDataEntryRanges(self):
         dataManager = DataManager('episodes')
         dataManager.addDataEntry('parameters', 5) # implicit ranges ([-1 1])

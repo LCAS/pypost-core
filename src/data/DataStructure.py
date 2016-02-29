@@ -191,9 +191,11 @@ class DataStructure():
             elif isinstance(indices[0], slice):
                 # set the data for the selected iterations of the requested
                 # entry
-                indexRange = range(0, indices[0].stop)[indices[0]]
-                if len(data.shape) != 2 or data.shape[0] != len(indexRange):
-                    raise ValueError("Invalid data shape")
+                dataShape = self[path[0]][indices[0]].shape
+                if data.shape != dataShape:
+                    raise ValueError("The shape of the specified matrix (%s)"
+                                     " doesn't match the expected shape (%s)"
+                                     % (data.shape, dataShape))
                 self[path[0]][indices[0]] = data
             elif isinstance(indices[0], int):
                 # set the data for a single iteration of the requested entry
@@ -224,20 +226,33 @@ class DataStructure():
                 subDataLen = int(data.shape[0] / len(subLayers))
 
                 i = 0
-                for subDS in subLayers:
+                for subLayer in subLayers:
                     subData = data[i * subDataLen:(i + 1) * subDataLen]
-                    subDS.setDataEntry(path[1:], indices[1:], subData)
+                    subLayer.setDataEntry(path[1:], indices[1:], subData)
                     i += 1
+
             elif isinstance(indices[0], slice):
-                subLayers = self.dataStructureLocalLayer[path[0]]
-                indexRange = range(0, indices[0].stop)[indices[0]]
-                subDataLen = int(data.shape[0] / len(indexRange))
-                dataIndex = 0
-                for i in indexRange:
-                    subData = data[dataIndex:dataIndex + subDataLen]
-                    subLayers[i].setDataEntry(path[1:], indices[1:], subData)
-                    dataIndex += subDataLen
+                subLayers = self.dataStructureLocalLayer[path[0]][indices[0]]
+                subDataLen = int(data.shape[0] / len(subLayers))
+
+                subDataShape = subLayers[0].getDataEntry(path[1:],
+                                                         indices[1:]).shape
+
+                if (data.shape[0] != subDataShape[0] * len(subLayers) or
+                    data.shape[1] != subDataShape[1]):
+                    raise ValueError("The shape of the specified matrix (%s)"
+                                     " doesn't match the expected shape (%s)"
+                                     % (data.shape,
+                                        (subDataShape[0] * len(subLayers),
+                                         subDataShape[1])))
+
+
+                i = 0
+                for subLayer in subLayers:
+                    subData = data[i:i + subDataLen]
+                    subLayer.setDataEntry(path[1:], indices[1:], subData)
+                    i += subDataLen
             else:
                 # pass the data to excaltly one lower layer
-                subDS = self.dataStructureLocalLayer[path[0]][indices[0]]
-                subDS.setDataEntry(path[1:], indices[1:], data)
+                subLayer = self.dataStructureLocalLayer[path[0]][indices[0]]
+                subLayer.setDataEntry(path[1:], indices[1:], data)
