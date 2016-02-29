@@ -21,10 +21,11 @@ subDataManager = DataManager('steps')
 subSubDataManager = DataManager('subSteps')
 
 # add data entries to each of the layers
-# here we add an entry named 'parameters# with 5 elements in range [-1,1]
-dataManager.addDataEntry('parameters', 5, -np.ones(5), np.ones(5))
-# here we add an entry named 'context# with 2 elements in range [-1,1]
-dataManager.addDataEntry('context', 2, -np.ones(2), np.ones(2))
+# here we add an entry named 'parameters' with 5 elements in range [-2,2]
+dataManager.addDataEntry('parameters', 5, -2*np.ones(5), 2*np.ones(5))
+# here we add an entry named 'context' with 2 elements in range [-1,1]
+# (this is the default for minRange and maxRange)
+dataManager.addDataEntry('context', 2)
 
 # so far we have said that an episode is characterized by 5 parameters and
 # 2 contexts
@@ -41,7 +42,7 @@ subDataManager.addDataEntry('actions', 2, -np.ones(2), np.ones(2))
 
 # ... and the same for the sub-sub-manager
 subSubDataManager.addDataEntry('subStates', 1, -np.ones(1), np.ones(1))
-subSubDataManager.addDataEntry('subActions', 2, -np.ones(2), np.ones(2))
+subSubDataManager.addDataEntry('subActions', 2, -100*np.ones(2), 100*np.ones(2))
 
 # now we only need to connect the data managers and finalize them
 dataManager.subDataManager = subDataManager
@@ -111,8 +112,12 @@ tempActions[90, 1] = 2
 tempActions[91, 0] = 3
 tempActions[91, 1] = 4
 
-# indicing also works for the setting functions
+# indicing also works for setDataEntry()
 myData.setDataEntry('subActions', [..., 1, 1], tempActions);
+
+# it is possible to ignore the min-/maxRange restrictions by setting
+# restrictRange to False
+myData.setDataEntry('subActions', [4, 1, 1], np.array([[-100, 999]]), False);
 
 # retrieve the data again
 print('Updated subActions:\n', myData.getDataEntry('subActions', [..., 1, 1]), '\n')

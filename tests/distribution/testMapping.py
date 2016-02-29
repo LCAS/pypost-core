@@ -68,7 +68,7 @@ class testMapping(unittest.TestCase):
     def test_addMappingFunction_givenOneToOneMappingFromMinusToPlusPi_expectSinAndSinGradientOutput(
             self):
         dataManager = DataManager('values')
-        dataManager.addDataEntry('X', 11)
+        dataManager.addDataEntry('X', 11, -100, 100)
         dataManager.addDataEntry('Y', 11)
         dataManager.finalize()
 

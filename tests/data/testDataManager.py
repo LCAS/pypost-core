@@ -294,10 +294,10 @@ class testDataManager(unittest.TestCase):
     def test_getMinRange(self):
         dataManager = DataUtil.createTestManager()
         self.assertTrue(
-            (dataManager.getMinRange('parameters') == -np.ones(5)).all())
+            (dataManager.getMinRange('parameters') == (-100*np.ones(5))).all())
 
         self.assertTrue((dataManager.getMinRange(['parameters', 'states']) ==
-                         -np.ones(6)).all())
+                         -100*np.ones(6)).all())
 
         self.assertRaises(ValueError, dataManager.getMinRange, 'none')
 
@@ -309,10 +309,10 @@ class testDataManager(unittest.TestCase):
     def test_getMaxRange(self):
         dataManager = DataUtil.createTestManager()
         self.assertTrue(
-            (dataManager.getMaxRange('parameters') == np.ones(5)).all())
+            (dataManager.getMaxRange('parameters') == 100*np.ones(5)).all())
 
         self.assertTrue((dataManager.getMaxRange(['parameters', 'states']) ==
-                         np.ones(6)).all())
+                         100*np.ones(6)).all())
 
         self.assertRaises(ValueError, dataManager.getMaxRange, 'none')
 

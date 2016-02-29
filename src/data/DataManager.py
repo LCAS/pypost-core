@@ -92,8 +92,8 @@ class DataManager():
 
         :param string name: The name of the data entry
         :param int numDimensions: The number of dimensions of the data entry
-        :param minRange: Minimum values (optional)
-        :param maxRange: Maximum values (optional)
+        :param minRange: Minimum values (optional, defaults to -1)
+        :param maxRange: Maximum values (optional, defaults to +1)
         :type minRange: list or number
         :type maxRange: list or number
         :raises ValueError: If the DataManager has been finalized already or

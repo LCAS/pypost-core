@@ -37,6 +37,7 @@ class DataStructure():
                                      " doesn't match the existing entry (%s)"
                                      % (item.shape, self.\
                                         dataStructureLocalLayer[name].shape))
+
                 self.dataStructureLocalLayer[name] = item
             elif isinstance(self.dataStructureLocalLayer[name], DataAlias):
                 # asssigning to a data alias

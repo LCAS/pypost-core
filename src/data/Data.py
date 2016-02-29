@@ -168,7 +168,7 @@ class Data(object):
         else:
             return data
 
-    def setDataEntry(self, path, indices, data):
+    def setDataEntry(self, path, indices, data, restrictRange=True):
         '''
         Sets the data points for the required data entry (or alias).
 
@@ -186,12 +186,25 @@ class Data(object):
                         WARNING: The indices are starting at '0'. Hence, the
                         second episode has the index '1'.
         :param data: The data to set.
+        :param restrictRange: If set to True, the minRange/maxRange parameters
+                              are checked (optional, defaults to True)
         '''
         if isinstance(path, str):
             path = self._resolveEntryPath(path)
 
         if not isinstance(indices, list):
             indices = [indices]
+
+        minRange = self.entryInfoMap[path[-1]].minRange
+        maxRange = self.entryInfoMap[path[-1]].maxRange
+
+        if (restrictRange and (data < minRange).any()):
+            raise ValueError("The given data does not respect the minRange " +
+                             "parameter")
+
+        if (restrictRange and (data > maxRange).any()):
+            raise ValueError("The given data does not respect the maxRange " +
+                             "parameter")
 
         return self.dataStructure.setDataEntry(path, indices, data)
 

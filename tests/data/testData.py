@@ -116,9 +116,9 @@ class testDataManager(unittest.TestCase):
 
     def test_setgetDataEntryLocalLayer(self):
         dataManager = DataManager('episodes')
-        dataManager.addDataEntry('parameters', 5)
+        dataManager.addDataEntry('parameters', 5, -5, 5)
 
-        myData = dataManager.getDataObject([10, 5, 3])
+        myData = dataManager.getDataObject([10])
 
         # set the data for the parameters of all episodes
         myData.setDataEntry(['parameters'], [], np.ones((10, 5)))
@@ -166,7 +166,7 @@ class testDataManager(unittest.TestCase):
         dataManager.subDataManager = subDataManager
         subDataManager.subDataManager = subSubDataManager
 
-        subSubDataManager.addDataEntry('subActions', 2)
+        subSubDataManager.addDataEntry('subActions', 2, -10, 10)
 
         myData = dataManager.getDataObject([10, 5, 3])
 
@@ -235,6 +235,33 @@ class testDataManager(unittest.TestCase):
             np.array([[1, 1]])
         ).all())
 
+    def test_setgetDataEntryRanges(self):
+        dataManager = DataManager('episodes')
+        dataManager.addDataEntry('parameters', 5) # implicit ranges ([-1 1])
+        dataManager.addDataEntry('temperature', 24, -20, 100)
+
+        myData = dataManager.getDataObject([10, 5, 3])
+
+        # this should not raise any exception
+        myData.setDataEntry(['parameters'], [], np.ones((10, 5)))
+        myData.setDataEntry(['parameters'], [], -np.ones((10, 5)))
+        myData.setDataEntry(['parameters'], [slice(0, 5)], 0.97*np.ones((5, 5)))
+        myData.setDataEntry(['parameters'], [slice(0, 5)], -0.5*np.ones((5, 5)))
+        myData.setDataEntry('temperature', [], -20*np.ones((10, 24)))
+        myData.setDataEntry('temperature', [], -19*np.ones((10, 24)))
+        myData.setDataEntry('temperature', [], 99*np.ones((10, 24)))
+        myData.setDataEntry('temperature', [], np.zeros((10, 24)))
+
+        self.assertRaises(ValueError, myData.setDataEntry, 'parameters', [],
+                          -2*np.ones((10, 5)))
+        self.assertRaises(ValueError, myData.setDataEntry, 'parameters', [],
+                          1.1*np.ones((10, 5)))
+        self.assertRaises(ValueError, myData.setDataEntry, ['temperature'], [],
+                          111*np.ones((10, 5)))
+        self.assertRaises(ValueError, myData.setDataEntry, ['temperature'], [],
+                          -9999999*np.ones((10, 5)))
+
+
     def test_setgetDataEntryAlias(self):
         dataManager = DataUtil.createTestManager()
         dataManager.addDataAlias('statesAlias', [('states', ...)])
@@ -279,7 +306,7 @@ class testDataManager(unittest.TestCase):
 
         dataManager.addDataEntry('parameters', 5)
         subDataManager.addDataEntry('states', 1)
-        subSubDataManager.addDataEntry('subActions', 2)
+        subSubDataManager.addDataEntry('subActions', 2, -10, 10)
 
         myData = dataManager.getDataObject([1, 1, 1])
 
@@ -346,8 +373,8 @@ class testDataManager(unittest.TestCase):
 
     def test_setDataEntryList(self):
         dataManager = DataManager('episodes')
-        dataManager.addDataEntry('parameters', 5)
-        dataManager.addDataEntry('context', 3)
+        dataManager.addDataEntry('parameters', 5, -10, 10)
+        dataManager.addDataEntry('context', 3, -10, 10)
         myData = dataManager.getDataObject([10])
 
         # set the data for the parameters and context of all episodes

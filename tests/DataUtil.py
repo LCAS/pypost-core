@@ -16,9 +16,9 @@ def createTestManager():
     dataManager.subDataManager = subDataManager
     subDataManager.subDataManager = subSubDataManager
 
-    dataManager.addDataEntry('parameters', 5)
-    dataManager.addDataEntry('context', 2)
-    subDataManager.addDataEntry('states', 1)
+    dataManager.addDataEntry('parameters', 5, -100, 100)
+    dataManager.addDataEntry('context', 2, -100, 100)
+    subDataManager.addDataEntry('states', 1, -100, 100)
     subDataManager.addDataEntry('actions', 2)
     subSubDataManager.addDataEntry('subStates', 1)
     subSubDataManager.addDataEntry('subActions', 2)
