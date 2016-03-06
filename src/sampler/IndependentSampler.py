@@ -1,4 +1,4 @@
-from sampler import Sampler
+from sampler.Sampler import Sampler
 
 
 class IndependentSampler(Sampler):
@@ -28,14 +28,15 @@ class IndependentSampler(Sampler):
         The number of samples to use for for the initial iteration
         '''
 
-        # change
-        # ASK im Matlab the sampler name was converted into upper case. is this
-        # important? (dont "correct" user errors!)
-        self._dataManager.addDataEntry('iterationNumber', 1)
-        self._linkProperty('numSamples', ['numSamples', samplerName])
-        self._linkProperty(
-            "numInitialSamples", [
-                "numInitialSamples", samplerName])
+        # :change:
+        # ASK im Matlab the sampler name was converted into upper case. Is this
+        # important? (Dont "correct" user errors!)
+        self.dataManager.addDataEntry('iterationNumber', 1)
+
+        # FIXME: What is this for?
+        #self._linkProperty('numSamples', ['numSamples', samplerName])
+        #self._linkProperty("numInitialSamples",
+        #                   ["numInitialSamples", samplerName])
 
     def setParallelSampling(self, parallelSampling):
         self._parallelSampling = parallelSampling

@@ -8,8 +8,8 @@ class SamplerPool(object):
         Creates a sampler pool with an empty sampler list
         '''
         self.samplerList = []
-        self.setName(name)
-        self.setPriority(priority)
+        self._setName(name)
+        self._setPriority(priority)
 
     # getters & setters
 

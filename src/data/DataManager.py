@@ -414,7 +414,8 @@ class DataManager():
     def finalize(self):
         '''
         Finalizes this data manager.
-        After finalization, the structure of the data cannot be modified.
+        After finalization, the structure of the data cannot be modified any
+        more.
         '''
         self.updateDepthMap(True)
 

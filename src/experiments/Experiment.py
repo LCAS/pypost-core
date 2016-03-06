@@ -9,7 +9,7 @@ from common import Settings
 
 class Experiment(object):
     '''
-    TODO: Document this shit
+    This class provides the basic functionality for defining experiments. An experiments is always a combination of a LearningSetup and a TaskSetup. For example, in order to learn ball i the cup for with parameter based REPS, we need a parameter based learning setup with the task setup from SL. For each experiment, we can define several evaluations. An evaluation is a specific setup of the parameter values of the algorithms. For example, we can define an evaluation, that performs 10 trials for different values of epsilon for REPS.
     '''
 
     root = 'Experiments/data'

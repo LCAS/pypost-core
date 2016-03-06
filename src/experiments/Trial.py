@@ -4,26 +4,28 @@ import os
 import traceback
 import numpy as np
 from enum import Enum
-from nose.util import isproperty
 
 StoringType = Enum('StoringType', 'STORE, STORE_PER_ITERATION, ACCUMULATE, '
                    'ACCUMULATE_PER_ITERATION')
 
 
-class Trial(object):
+class Trial():
     '''
     TODO: Documentation
     '''
 
     # TODO: add __main__ method
 
+
     def __init__(self, evalDir, index):
         '''
         Constructor
         '''
+        configured = False
+
         # What use do these two lines have?
-        settingsTrial = Settings('new')
-        SettingsManager.setRootSettings(settingsTrial) # FIXME: Not implemented
+        settingsTrial = Settings('settingsTrial')
+        SettingsManager.setRootSettings(settingsTrial)
 
         if os.path.isdir(evalDir):
             self.trialDir = os.path.join(evalDir, 'trial%03d' % index)
@@ -34,14 +36,14 @@ class Trial(object):
             os.chmod(logFile, 0o664)
         else:
             # Matlab prints trialDir here, but that doesn't make any sense
-            print("Trial %s: Directory not found" % self.evalDir)
+            print("Trial %s: Directory not found" % evalDir)
 
         self.index = index
         self.properties = {}
         self.storePerIteration = []
         self.storePerTrial = []
         # TODO: Seed RNG here
-        self.settings = Settings()
+        self.settings = Settings('trialsettings')
         self.isFinished = False
         self.configure()
 
@@ -56,7 +58,7 @@ class Trial(object):
                     self.setProperty(name, np.vstack((self.getProperty(name),
                                                       value)))
                 else:
-                    raise RuntimeError("Well shit...")
+                    raise RuntimeError("The given value is not a ndarray.")
             else:
                 self.setProperty(name, value)
             if name not in self.storePerIteration:
@@ -67,7 +69,7 @@ class Trial(object):
                     self.setProperty(name, np.vstack((self.getProperty(name),
                                                       value)))
                 else:
-                    raise RuntimeError("Well shit...")
+                    raise RuntimeError("The given value is not a ndarray.")
             else:
                 self.setProperty(name, value)
             if name not in self.storPerTrial:

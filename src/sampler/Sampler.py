@@ -1,4 +1,4 @@
-from interfaces import SamplerInterface
+from interfaces.SamplerInterface import SamplerInterface
 
 
 class Sampler(SamplerInterface):
@@ -24,7 +24,7 @@ class Sampler(SamplerInterface):
         '''
         super().__init__()
 
-        self._dataManager = dataManager
+        self.dataManager = dataManager
         '''
         The data manager responsible for this sampler
         '''
@@ -75,12 +75,6 @@ class Sampler(SamplerInterface):
         '''
         self._iterationIndex = iteration
 
-    # ASK is this function necessary?
-    # def getDataManagerFromSampler(self):
-    #    return self.datamanager;
-
-    # functions
-
     # FIXME see parent class comment
     def appendNewSamples(self):
         '''
@@ -103,7 +97,7 @@ class Sampler(SamplerInterface):
             self._samplerMap[sampler.getSamplerName()] = sampler
 
         if finalizeData:
-            self._dataManager.finalizeDataManager()
+            self.dataManager.finalizeDataManager()
 
     def copyPoolsFromSampler(self, sampler):
         '''

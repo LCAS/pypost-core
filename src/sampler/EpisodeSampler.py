@@ -1,6 +1,6 @@
-from sampler import IndependentSampler
-from data import DataManager
-from sampler import SamplerPool
+from sampler.IndependentSampler import IndependentSampler
+from data.DataManager import DataManager
+from sampler.SamplerPool import SamplerPool
 
 
 class EpisodeSampler(IndependentSampler):
@@ -40,11 +40,11 @@ class EpisodeSampler(IndependentSampler):
 
         super().__init__(dataManager, samplerName)
 
-        self.contextDistribution = None
+        self.dataManager.contextDistribution = None
         self.returnSampler = None
         self.parameterPolicy = None
 
-        self.addDataAlias("contexts", {})
+        self.dataManager.addDataAlias("contexts", {})
         self.addSamplerPool(SamplerPool("InitEpisode", 1))
         self.addSamplerPool(SamplerPool("ParameterPolicy", 3))
         self.addSamplerPool(SamplerPool("Episodes", 5))

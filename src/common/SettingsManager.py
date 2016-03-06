@@ -18,8 +18,6 @@ defaultNames = ['default']
 '''
 Names of default settings.
 This should never be empty.
-The first item is the name of the root settings;
-The last item is the name of the default settings.
 '''
 lastClientId = 0
 '''
@@ -87,6 +85,7 @@ def popDefaultName():
     '''Removes the last default name and returns it.
 
     If there is only one name left, it won't be removed.
+
     :returns: Last default name
     '''
     global defaultNames
@@ -107,14 +106,22 @@ def setSettings(settings):
     '''Adds the given Settings object to the collection.
 
     A Settings object with the same name will be overridden!
+
     :param settings: A Settings object
     '''
     global collection
     collection[settings.name] = settings
 
 def setRootSettings(settings):
-        raise NotImplementedError("Not implemented. Matlab code makes no sense to me.")
+    '''Sets the root settings
 
+    :param settings: A settings object
+
+    FIXME: is this function needed anymore?
+
+    '''
+    global collection
+    collection[getDefaultName()] = settings
 
 def delSettings(name):
     '''Deletes the settings with the given name
@@ -133,7 +140,8 @@ def cloneSettings(source, targetName):
     Existing properties and the corresponding clients will be overridden!
 
     :param source: The Settings from which the properties shall be cloned
-    :param targetName: The name of the Settings the properties shall be cloned to
+    :param targetName: The name of the Settings the properties shall be cloned
+                       to
     :returns: The Settings with the name targetName
     '''
     sourceSettings = source
@@ -152,6 +160,7 @@ def getNextClientName():
 
     Returns a name for a new client. E.g. 'client_001' for the first client.
     Increments the internal counter lastClientId.
+
     :returns: name for the next client
     '''
     global lastClientId

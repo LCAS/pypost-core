@@ -2,7 +2,7 @@ from collections import namedtuple
 from common import DataPrinter
 
 
-class Settings(object):
+class Settings():
     # TODO: revise comment
     '''
     The Settings class implements a parameter pool where we can link
