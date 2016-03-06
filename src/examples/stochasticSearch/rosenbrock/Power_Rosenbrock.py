@@ -1,63 +1,78 @@
-from sampler import EpisodeSampler
-from common import Settings
-from learner.episodicRL import EpisodicPower
+import sys
+import os
+sys.path.insert(0, os.path.abspath("../../.."))
 
-trial, settingsEval = Experiments.getTrialForScript()
+from experiments.Trial import Trial
+from sampler.EpisodeSampler import EpisodeSampler
+from common.Settings import Settings
+from learner.episodicRL.EpisodicPower import EpisodicPower
 
-if trial.isConfigure:
-    settings = Common.Settings()
-    settings.setProperty("numParameters", 15)
-    settings.setProperty("numContexts", 0)
-    settings.setProperty("numSamplesEpisodes", 10)
-    settings.setProperty("numParameters", 15)
-    settings.setProperty("numIterations", 2000)
-    trial.configure(settings)
 
-    sampler = EpisodeSampler()
-    dataManager = sampler.getDataManager()
+class PowerRosenbrock(Trial):
+    # FIXME add some infos about this class
 
-    returnSampler = RosenbrockReward(
-        sampler,
-        settings.numContexts,
-        settings.numParameters)
+    # trial, settingsEval = Experiment.getTrialForScript()
 
-    parameterPolicy = GaussianParameterPolicy(dataManager)
-    policyLearner = EpisodicPower(
-        dataManager,
-        None)
-    # FIXME None should be a policyLearner instance ... is this parameter even used?
-    # from the outcommented CreateFromTrial function in EpisodicPower we
-    # would set trial.parameterPolicyLearner and trial.dataManager
+    def PowerRosenbrock():
+        super()
+        start()
 
-    sampler.setParameterPolicy(parameterPolicy)
-    sampler.setReturnFunction(returnSampler)
+    def configure(self):
+        self.settings.setProperty("numParameters", 15)
+        self.settings.setProperty("numContexts", 0)
+        self.settings.setProperty("numSamplesEpisodes", 10)
+        self.settings.setProperty("numParameters", 15)
+        self.settings.setProperty("numIterations", 2000)
 
-    dataManager.finalizeDataManager()
+        self.sampler = EpisodeSampler()
 
-# FIXME variables used below are not defined if trial.isConfigure is not
-# executed
-if trial.isStart:
-    newData = dataManager.getDataObject.getDataObject(10)
+        self.returnSampler = RosenbrockReward(
+            self.sampler,
+            self.settings.numContexts,
+            self.settings.numParameters)
 
-    parameterPolicy.initObject()
+        self.parameterPolicy = GaussianParameterPolicy(self.dataManager)
+        self.policyLearner = EpisodicPower(
+            self.dataManager,
+            None)
 
-    for i in range(0, settings.numIterations - 1):
-        sampler.createSamples(newData)
+        # FIXME None should be a policyLearner instance ... is this parameter even used?
+        # from the outcommented CreateFromTrial function in EpisodicPower we
+        # would set trial.parameterPolicyLearner and trial.dataManager
 
-        # keep old samples strategy comes here
-        data = newData
+        self.sampler.setParameterPolicy(parameterPolicy)
+        self.sampler.setReturnFunction(returnSampler)
 
-        # data preprocessors come here
+        self.configured = True
 
-        policyLearner.updateModel(newData)
+    def run(self):
+        if not self.configured:
+            raise RuntimeError("The trial has to be configured first.")
 
-        # FIXME currently not implemented
-        #trial.store("avgReturns",np.mean(newData.getDataEntry("returns")), Experiments.StoringType.ACCUMULATE)
+        newData = self.dataManager.getDataObject.getDataObject(10)
 
-        print(
-            "Iteration: %d, Episodes: %d, AvgReturn: %f\n" %
-            (i,
-             i *
-             settings.numSamplesEpisodes,
-             np.mean(
-                 newData.getDataEntry('returns'))))
+        self.parameterPolicy.initObject()
+
+        for i in range(0, settings.numIterations - 1):
+            self.sampler.createSamples(newData)
+
+            # keep old samples strategy comes here
+            data = newData
+
+            # data preprocessors come here
+
+            self.policyLearner.updateModel(newData)
+
+            # FIXME currently not implemented
+            #trial.store("avgReturns",np.mean(newData.getDataEntry("returns")), Experiments.StoringType.ACCUMULATE)
+
+            print(
+                "Iteration: %d, Episodes: %d, AvgReturn: %f\n" %
+                (i,
+                 i *
+                 self.settings.numSamplesEpisodes,
+                 np.mean(
+                     newData.getDataEntry('returns'))))
+
+
+power_rosenbrock = PowerRosenbrock("/tmp/trial/", 0)
