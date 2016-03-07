@@ -33,8 +33,9 @@ Requirements
 This toolbox needs to be run with **Python 3.0** or higher. In addition
 the following modules are required:
 
--  ``scipy``
--  for development also ``coverage`` is needed
+- ``scipy`` -- ``pip install scipy``
+- ``pyyaml`` -- ``pip install pyyaml``
+- for development also ``coverage`` is needed
 
 Usage with Eclipse
 ==================
