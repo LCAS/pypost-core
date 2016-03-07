@@ -16,8 +16,9 @@ class WindowPredictionEvaluator(Evaluator):
         '''
         Constructor
         '''
-        super().__init__('windowPrediction', {'endLoop'}, StoringType.ACCUMULATE)
-        
+        super().__init__('windowPrediction', {'endLoop'},
+                         StoringType.ACCUMULATE)
+
         self._numSamplesEvaluation = 100
         '''
         NUmber of samples to evaluate
@@ -26,26 +27,28 @@ class WindowPredictionEvaluator(Evaluator):
         '''
         Name of the ground truth data
         '''
-        
+
         self._observationIndex = 0
         '''
         index to observe
         '''
-        
+
         self._evaluationData=None
         '''
         current evaluation data
         '''
-        
-        #FIXME replace magic strings by constants
+
+        # FIXME replace magic strings by constants
+        # FIXME replace linkProperty
         self.linkProperty('_numSamplesEvaluation','numSamplesEvaluation');
         self.linkProperty('_observationIndex', 'observationIndex');
         self.linkProperty('_groundtruthName','groundtruthName');
 
-        
+
     def getEvaluation(self, data, newData, trial):
         #get data
         #TODO
+        '''
             if (isempty(obj.evaluationData))
                 if (isprop(trial,'evaluationSampler') && ~isempty(trial.evaluationSampler))
                     sampler = trial.evaluationSampler;
@@ -54,7 +57,7 @@ class WindowPredictionEvaluator(Evaluator):
                 end
                 dataManager = sampler.getDataManager;
                 obj.evaluationData = dataManager.getDataObject(0);
-                
+
                 numSamplesTmp = sampler.numSamples;
                 initialSamplesTmp = sampler.numInitialSamples;
                 seed = rng;
@@ -65,18 +68,18 @@ class WindowPredictionEvaluator(Evaluator):
                 sampler.numSamples = numSamplesTmp;
                 sampler.numInitialSamples=initialSamplesTmp;
                 rng(seed);
-                
+
                 % preprocess evaluation data
                 for i = 1:length(trial.scenario.dataPreprocessorFunctions)
                     obj.evaluationData = trial.scenario.dataPreprocessorFunctions{i}.preprocessData(obj.evaluationData);
                 end
             end
-            
+
             if not(iscell(trial.evaluationObservations))
                 trial.evaluationObservations = {trial.evaluationObservations};
             end
             observations = obj.evaluationData.getDataEntry3D(trial.evaluationObservations{1});
-            
+
             if length(trial.evaluationObservations) == 2 && obj.evaluationData.isDataEntry(trial.evaluationObservations{2})
                 obsPoints = obj.evaluationData.getDataEntry(trial.evaluationObservations{2},1);
             else
@@ -89,7 +92,7 @@ class WindowPredictionEvaluator(Evaluator):
             else
                 valid = true(size(observations,2),1);
             end
-            
+
             observations = observations(:,valid,:);
             groundtruth = groundtruth(:,valid,:);
 
@@ -101,7 +104,7 @@ class WindowPredictionEvaluator(Evaluator):
             else
                 mu = varargout;
             end
-            
+
             % evaluate the model
             switch trial.evaluationMetric
                 case 'mse'
@@ -112,16 +115,16 @@ class WindowPredictionEvaluator(Evaluator):
                     fprintf('MED = %.4f\n',evaluation);
             end
         end
+        '''
 
-    end
-    
+    ''' TODO
     methods (Static)
     #FIXME add statistic methods lib
         function error = squaredError(data, estimates)
             error = (estimates - data).^2;
             error = reshape(sum(sum(error,1),2),1,[],1);
         end
-        
+
         function error = euclideanDistances(data, estimates, window_size)
             out_dim = size(data,3)/window_size;
             data = reshape(data,[],out_dim,window_size);
@@ -131,5 +134,4 @@ class WindowPredictionEvaluator(Evaluator):
             error = reshape(error,1,window_size);
         end
     end
-end
-
+    '''

@@ -1,11 +1,7 @@
-'''
-Created on Dec 14, 2015
-
-@author: moritz
-'''
 import numpy as np
 from evaluator import Evaluator
 from experiments import StoringType
+
 
 class ReturnSearchDistributionMeanEvaluator(Evaluator):
     '''
@@ -17,10 +13,10 @@ class ReturnSearchDistributionMeanEvaluator(Evaluator):
         Constructor
         '''
         super().__init__('searchDistributionMean', {'endLoop'}, StoringType.ACCUMULATE)
-        
+
     def getEvaluation(self, data, newData, trial):
         evaluation=np.matrix([
             np.transpose(trial.parameterPolicy.bias),
-            np.transpose(trial.parameterPolicy.weights(:))]);
-        
+            np.transpose(trial.parameterPolicy.weights(...))]);
+
         return evaluation
