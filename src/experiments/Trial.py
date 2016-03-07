@@ -1,6 +1,7 @@
 from common.Settings import Settings
 from common import SettingsManager
 import os
+import random
 import traceback
 import numpy as np
 from enum import Enum
@@ -42,9 +43,10 @@ class Trial():
         self.properties = {}
         self.storePerIteration = []
         self.storePerTrial = []
-        # TODO: Seed RNG here
         self.settings = Settings('trialsettings')
         self.isFinished = False
+        random.seed(index)
+        self.rngState = random.getstate()
         self.configure()
 
     def store(self, name, value, mode=StoringType.STORE):

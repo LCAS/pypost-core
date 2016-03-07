@@ -17,8 +17,8 @@ class Mapping(DataManipulator, MappingInterface):
     added with the addMappingFunction()
     '''
 
-    def __init__(
-            self, dataManager, inputVariables=None, outputVariables=None, name=""):
+    def __init__(self, dataManager, inputVariables=None,
+                 outputVariables=None, name=""):
         '''
         Constructor
         :param dataManager: the data manager the mapping is operating on
@@ -29,7 +29,7 @@ class Mapping(DataManipulator, MappingInterface):
         :change: dataManager was removed from function arguments and is now a constructor argument.
         :change: registeredMappingFunctions was never used and got deleted
         :change: registerDataFunctions is eqivalent to inputVariables = empty
-        #FIXME check registerDataFunctions invariant again, they are doing strange things ...
+        #FIXME check registerDataFunctions invariant again
         '''
         DataManipulator.__init__(self, dataManager)
         MappingInterface.__init__(self)
@@ -75,7 +75,8 @@ class Mapping(DataManipulator, MappingInterface):
 
     def addMappingFunction(
             self, function, outputVariables=None, functionName=None):
-        '''
+        '''Add a mapping function
+
         :param function: the function to add to the mapping
         :param outputVariables: new output variables. defaults to the Mapping output variables if not set
         :param functionName: name to register the function to
@@ -85,7 +86,6 @@ class Mapping(DataManipulator, MappingInterface):
         the currently defined inputVariables and the current set of
         outputVariables also including the new outputVariables added
         in this function call. (see also Data.DataManipulator)
-        #FIXME see also DataManipulator -> DataManipulator has no addMappingFunction
         '''
         if outputVariables is None:
             outputVariables = self.outputVariables
@@ -109,8 +109,9 @@ class Mapping(DataManipulator, MappingInterface):
     # obj.outputvariables[1] which doesn't even exist
 
     def setInputVariables(self, inputVariables, numDim=None, append=False):
-        '''
-        Sets the input variables given to each mapping function registered by this Mapping
+        '''Sets the input variables given to each mapping function registered
+        by this Mapping
+
         :param inputVariables: iterable of input variable names
         :param numDim: optional parameter indicating the input dimension. currently not supported!
         :param append: set to true to keep the current input variables
@@ -121,14 +122,15 @@ class Mapping(DataManipulator, MappingInterface):
         if len(inputVariables) != 0 and isinstance(
                 inputVariables[0], numbers.Number):
             '''
-            @trap catches 1:1 code translations from Matlab where the first
+            :trap: catches 1:1 code translations from Matlab where the first
             inputVairables argument could be a number. this functionality can
             now be reached by using the numDim argument
-            # Currently there are no number arguments supported.
-            # Look into the Matlab code for more detail.
+
+            > Currently there are no number arguments supported.
+            > Look into the Matlab code for more detail.
             '''
-            raise DeprecationWarning(
-                "Function interface changed, the numDim parameter now hold the number of dimensions")
+            raise DeprecationWarning("Function interface changed, the numDim" +
+                " parameter now hold the number of dimensions")
 
         if append:
             self.inputVariables.extend(inputVariables)
