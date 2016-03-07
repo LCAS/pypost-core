@@ -31,8 +31,6 @@ class testSettings(unittest.TestCase):
         self.assertEqual(SettingsManager.getDefaultSettings().name, 'standard')
 
         self.assertEqual(SettingsManager.getRootName(), 'default')
-        with self.assertRaises(NotImplementedError):
-            SettingsManager.setRootSettings(None)
 
         SettingsManager.popDefaultName()
         self.assertEqual(SettingsManager.getDefaultName(), 'default')

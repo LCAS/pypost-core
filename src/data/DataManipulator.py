@@ -147,7 +147,7 @@ class DataManipulator(DataManipulatorInterface):
             takesNumElements = False
 
         if name is None:
-            name = str(function)
+            name = function.__name__
 
         if not inputArguments:
             takesNumElements = True
