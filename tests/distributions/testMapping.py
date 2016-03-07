@@ -16,7 +16,7 @@ from data.DataManager import DataManager
 
 import DataUtil
 
-from distribution.Mapping import Mapping
+from distributions.Mapping import Mapping
 
 
 class testMapping(unittest.TestCase):
