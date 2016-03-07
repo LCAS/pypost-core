@@ -120,5 +120,20 @@ class testSettings(unittest.TestCase):
         print("\nClonedSettings Properties:")
         clonedSettings.printProperties()
 
+    def testSettingsStoreLoad(self):
+        settings = Settings('testSettings1')
+        settings.setProperty('testProp1', 42)
+        SettingsManager.setSettings(settings)
+        cli = SettingsClient()
+        cli.globalProperties['testProp2'] = 42
+
+        settings.store('/tmp/rlt-test.settings')
+        cli.globalProperties['testProp2'] = 8
+        settings.setProperty('testProp1', 9)
+        settings2 = Settings('testSettings1')
+
+        self.assertEqual(settings.getProperty('testProp1'), 42)
+        self.assertEqual(cli.globalProperties['testProp2'], 42)
+
 if __name__ == "__main__":
     unittest.main()
