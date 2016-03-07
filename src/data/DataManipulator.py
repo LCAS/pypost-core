@@ -241,6 +241,7 @@ class DataManipulator(DataManipulatorInterface):
             for i in range(0, numLayers):
                 if isinstance(indices[i], slice):
                     # This is somewhat hacky, but it works!
+                    # Maybe clone data and get shape directly?
                     indexRange = range(0, indices[i].stop)[indices[i]]
 
                     if len(indexRange) > 1:

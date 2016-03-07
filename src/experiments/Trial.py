@@ -24,10 +24,6 @@ class Trial():
         '''
         configured = False
 
-        # What use do these two lines have?
-        settingsTrial = Settings('settingsTrial')
-        SettingsManager.setRootSettings(settingsTrial)
-
         if os.path.isdir(evalDir):
             self.trialDir = os.path.join(evalDir, 'trial%03d' % index)
             os.mkdir(self.trialDir)
