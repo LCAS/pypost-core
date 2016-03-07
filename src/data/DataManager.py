@@ -103,7 +103,7 @@ class DataManager():
             raise RuntimeError("The data manager cannot be modified after "
                                "it has been finalized")
 
-        # Ensure that the name of the DataEntry does not conflict with an
+        # Ensure that the name of the data entry does not conflict with an
         # alias name
         if name in self.dataAliases:
             raise ValueError("The name of an alias conflicts with a data " +
@@ -118,8 +118,43 @@ class DataManager():
         self.dataEntries[name] = DataEntry(name, numDimensions,
                                            minRange, maxRange)
         self.dataAliases[name] = DataAlias(name, [(name, ...)], numDimensions)
-
         self._dirty = True
+
+    def setRange(self, entryName, minRange, maxRange):
+        '''Sets the min and max range for existing data entries
+
+        :param entryName: The name of the exisiting data entry
+        :type entryName: string
+        :param minRange: the new min range for the data entry
+        :type minRange: np.ndarray
+        :param maxRange: the new max range for the data entry
+        :type maxRange: np.ndarray
+        '''
+        if self.finalized:
+            raise RuntimeError("The data manager cannot be modified after "
+                               "it has been finalized")
+
+        if entryName in self.dataEntries:
+            entry = self.dataEntries[entryName]
+
+            if (minRange.shape != entry.minRange.shape):
+                raise ValueError("The shape of the specified minRange (%s)"
+                                 " doesn't match the existing range (%s)"
+                                 % (minRange.shape, entry.minRange.shape))
+
+            if (maxRange.shape != entry.maxRange.shape):
+                raise ValueError("The shape of the specified maxRange (%s)"
+                                 " doesn't match the existing range (%s)"
+                                 % (maxRange.shape, entry.maxRange.shape))
+
+            entry.minRange = minRange
+            entry.maxRange = maxRange
+            return
+
+        if self.subDataManager is not None:
+            return self.subDataManager.setRange(entryName, minRange, maxRange)
+
+        raise ValueError("Entry %s is not registered!" % entryName)
 
     def _checkForAliasCycle(self, aliasName, entryList):
         '''
