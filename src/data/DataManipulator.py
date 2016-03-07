@@ -4,7 +4,7 @@ from data.DataManager import DataManager
 import numpy as np
 
 
-class DataManipulationFunction(object):
+class DataManipulationFunction():
     '''
     Represents a data manipulation function used in the DataManipulator class.
     '''
@@ -147,7 +147,7 @@ class DataManipulator(DataManipulatorInterface):
             takesNumElements = False
 
         if name is None:
-            name = function.__name__
+            name = str(function)
 
         if not inputArguments:
             takesNumElements = True

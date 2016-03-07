@@ -6,7 +6,7 @@ from experiments.Trial import Trial
 from sampler.EpisodeSampler import EpisodeSampler
 from common.Settings import Settings
 from learner.episodicRL.EpisodicPower import EpisodicPower
-
+from environments.banditEnvironments.RosenbrockReward import RosenbrockReward
 
 class PowerRosenbrock(Trial):
     # FIXME add some infos about this class
@@ -18,8 +18,8 @@ class PowerRosenbrock(Trial):
         start()
 
     def configure(self):
+        self.settings.setProperty("numContexts", 10)
         self.settings.setProperty("numParameters", 15)
-        self.settings.setProperty("numContexts", 0)
         self.settings.setProperty("numSamplesEpisodes", 10)
         self.settings.setProperty("numParameters", 15)
         self.settings.setProperty("numIterations", 2000)
@@ -28,8 +28,8 @@ class PowerRosenbrock(Trial):
 
         self.returnSampler = RosenbrockReward(
             self.sampler,
-            self.settings.numContexts,
-            self.settings.numParameters)
+            self.settings.getProperty('numContexts'),
+            self.settings.getProperty('numParameters'))
 
         self.parameterPolicy = GaussianParameterPolicy(self.dataManager)
         self.policyLearner = EpisodicPower(
@@ -53,7 +53,7 @@ class PowerRosenbrock(Trial):
 
         self.parameterPolicy.initObject()
 
-        for i in range(0, settings.numIterations - 1):
+        for i in range(0, settings.getProperty('numIterations')):
             self.sampler.createSamples(newData)
 
             # keep old samples strategy comes here
@@ -70,7 +70,7 @@ class PowerRosenbrock(Trial):
                 "Iteration: %d, Episodes: %d, AvgReturn: %f\n" %
                 (i,
                  i *
-                 self.settings.numSamplesEpisodes,
+                 self.settings.getProperty('numSamplesEpisodes'),
                  np.mean(
                      newData.getDataEntry('returns'))))
 

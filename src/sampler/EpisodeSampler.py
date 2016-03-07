@@ -44,7 +44,6 @@ class EpisodeSampler(IndependentSampler):
         self.returnSampler = None
         self.parameterPolicy = None
 
-        self.dataManager.addDataAlias("contexts", {})
         self.addSamplerPool(SamplerPool("InitEpisode", 1))
         self.addSamplerPool(SamplerPool("ParameterPolicy", 3))
         self.addSamplerPool(SamplerPool("Episodes", 5))
