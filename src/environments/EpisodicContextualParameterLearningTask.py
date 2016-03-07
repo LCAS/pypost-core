@@ -9,7 +9,7 @@ class EpisodicContextualParameterLearningTask(EpisodicContextualLearningTask):
 
        self.dataManager.addDataEntry('parameters', dimParameters);
        self.dimParameters = dimParameters;
-       self.addDataManipulationFunction('sampleReturn', ['contexts', 'parameters'], ['returns']);
+       self.addDataManipulationFunction(self.sampleReturn, ['contexts', 'parameters'], ['returns']);
 
        self.minRangeParameters = self.dataManager.getMinRange('parameters')
        self.maxRangeParameters = self.dataManager.getMaxRange('parameters')

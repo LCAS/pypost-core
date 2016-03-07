@@ -7,6 +7,9 @@ from sampler.EpisodeSampler import EpisodeSampler
 from common.Settings import Settings
 from learner.episodicRL.EpisodicPower import EpisodicPower
 from environments.banditEnvironments.RosenbrockReward import RosenbrockReward
+from distributions.gaussian.GaussianParameterPolicy import \
+GaussianParameterPolicy
+
 
 class PowerRosenbrock(Trial):
     # FIXME add some infos about this class

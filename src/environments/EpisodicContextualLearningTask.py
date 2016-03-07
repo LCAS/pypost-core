@@ -18,7 +18,7 @@ class EpisodicContextualLearningTask(DataManipulator):
         self.dataManager.addDataEntry('returns', 1)
 
         # obj.linkProperty('sampleInitContextFunc');
-        self.addDataManipulationFunction('sampleContext', {}, {'contexts'});
+        self.addDataManipulationFunction(self.sampleContext, [], ['contexts']);
 
 
     def sampleContext(obj, numSamples, varargin):
