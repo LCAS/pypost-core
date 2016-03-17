@@ -1,7 +1,7 @@
 from functions.Mapping import Mapping
 from functions.Function import Function
-from ParametricModels.ParametricFunction import ParametricFunction
-from Learner.ParameterOptimization.HyperParameterObject \
+from parametricModels.ParametricFunction import ParametricFunction
+from learner.parameterOptimization.HyperParameterObject \
 import HyperParameterObject
 
 
