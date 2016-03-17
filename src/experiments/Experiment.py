@@ -75,7 +75,7 @@ class Experiment(object):
 
     def addToDataBase(self, newExperiment):
         raise RuntimeError("Not implemented")
-
+        # Likely not needed anyway
         '''
         FIXME implement this
         function [experiment] = addToDataBase(newExperiment)
@@ -248,6 +248,12 @@ class Experiment(object):
 
         return evaluationCollection
 
+    '''
+    Loads the trials with the given ID from file system.
+    :param int trialID: The ID of the trial to load
+    :return: The loaded trial
+    :rtype: experiments.Trial
+    '''
     def loadTrialFromID(self, trialID):
         trialName = os.path.join(
             self.trialIndexToDirectorymap[trialID],
@@ -262,6 +268,12 @@ class Experiment(object):
     def getNumTrials(self):
         return len(self.trialIndexToDirectorymap)
 
+    '''
+    Executes the experiment on the local machine.
+    
+    :param list trialIndices: A list containg the indices of the trials to run. 
+                              If None, all trials are executed.
+    '''
     def startLocal(self, trialIndices=None):
         if not trialIndices:
             trialIndices = self.trialIndexToDirectorymap.keys()
@@ -273,6 +285,11 @@ class Experiment(object):
             trial = Experiment.loadTrialFromID(self, trialIndices[i])
             trial.start()
 
+    '''
+    Returns a list of trial IDs.
+    :return: The trial list.
+    :rtype: list of integers
+    '''
     def getTrialIDs(self):
         return self.trialIndexToDirectorymap.keys()
 

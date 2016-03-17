@@ -66,8 +66,8 @@ class PowerRosenbrock(Trial):
 
             self.policyLearner.updateModel(newData)
 
-            # FIXME currently not implemented
-            #trial.store("avgReturns",np.mean(newData.getDataEntry("returns")), Experiments.StoringType.ACCUMULATE)
+            # FIXME Test if this works
+            trial.store("avgReturns",np.mean(newData.getDataEntry("returns")), Experiments.StoringType.ACCUMULATE)
 
             print(
                 "Iteration: %d, Episodes: %d, AvgReturn: %f\n" %

@@ -72,7 +72,7 @@ class Trial():
                 self.setProperty(name, value)
             if name not in self.storPerTrial:
                 self.storePerTrial.append(name)
-        elif mode is StoringType.STORE_PER_ITERATION:
+        elif mode is StoringType.STORE:
             self.setProperty(name, value)
             if name not in self.storePerTrial:
                 self.storePerTrial.append(name)
@@ -92,17 +92,27 @@ class Trial():
         return self.storeTrialInFile('trial', overwrite)
 
     def storeTrialInFile(self, fileName, overwrite=True):
+        '''
+        Stores the trial in the given file.
+        Data and settings are stored separately.
+        :param string filename: File name
+        :param bool overwrite: Overwrite
+        :return: True if storing is successful, false otherwise
+        :rtpye: bool
+        '''
+        # TODO  Use filename
         data = {}
         for name in self.storePerTrial:
             data[name] = self.getProperty(name)
-        dataFile = os.path.join(self.trialDir, 'data')
+        dataFile = os.path.join(self.trialDir, 'data.npy')
 
-        # TODO: Serialize data
+        # Test this
+        np.save(dataFile, data)
 
-        storeFile = os.path.join(self.trialDir, fileName)
-        if overwrite or not os.path.isfile(storeFile):
+        settingsFile = os.path.join(self.trialDir, 'settings.yaml')
+        if overwrite or not os.path.isfile(settingsFile):
 
-             # TODO: Store trial object in file
+            self.settings.store(settingsFile)
 
             return True
         return False
@@ -127,7 +137,6 @@ class Trial():
         self.storeTrial()
 
     def configure(self):
-        # TODO: this is not needed any more
         raise RuntimeError("Must be overwritten by subclass")
 
     def run(self):

@@ -14,14 +14,14 @@ class ExperimentFromScript(Experiment):
     Now carry on.
     '''
 
-    def __init__(self, category, scriptName):
+    def __init__(self, category, TrialClass):
         '''
         Constructor
         '''
-        super(Experiment, self).__init__(category, scriptName)
-        self.scriptName = scriptName
+        super(Experiment, self).__init__(category, TrialClass.__name__)
+        self.TrialClass = TrialClass
         self.defaultTrial = self.createTrial(Settings(), self.path, 0)
         self.defaultSettings = self.defaultTrial.settings
 
     def createTrial(self, settings, evalPath, trialIdx):
-        return TrialFromScript(settings, evalPath, trialIdx, self.scriptname)
+        return TrialClass(settings, evalPath, trialIdx)
