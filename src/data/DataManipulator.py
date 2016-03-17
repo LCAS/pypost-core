@@ -38,7 +38,8 @@ class DataManipulator(DataManipulatorInterface):
     highest hierarchy level such that we can access the properties of the
     data.
 
-    @section datamanipulation_function Data manipulation functions
+    Data manipulation functions
+    
     Every DataManipulator can publish its data-manipulation functions.
     For each data manipulation function, we have to specify the input and the
     output data entries.
@@ -58,8 +59,8 @@ class DataManipulator(DataManipulatorInterface):
     manipulation function get the number of elements as input can be specified
     by a flag when publishing the function (addDataManipulationFunction).
 
-    @subsection datamanipulation_call_modes Call modes for DataManipulation
-    functions
+    Call modes for Data manipulation functions
+    
     Data manipulation functions can be called in three different modes.
     The modes are defined in DataFunctionType and can have the values
      - SINGLE_SAMPLE: The data manipulation function is called for each
@@ -69,7 +70,8 @@ class DataManipulator(DataManipulatorInterface):
      - PER_EPISODE: The data function is called for all data elements
      that belong to one episode (i.e. are on the hierarchy level 2).
 
-    @subsection datamanipulation_calling Calling data manipulation functions
+    Calling data manipulation functions
+    
     The data manipulation functions can be called with
     callDataFunction or callDataFunctionOutput. The first one also
     stores the output of the function already in the data structure
@@ -81,8 +83,8 @@ class DataManipulator(DataManipulatorInterface):
     data manipulation functions can be applied to only a subset of the
     elements of a data object.
 
-    @section datamanipulation_additionalparameters DataManipulation function
-    aliases
+    DataManipulation function aliases
+    
     We can also define aliases for data manipulation functions. An alias
     can point to a single data manipulation function (hence, it serves as
     a different name for the same data manipulation function), or it can
@@ -133,6 +135,9 @@ class DataManipulator(DataManipulatorInterface):
             self._samplerFunctions[aliasName] = [functionName]
 
     def clearDataFunctionAlias(self, alias):
+        '''
+        Deletes the entry for the given alias name.
+        '''
         del self._samplerFunctions[alias]
 
     def addDataManipulationFunction(self, function, inputArguments,
@@ -140,6 +145,15 @@ class DataManipulator(DataManipulatorInterface):
                                     callType=None,
                                     takesNumElements=None,
                                     name=None):
+        '''
+        Adds a new data manipulation function.
+        :param function: The data manipulation function
+        :param inputArguments: A list of input arguments (can also be a single string)
+        :param outputArguments: A list of output arguments (can also be a single string)
+        :param callType: One of the three different call types
+        :param takesNumElements: Whether the function takes the number of elements as an input arguments
+        :param name: The name of the function (default is the actual function name)
+        '''
         if callType is None:
             callType = CallType.ALL_AT_ONCE
 
@@ -177,9 +191,21 @@ class DataManipulator(DataManipulatorInterface):
         self.addDataFunctionAlias(name, name)
 
     def isSamplerFunction(self, samplerName):
+        '''
+        Checks if the given function name is defined.
+        :param samplerName: The function name
+        :return: True if the function is defined, false otherwise
+        :rtype: bool
+        '''
         return samplerName in self._samplerFunctions
 
     def setIndices(self, name, numInput, indices):
+        '''
+        Sets the indices of the data used as input for the given function.
+        :param name: The function name
+        :param numInput: The index of the function arguments
+        :param indices: The selected indices
+        '''
         if name not in self._manipulationFunctions:
             raise ValueError("Data function %s is not defined" % name)
         dataFunction = self._manipulationFunctions[name]
@@ -189,11 +215,25 @@ class DataManipulator(DataManipulatorInterface):
         dataFunction.indices[numInput] = indices
 
     def setTakesData(self, name, takesData):
+        '''
+        Sets whether the given function takes a data object as input.
+        :param name: The function name
+        :param takesData: If true, the function will be called with a data
+                          object as input
+        '''
         if name not in self._manipulationFunctions:
             raise ValueError("Data function %s is not defined" % name)
         self._manipulationFunctions[name].takesData = takesData
 
     def callDataFunction(self, samplerName, data, indices):
+        '''
+        Calls a data function with the given indices.
+        Writes the result back into the data object.
+        :param samplerName: The name of the function
+        :param data: The data object
+        :param indices: The indices that will be selected from the data object
+                        as input for the function.
+        '''
         if samplerName not in self._samplerFunctions:
             raise ValueError("Data function %s is not defined" % samplerName)
         functionNames = self._samplerFunctions[samplerName]
@@ -202,6 +242,15 @@ class DataManipulator(DataManipulatorInterface):
             self._callDataFunctionInternal(dmf, data, True, indices)
 
     def callDataFunctionOutput(self, samplerName, data, indices):
+        '''
+        Calls a data function with the given indices.
+        Returns the results back to the caller.
+        :param samplerName: The name of the function
+        :param data: The data object
+        :param indices: The indices that will be selected from the data object
+                        as input for the function.
+        :return: The output data of the called function.
+        '''
         if samplerName not in self._samplerFunctions:
             raise ValueError("Data function %s is not defined" % samplerName)
         functionNames = self._samplerFunctions[samplerName]
