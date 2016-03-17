@@ -179,9 +179,15 @@ class Experiment(object):
         '''
         raise RuntimeError("Not implemented")
 
+    
+    
     def addEvaluation(self, parameterNames, parameterValues, numTrials):
         '''
+        Adds a new evaluation to the experiment.
         This is only for a single evaluation. Please use evaluation collections for multiple ones
+        :param list parameterNames: A list of parameter names
+        :param list parameterValues: A list of parameter values
+        :param int numTrials: The number of trials 
         '''
         if len(parameterValues) != 1:
             raise RuntimeError(
@@ -225,6 +231,12 @@ class Experiment(object):
 
     def addEvaluationCollection(
             self, parameterNames, parameterValues, numTrials):
+        '''
+        Adds a collection of evaluations to the experiment, one for each parameterValue.
+        :param parameterNames: A list of parameter names
+        :param parameterValues: A list of parameter values
+        :param numTrials: The number of trials
+        '''
         evaluations = []
         for i in range(0, len(parameterValues) - 1):
             # TODO matlab code accessed "evaluations{i}" which was nowhere initialized. is this code still in use?
@@ -265,6 +277,11 @@ class Experiment(object):
         '''
         return trial
 
+    '''
+    Returns the number of trials.
+    :return: The number of trials
+    :rtype: int
+    '''
     def getNumTrials(self):
         return len(self.trialIndexToDirectorymap)
 
