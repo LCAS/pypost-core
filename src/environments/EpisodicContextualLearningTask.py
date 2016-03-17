@@ -3,6 +3,11 @@ from data.DataManipulator import DataManipulator
 class EpisodicContextualLearningTask(DataManipulator):
 
     def __init__(self, episodeSampler, dimContext):
+        '''Constructor
+
+        :param episodeSampler: The sampler for the lerning task
+        :param dimContext: The dimensions of the context
+        '''
         super().__init__(episodeSampler.dataManager)
 
         self.dataManager = episodeSampler.dataManager
@@ -17,11 +22,12 @@ class EpisodicContextualLearningTask(DataManipulator):
 
         self.dataManager.addDataEntry('returns', 1)
 
-        # obj.linkProperty('sampleInitContextFunc');
+        # FIXME obj.linkProperty('sampleInitContextFunc');
         self.addDataManipulationFunction(self.sampleContext, [], ['contexts']);
 
 
     def sampleContext(obj, numSamples, varargin):
+        # FIXME varargin
         if (self.dataManager.getNumDimensions('contexts') > 0):
             if (self.sampleInitContextFunc == 0):
                 return sampleStatesUniform(obj, numSamples)
