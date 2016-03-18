@@ -138,7 +138,7 @@ class Mapping(DataManipulator, MappingInterface):
         if append:
             self.inputVariables.extend(inputVariables)
         else:
-            self.inputVariables = list(inputVariables)
+            self.inputVariables = [inputVariables]
 
         self.dimInput = self.dataManager.getNumDimensions(self.inputVariables)
 
