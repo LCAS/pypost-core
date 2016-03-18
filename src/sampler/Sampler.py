@@ -22,17 +22,8 @@ class Sampler(SamplerInterface):
         :param dataManager: DataManager this sampler operates on
         :param samplerName: name of this sampler
         '''
-        SamplerInterface.__init__(self)
+        SamplerInterface.__init__(self, dataManager, samplerName)
 
-        self.dataManager = dataManager
-        '''
-        The data manager responsible for this sampler
-        '''
-        self._samplerName = samplerName
-        '''
-        String of the sampler name
-        :change: now holds samplerPool instances instead of their names
-        '''
         self._samplerPools = {}
         '''
         Map of all sampler pools by name

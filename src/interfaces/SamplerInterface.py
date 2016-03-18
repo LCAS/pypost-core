@@ -1,16 +1,26 @@
-from interfaces.DataManipulatorInterface import DataManipulatorInterface
+from data.DataManipulator import DataManipulator
 
 
-class SamplerInterface(DataManipulatorInterface):
+class SamplerInterface(DataManipulator):
     '''
     The SamplerInterface
     '''
 
-    def __init__(self):
+    def __init__(self, dataManager, samplerName):
         '''
         Constructor
         '''
-        DataManipulatorInterface.__init__(self)
+        DataManipulator.__init__(self, dataManager)
+
+        self.dataManager = dataManager
+        '''
+        The data manager responsible for this sampler
+        '''
+        self._samplerName = samplerName
+        '''
+        String of the sampler name
+        :change: now holds samplerPool instances instead of their names
+        '''
 
     def getSamplerName(self):
         '''
