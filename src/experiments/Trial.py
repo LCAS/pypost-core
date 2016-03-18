@@ -29,7 +29,7 @@ class Trial():
             os.mkdir(self.trialDir)
             os.chmod(self.trialDir, 0o775)
             logFile = os.path.join(self.trialDir, 'trial.log')
-            os.close(os.open(logFile, 'a'))
+            os.close(os.open(logFile, os.O_APPEND))
             os.chmod(logFile, 0o664)
         else:
             # Matlab prints trialDir here, but that doesn't make any sense
