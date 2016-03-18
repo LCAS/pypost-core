@@ -35,8 +35,7 @@ class PowerRosenbrock(Trial):
             self.settings.getProperty('numContexts'),
             self.settings.getProperty('numParameters'))
 
-        self.parameterPolicy = GaussianParameterPolicy(self.dataManager,
-                                                       'episodes')
+        self.parameterPolicy = GaussianParameterPolicy(self.dataManager)
         self.policyLearner = EpisodicPower(self.dataManager, None)
 
         # FIXME None should be a policyLearner instance ... is this parameter even used?
