@@ -1,5 +1,5 @@
-from interfaces.DataManipulatorInterface import DataManipulatorInterface
-from interfaces.DataManipulatorInterface import CallType
+from data.DataManipulatorInterface import DataManipulatorInterface
+from data.DataManipulatorInterface import CallType
 from data.DataManager import DataManager
 import numpy as np
 
@@ -201,6 +201,7 @@ class DataManipulator(DataManipulatorInterface):
         :return: True if the function is defined, False otherwise
         :rtype: bool
         '''
+        print(self._samplerFunctions)
         return samplerName in self._samplerFunctions
 
     def setIndices(self, name, numInput, indices):

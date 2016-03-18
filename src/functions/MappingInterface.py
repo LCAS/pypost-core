@@ -1,8 +1,18 @@
+from data.DataManipulatorInterface import DataManipulatorInterface
 
 
-class MappingInterface():
-    def MappingInterface():
-        pass
+class MappingInterface(DataManipulatorInterface):
+    '''
+    Mapping interface
+    '''
+
+    def __init__(self):
+        '''
+        Constructor
+        '''
 
     def registerMappingInterface(self):
-        raise NotImplementedError()
+        '''
+        #FIXME what is this doing?
+        '''
+        raise NotImplementedError("Not implemented")

@@ -1,4 +1,5 @@
-from interfaces.SamplerInterface import SamplerInterface
+from sampler.SamplerInterface import SamplerInterface
+from data.DataManipulator import DataManipulator
 
 
 class Sampler(SamplerInterface):
@@ -125,10 +126,11 @@ class Sampler(SamplerInterface):
         :returns: true if the sampler is a sampler function of this sampler;
                   False otherwise
         '''
+        print(self.getSamplerName())
         if self.getSamplerName() == samplerName:
             return True
         else:
-            return super().isSamplerFunction(samplerName)
+            return DataManipulator.isSamplerFunction(self, samplerName)
 
     def callDataFunction(self, samplerName, newData, *args):
         '''
@@ -230,6 +232,7 @@ class Sampler(SamplerInterface):
         :param addLocationFlag: Determines to determines the behaviour of the
                                 function.
         '''
+        print(samplerName)
         if not self.isSamplerFunction(samplerName):
             raise RuntimeError(
                 samplerName + " is not a valid sampler function of the object")

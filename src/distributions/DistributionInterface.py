@@ -1,5 +1,5 @@
 # FIXME why is this needed?
-from interfaces.MappingInterface import MappingInterface
+from functions.MappingInterface import MappingInterface
 
 
 class DistributionInterface(MappingInterface):

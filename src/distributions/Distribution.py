@@ -1,4 +1,4 @@
-from interfaces.DistributionInterface import DistributionInterface
+from distributions.DistributionInterface import DistributionInterface
 
 
 class Distribution(DistributionInterface):
