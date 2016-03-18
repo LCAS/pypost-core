@@ -19,6 +19,7 @@ class Sampler(SamplerInterface):
     def __init__(self, dataManager, samplerName):
         '''
         Constructor for setting-up an empty sampler
+
         :param dataManager: DataManager this sampler operates on
         :param samplerName: name of this sampler
         '''
@@ -76,7 +77,9 @@ class Sampler(SamplerInterface):
     def finalizeSampler(self, finalizeData):
         '''
         Finalize the samplerMap and the data
-        :param finalizeData: Set to true if the dataManager should finalize the data
+
+        :param finalizeData: Set to true if the dataManager should finalize the
+                             data
         :change: finalizeData is no longer optional
         '''
         lowLevelsamplers = self.getLowLevelSamplers()
@@ -92,7 +95,9 @@ class Sampler(SamplerInterface):
 
     def copyPoolsFromSampler(self, sampler):
         '''
-        Clears this sampler and copies all sampler pools and their corresponding priority
+        Clears this sampler and copies all sampler pools and their
+        corresponding priority
+
         :param sampler: sampler to copy the sampler pools from
         '''
         self._samplerPools = sampler._samplerPools.copy()
@@ -106,6 +111,7 @@ class Sampler(SamplerInterface):
     def copySamplerFunctionsFromPool(self, sampler, poolName):
         '''
         Copies a sampler pool into this sampler
+
         :param sampler: sampler to copy the pool from
         :param poolName: sampler pool name to copy
         '''
@@ -114,8 +120,10 @@ class Sampler(SamplerInterface):
     def isSamplerFunction(self, samplerName):
         '''
         Checks if a sampler function is part of this sampler
+
         :param samplerName: name of the sampler function to test
-        :returns: true if the sampler is a sampler function of this sampler; False otherwise
+        :returns: true if the sampler is a sampler function of this sampler;
+                  False otherwise
         '''
         if self.getSamplerName() == samplerName:
             return True
@@ -125,6 +133,7 @@ class Sampler(SamplerInterface):
     def callDataFunction(self, samplerName, newData, *args):
         '''
         Calls a data function on a given sampler
+
         :param samplerName: sampler to call the function on
         :param newData: data to pass to the function
         :param args: further parameters to pass
@@ -166,6 +175,7 @@ class Sampler(SamplerInterface):
     def getSamplerPool(self, name):
         '''
         Get a reference to a sampler pool
+
         :param name: Name of the sampler pool
         :returns: requested pool
         :raises: NameError: if no pool is registered under the given name
@@ -178,11 +188,12 @@ class Sampler(SamplerInterface):
             self, samplerPool, lowerLevelSampler, isBeginning):
         '''
         Adds a lower-level sampler to this sampler
+
         :param samplerPool: name of the sampler pool
         :param lowerLevelSampler: sampler to add to the pool
         :param isBeginning: ASK what is this doing?
-        #ASK where is addSamplerFunction defined,
         '''
+        # ASK where is addSamplerFunction defined
         self.addSamplerFunction(samplerPool, lowerLevelSampler, isBeginning)
         self._lowerLevelSamplers.append(lowerLevelSampler)
 
@@ -190,6 +201,7 @@ class Sampler(SamplerInterface):
     def getLowerLevelSamplers(self):
         '''
         Get a list of all recursively invoked lower-level samplers
+
         :returns: list of all lower-level samplers
         '''
 
