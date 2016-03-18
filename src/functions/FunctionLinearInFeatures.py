@@ -60,11 +60,11 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
 
         ''' FIXME
         if (ischar(outputVariable))
-            obj.linkProperty('initSigmaMu', ['initSigmaMu',  upper(obj.outputVariable(1)), obj.outputVariable(2:end)]);
-            obj.linkProperty('initMu', ['initMu', upper(obj.outputVariable(1)), obj.outputVariable(2:end)]);
+            self.linkProperty('initSigmaMu', ['initSigmaMu',  upper(self.outputVariable(1)), self.outputVariable(2:end)]);
+            self.linkProperty('initMu', ['initMu', upper(self.outputVariable(1)), self.outputVariable(2:end)]);
         else
-            obj.linkProperty('initSigmaMu');
-            obj.linkProperty('initMu');
+            self.linkProperty('initSigmaMu');
+            self.linkProperty('initMu');
         end
         '''
 
@@ -140,7 +140,7 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
             will return the weighted expectation.
             '''
 
-            value = np.tile(obj.bias.conj().T, (numElements, 1))
+            value = np.tile(self.bias.conj().T, (numElements, 1))
             value = value + inputFeatures * self.weights.conj().T;
             return value
 
@@ -155,7 +155,7 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
                 self.weights = self.weights.conj().T
 
             # TODO: assert
-            # assert(size(obj.weights,1) == obj.dimOutput && size(obj.weights,2) == obj.dimInput && size(obj.bias,1) == obj.dimOutput);
+            # assert(size(self.weights,1) == self.dimOutput && size(self.weights,2) == self.dimInput && size(self.bias,1) == self.dimOutput);
 
         def setBias(self, bias):
             self.bias = bias;
@@ -206,6 +206,6 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
             return np.hstack([self.bias, self.weights[:]])
 
         # TODO Is this needed anymore?
-        #function [gradient] = getLikelihoodGradient(obj, varargin)
+        #function [gradient] = getLikelihoodGradient(self, varargin)
         #    assert(False);
         #end

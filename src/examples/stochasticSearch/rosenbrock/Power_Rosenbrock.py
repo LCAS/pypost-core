@@ -42,8 +42,8 @@ class PowerRosenbrock(Trial):
         # from the outcommented CreateFromTrial function in EpisodicPower we
         # would set trial.parameterPolicyLearner and trial.dataManager
 
-        self.sampler.setParameterPolicy(parameterPolicy)
-        self.sampler.setReturnFunction(returnSampler)
+        self.sampler.setParameterPolicy(self.parameterPolicy)
+        self.sampler.setReturnFunction(self.returnSampler)
 
         self.configured = True
 

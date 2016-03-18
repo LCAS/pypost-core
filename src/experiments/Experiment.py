@@ -79,9 +79,9 @@ class Experiment(object):
         '''
         FIXME implement this
         function [experiment] = addToDataBase(newExperiment)
-            obj = newExperiment;
-            [st, msg, msgId] = mkdir(obj.path);
-            d = dir(obj.path);
+            self = newExperiment;
+            [st, msg, msgId] = mkdir(self.path);
+            d = dir(self.path);
             isub = [d(:).isdir];
             nameFolds = {d(isub).name}';
 
@@ -90,10 +90,10 @@ class Experiment(object):
             for i = 1:length(nameFolds)
                 if (length(nameFolds{i}) > 7 && strcmp(nameFolds{i}(1:8), 'settings'))
                     lId = sscanf(nameFolds{i}, 'settings%03d');
-                    expFileName = fullfile(obj.path, sprintf('settings%03d', lId), 'experiment.mat');
+                    expFileName = fullfile(self.path, sprintf('settings%03d', lId), 'experiment.mat');
 
                     load(expFileName);
-                    [sameDefaultSettings, differentParameters] = obj.defaultSettings.isSameSettings(experiment.defaultSettings);
+                    [sameDefaultSettings, differentParameters] = self.defaultSettings.isSameSettings(experiment.defaultSettings);
                     fprintf('Checking Experiment ID %d: ', lId);
                     if (sameDefaultSettings)
                         experimentId = lId;
@@ -110,18 +110,18 @@ class Experiment(object):
                 experimentId = find(experimentIdVec, 1);
                 fprintf('Create New Experiment with ID %d\n', experimentId);
             end
-            obj.experimentId = experimentId;
-            obj.experimentPath = fullfile(obj.path, sprintf('settings%03d', obj.experimentId));
-            [st, msg, msgId] = mkdir(obj.experimentPath);
+            self.experimentId = experimentId;
+            self.experimentPath = fullfile(self.path, sprintf('settings%03d', self.experimentId));
+            [st, msg, msgId] = mkdir(self.experimentPath);
 
 
             %Recreate default trial with new default settings
-            obj.defaultTrial = Experiments.Trial.createTrialFromConfigurators(obj.defaultSettings, obj.experimentPath, 0, obj.configurators, obj.evalCriterion, 100);
-            %obj.defaultSettings = obj.defaultTrial.settings;
-            obj.defaultTrial.storeTrial();
+            self.defaultTrial = Experiments.Trial.createTrialFromConfigurators(self.defaultSettings, self.experimentPath, 0, self.configurators, self.evalCriterion, 100);
+            %self.defaultSettings = self.defaultTrial.settings;
+            self.defaultTrial.storeTrial();
 
-            experiment = obj;
-            obj.storeExperiment();
+            experiment = self;
+            self.storeExperiment();
         end
         '''
 
@@ -139,12 +139,12 @@ class Experiment(object):
         self.trialIndexToDirectorymap[trialId] = trialDir
 
     def getEvaluation(self, evalNumber):
-        # TODO mathlab accessed obj.evaluation (without "s"), does this
+        # TODO mathlab accessed self.evaluation (without "s"), does this
         # property exist? Is this function even in use?
         return self.evaluations[evalNumber]
 
     def getEvaluationIndex(self, evaluation):
-        # TODO mathlab accessed obj.evaluation (without "s"), does this
+        # TODO mathlab accessed self.evaluation (without "s"), does this
         # property exist? Is this function even in use?
         for idKey, evaluationVal in self.evaluations.items():
             if evaluationVal.evaluationName == evaluation.evaluationName:
@@ -174,8 +174,8 @@ class Experiment(object):
         '''
         FIXME python code:
 
-        experiment = obj;
-        save(fullfile(obj.experimentPath,'experiment'),'experiment','-v7.3');
+        experiment = self;
+        save(fullfile(self.experimentPath,'experiment'),'experiment','-v7.3');
         '''
         raise RuntimeError("Not implemented")
 

@@ -52,9 +52,9 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         self.initSigma = 0.1
 
         #if (ischar(outputVariable))
-        #    obj.linkProperty('initSigma', ['initSigma',  #upper(obj.outputVariable(1)), obj.outputVariable(2:end)])
+        #    self.linkProperty('initSigma', ['initSigma',  #upper(self.outputVariable(1)), self.outputVariable(2:end)])
         #else
-        #    obj.linkProperty('initSigma')
+        #    self.linkProperty('initSigma')
         #end
 
         self.registerMappingInterfaceDistribution()
@@ -88,7 +88,7 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
 
     def getSigma(self):
         # TODO: check this
-        return obj.cholA[1, ..., ...]
+        return self.cholA[1, ..., ...]
 
     def getCovariance(self):
         '''
@@ -207,10 +207,10 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
 
     def setParameterVector(self, theta):
         self.setParameterVector(theta)
-        theta = theta[obj.dimOutput.dot(1 + self.dimInput):-1]
+        theta = theta[self.dimOutput.dot(1 + self.dimInput):-1]
         self.cholA[self.indexForCov] = theta
 
 
     def getParameterVector(self):
-        theta = obj.getParameterVector@Functions.FunctionLinearInFeatures()
+        theta = self.getParameterVector@Functions.FunctionLinearInFeatures()
         return np.hstack((theta, self.cholA[self.indexForCov]))

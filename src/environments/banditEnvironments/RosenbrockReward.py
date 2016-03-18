@@ -21,7 +21,7 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask):
                                   -5 * np.ones(dimParameters),
                                   +5 * np.ones(dimParameters));
 
-        # obj.linkProperty('rewardNoise');
+        # self.linkProperty('rewardNoise');
 
     def sampleReturn(self, contexts, parameters):
         x = np.hstack((contexts, parameters));

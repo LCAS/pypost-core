@@ -36,8 +36,8 @@ class EpisodicPower(RLByWeightedML):
 
         self.temperatureScalingPower = 10.0
 
-        # FIXME where is link property implemented
-        self.linkProperty('temperatureScalingPower')
+        # FIXME linkProperty
+        #self.linkProperty('temperatureScalingPower')
 
     def computeWeighting(self, rewards):
         maxQ = np.max(rewards)

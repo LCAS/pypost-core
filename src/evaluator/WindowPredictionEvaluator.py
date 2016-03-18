@@ -49,45 +49,45 @@ class WindowPredictionEvaluator(Evaluator):
         #get data
         #TODO
         '''
-            if (isempty(obj.evaluationData))
+            if (isempty(self.evaluationData))
                 if (isprop(trial,'evaluationSampler') && ~isempty(trial.evaluationSampler))
                     sampler = trial.evaluationSampler;
                 else
                     sampler = trial.sampler;
                 end
                 dataManager = sampler.getDataManager;
-                obj.evaluationData = dataManager.getDataObject(0);
+                self.evaluationData = dataManager.getDataObject(0);
 
                 numSamplesTmp = sampler.numSamples;
                 initialSamplesTmp = sampler.numInitialSamples;
                 seed = rng;
                 rng(1000);
-                sampler.numSamples = obj.numSamplesEvaluation;
-                sampler.numInitialSamples = obj.numSamplesEvaluation;
-                sampler.createSamples(obj.evaluationData);
+                sampler.numSamples = self.numSamplesEvaluation;
+                sampler.numInitialSamples = self.numSamplesEvaluation;
+                sampler.createSamples(self.evaluationData);
                 sampler.numSamples = numSamplesTmp;
                 sampler.numInitialSamples=initialSamplesTmp;
                 rng(seed);
 
                 % preprocess evaluation data
                 for i = 1:length(trial.scenario.dataPreprocessorFunctions)
-                    obj.evaluationData = trial.scenario.dataPreprocessorFunctions{i}.preprocessData(obj.evaluationData);
+                    self.evaluationData = trial.scenario.dataPreprocessorFunctions{i}.preprocessData(self.evaluationData);
                 end
             end
 
             if not(iscell(trial.evaluationObservations))
                 trial.evaluationObservations = {trial.evaluationObservations};
             end
-            observations = obj.evaluationData.getDataEntry3D(trial.evaluationObservations{1});
+            observations = self.evaluationData.getDataEntry3D(trial.evaluationObservations{1});
 
-            if length(trial.evaluationObservations) == 2 && obj.evaluationData.isDataEntry(trial.evaluationObservations{2})
-                obsPoints = obj.evaluationData.getDataEntry(trial.evaluationObservations{2},1);
+            if length(trial.evaluationObservations) == 2 && self.evaluationData.isDataEntry(trial.evaluationObservations{2})
+                obsPoints = self.evaluationData.getDataEntry(trial.evaluationObservations{2},1);
             else
                 obsPoints = true(1,size(observations,1));
             end
-            groundtruth = obj.evaluationData.getDataEntry3D(trial.evaluationGroundtruth);
+            groundtruth = self.evaluationData.getDataEntry3D(trial.evaluationGroundtruth);
             if not(isempty(trial.evaluationValid))
-                valid = logical(obj.evaluationData.getDataEntry(trial.evaluationValid,1));
+                valid = logical(self.evaluationData.getDataEntry(trial.evaluationValid,1));
                 valid = all(valid,2);
             else
                 valid = true(size(observations,2),1);
@@ -108,10 +108,10 @@ class WindowPredictionEvaluator(Evaluator):
             % evaluate the model
             switch trial.evaluationMetric
                 case 'mse'
-                    evaluation = obj.squaredError(groundtruth,permute(mu(:,trial.evaluationObservationIndex,:),[3,1,2])) ./ (numel(groundtruth)/size(groundtruth,3));
+                    evaluation = self.squaredError(groundtruth,permute(mu(:,trial.evaluationObservationIndex,:),[3,1,2])) ./ (numel(groundtruth)/size(groundtruth,3));
                     fprintf('MSE = %.4f\n',evaluation);
                 case 'euclidean'
-                    evaluation = obj.euclideanDistances(groundtruth, permute(mu(:,trial.evaluationObservationIndex,:),[3,1,2]),trial.filterLearner.filter.windowSize);
+                    evaluation = self.euclideanDistances(groundtruth, permute(mu(:,trial.evaluationObservationIndex,:),[3,1,2]),trial.filterLearner.filter.windowSize);
                     fprintf('MED = %.4f\n',evaluation);
             end
         end

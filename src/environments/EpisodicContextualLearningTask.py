@@ -22,17 +22,17 @@ class EpisodicContextualLearningTask(DataManipulator):
 
         self.dataManager.addDataEntry('returns', 1)
 
-        # FIXME obj.linkProperty('sampleInitContextFunc');
+        # FIXME self.linkProperty('sampleInitContextFunc');
         self.addDataManipulationFunction(self.sampleContext, [], ['contexts']);
 
 
-    def sampleContext(obj, numSamples, varargin):
+    def sampleContext(self, numSamples, varargin):
         # FIXME varargin
         if (self.dataManager.getNumDimensions('contexts') > 0):
             if (self.sampleInitContextFunc == 0):
-                return sampleStatesUniform(obj, numSamples)
+                return sampleStatesUniform(self, numSamples)
             elif (self.sampleInitContextFunc == 1):
-                return sampleStatesGaussian(obj, numSamples)
+                return sampleStatesGaussian(self, numSamples)
             else:
                 raise ValueError("invalid sampleInitContextFunc")
         else:
@@ -53,7 +53,7 @@ class EpisodicContextualLearningTask(DataManipulator):
         maxRange = self.dataManager.getMaxRange('contexts')
 
         states = np.tile((minRange + maxRange) / 2, (numSamples, 1)) +\
-                 np.randn(numSamples, obj.dimState) *\
+                 np.randn(numSamples, self.dimState) *\
                  np.tile((maxRange - minRange) / 2, (numSamples, 1))
 
         return states

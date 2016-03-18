@@ -75,7 +75,7 @@ class Mapping(DataManipulator):
             np.hstack([self.inputVariables, self.additionalInputVariables]), self.mappingFunctionsOutputVariables[-1], True, True)
 
     # FIXME what does this matlab-syntax mean?
-    #def getDepthEntryForDataManipulationFunction(obj, ~, ~):
+    #def getDepthEntryForDataManipulationFunction(self, ~, ~):
     #    return = self.outputVariable
 
     def registerMappingFunction(self):

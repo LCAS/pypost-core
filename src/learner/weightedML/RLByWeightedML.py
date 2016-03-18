@@ -18,6 +18,7 @@ class RLByWeightedML(RLLearner, DataManipulator, object):
         RLLearner.__init__(self)
         DataManipulator.__init__(self, dataManager)
 
+        self.dataManager = dataManager
         self.outputWeightName = ''
         self.rewardName = ''
 
@@ -38,15 +39,14 @@ class RLByWeightedML(RLLearner, DataManipulator, object):
             # FIXME replace magic constant returns by settings
             self.outputWeightName = self.rewardName + 'Weighting'
 
-        self.policyLearner.setWeightName(self.outputWeightName)
+        if policyLearner is not None:
+            self.policyLearner.setWeightName(self.outputWeightName)
 
         if not self.dataManager.isDataEntry(self.outputWeightName):
             if level is None:
-                depth = dataManager.getDataEntryDepth(obj.rewardName)
-                self.dataManager.addDataEntryForDepth(
-                    depth,
-                    obj.outputWeightName,
-                    1)
+                depth = dataManager.getDataEntryDepth(self.rewardName)
+                subDataManager = dataManager.getSubDataManagerForDepth(depth)
+                subDataManager.addDataEntry(self.outputWeightName, 1)
             else:
                 level = level + '.' + self.outputWeightName
                 self.dataManager.addDataEntry(level, 1)
@@ -110,6 +110,5 @@ class RLByWeightedML(RLLearner, DataManipulator, object):
         # the DataManipulator
         inputs = [self.rewardName]
         inputs.extend(self.additionalInputData)
-        self.addDataManipulationFunction(
-            "computeWeighting", inputs, [
-                self.outputWeightName])
+        self.addDataManipulationFunction(self.computeWeighting, inputs,
+                                         [self.outputWeightName])

@@ -120,6 +120,20 @@ class DataManager():
         self.dataAliases[name] = DataAlias(name, [(name, ...)], numDimensions)
         self._dirty = True
 
+    def isDataEntry(self, entryName):
+        '''
+        Checks if an entry with the given name exists
+
+        :param entryName: the entry name to query
+        '''
+        if entryName in self.dataEntries:
+            return True
+
+        if self.subDataManager is not None:
+            return self.subDataManager.isDataEntry(entryName)
+
+        return False
+
     def setRange(self, entryName, minRange, maxRange):
         '''Sets the min and max range for existing data entries
 

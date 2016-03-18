@@ -86,7 +86,7 @@ class ReturnDecisionStagesEvaluator(Evaluator):
             rng(seed)
 
 
-            evaluation = mean(obj.data.getDataEntry('rewards'))
+            evaluation = mean(self.data.getDataEntry('rewards'))
 
             self.publish(evaluation)
             self._data = []

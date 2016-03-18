@@ -12,7 +12,7 @@ class DistributionWithMeanAndVariance(Distribution):
     depends on the abstract function `getExpectationAndSigma()`,
     which will determine the type of distribution in further subclasses.
 
-    The abstract function `getExpectationAndSigma(obj, numElements, varargin)`
+    The abstract function `getExpectationAndSigma(self, numElements, varargin)`
     is expected to return the following types of data:
 
     - mean: Should be a matrix of size equal to numElements x dimension

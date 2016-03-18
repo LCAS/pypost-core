@@ -19,6 +19,6 @@ class EpisodicContextualParameterLearningTask(EpisodicContextualLearningTask):
         # FIXME: vargins
         self.setInputArguments('sampleReturn', vargin);
 
-    def sampleReturn(obj, vargin):
+    def sampleReturn(self, vargin):
         raise NotImplementedError("This method should be implemented in a " +
             "subclass.")
