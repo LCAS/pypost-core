@@ -29,9 +29,8 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
     and inputVariables etc
     '''
 
-    def __init__(self, dataManager, outputVariable,
-                                 inputVariables, functionName,
-                                 featureGenerator=None, doInitWeights=None):
+    def __init__(self, dataManager, outputVariable, inputVariables,
+                 functionName, featureGenerator=None, doInitWeights=None):
         '''
         Constructor
 
@@ -43,13 +42,13 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         FIXME
         :param varargin: optional featureGenerator, doInitWeights (see superclass Functions.FunctionLinearInFeatures)
         '''
-        print(dataManager)
-        ParametricModel()
-        FunctionLinearInFeatures(dataManager, outputVariable, inputVariables,
-                                 functionName, featureGenerator, doInitWeights)
-        DistributionWithMeanAndVariance()
+        ParametricModel.__init__(self)
+        FunctionLinearInFeatures.__init__(self, dataManager, outputVariable,
+                                          inputVariables, functionName,
+                                          featureGenerator, doInitWeights)
+        DistributionWithMeanAndVariance.__init__(self, dataManager)
 
-        self.saveCovariance = false
+        self.saveCovariance = False
         self.initSigma = 0.1
 
         #if (ischar(outputVariable))

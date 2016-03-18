@@ -3,11 +3,11 @@ from functions.MappingInterface import MappingInterface
 
 class ParametricModel(MappingInterface):
     def ParametricModel():
-        MappingInterface()
+        MappingInterface.__init__(self)
 
     def registerGradientModelFunction(self):
         self.addDataManipulationFunction(
-            'getLikelihoodGradient',
+            self.getLikelihoodGradient,
             [self.inputVariables[:], self.outputVariable],
             [self.outputVariable, 'GradLike'])
 

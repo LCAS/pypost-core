@@ -28,13 +28,14 @@ class PowerRosenbrock(Trial):
         self.settings.setProperty("numIterations", 2000)
 
         self.sampler = EpisodeSampler()
+        self.dataManager = self.sampler.dataManager # TODO is this OK?
 
         self.returnSampler = RosenbrockReward(
             self.sampler,
             self.settings.getProperty('numContexts'),
             self.settings.getProperty('numParameters'))
 
-        self.parameterPolicy = GaussianParameterPolicy(self.sampler.dataManager)
+        self.parameterPolicy = GaussianParameterPolicy(self.dataManager)
         self.policyLearner = EpisodicPower(self.dataManager, None)
 
         # FIXME None should be a policyLearner instance ... is this parameter even used?

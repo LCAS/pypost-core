@@ -100,7 +100,7 @@ class Experiment(object):
                         fprintf('Found same experiment\n');
                         return;
                     else
-                        experimentIdVec(lId) = false;
+                        experimentIdVec(lId) = False;
                         fprintf('Different Settings, differences are in');
                         differentParameters
                     end

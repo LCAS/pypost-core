@@ -97,7 +97,7 @@ class Trial():
         Data and settings are stored separately.
         :param string filename: File name
         :param bool overwrite: Overwrite
-        :return: True if storing is successful, false otherwise
+        :return: True if storing is successful, False otherwise
         :rtpye: bool
         '''
         # TODO  Use filename

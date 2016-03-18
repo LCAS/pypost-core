@@ -1,15 +1,16 @@
+import numpy as np
 from functions.MappingInterface import MappingInterface
 
 
 class ParametricFunction(MappingInterface):
 
     def ParametricFunction():
-        MappingInterface()
+        MappingInterface.__init__(self)
 
     def registerGradientFunction(self):
         if self.inputVariables is None or not isinstance(
            self.inputVariables[0], np.ndarray):
-            self.addDataManipulationFunction('getGradient',
+            self.addDataManipulationFunction(self.getGradient,
                                              self.inputVariables,
                                              [self.outputVariable, 'Grad'])
 

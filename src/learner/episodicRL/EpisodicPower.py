@@ -3,7 +3,7 @@ import numpy as np
 from learner.weightedML.RLByWeightedML import RLByWeightedML
 
 
-class EpisodicPower(RLByWeightedML, object):
+class EpisodicPower(RLByWeightedML):
     '''
     Implementation of an episodic PoWER algorithm
     '''
@@ -29,7 +29,7 @@ class EpisodicPower(RLByWeightedML, object):
         Constructor
         '''
 
-        RLByWeightedML.__init__(dataManager, policyLearner)
+        RLByWeightedML.__init__(self, dataManager, policyLearner)
 
         # TODO find default value
         self.divKL = None

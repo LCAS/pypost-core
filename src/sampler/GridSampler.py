@@ -57,7 +57,7 @@ class GridSampler(IndependentSampler):
         self.addSamplerPool(SamplerPool('gridSamplerPool', 1))
 
         # register function
-        self.addDataManipulationFunction('sampleGrid', {}, outputVariable)
+        self.addDataManipulationFunction(self.sampleGrid, {}, outputVariable)
         self.addSamplerFunctionToPool('gridSamplerPool', 'sampleGrid', self, 0)
 
     def getNumSamples(self, data=None, *args):

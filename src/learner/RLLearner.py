@@ -11,7 +11,7 @@ class RLLearner(Learner, object):
         Constructor
         '''
 
-        Learner.__init(self)
+        Learner.__init__(self)
 
     def printMessage(self, data):
         # FIXME refactor everything in the line below ...

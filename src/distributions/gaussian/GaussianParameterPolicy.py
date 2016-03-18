@@ -8,6 +8,9 @@ class GaussianParameterPolicy(GaussianLinearInFeatures):
         '''
         Constructor
         '''
-        GaussianLinearInFeatures(dataManager, outputVar, inputVar, policyName)
+        GaussianLinearInFeatures.__init__(self, dataManager, outputVar, inputVar, policyName)
 
+        # TODO: move addDataManipulationFunction somewhere else?
+        self.addDataManipulationFunction(self.sampleFromDistribution, inputVar,
+                                         outputVar)
         self.addDataFunctionAlias('sampleParameter', 'sampleFromDistribution')

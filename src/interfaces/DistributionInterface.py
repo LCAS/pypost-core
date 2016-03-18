@@ -13,7 +13,7 @@ class DistributionInterface(MappingInterface):
         '''
         Constructor
         '''
-        super().__init__()
+        MappingInterface.__init__(self)
 
         self.dataProbabilityEntries = []
 

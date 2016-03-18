@@ -22,7 +22,7 @@ class Sampler(SamplerInterface):
         :param dataManager: DataManager this sampler operates on
         :param samplerName: name of this sampler
         '''
-        super().__init__()
+        SamplerInterface.__init__(self)
 
         self.dataManager = dataManager
         '''
@@ -124,7 +124,7 @@ class Sampler(SamplerInterface):
         '''
         Checks if a sampler function is part of this sampler
         :param samplerName: name of the sampler function to test
-        :returns: true if the sampler is a sampler function of this sampler; false otherwise
+        :returns: true if the sampler is a sampler function of this sampler; False otherwise
         '''
         if self.getSamplerName() == samplerName:
             return True

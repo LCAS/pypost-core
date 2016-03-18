@@ -148,7 +148,7 @@ class Data(object):
                         indices may also be a number which is equivalent to an
                         array containing only one element
         :param cloneData: If true, a copy of the data will be returned. When
-                          `cloneData` is false, modifying the returned data may
+                          `cloneData` is False, modifying the returned data may
                           already impact the values stored in the data structure
                           which improves performance. In any case, it is crucial
                           to write all pending changes by using

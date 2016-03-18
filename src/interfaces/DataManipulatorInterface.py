@@ -3,7 +3,7 @@ from enum import Enum
 CallType = Enum('CallType', 'SINGLE_SAMPLE ALL_AT_ONCE PER_EPISODE')
 
 
-class DataManipulatorInterface(object):
+class DataManipulatorInterface():
     '''
     FIXME
     '''

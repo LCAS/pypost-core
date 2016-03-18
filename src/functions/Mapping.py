@@ -24,7 +24,7 @@ class Mapping(DataManipulator):
                                will get input
         :param mappingName: name of this mapping (Default: 'function')
         '''
-        DataManipulator.__init__(dataManager)
+        DataManipulator.__init__(self, dataManager)
 
         self.inputVariables = [] # collection of input Variables
         self.additionalInputVariables = []

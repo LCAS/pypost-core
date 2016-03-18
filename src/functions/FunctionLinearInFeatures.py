@@ -53,10 +53,10 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         self.doInitWeights = doInitWeights
         self.initMu = []
 
-        Mapping.__init__(dataManager, outputVariable, inputVariables, functionName)
-        Function().__init__()
-        print(self.registerDataFunctions)
-        ParametricFunction().__init__()
+        Mapping.__init__(self, dataManager, outputVariable, inputVariables,
+                         functionName)
+        Function.__init__(self)
+        ParametricFunction.__init__(self)
 
         ''' FIXME
         if (ischar(outputVariable))
@@ -207,5 +207,5 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
 
         # TODO Is this needed anymore?
         #function [gradient] = getLikelihoodGradient(obj, varargin)
-        #    assert(false);
+        #    assert(False);
         #end

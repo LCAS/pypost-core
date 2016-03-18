@@ -10,7 +10,7 @@ class SamplerInterface(DataManipulatorInterface):
         '''
         Constructor
         '''
-        super().__init__()
+        DataManipulatorInterface.__init__(self)
 
     def getSamplerName(self):
         '''

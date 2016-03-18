@@ -12,7 +12,7 @@ class Distribution(DistributionInterface):
 
         :change: dataManager was removed from function arguments and is now a constructor argument.
         '''
-        super().__init__()
+        DistributionInterface.__init__(self)
 
         self.dataManager = dataManager
         '''

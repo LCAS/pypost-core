@@ -7,12 +7,12 @@ class DistributionWithMeanAndVariance(Distribution):
     The DistributionWithMeanAndVariance is a subclass of Distribution and
     augments the superclass with Mean and Variance.
 
-    This class defines <tt>sampleFromDistribution()</tt> and <tt>getDataProbabilities()</tt>,
+    This class defines `sampleFromDistribution()` and `getDataProbabilities()`,
     since this is a subclass of Distribution. The output of these functions
-    depends on the abstract function <tt>getExpectationAndSigma()</tt>,
+    depends on the abstract function `getExpectationAndSigma()`,
     which will determine the type of distribution in further subclasses.
 
-    The abstract function <tt>getExpectationAndSigma(obj, numElements, varargin)</tt>
+    The abstract function `getExpectationAndSigma(obj, numElements, varargin)`
     is expected to return the following types of data:
 
     - mean: Should be a matrix of size equal to numElements x dimension
@@ -30,9 +30,8 @@ class DistributionWithMeanAndVariance(Distribution):
     be handled as such.
     '''
 
-    def DistributionWithMeanAndVariance():
-        self.restrictToRangeLogLik = True
-        Distribution()
+    def __init__(self, dataManager):
+        Distribution.__init__(self, dataManager)
 
     def sampleFromDistribution(self, numElements, varargin):
         '''
@@ -84,16 +83,14 @@ class DistributionWithMeanAndVariance(Distribution):
                                                            inputData,
                                                            varargin)
 
-        minRange = None
-        maxRange = None
         samples = None
         qData = None
 
-        if self.restrictToRangeLogLik:
-            minRange = self.getDataManager().getMinRange(self.outputVariable)
-            maxRange = self.getDataManager().getMaxRange(self.outputVariable)
-            # TODO: check this:
-            expectation = lambda: max(min(expectation, maxRange), minRange)
+        # TODO: restrictToRangeLogLik was removed, check if it's needed anymore
+        minRange = self.getDataManager().getMinRange(self.outputVariable)
+        maxRange = self.getDataManager().getMaxRange(self.outputVariable)
+        # TODO: check this:
+        expectation = lambda: max(min(expectation, maxRange), minRange)
 
         if sigma.shape[2] == 1:
             # If the second dimension of the sigma matrix is 1, the
@@ -131,13 +128,8 @@ class DistributionWithMeanAndVariance(Distribution):
         return qData
 
     def registerMappingInterfaceDistribution(self):
-        self.registerMappingInterfaceDistribution()
-        #             obj.addMappingFunction('getExpectationAndSigma', )
-        if self.outputVariable:
-            self.restrictToRangeLogLik = self.getDataManager().isRestrictToRange(self.outputVariable)
-        else:
-            self.restrictToRangeLogLik = False
-
+        # TODO: check if super call is really needed
+        # Distribution.registerMappingInterfaceDistribution(self)
         if self.registerDataFunctions:
             self.addDataManipulationFunction(
                 'getExpectationAndSigma',

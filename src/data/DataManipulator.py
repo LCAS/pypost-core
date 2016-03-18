@@ -148,11 +148,15 @@ class DataManipulator(DataManipulatorInterface):
         '''
         Adds a new data manipulation function.
         :param function: The data manipulation function
-        :param inputArguments: A list of input arguments (can also be a single string)
-        :param outputArguments: A list of output arguments (can also be a single string)
+        :param inputArguments: A list of input arguments (can also be a single
+                               string)
+        :param outputArguments: A list of output arguments (can also be a
+                                single string)
         :param callType: One of the three different call types
-        :param takesNumElements: Whether the function takes the number of elements as an input arguments
-        :param name: The name of the function (default is the actual function name)
+        :param takesNumElements: Whether the function takes the number of
+                                 elements as an input arguments
+        :param name: The name of the function (default is the actual function
+                     name)
         '''
         if callType is None:
             callType = CallType.ALL_AT_ONCE
@@ -194,7 +198,7 @@ class DataManipulator(DataManipulatorInterface):
         '''
         Checks if the given function name is defined.
         :param samplerName: The function name
-        :return: True if the function is defined, false otherwise
+        :return: True if the function is defined, False otherwise
         :rtype: bool
         '''
         return samplerName in self._samplerFunctions
