@@ -2,7 +2,7 @@ from functions.FunctionLinearInFeatures import FunctionLinearInFeatures
 from distributions.DistributionWithMeanAndVariance import \
 DistributionWithMeanAndVariance
 from parametricModels.ParametricModel import ParametricModel
-import math.pow
+import math
 
 
 class GaussianLinearInFeatures(FunctionLinearInFeatures,
@@ -31,7 +31,7 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
 
     def GaussianLinearInFeatures(self, dataManager, outputVariable,
                                  inputVariables, functionName,
-                                 featureGenerator=Null, doInitWeights=Null):
+                                 featureGenerator=None, doInitWeights=None):
         '''
         Constructor
 
