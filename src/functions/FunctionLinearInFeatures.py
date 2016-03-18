@@ -53,10 +53,10 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         self.doInitWeights = doInitWeights
         self.initMu = []
 
-        Mapping(dataManager, outputVariable, inputVariables, functionName)
-        Function()
+        Mapping.__init__(dataManager, outputVariable, inputVariables, functionName)
+        Function().__init__()
         print(self.registerDataFunctions)
-        ParametricFunction()
+        ParametricFunction().__init__()
 
         ''' FIXME
         if (ischar(outputVariable))
