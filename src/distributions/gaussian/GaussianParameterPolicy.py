@@ -3,11 +3,11 @@ GaussianLinearInFeatures
 
 
 class GaussianParameterPolicy(GaussianLinearInFeatures):
-    def __init__(dataManager, outputVar='parameters', inputVar='contexts',
+    def __init__(self, dataManager, outputVar='parameters', inputVar='contexts',
                  policyName='GaussianParameter'):
         '''
         Constructor
         '''
-        super(dataManager, outputVar, inputVar, policyName)
+        GaussianLinearInFeatures(dataManager, outputVar, inputVar, policyName)
 
         self.addDataFunctionAlias('sampleParameter', 'sampleFromDistribution')

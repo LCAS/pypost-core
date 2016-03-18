@@ -10,7 +10,8 @@ class Function(MappingInterface):
     that function.
     '''
 
-    def Function():
+    def __init__(self):
+        self.registerDataFunctions = False # TODO check this
         pass
 
     def registerMappingInterfaceFunction(self):

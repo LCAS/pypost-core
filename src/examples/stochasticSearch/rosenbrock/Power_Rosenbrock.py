@@ -34,10 +34,8 @@ class PowerRosenbrock(Trial):
             self.settings.getProperty('numContexts'),
             self.settings.getProperty('numParameters'))
 
-        self.parameterPolicy = GaussianParameterPolicy(self.dataManager)
-        self.policyLearner = EpisodicPower(
-            self.dataManager,
-            None)
+        self.parameterPolicy = GaussianParameterPolicy(self.sampler.dataManager)
+        self.policyLearner = EpisodicPower(self.dataManager, None)
 
         # FIXME None should be a policyLearner instance ... is this parameter even used?
         # from the outcommented CreateFromTrial function in EpisodicPower we
@@ -52,7 +50,7 @@ class PowerRosenbrock(Trial):
         if not self.configured:
             raise RuntimeError("The trial has to be configured first.")
 
-        newData = self.dataManager.getDataObject.getDataObject(10)
+        newData = self.dataManager.getDataObject(10)
 
         self.parameterPolicy.initObject()
 

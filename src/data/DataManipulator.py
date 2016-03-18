@@ -39,7 +39,7 @@ class DataManipulator(DataManipulatorInterface):
     data.
 
     Data manipulation functions
-    
+
     Every DataManipulator can publish its data-manipulation functions.
     For each data manipulation function, we have to specify the input and the
     output data entries.
@@ -60,7 +60,7 @@ class DataManipulator(DataManipulatorInterface):
     by a flag when publishing the function (addDataManipulationFunction).
 
     Call modes for Data manipulation functions
-    
+
     Data manipulation functions can be called in three different modes.
     The modes are defined in DataFunctionType and can have the values
      - SINGLE_SAMPLE: The data manipulation function is called for each
@@ -71,7 +71,7 @@ class DataManipulator(DataManipulatorInterface):
      that belong to one episode (i.e. are on the hierarchy level 2).
 
     Calling data manipulation functions
-    
+
     The data manipulation functions can be called with
     callDataFunction or callDataFunctionOutput. The first one also
     stores the output of the function already in the data structure
@@ -84,7 +84,7 @@ class DataManipulator(DataManipulatorInterface):
     elements of a data object.
 
     DataManipulation function aliases
-    
+
     We can also define aliases for data manipulation functions. An alias
     can point to a single data manipulation function (hence, it serves as
     a different name for the same data manipulation function), or it can

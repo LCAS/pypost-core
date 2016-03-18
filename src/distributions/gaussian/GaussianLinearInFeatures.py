@@ -29,7 +29,7 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
     and inputVariables etc
     '''
 
-    def GaussianLinearInFeatures(self, dataManager, outputVariable,
+    def __init__(self, dataManager, outputVariable,
                                  inputVariables, functionName,
                                  featureGenerator=None, doInitWeights=None):
         '''
@@ -43,6 +43,7 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         FIXME
         :param varargin: optional featureGenerator, doInitWeights (see superclass Functions.FunctionLinearInFeatures)
         '''
+        print(dataManager)
         ParametricModel()
         FunctionLinearInFeatures(dataManager, outputVariable, inputVariables,
                                  functionName, featureGenerator, doInitWeights)

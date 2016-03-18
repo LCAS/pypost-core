@@ -28,9 +28,9 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
     \f$\boldsymbol{b}\f$ by the variable bias.
     '''
 
-    def FunctionLinearInFeatures(dataManager, outputVariable, inputVariables,
+    def __init__(self, dataManager, outputVariable, inputVariables,
                                  functionName, featureGenerator,
-                                 doInitWeights):
+                                 doInitWeights=True):
         '''
         :param dataManager: Datamanger to operate on
         :param outputVariable: dataset defining the output of the function
@@ -39,19 +39,24 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         :param featureGenerator: feature generator of the dataset
         :param doInitWeights: flag if weights and bias should be initiated
         '''
-        self.featureGenerator = []
+        self.dataManager = dataManager
+        self.outputVariable = outputVariable
+        self.inputVariables = None
+        self.functionName = functionName
+        self.featureGenerator = None
         self.featureHasHyperParameters = False;
 
         # represents the liniar function as
         # y = weights * x + bias
         self.bias = 0
         self.initSigmaMu = 0.01
-        self.doInitWeights = True
+        self.doInitWeights = doInitWeights
         self.initMu = []
 
-        Mapping(dataManager, outputVariable, inputVariables, functionName);
-        Function();
-        ParametricFunction();
+        Mapping(dataManager, outputVariable, inputVariables, functionName)
+        Function()
+        print(self.registerDataFunctions)
+        ParametricFunction()
 
         ''' FIXME
         if (ischar(outputVariable))
@@ -65,8 +70,6 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
 
         if featureGenerator is not None:
             self.setFeatureGenerator(featureGenerator)
-        else:
-            self.featureGenerator = ''
 
         if self.inputVariables is not None:
             if self.featureGenerator == [] and \
@@ -74,12 +77,11 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
                 self.setFeatureGenerator(
                     self.dataManager.getFeatureGenerator(inputVariables[1]))
 
-        self.doInitWeights = doInitWeights
 
-        self.registerMappingInterfaceFunction();
-        self.registerGradientFunction();
+        self.registerMappingInterfaceFunction()
+        self.registerGradientFunction()
 
-        if(self.doInitWeights):
+        if self.doInitWeights:
             self.bias = np.zeros((self.dimOutput, 1))
             self.weights = np.zeros((self.dimOutput, self.dimInput))
 
@@ -203,7 +205,7 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         def getParameterVector(self):
             return np.hstack([self.bias, self.weights[:]])
 
-        # XXX Is this needed anymore?
+        # TODO Is this needed anymore?
         #function [gradient] = getLikelihoodGradient(obj, varargin)
         #    assert(false);
         #end

@@ -1,3 +1,4 @@
+import numpy as np
 from data.DataManipulator import DataManipulator
 
 
@@ -13,7 +14,7 @@ class Mapping(DataManipulator):
     added with the `addMappingFunction()`.
     '''
 
-    def Mapping(dataManager, outputVariable, inputVariables,
+    def __init__(self, dataManager, outputVariable, inputVariables,
                 mappingName='function'):
         '''
         :param dataManager: DataManager this mapping operates
@@ -23,26 +24,24 @@ class Mapping(DataManipulator):
                                will get input
         :param mappingName: name of this mapping (Default: 'function')
         '''
+        super().__init__(dataManager)
 
         self.inputVariables = [] # collection of input Variables
         self.additionalInputVariables = []
         self.outputVariable = [] # collection of output Variables
-
         self.mappingFunctions = [] # collection of mapping functions
-        self.mappingFunctionsOutputVariables = []
-        '''
-        collection of the output variables of the functions, not necessarily equal to outputVariable
-        '''
-
-        self.registeredMappingFunctions = False
-        '''
-        flag indicating if any mapping functions have been included in this Functions.Mapping
-        '''
-
+        self.mappingFunctionsOutputVariables = [] # collection of the output
+                                                  # variables of the functions,
+                                                  # not necessarily equal to
+                                                  # outputVariable
+        self.registeredMappingFunctions = False # flag indicating if any
+                                                # mapping functions have been
+                                                # included in this Mapping
         self.registerDataFunctions = True
 
         DataManipulator(dataManager)
 
+        self.dataManager = dataManager
         self.setOutputVariables(outputVariable)
         self.setInputVariables(inputVariables)
         self.mappingName = mappingName
