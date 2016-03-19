@@ -49,7 +49,9 @@ class IndependentSampler(Sampler):
 
         if numElements is not None:
             raise NotImplementedError
-
+        
+        numElements = []
+        
         if numSamples > 0:
             newData.reserveStorage(numSamples)
             newData.resetFeatureTags()
@@ -57,16 +59,15 @@ class IndependentSampler(Sampler):
             newIndex = numElements
 
             if self.getParallelSampling():
-                newIndex.append(range(0, numSamples[1]))
+                newIndex.append(range(0, numSamples[0]))
                 self.sampleAllPools(newData, newIndex[:])
             else:
-                raise NotImplementedError
-                #index = 0
-                #while index < numSamples[1]:
-                #    newIndex[len(numElements)] = index
-                #    self.sampleAllPools(newData, newIndex[:])
-                #    if self.isValidEpisode():
-                #        index = index + 1
+                index = 0
+                while index < numSamples[0]:
+                    newIndex[len(numElements)] = index
+                    self.sampleAllPools(newData, newIndex[:])
+                    if self.isValidEpisode():
+                        index = index + 1
 
     # TODO this seems like an interface function. refactor ...
     def isValidEpisode(self):

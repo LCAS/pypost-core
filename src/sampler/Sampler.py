@@ -257,44 +257,44 @@ class Sampler(SamplerInterface):
             raise ValueError("Invalid value for addLocationFlag: " +
                 addLocationFlag)
 
-    def createSamplesFromPool(self, pool, data, *args):
+    def createSamplesFromPool(self, pool, data, indices):
         '''
         Executes all functions on the samplerList of a given pool
 
         :param poolName: name of the selected pool
         :param data: the data structure the pool operates on
-        :param args: hierarchical indexing of the data structure
+        :param indices: hierarchical indexing of the data structure
         '''
         for sampler in pool.samplerList:
             objectPointer = sampler.objHandle
-            objectPointer.callDataFunction(sampler.getName(), data, *args)
+            objectPointer.callDataFunction(sampler.getName(), data, indices)
 
-    def sampleAllPools(self, data, *args):
+    def sampleAllPools(self, data, indices):
         '''
         Sample all pools
 
         :param newData: the data structure the pool operates on
-        :param *args: hierarchical indexing of the data structure
+        :param indices: hierarchical indexing of the data structure
         '''
         for pool in self._samplerPoolPriorityList:
-            self.createSamplesFromPool(pool, data, *args)
+            self.createSamplesFromPool(pool, data, indices)
 
     def createSamplesFromPoolWithPriority(
-            self, lowPriority, highPriority, data, *args):
+            self, lowPriority, highPriority, data, indices):
         '''
         Samples all pools in a specific priority range
 
         :param lowPriority: lower bound of pools that will be executed
         :param highPriority: higher bound of pools that will be executed
         :param newData: the data structure the pool operates on
-        :param *args: hierarchical indexing of the data structure
+        :param indices: hierarchical indexing of the data structure
         '''
         for pool in self._samplerPoolPriorityList:
             if pool.getPriority() >= lowPriority:
                 # break if we exceed to upper bound
                 if pool.getPriority() > highPriority:
                     break
-                self.createSamplesFromPool(pool, data, *args)
+                self.createSamplesFromPool(pool, data, indices)
 
     # change _addSamplerToPoolInternal was deleted because it can be replaced by
     # addSamplerFunctionToPool with addLoctionFlag 0
