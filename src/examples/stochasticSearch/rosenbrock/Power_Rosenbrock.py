@@ -16,9 +16,15 @@ class PowerRosenbrock(Trial):
 
     # trial, settingsEval = Experiment.getTrialForScript()
 
+    # What's this?
+    '''
     def PowerRosenbrock():
         super()
         start()
+    '''
+    
+    def __init__(self, evalDir, trialIndex):
+        super(PowerRosenbrock, self).__init__(evalDir, trialIndex)
 
     def configure(self):
         self.settings.setProperty("numContexts", 10)
@@ -77,4 +83,6 @@ class PowerRosenbrock(Trial):
                      newData.getDataEntry('returns'))))
 
 
+# For testing purposes. Maybe implement a better way to start trials directly?
 power_rosenbrock = PowerRosenbrock("/tmp/trial/", 0)
+power_rosenbrock.start()

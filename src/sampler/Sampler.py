@@ -232,10 +232,10 @@ class Sampler(SamplerInterface):
         :param addLocationFlag: Determines to determines the behaviour of the
                                 function.
         '''
-        print(samplerName)
+        #print(samplerName)
         if not self.isSamplerFunction(samplerName):
             raise RuntimeError(
-                samplerName + " is not a valid sampler function of the object")
+                "%s is not a valid sampler function of the object" % samplerName)
 
         # ASK sampleFunction was never as an object in Matlab, is this the
         # default behaviour?

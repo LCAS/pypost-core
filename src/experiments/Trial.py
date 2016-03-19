@@ -1,5 +1,6 @@
 from common.Settings import Settings
 from common import SettingsManager
+import sys
 import os
 import random
 import traceback
@@ -16,8 +17,9 @@ class Trial():
     '''
 
     # TODO: add __main__ method
-
-
+    # Comment(Sebastian): __main__ should probably be added in inheriting
+    #                     class. I don't think there's a good way to start
+    #                     the trial from here.
     def __init__(self, evalDir, index):
         '''
         Constructor
@@ -33,7 +35,7 @@ class Trial():
             os.chmod(logFile, 0o664)
         else:
             # Matlab prints trialDir here, but that doesn't make any sense
-            print("Trial %s: Directory not found" % evalDir)
+            print("Trial %s: Directory not found" % evalDir, file=sys.stderr)
 
         self.index = index
         self.properties = {}

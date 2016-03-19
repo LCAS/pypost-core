@@ -24,4 +24,4 @@ class ExperimentFromScript(Experiment):
         self.defaultSettings = self.defaultTrial.settings
 
     def createTrial(self, settings, evalPath, trialIdx):
-        return TrialClass(settings, evalPath, trialIdx)
+        return self.TrialClass(settings, evalPath, trialIdx)

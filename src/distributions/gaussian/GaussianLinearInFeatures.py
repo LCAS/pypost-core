@@ -212,5 +212,7 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
 
 
     def getParameterVector(self):
-        theta = self.getParameterVector@Functions.FunctionLinearInFeatures()
+        # Replaced the following line, not sure if legal syntax?
+        #theta = self.getParameterVector@Functions.FunctionLinearInFeatures()
+        theta = super(GaussianLinearInFeatures, self).getParameterVector()
         return np.hstack((theta, self.cholA[self.indexForCov]))
