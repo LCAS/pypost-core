@@ -76,7 +76,7 @@ class IndependentSampler(Sampler):
             else:
                 numSamples = self._numSamples
         else:
-            raise RuntimeError("Matlab code doesn't make any sence here.")
+            raise RuntimeError("Matlab code doesn't make any sense here.")
         #    if self._iterationIndex == 0 and self._numInitialSamples > 0:
         #        numSamples = self._numInitialSamples
         #    else:
