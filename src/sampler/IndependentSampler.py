@@ -61,7 +61,7 @@ class IndependentSampler(Sampler):
             newIndex = numElements
 
             if self.getParallelSampling():
-                newIndex.append(range(0, numSamples))
+                newIndex.append(slice(0, numSamples))
                 self.sampleAllPools(newData, newIndex[:])
             else:
                 index = 0
@@ -76,7 +76,6 @@ class IndependentSampler(Sampler):
         return True
 
     def getNumSamples(self, data, *args):
-        print(data, self._numSamples, self._iterationIndex)
         if isinstance(self._numSamples, int):
             if self._iterationIndex == 0 and self._numInitialSamples > 0:
                 numSamples = self._numInitialSamples

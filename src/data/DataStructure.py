@@ -143,9 +143,11 @@ class DataStructure():
                 return self[path[0]]
             elif isinstance(indices[0], slice):
                 return self[path[0]][indices]
-            else:
+            elif isinstance(indices[0], int):
                 return np.array(
                     [self[path[0]][indices[0]]])
+            else:
+                raise ValueError("Invalid data type: indices[0]: ", indices[0])
         else:
             # get the data from lower layers
             data = None
@@ -158,7 +160,7 @@ class DataStructure():
             elif isinstance(indices[0], int):
                 subLayers = [self.dataStructureLocalLayer[path[0]][indices[0]]]
             else:
-                raise ValueError("Invalid data type: indices[0]")
+                raise ValueError("Invalid data type: indices[0]: ", indices[0])
 
             for subDataStructure in subLayers:
                 # get the data from the data structure of a lower layer

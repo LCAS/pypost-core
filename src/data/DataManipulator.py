@@ -201,7 +201,6 @@ class DataManipulator(DataManipulatorInterface):
         :return: True if the function is defined, False otherwise
         :rtype: bool
         '''
-        print(self._samplerFunctions)
         return samplerName in self._samplerFunctions
 
     def setIndices(self, name, numInput, indices):

@@ -557,8 +557,7 @@ class DataManager():
             numElements = numElements[1:]
 
         for name, entry in self.dataEntries.items():
-            currentSize = dataStructure.dataStructureLocalLayer[
-                name].shape[0]
+            currentSize = dataStructure.dataStructureLocalLayer[name].shape[0]
             if currentSize < numElementsLocal:
                 dataStructure.dataStructureLocalLayer[name] = np.vstack(
                     (dataStructure.dataStructureLocalLayer[name],
