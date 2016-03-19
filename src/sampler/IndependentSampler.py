@@ -1,3 +1,4 @@
+import numpy as np
 from sampler.Sampler import Sampler
 
 
@@ -49,13 +50,14 @@ class IndependentSampler(Sampler):
 
         if numElements is not None:
             raise NotImplementedError
-        
+
         numElements = []
-        
+
         if numSamples > 0:
             newData.reserveStorage(numSamples)
             newData.resetFeatureTags()
-            newData.setDataEntry('iterationNumber', self._iterationIndex)
+            newData.setDataEntry('iterationNumber', 0,
+                                 np.array([self._iterationIndex]))
             newIndex = numElements
 
             if self.getParallelSampling():
