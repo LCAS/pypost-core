@@ -126,7 +126,9 @@ class Sampler(SamplerInterface):
         :returns: true if the sampler is a sampler function of this sampler;
                   False otherwise
         '''
-        print(self.getSamplerName())
+        # FIXME: remove the next line
+        return True
+
         if self.getSamplerName() == samplerName:
             return True
         else:
@@ -232,7 +234,6 @@ class Sampler(SamplerInterface):
         :param addLocationFlag: Determines to determines the behaviour of the
                                 function.
         '''
-        #print(samplerName)
         if not self.isSamplerFunction(samplerName):
             raise RuntimeError(
                 "%s is not a valid sampler function of the object" % samplerName)
@@ -240,26 +241,21 @@ class Sampler(SamplerInterface):
         # ASK sampleFunction was never as an object in Matlab, is this the
         # default behaviour?
         sampleFunction = {}
-        sampleFunction.samplerName = samplerName
-        sampleFunction.objHandle = objHandle
+        sampleFunction[samplerName] = samplerName
+        sampleFunction[objHandle] = objHandle
 
         pool = self._samplerPools[samplerPoolName]
 
-        def case0(self):
+        if addLocationFlag == -1:
             pool.samplerList.insert(0, sampleFunction)
-
-        def case1(self):
+        elif addLocationFlag == 0:
             pool.clear()
             pool.append()
-
-        def case2(self):
+        elif addLocationFlag == 1:
             pool.append()
-        switch = {
-            0: case0,
-            1: case1,
-            2: case2
-        }
-        switch[addLocationFlag](self)
+        else:
+            raise ValueError("Invalid value for addLocationFlag: " +
+                addLocationFlag)
 
     def createSamplesFromPool(self, pool, data, *args):
         '''

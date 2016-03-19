@@ -1,8 +1,9 @@
+import math
+import numpy as np
 from functions.FunctionLinearInFeatures import FunctionLinearInFeatures
 from distributions.DistributionWithMeanAndVariance import \
 DistributionWithMeanAndVariance
 from parametricModels.ParametricModel import ParametricModel
-import math
 
 
 class GaussianLinearInFeatures(FunctionLinearInFeatures,
@@ -51,6 +52,20 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         self.saveCovariance = False
         self.initSigma = 0.1
 
+        minRange = self.dataManager.getMinRange(self.outputVariable)
+        maxRange = self.dataManager.getMaxRange(self.outputVariable)
+        Range = np.subtract(maxRange, minRange)
+
+        # Matrix in the Cholesky decomposition
+        self.cholA = np.diag(Range * self.initSigma)
+
+        # FIXME
+        #self.indexForCov = []
+        #index = 0
+        #for i in range(0, self.dimOutput)
+        #    self.indexForCov.append(index + (i:self.dimOutput))
+        #    index = index + self.dimOutput
+
         #if (ischar(outputVariable))
         #    self.linkProperty('initSigma', ['initSigma',  #upper(self.outputVariable(1)), self.outputVariable(2:end)])
         #else
@@ -64,26 +79,6 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
     def getNumParameters(self):
         numParameters = LinearInFeatures.getNumParameters() +\
         self.numParameters + self.dimOutput * (self.dimOutput + 1) / 2
-
-    def initObject(self):
-
-        FunctionLinearInFeatures.initObject()
-
-        initSigma = self.initSigma
-
-        minRange = self.dataManager.getMinRange(self.outputVariable)
-        maxRange = self.dataManager.getMaxRange(self.outputVariable)
-        min_max_range = np.vstack(minRange, maxRange) # TODO: hstack?
-
-        # Matrix in the Cholesky decomposition
-        self.cholA = diag(min_max_range * initSigma)
-
-        # FIXME
-        #self.indexForCov = []
-        #index = 0
-        #for i in range(0, self.dimOutput)
-        #    self.indexForCov.append(index + (i:self.dimOutput))
-        #    index = index + self.dimOutput
 
 
     def getSigma(self):
