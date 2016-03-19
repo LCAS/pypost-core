@@ -264,12 +264,7 @@ class Data():
         features need to be recomputed
         '''
 
-        print('df')
-        print(self)
-        print(self.entryInfoMap)
-        print('df')
         for dataEntry in self.entryInfoMap:
-            print(dataEntry, self.entryInfoMap[dataEntry])
             if self.entryInfoMap[dataEntry].isFeature:
                 numElements = self.getNumElements(dataEntry)
 
