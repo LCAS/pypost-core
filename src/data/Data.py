@@ -2,13 +2,13 @@ import numpy as np
 import copy
 
 
-class DataEntryInfo(object):
+class DataEntryInfo():
     '''
     Stores meta data about entries and aliases.
     '''
 
     def __init__(self, depth, entryList, numDimensions,
-                 minRange, maxRange):
+                 minRange, maxRange, isFeature=False):
         """Constructor for DataEntryInfo
 
         :param depth: The depth in which the DataEntryInfo resides within the
@@ -23,9 +23,10 @@ class DataEntryInfo(object):
         self.numDimensions = numDimensions
         self.minRange = minRange
         self.maxRange = maxRange
+        self.isFeature = isFeature
 
 
-class Data(object):
+class Data():
     '''
     Stores meta data for each data entry to make access simple and fast.
     '''
@@ -253,6 +254,27 @@ class Data(object):
                 pass
             else:
                 self.setDataEntry(entry, indices, dataEntryList[i])
+
+    def resetFeatureTags(self):
+        '''
+        Resets the feature tags of all features in the data object.
+        This NEEDS to be done whenever we write new data into the
+        data structure, for example, when we sample new episodes.
+        Otherwise the feature generators would not realize that the
+        features need to be recomputed
+        '''
+
+        print('df')
+        print(self)
+        print(self.entryInfoMap)
+        print('df')
+        for dataEntry in self.entryInfoMap:
+            print(dataEntry, self.entryInfoMap[dataEntry])
+            if self.entryInfoMap[dataEntry].isFeature:
+                numElements = self.getNumElements(dataEntry)
+
+                self.setDataEntry(dataEntry.name, ...,
+                                  np.zeros(numElements, 1))
 
     def reserveStorage(self, numElements):
         '''Allocates memory for `numElements` elements
