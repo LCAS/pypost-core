@@ -27,9 +27,9 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask):
         x = np.hstack((contexts, parameters))
 
         # rosenbrock = (1-x)^2 + 100*(y-x^2)^2
-        reward = np.add(100 * np.sum((np.square(x[..., 1:end-1]) -
-                        np.square(x[..., 2:end])), 2),
-                        np.sum(np.square(x[..., 1:end-1]-1), 2))
+        reward = np.add(100 * np.sum((np.square(x[..., 1:-2]) -
+                        np.square(x[..., 2:-1])), 2),
+                        np.sum(np.square(x[..., 1:-2]-1), 2))
 
         # reward =sum(sample.^2,2);
         # reward = -1 * reward # / 10^5;
