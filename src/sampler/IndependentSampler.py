@@ -61,7 +61,7 @@ class IndependentSampler(Sampler):
             newIndex = numElements
 
             if self.getParallelSampling():
-                newIndex.append(range(0, numSamples[0]))
+                newIndex.append(range(0, numSamples))
                 self.sampleAllPools(newData, newIndex[:])
             else:
                 index = 0

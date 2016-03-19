@@ -265,6 +265,7 @@ class Sampler(SamplerInterface):
         :param data: the data structure the pool operates on
         :param indices: hierarchical indexing of the data structure
         '''
+        print(pool.samplerList)
         for sampler in pool.samplerList:
             objectPointer = sampler.objHandle
             objectPointer.callDataFunction(sampler.getName(), data, indices)
