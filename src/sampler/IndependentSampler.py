@@ -69,15 +69,17 @@ class IndependentSampler(Sampler):
         return True
 
     def getNumSamples(self, data, *args):
-        if self._numSamples == 1:
+        print(data, self._numSamples, self._iterationIndex)
+        if isinstance(self._numSamples, int):
             if self._iterationIndex == 0 and self._numInitialSamples > 0:
                 numSamples = self._numInitialSamples
             else:
                 numSamples = self._numSamples
         else:
-            if (self._iterationIndex == 0) and (self._numInitialSamples > 0):
-                numSamples = self._numInitialSamples
-            else:
-                numSamples = self._numSamples[self._iterationIndex]
+            raise RuntimeError("Matlab code doesn't make any sence here.")
+        #    if self._iterationIndex == 0 and self._numInitialSamples > 0:
+        #        numSamples = self._numInitialSamples
+        #    else:
+        #        numSamples = self._numSamples[self._iterationIndex]
 
         return numSamples
