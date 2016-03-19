@@ -1,5 +1,4 @@
 from experiments.Experiment import Experiment
-from experiments.TrialFromScript import TrialFromScript
 from common.Settings import Settings
 
 
