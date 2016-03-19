@@ -267,7 +267,8 @@ class Sampler(SamplerInterface):
         '''
         for sampler in pool.samplerList:
             objectPointer = sampler['objHandle']
-            objectPointer.callDataFunction(sampler.getName(), data, indices)
+            objectPointer.callDataFunction(sampler['samplerName'], data,
+                                           indices)
 
     def sampleAllPools(self, data, indices):
         '''
