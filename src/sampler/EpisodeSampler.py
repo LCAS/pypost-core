@@ -68,6 +68,12 @@ class EpisodeSampler(IndependentSampler):
 
         self.addSamplerFunctionToPool("Return", samplerName, rewardSampler, -1)
 
+    def setReturnFunction(self, rewardSampler, samplerName='sampleReturn'):
+        if samplerName == 'sampleReturn':
+            self.returnSampler = rewardSampler
+
+        self.addSamplerFunctionToPool('Return', samplerName, rewardSampler, -1)
+
     def setParameterPolicy(self, parameterSampler, samplerName=None):
         '''
         :param parameterSampler: sampler function to set

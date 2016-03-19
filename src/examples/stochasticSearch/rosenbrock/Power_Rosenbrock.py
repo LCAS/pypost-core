@@ -22,7 +22,7 @@ class PowerRosenbrock(Trial):
         super()
         start()
     '''
-    
+
     def __init__(self, evalDir, trialIndex):
         super(PowerRosenbrock, self).__init__(evalDir, trialIndex)
 
@@ -59,9 +59,7 @@ class PowerRosenbrock(Trial):
 
         newData = self.dataManager.getDataObject(10)
 
-        self.parameterPolicy.initObject()
-
-        for i in range(0, settings.getProperty('numIterations')):
+        for i in range(0, self.settings.getProperty('numIterations')):
             self.sampler.createSamples(newData)
 
             # keep old samples strategy comes here

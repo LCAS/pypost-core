@@ -45,7 +45,7 @@ class IndependentSampler(Sampler):
         return self._parallelSampling
 
     def createSamples(self, newData, *args):
-        numSamples = self.getNumSamples()
+        numSamples = self.getNumSamples(newData)
 
         if numSamples > 0:
             newData.reserveStorage(numSamples, args[:])
@@ -69,8 +69,8 @@ class IndependentSampler(Sampler):
         return True
 
     def getNumSamples(self, data, *args):
-        if self.getNumSamples(data) == 1:
-            if (self._iterationIndex == 0) and (self._numInitialSamples > 0):
+        if self._numSamples == 1:
+            if self._iterationIndex == 0 and self._numInitialSamples > 0:
                 numSamples = self._numInitialSamples
             else:
                 numSamples = self._numSamples

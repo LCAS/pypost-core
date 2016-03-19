@@ -10,9 +10,7 @@ class GaussianParameterPolicy(GaussianLinearInFeatures):
         '''
         if inputVar is None:
             outputVar = ['parameters']
-            inputVar=['contexts']
-
-
+            inputVar = ['contexts']
 
         GaussianLinearInFeatures.__init__(self, dataManager, outputVar, inputVar, policyName)
 
