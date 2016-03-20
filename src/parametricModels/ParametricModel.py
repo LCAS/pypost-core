@@ -9,7 +9,7 @@ class ParametricModel(MappingInterface):
         self.addDataManipulationFunction(
             self.getLikelihoodGradient,
             [self.inputVariables[:], self.outputVariable],
-            [self.outputVariable, 'GradLike'])
+            [self.outputVariable[0] + 'GradLike'])
 
     def getFisherInformationMatrix(self):
         # TODO warning

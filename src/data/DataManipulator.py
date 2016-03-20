@@ -15,7 +15,7 @@ class DataManipulationFunction():
         Constructor
         '''
         if not isinstance(depthEntry, str):
-            raise ValueError("depthEntry has to be a string")
+            raise ValueError("depthEntry has to be a string: ", depthEntry)
 
         self.function = function
         self.inputArguments = inputArguments
