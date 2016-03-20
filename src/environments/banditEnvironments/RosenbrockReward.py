@@ -21,22 +21,22 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask):
                                   -50 * np.ones(dimParameters),
                                   +50 * np.ones(dimParameters));
 
+        # FIXME ASK how to initialize A
+        self.A = np.ndarray((dimContext, dimContext))
+
         # self.linkProperty('rewardNoise');
 
     def sampleReturn(self, contexts, parameters):
-        x = np.hstack((contexts, parameters))
-        
-        # FIXME(Sebastian): Pretty sure this computation is wrong here...
-        #                   I think the output value should be a single value, not 8.
+        for i in range(0, parameters.shape[0]):
+            vec = (contexts[i,:]).dot(self.A)
+            print(contexts, self.A, vec, np.sin(vec), '\n\n', parameters)
+            parameters[i,:] = parameters[i,:] +\
+                              np.sin(vec)
 
-        # rosenbrock = (1-x)^2 + 100*(y-x^2)^2
-        reward = np.sum(100 * np.sum((np.square(x[0:-2, :]) -
-                        np.square(x[1:-1, :])), 1) + 
-                        np.sum(np.square(x[0:-2, :]-1), 1))
-        
-        print("Reward: ", reward)
+        x = parameters;
+        x = x.conj().T
 
-        # reward =sum(sample.^2,2);
-        # reward = -1 * reward # / 10^5;
+        reward = 1e2*np.sum((x[0: -2, :]**2 - x[1: -1, :])**2, 1) + \
+                 np.sum((x[1: -2, :]-1)**2, 1)
 
-        return -reward
+        reward = -1**(reward.conj().T)
