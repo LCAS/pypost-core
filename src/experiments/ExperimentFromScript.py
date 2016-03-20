@@ -1,5 +1,4 @@
 from experiments.Experiment import Experiment
-from common.Settings import Settings
 
 
 class ExperimentFromScript(Experiment):
@@ -13,14 +12,21 @@ class ExperimentFromScript(Experiment):
     Now carry on.
     '''
 
-    def __init__(self, category, TrialClass):
+    def __init__(self, rootDir, category, TrialClass):
         '''
         Constructor
         '''
-        super(Experiment, self).__init__(category, TrialClass.__name__)
+        super(ExperimentFromScript, self).__init__(rootDir, category,
+                                                   TrialClass.__name__)
         self.TrialClass = TrialClass
-        self.defaultTrial = self.createTrial(Settings(), self.path, 0)
+        self.defaultTrial = self.createTrial(self.path, 0)
         self.defaultSettings = self.defaultTrial.settings
 
-    def createTrial(self, settings, evalPath, trialIdx):
-        return self.TrialClass(settings, evalPath, trialIdx)
+    def createTrial(self, evalPath, trialIdx):
+        '''
+        Creates a new trial with given path and index.
+        :param evalPath: Path of the evaluation
+        :param trialIdx: Trial index
+        :return: The newly created trial object
+        '''
+        return self.TrialClass(evalPath, trialIdx)

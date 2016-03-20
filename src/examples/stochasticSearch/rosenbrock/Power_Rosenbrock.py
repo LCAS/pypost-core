@@ -82,5 +82,5 @@ class PowerRosenbrock(Trial):
 
 
 # For testing purposes. Maybe implement a better way to start trials directly?
-power_rosenbrock = PowerRosenbrock("/tmp/trial/", 0)
-power_rosenbrock.start()
+#power_rosenbrock = PowerRosenbrock("/tmp/trial/", 0)
+#power_rosenbrock.start()

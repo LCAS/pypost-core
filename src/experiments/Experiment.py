@@ -1,20 +1,31 @@
 import os
 import getpass
 import shutil
+import re
 
 import numpy as np
 
-from common import Settings
+from common.Settings import Settings
 
 
 class Experiment(object):
     '''
-    This class provides the basic functionality for defining experiments. An experiments is always a combination of a LearningSetup and a TaskSetup. For example, in order to learn ball i the cup for with parameter based REPS, we need a parameter based learning setup with the task setup from SL. For each experiment, we can define several evaluations. An evaluation is a specific setup of the parameter values of the algorithms. For example, we can define an evaluation, that performs 10 trials for different values of epsilon for REPS.
+    This class provides the basic functionality for defining experiments.
+    An experiments is always a combination of a LearningSetup and a TaskSetup.
+    For example, in order to learn ball i the cup for with parameter based
+    REPS, we need a parameter based learning setup with the task setup from SL.
+    For each experiment, we can define several evaluations. An evaluation is a
+    specific setup of the parameter values of the algorithms. For example, we
+    can define an evaluation, that performs 10 trials for different values of
+    epsilon for REPS.
     '''
 
-    root = 'Experiments/data'
+    # TODO(Sebastian): Find a reasonable root directory to store experiments
+    # Comment(Sebastian): Current solution: Get root over constructor
+    #root = 'Experiments/data'
+    #root = os.getcwd()
 
-    def __init__(self, category, taskName):
+    def __init__(self, rootDir, category, taskName):
         '''
         Constructor
         '''
@@ -44,7 +55,7 @@ class Experiment(object):
         self.taskName = taskName
         self.category = category
 
-        self.path = os.path.join(Experiment.root, self.category, self.taskName)
+        self.path = os.path.join(rootDir, self.category, self.taskName)
         self.experimentPath = None
 
     @staticmethod
@@ -73,57 +84,42 @@ class Experiment(object):
         return experiment
         '''
 
-    def addToDataBase(self, newExperiment):
-        raise RuntimeError("Not implemented")
-        # Likely not needed anyway
-        '''
-        FIXME implement this
-        function [experiment] = addToDataBase(newExperiment)
-            self = newExperiment;
-            [st, msg, msgId] = mkdir(self.path);
-            d = dir(self.path);
-            isub = [d(:).isdir];
-            nameFolds = {d(isub).name}';
+    @staticmethod
+    def addToDataBase(newExperiment):
+        # TODO(Sebastian): There's some weird shit happening here and I don't
+        # know if we can actually implement it like that in python
 
-            experimentId = -1;
-            experimentIdVec = true(100,1);
-            for i = 1:length(nameFolds)
-                if (length(nameFolds{i}) > 7 && strcmp(nameFolds{i}(1:8), 'settings'))
-                    lId = sscanf(nameFolds{i}, 'settings%03d');
-                    expFileName = fullfile(self.path, sprintf('settings%03d', lId), 'experiment.mat');
+        if not os.path.exists(newExperiment.path):
+            os.mkdir(newExperiment.path)
 
-                    load(expFileName);
-                    [sameDefaultSettings, differentParameters] = self.defaultSettings.isSameSettings(experiment.defaultSettings);
-                    fprintf('Checking Experiment ID %d: ', lId);
-                    if (sameDefaultSettings)
-                        experimentId = lId;
-                        fprintf('Found same experiment\n');
-                        return;
-                    else
-                        experimentIdVec(lId) = False;
-                        fprintf('Different Settings, differences are in');
-                        differentParameters
-                    end
-                end
-            end
-            if (experimentId == -1)
-                experimentId = find(experimentIdVec, 1);
-                fprintf('Create New Experiment with ID %d\n', experimentId);
-            end
-            self.experimentId = experimentId;
-            self.experimentPath = fullfile(self.path, sprintf('settings%03d', self.experimentId));
-            [st, msg, msgId] = mkdir(self.experimentPath);
+        experimentId = -1
 
+        for file in os.listdir(newExperiment.path):
+            if os.path.isdir(file) and os.path.dirname(file).startswith('settings'):
+                id = re.findall(r'\d', os.path.dirname(file))[0]
+                print("Found existing experiment")
+                experimentFileName = os.path.join(file, 'experiment.npy')
+                # TODO(Sebastian): Load experiment here and check if settings are equivalent
+                # If they are, set the id to that experiment's id
+                # Else, mark index as "free"
+                # This might not actually sense here since we can't just save
+                # the whole object
+                experimentId = id
 
-            %Recreate default trial with new default settings
-            self.defaultTrial = Experiments.Trial.createTrialFromConfigurators(self.defaultSettings, self.experimentPath, 0, self.configurators, self.evalCriterion, 100);
-            %self.defaultSettings = self.defaultTrial.settings;
-            self.defaultTrial.storeTrial();
+        if experimentId == -1:
+            # FIXME(Sebastian): Find first free index
+            experimentId = 0
 
-            experiment = self;
-            self.storeExperiment();
-        end
-        '''
+        newExperiment.experimentPath = os.path.join(newExperiment.path,
+                                                    'settings%03d' % experimentId)
+        if not os.path.exists(newExperiment.experimentPath):
+            os.mkdir(newExperiment.experimentPath)
+
+        newExperiment.defaultTrial = newExperiment.createTrial(
+            newExperiment.experimentPath, 0)
+        newExperiment.defaultTrial.storeTrial()
+
+        return newExperiment
 
     def startDefaultTrial(self):
         self.defaultTrial.start()
@@ -168,6 +164,7 @@ class Experiment(object):
         self.evaluations[evaluationNumber].getTrialData(self.path)
 
     def deleteExperiment(self):
+        # I also like to live dangerously ( ͡° ͜ʖ ͡°)
         shutil.rmtree(self.path)
 
     def storeExperiment(self):
@@ -179,8 +176,6 @@ class Experiment(object):
         '''
         raise RuntimeError("Not implemented")
 
-    
-    
     def addEvaluation(self, parameterNames, parameterValues, numTrials):
         '''
         Adds a new evaluation to the experiment.
@@ -266,6 +261,7 @@ class Experiment(object):
     :return: The loaded trial
     :rtype: experiments.Trial
     '''
+
     def loadTrialFromID(self, trialID):
         trialName = os.path.join(
             self.trialIndexToDirectorymap[trialID],
@@ -282,6 +278,7 @@ class Experiment(object):
     :return: The number of trials
     :rtype: int
     '''
+
     def getNumTrials(self):
         return len(self.trialIndexToDirectorymap)
 
@@ -291,6 +288,7 @@ class Experiment(object):
     :param list trialIndices: A list containg the indices of the trials to run. 
                               If None, all trials are executed.
     '''
+
     def startLocal(self, trialIndices=None):
         if not trialIndices:
             trialIndices = self.trialIndexToDirectorymap.keys()
@@ -307,6 +305,7 @@ class Experiment(object):
     :return: The trial list.
     :rtype: list of integers
     '''
+
     def getTrialIDs(self):
         return self.trialIndexToDirectorymap.keys()
 

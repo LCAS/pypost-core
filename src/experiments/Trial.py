@@ -31,11 +31,11 @@ class Trial():
             os.mkdir(self.trialDir)
             os.chmod(self.trialDir, 0o775)
             logFile = os.path.join(self.trialDir, 'trial.log')
-            os.close(os.open(logFile, os.O_APPEND))
+            os.close(os.open(logFile, os.O_CREAT | os.O_APPEND))
             os.chmod(logFile, 0o664)
         else:
             # Matlab prints trialDir here, but that doesn't make any sense
-            print("Trial %s: Directory not found" % evalDir, file=sys.stderr)
+            raise FileNotFoundError("Trial %s: Directory not found" % evalDir)
 
         self.index = index
         self.properties = {}
