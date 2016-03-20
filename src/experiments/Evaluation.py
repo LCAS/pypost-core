@@ -1,7 +1,7 @@
 import os
 
 
-class Evaluaton(object):
+class Evaluation():
     '''
     classdocs
     '''

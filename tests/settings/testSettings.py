@@ -1,6 +1,4 @@
 import unittest
-import sys
-sys.path.append('../src/')
 from common.Settings import Settings
 from common import SettingsManager
 from common.SettingsClient import SettingsClient

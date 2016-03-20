@@ -1,10 +1,7 @@
 import unittest
-import sys
 import numpy as np
-
-sys.path.append('../src/')
 from data.DataManipulator import DataManipulator
-from interfaces.DataManipulatorInterface import CallType
+from data.DataManipulatorInterface import CallType
 import DataUtil
 
 
@@ -23,7 +20,7 @@ class TestManipulator(DataManipulator):
 
     def sampleStates(self, numElements, parameters):
         return np.ones((numElements, 1))
-    
+
     def sampleContextAndParameters(self, numElements):
         return [np.ones((numElements, 2)), 2 * np.ones((numElements, 5))]
 
@@ -71,7 +68,7 @@ class testDataManipulator(unittest.TestCase):
         # Add function without input or output. The depth entry should be ''
         manipulator.addDataManipulationFunction(h, [], [])
         self.assertEqual(manipulator._manipulationFunctions['h'].depthEntry, '')
-        
+
         # Add lambda function
         manipulator.addDataManipulationFunction(
                         lambda numElements: np.ones((numElements, 10)),
@@ -226,7 +223,7 @@ class testDataManipulator(unittest.TestCase):
 
         self.assertRaises(ValueError, manipulator.callDataFunction,
                           'singleSampleFunction', data, [0, ...])
-        
+
         manipulator.callDataFunction('singleSampleFunction', data, [0, 0])
         result = data.getDataEntry('states', [0, 0])
         self.assertTrue(result.shape == (1, 1))

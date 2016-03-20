@@ -1,14 +1,6 @@
 import unittest
-import sys
 import numpy as np
 import math
-
-# FIXME we should find a better ways than jsut including all the paths:
-# e.g. import from ToolBox.Data, ToolBox.Interfaces
-sys.path.append('../../src/')
-
-sys.path.append('../')
-
 
 from data.DataAlias import DataAlias
 from data.DataEntry import DataEntry
@@ -16,7 +8,7 @@ from data.DataManager import DataManager
 
 import DataUtil
 
-from distributions.Mapping import Mapping
+from functions.Mapping import Mapping
 
 
 class testMapping(unittest.TestCase):
