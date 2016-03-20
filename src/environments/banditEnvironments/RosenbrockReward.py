@@ -30,8 +30,8 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask):
         #                   I think the output value should be a single value, not 8.
 
         # rosenbrock = (1-x)^2 + 100*(y-x^2)^2
-        reward = np.add(100 * np.sum((np.square(x[0:-2, :]) -
-                        np.square(x[1:-1, :])), 1),
+        reward = np.sum(100 * np.sum((np.square(x[0:-2, :]) -
+                        np.square(x[1:-1, :])), 1) + 
                         np.sum(np.square(x[0:-2, :]-1), 1))
         
         print("Reward: ", reward)
