@@ -1,8 +1,5 @@
 import unittest
-import sys
 import numpy as np
-
-sys.path.append('../src/')
 from data.DataStructure import DataStructure
 from data.DataAlias import DataAlias
 

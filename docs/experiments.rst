@@ -4,10 +4,10 @@ experiments package
 Submodules
 ----------
 
-experiments.Evaluaton module
+experiments.Evaluation module
 ----------------------------
 
-.. automodule:: experiments.Evaluaton
+.. automodule:: experiments.Evaluation
     :members:
     :undoc-members:
     :show-inheritance:
