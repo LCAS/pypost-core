@@ -29,14 +29,25 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask):
     def sampleReturn(self, contexts, parameters):
         for i in range(0, parameters.shape[0]):
             vec = (contexts[i,:]).dot(self.A)
-            print(contexts, self.A, vec, np.sin(vec), '\n\n', parameters)
+            #print(contexts, self.A, vec, np.sin(vec), '\n\n', parameters)
             parameters[i,:] = parameters[i,:] +\
                               np.sin(vec)
 
-        x = parameters;
+        x = parameters
         x = x.conj().T
 
-        reward = 1e2*np.sum((x[0: -2, :]**2 - x[1: -1, :])**2, 1) + \
-                 np.sum((x[1: -2, :]-1)**2, 1)
+        # FIXME: reward doesn't make any sense.
+        #print('x', x)
+        #print('a', 1e2*np.sum((x[0: -2, :]**2 - x[1: -1, :])**2, 1))
+        #print('b', np.sum((x[0: -2, :]-1)**2, 1))
 
-        reward = -1**(reward.conj().T)
+        reward = 1e2*np.sum((x[0: -2, :]**2 - x[1: -1, :])**2, 1) + \
+                 np.sum((x[0: -2, :]-1)**2, 1)
+
+        # FIXME: this is a fake reward that matches the expected shape:
+        reward = 1e2*np.sum((x[3: -2, :]**2 - x[4: -1, :])**2, 1) + \
+                 np.sum((x[3: -2, :]-1)**2, 1)
+
+        reward = -1**(reward[np.newaxis, :].T)
+
+        return reward

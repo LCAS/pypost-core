@@ -19,7 +19,7 @@ class Function(MappingInterface):
         if self.registerDataFunctions:
             self.addMappingFunction('getExpectation')
 
-    def getExpectation(self, numElements, varargin):
+    def getExpectation(self, numElements, *args):
         '''
         Returns the expectation of the Function.
         '''

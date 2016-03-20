@@ -27,8 +27,8 @@ class PowerRosenbrock(Trial):
         super(PowerRosenbrock, self).__init__(evalDir, trialIndex)
 
     def configure(self):
-        self.settings.setProperty("numContexts", 10)
         self.settings.setProperty("numParameters", 15)
+        self.settings.setProperty("numContexts", 15)
         self.settings.setProperty("numSamplesEpisodes", 10)
         self.settings.setProperty("numParameters", 15)
         self.settings.setProperty("numIterations", 2000)

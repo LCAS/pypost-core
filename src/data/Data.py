@@ -190,6 +190,9 @@ class Data():
         :param restrictRange: If set to True, the minRange/maxRange parameters
                               are checked (optional, defaults to True)
         '''
+        if data is None:
+            raise ValueError('The data attribute is None.')
+
         if isinstance(path, str):
             path = self._resolveEntryPath(path)
 

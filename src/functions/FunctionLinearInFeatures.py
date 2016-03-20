@@ -103,109 +103,107 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
                     self.bias = self.bias.conj().T
 
 
-        def setFeatureGenerator(self, featureGenerator):
-            self.setInputVariables(featureGenerator.outputName)
-            self.featureGenerator = featureGenerator
-            self.featureHasHyperParameters = isinstance(featureGenerator,
-                                                        HyperParameterObject)
-            self.addDataManipulationFunction(
-                'getExpectationGenerateFeatures',
-                featureGenerator.featureVariables, [self.outputVariable], True,
-                True)
+    def setFeatureGenerator(self, featureGenerator):
+        self.setInputVariables(featureGenerator.outputName)
+        self.featureGenerator = featureGenerator
+        self.featureHasHyperParameters = isinstance(featureGenerator,
+                                                    HyperParameterObject)
+        self.addDataManipulationFunction(
+            'getExpectationGenerateFeatures',
+            featureGenerator.featureVariables, [self.outputVariable], True,
+            True)
 
 
-        def getExpectationGenerateFeatures(self, numElements, varargin):
-            '''
-            Returns the expectation of the Function after generating the Features.
-            '''
-
-            inputFeatures = varargin[1];
-
-
-            if self.featureGenerator is not None:
-                inputFeatures = self.featureGenerator.getFeatures(
-                    numElements, varargin[:])
-
+    def getExpectationGenerateFeatures(self, numElements, *args):
+        '''
+        Returns the expectation of the Function after generating the Features.
+        '''
+        if self.featureGenerator is not None:
             inputFeatures = self.featureGenerator.getFeatures(
-                numElements, varargin[:])
-            return self.getExpectation(numElements, inputFeatures)
+                numElements, *args)
+        else:
+            inputFeatures = args[0];
+
+        inputFeatures = self.featureGenerator.getFeatures(
+            numElements, *args)
+        return self.getExpectation(numElements, inputFeatures)
 
 
-        def getExpectation(self, numElements, inputFeatures):
-            '''
-            Returns the expectation of the Function.
+    def getExpectation(self, numElements, inputFeatures):
+        '''
+        Returns the expectation of the Function.
 
-            If the parameter inputFeatures is not given the function expect
-            it to be zero and only returns the bias. Otherwise this function
-            will return the weighted expectation.
-            '''
+        If the parameter inputFeatures is not given the function expect
+        it to be zero and only returns the bias. Otherwise this function
+        will return the weighted expectation.
+        '''
 
-            value = np.tile(self.bias.conj().T, (numElements, 1))
-            value = value + inputFeatures * self.weights.conj().T;
-            return value
+        value = np.tile(self.bias.conj().T, (numElements, 1))
+        value = value + inputFeatures * self.weights.conj().T;
+        return value
 
-        def setWeightsAndBias(self, weights, bias):
-            self.bias = bias
-            self.weights = weights
+    def setWeightsAndBias(self, weights, bias):
+        self.bias = bias
+        self.weights = weights
 
-            if self.bias.shape[1] > 1:
-                self.bias = self.bias.conj().T
+        if self.bias.shape[1] > 1:
+            self.bias = self.bias.conj().T
 
-            if self.weights.shape[0] != self.dimOutput:
-                self.weights = self.weights.conj().T
+        if self.weights.shape[0] != self.dimOutput:
+            self.weights = self.weights.conj().T
 
-            # TODO: assert
-            # assert(size(self.weights,1) == self.dimOutput && size(self.weights,2) == self.dimInput && size(self.bias,1) == self.dimOutput);
+        # TODO: assert
+        # assert(size(self.weights,1) == self.dimOutput && size(self.weights,2) == self.dimInput && size(self.bias,1) == self.dimOutput);
 
-        def setBias(self, bias):
-            self.bias = bias;
-            if self.bias.shape[1] > 1:
-                self.bias = self.bias.conj().T
+    def setBias(self, bias):
+        self.bias = bias;
+        if self.bias.shape[1] > 1:
+            self.bias = self.bias.conj().T
 
-        ### Hyper Parameter Functions
+    ### Hyper Parameter Functions
 
-        def getNumHyperParameters(self):
-            if self.featureHasHyperParameters:
-                return self.featureGenerator.getNumHyperParameters()
-            else:
-                return 0
+    def getNumHyperParameters(self):
+        if self.featureHasHyperParameters:
+            return self.featureGenerator.getNumHyperParameters()
+        else:
+            return 0
 
-        def setHyperParameters(self, params):
-            if self.featureHasHyperParameters:
-                self.featureGenerator.setHyperParameters(params)
+    def setHyperParameters(self, params):
+        if self.featureHasHyperParameters:
+            self.featureGenerator.setHyperParameters(params)
 
-        def getHyperParameters(self):
-            if self.featureHasHyperParameters:
-                return self.featureGenerator.getHyperParameters();
-            else:
-                return []
+    def getHyperParameters(self):
+        if self.featureHasHyperParameters:
+            return self.featureGenerator.getHyperParameters();
+        else:
+            return []
 
-        def getExpParameterTransformMap(self):
-            if self.featureHasHyperParameters:
-                return self.featureGenerator.getExpParameterTransformMap()
-            else:
-                return [] # TODO check this. was: logical([])
+    def getExpParameterTransformMap(self):
+        if self.featureHasHyperParameters:
+            return self.featureGenerator.getExpParameterTransformMap()
+        else:
+            return [] # TODO check this. was: logical([])
 
-        ### Parametric Model Function
-        def getNumParameters(self):
-            return dataManager.getNumDimensions(self.outputVariable.dot()).dot(
-                1 + dataManager.getNumDimensions(self.inputVariables))
+    ### Parametric Model Function
+    def getNumParameters(self):
+        return dataManager.getNumDimensions(self.outputVariable.dot()).dot(
+            1 + dataManager.getNumDimensions(self.inputVariables))
 
-        def getGradient(self, inputMatrix):
-            return np.hstack((np.ones(inputMatrix.shape[0], self.dimOutput),
-                              np.tile(inputMatrix, (1, self.dimOutput))));
+    def getGradient(self, inputMatrix):
+        return np.hstack((np.ones(inputMatrix.shape[0], self.dimOutput),
+                          np.tile(inputMatrix, (1, self.dimOutput))));
 
-        def setParameterVector(self, theta):
-            self.bias = theta[0:self.dimOutput].conj().T
-            self.weights = theta[
-                self.dimOutput,
-                self.dimOutput + (self.dimInput.dot(self.dimOutput))]\
-                .reshape(self.dimOutput, self.dimInput, order='F')
+    def setParameterVector(self, theta):
+        self.bias = theta[0:self.dimOutput].conj().T
+        self.weights = theta[
+            self.dimOutput,
+            self.dimOutput + (self.dimInput.dot(self.dimOutput))]\
+            .reshape(self.dimOutput, self.dimInput, order='F')
 
-        def getParameterVector(self):
-            return np.hstack([self.bias, self.weights[:]])
+    def getParameterVector(self):
+        return np.hstack([self.bias, self.weights[:]])
 
-        # TODO Is this needed anymore?
-        #function [gradient] = getLikelihoodGradient(self, varargin)
-        #    assert(False);
-        #end
+    # TODO Is this needed anymore?
+    #function [gradient] = getLikelihoodGradient(self, varargin)
+    #    assert(False);
+    #end

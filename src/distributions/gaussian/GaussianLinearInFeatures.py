@@ -211,3 +211,11 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         #theta = self.getParameterVector@Functions.FunctionLinearInFeatures()
         theta = super(GaussianLinearInFeatures, self).getParameterVector()
         return np.hstack((theta, self.cholA[self.indexForCov]))
+
+    def getExpectationAndSigma(self, numElements, *args):
+        print('*args: ', args)
+        mean = FunctionLinearInFeatures.getExpectation(self, numElements, *args)
+
+        sigma[1,:, :] = self.cholA
+
+        return (mean, sigma)

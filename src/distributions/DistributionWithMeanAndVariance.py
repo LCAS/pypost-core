@@ -33,7 +33,7 @@ class DistributionWithMeanAndVariance(Distribution):
     def __init__(self, dataManager):
         Distribution.__init__(self, dataManager)
 
-    def sampleFromDistribution(self, numElements, varargin):
+    def sampleFromDistribution(self, numElements, *args):
         '''
         FIXME: vargin
         :param varargin: parameter for the abstract `getExpectationAndSigma()`
@@ -44,8 +44,10 @@ class DistributionWithMeanAndVariance(Distribution):
         '''
         samples = None
 
+        print('args:: ', args)
+
         (expectation, sigma) = self.getExpectationAndSigma(numElements,
-                                                           varargin)
+                                                           *args)
 
         if sigma.shape[2] == 1:
             # If the second dimension of the sigma matrix is 1, the
@@ -138,7 +140,7 @@ class DistributionWithMeanAndVariance(Distribution):
                 data.DataFunctionType.ALL_AT_ONCE, True)
 
 
-    def getExpectationAndSigma(self, numElements, inputData, varargin):
+    def getExpectationAndSigma(self, numElements, inputData, *args):
         # return mean, sigma
         # Check how this function is expected to behave in the documentation of this class
         raise NotImplementedError()

@@ -365,4 +365,5 @@ class DataManipulator(DataManipulatorInterface):
             args.append(data)
         if inputArgs:
             args.extend(inputArgs)
+
         return dataManipulationStruct.function(*args)
