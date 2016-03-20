@@ -126,7 +126,7 @@ class Mapping(DataManipulator, MappingInterface):
                 inputVariables[0], numbers.Number):
             '''
             :trap: catches 1:1 code translations from Matlab where the first
-            inputVairables argument could be a number. this functionality can
+            inputVariables argument could be a number. this functionality can
             now be reached by using the numDim argument
 
             > Currently there are no number arguments supported.
@@ -138,7 +138,10 @@ class Mapping(DataManipulator, MappingInterface):
         if append:
             self.inputVariables.extend(inputVariables)
         else:
-            self.inputVariables = [inputVariables]
+            if isinstance(inputVariables, str):
+                raise ValueError('inputVariables has to be an array')
+
+            self.inputVariables = inputVariables
 
         self.dimInput = self.dataManager.getNumDimensions(self.inputVariables)
 

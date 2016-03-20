@@ -311,13 +311,13 @@ class testDataManager(unittest.TestCase):
         myData.setDataEntry('temperature', [], np.zeros((10, 24)))
 
         self.assertRaises(ValueError, myData.setDataEntry, 'parameters', [],
-                          -2*np.ones((10, 5)))
+                          -2*np.ones((10, 5)), True)
         self.assertRaises(ValueError, myData.setDataEntry, 'parameters', [],
-                          1.1*np.ones((10, 5)))
+                          1.1*np.ones((10, 5)), True)
         self.assertRaises(ValueError, myData.setDataEntry, ['temperature'], [],
-                          111*np.ones((10, 5)))
+                          111*np.ones((10, 5)), True)
         self.assertRaises(ValueError, myData.setDataEntry, ['temperature'], [],
-                          -9999999*np.ones((10, 5)))
+                          -9999999*np.ones((10, 5)), True)
 
 
     def test_setgetDataEntryAlias(self):
