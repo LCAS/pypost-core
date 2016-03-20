@@ -1,5 +1,7 @@
 from data.DataManipulator import DataManipulator
 
+import numpy as np
+
 class EpisodicContextualLearningTask(DataManipulator):
 
     def __init__(self, episodeSampler, dimContext):
@@ -11,7 +13,7 @@ class EpisodicContextualLearningTask(DataManipulator):
         super().__init__(episodeSampler.dataManager)
 
         self.dataManager = episodeSampler.dataManager
-        self.sampleInitContextFunc = 0;
+        self.sampleInitContextFunc = 0
         self.dataManager.addDataEntry('contexts', dimContext)
         self.minRangeContext = self.dataManager.getMinRange('contexts')
         self.maxRangeContext = self.dataManager.getMaxRange('contexts')
@@ -30,13 +32,13 @@ class EpisodicContextualLearningTask(DataManipulator):
         # FIXME varargin
         if (self.dataManager.getNumDimensions('contexts') > 0):
             if (self.sampleInitContextFunc == 0):
-                return sampleStatesUniform(self, numSamples)
+                return self.sampleStatesUniform(numSamples)
             elif (self.sampleInitContextFunc == 1):
-                return sampleStatesGaussian(self, numSamples)
+                return self.sampleStatesGaussian(numSamples)
             else:
                 raise ValueError("invalid sampleInitContextFunc")
         else:
-            return np.zeros(numSamples, 0)
+            return np.zeros((numSamples, 0))
 
     def sampleStatesUniform(self, numSamples):
         minRange = self.dataManager.getMinRange('contexts')

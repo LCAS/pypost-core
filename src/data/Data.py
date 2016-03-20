@@ -169,7 +169,7 @@ class Data():
         else:
             return data
 
-    def setDataEntry(self, path, indices, data, restrictRange=True):
+    def setDataEntry(self, path, indices, data, restrictRange=False):
         '''
         Sets the data points for the required data entry (or alias).
 
@@ -198,13 +198,17 @@ class Data():
 
         minRange = self.entryInfoMap[path[-1]].minRange
         maxRange = self.entryInfoMap[path[-1]].maxRange
+        
+        print(self.entryInfoMap[path[-1]].entryList)
+        print(data, minRange)
 
+        # TODO(Sebastian): Matlab code clamps the data to min and max range
         if (restrictRange and (data < minRange).any()):
-            raise ValueError("The given data does not respect the minRange " +
+            raise ValueError("The given data does not respect the minRange "
                              "parameter")
 
         if (restrictRange and (data > maxRange).any()):
-            raise ValueError("The given data does not respect the maxRange " +
+            raise ValueError("The given data does not respect the maxRange "
                              "parameter")
 
         return self.dataStructure.setDataEntry(path, indices, data)
