@@ -44,6 +44,22 @@ class testDataPreprocessor(unittest.TestCase):
                           datapreprocessor.preprocessDataCollection,
                           dataCollection)
 
+    def test_preprocessDataCollection_givenTrueOverwrittenPreprocessFunc_expectFalse(
+            self):
+        # we are overwriting the preprocessData function to get code coverage
+        # for the case of an child class implementing this method
+        class DataPreprocessorOverwrite(DataPreprocessor):
+
+            def preprocessData(self, data):
+                return not data
+
+        datapreprocessor = DataPreprocessorOverwrite("TestName")
+        dataCollection = DataCollection()
+        dataCollection.setStandardData(True)
+
+        datapreprocessor.preprocessDataCollection(dataCollection)
+        self.assertEqual(dataCollection.getDataObject(DataPreprocessor), False)
+
     def test_setIteration_givenPositiveIterationValue_expectGivenInputVariable(
             self):
         datapreprocessor = DataPreprocessor()

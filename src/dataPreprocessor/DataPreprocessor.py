@@ -30,10 +30,10 @@ class DataPreprocessor(object):
         :param dataCollection: the data collection to process
         '''
         newData = self.preprocessData(dataCollection.getStandardData())
-        dataCollection.addDataObject(newData, self.name)
+        dataCollection.setDataObject(newData, self.name)
 
     def setIteration(self, iteration):
-        if (iteration<0):
+        if (iteration < 0):
             raise RuntimeError("Iteration value can not be negative")
 
         self.iteration = iteration
