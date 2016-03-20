@@ -28,8 +28,7 @@ class EpisodicContextualLearningTask(DataManipulator):
         self.addDataManipulationFunction(self.sampleContext, [], ['contexts']);
 
 
-    def sampleContext(self, numSamples, varargin):
-        # FIXME varargin
+    def sampleContext(self, numSamples, *args):
         if (self.dataManager.getNumDimensions('contexts') > 0):
             if (self.sampleInitContextFunc == 0):
                 return self.sampleStatesUniform(numSamples)

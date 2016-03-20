@@ -12,7 +12,7 @@ class DistributionWithMeanAndVariance(Distribution):
     depends on the abstract function `getExpectationAndSigma()`,
     which will determine the type of distribution in further subclasses.
 
-    The abstract function `getExpectationAndSigma(self, numElements, varargin)`
+    The abstract function `getExpectationAndSigma(self, numElements, *args)`
     is expected to return the following types of data:
 
     - mean: Should be a matrix of size equal to numElements x dimension
@@ -35,7 +35,7 @@ class DistributionWithMeanAndVariance(Distribution):
 
     def sampleFromDistribution(self, numElements, *args):
         '''
-        FIXME: vargin
+        FIXME: varargin
         :param varargin: parameter for the abstract `getExpectationAndSigma()`
                          function. The first parameter is always `numElements`,
                          the rest is dependent on the subclass you are using
@@ -73,7 +73,7 @@ class DistributionWithMeanAndVariance(Distribution):
 
         return samples
 
-    def getDataProbabilities(self, inputData, outputData, varargin):
+    def getDataProbabilities(self, inputData, outputData, *args):
         '''
         :param inputData: vector of input data
         :param outputData: vector of output data
@@ -83,7 +83,7 @@ class DistributionWithMeanAndVariance(Distribution):
         '''
         (expectation, sigma) = self.getExpectationAndSigma(outputData.shape[0],
                                                            inputData,
-                                                           varargin)
+                                                           *args)
 
         samples = None
         qData = None

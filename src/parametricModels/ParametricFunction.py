@@ -18,7 +18,7 @@ class ParametricFunction(MappingInterface):
         self.dataManager.addDataEntry(self.outpurVariable + 'Grad',
                                       self.numParameters);
 
-    def getGradient(self, varargin):
+    def getGradient(self, *args):
         raise NotImplementedError()
 
     def getNumParameters(self):

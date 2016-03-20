@@ -40,7 +40,7 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         :param inputVariables: set of input Variables of the gaussian function
         :param functionName: name of the gaussian function
 
-        FIXME
+        FIXME varargin
         :param varargin: optional featureGenerator, doInitWeights (see superclass Functions.FunctionLinearInFeatures)
         '''
         ParametricModel.__init__(self)
