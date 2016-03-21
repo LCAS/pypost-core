@@ -1,5 +1,6 @@
 import math
 from distributions.Distribution import Distribution
+from data.DataManipulatorInterface import CallType
 
 
 class DistributionWithMeanAndVariance(Distribution):
@@ -44,7 +45,9 @@ class DistributionWithMeanAndVariance(Distribution):
         '''
         samples = None
 
-        print('args:: ', args)
+
+        print('sampleFromDistribution numElements:: ', numElements)
+        print('sampleFromDistribution args:: ', args)
 
         (expectation, sigma) = self.getExpectationAndSigma(numElements,
                                                            *args)
@@ -130,14 +133,14 @@ class DistributionWithMeanAndVariance(Distribution):
         return qData
 
     def registerMappingInterfaceDistribution(self):
-        # TODO: check if super call is really needed
-        # Distribution.registerMappingInterfaceDistribution(self)
+        Distribution.registerMappingInterfaceDistribution(self)
+
         if self.registerDataFunctions:
             self.addDataManipulationFunction(
-                'getExpectationAndSigma',
+                self.getExpectationAndSigma,
                 [self.inputVariables, self.additionalInputVariables],
-                [[self.outputVariable, 'Mean'], [self.outputVariable, 'Std']],
-                data.DataFunctionType.ALL_AT_ONCE, True)
+                [self.outputVariable[0]+'Mean', self.outputVariable[0]+'Std'],
+                CallType.ALL_AT_ONCE, True)
 
 
     def getExpectationAndSigma(self, numElements, inputData, *args):

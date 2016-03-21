@@ -206,7 +206,6 @@ class DataStructure():
                 # entry
                 dataShape = self[path[0]][indices[0]].shape
                 if data.shape != dataShape:
-                    print(data, self[path[0]][indices[0]])
                     raise ValueError("The shape of the specified matrix (%s)"
                                      " doesn't match the expected shape (%s)"
                                      % (data.shape, dataShape))

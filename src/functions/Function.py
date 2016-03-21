@@ -17,7 +17,7 @@ class Function(MappingInterface):
 
     def registerMappingInterfaceFunction(self):
         if self.registerDataFunctions:
-            self.addMappingFunction('getExpectation')
+            self.addMappingFunction(self.getExpectation)
 
     def getExpectation(self, numElements, *args):
         '''

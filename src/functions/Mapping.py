@@ -65,6 +65,8 @@ class Mapping(DataManipulator, MappingInterface):
         # self.dimInput = {}
 
         # self.dimOutput = {}
+        # TODO: check the following line
+        self.dimOutput = self.dataManager.getNumDimensions(self.outputVariable)
 
         self.mappingFunctions = []
 

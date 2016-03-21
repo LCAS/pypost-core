@@ -27,9 +27,9 @@ class DataManipulationFunction():
         self.takesNumElements = takesNumElements
 
     def __str__(self):
-        return "%s: %s -> %s" % (self.function.__name__, self.inputArguments,
-                                 self.outputArguments)
-
+        return "%s: %s -> %s\n   depthEntry: %s\n   indices: %s\n   takesData: %s\n   callType: %s\n   takesNumElements: %s\n" % (
+                self.function.__name__, self.inputArguments,
+                self.outputArguments, self.depthEntry, self.indices, self.takesData, self.callType, self.takesNumElements)
 
 class DataManipulator(DataManipulatorInterface):
     '''
@@ -161,6 +161,10 @@ class DataManipulator(DataManipulatorInterface):
         :param name: The name of the function (default is the actual function
                      name)
         '''
+        if isinstance(function, str):
+            raise ValueError('The function parameter must not be a string: ',
+                             function)
+
         if callType is None:
             callType = CallType.ALL_AT_ONCE
 
@@ -357,13 +361,13 @@ class DataManipulator(DataManipulatorInterface):
         '''
         Directly calls the manipulation function and returns the result matrix.
         '''
-
         args = []
         if dataManipulationStruct.takesNumElements:
             args.append(numElements)
         if dataManipulationStruct.takesData:
             args.append(data)
-        if inputArgs:
+        if inputArgs is not None:
             args.extend(inputArgs)
+        args = tuple(args)
 
         return dataManipulationStruct.function(*args)

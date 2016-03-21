@@ -25,9 +25,35 @@ class Distribution(DistributionInterface):
         '''
 
     def setDataProbabilityEntries(self):
+        '''
+        This function will create a new ProbabilityEntries to the
+        dataProbabilityEntries list. The Dataentry will be a combined
+        string <tt>’logQ’ + <uppercase of the first letter of the output
+        variable> +<lowercase of the first letter of the input variable></tt>.
+        The list of data probability entries can be registered via
+        <tt>registerProbabilityNames()</tt>.
+        '''
         # FIXME we left this unimplemented because we didn't see a real use case
         # this function
-        raise NotImplementedError("Not implemented")
+        inputVariablesShort = ''
+        outputVariablesShort = ''
+
+        for i in range(0, len(self.inputVariables)):
+            if isinstance(self.inputVariables[i], list):
+                for j in range(0, len(self.inputVariables[i])):
+                    # TODO: lower()
+                    inputVariablesShort.append(self.inputVariables[i][j][0])
+            else:
+                # TODO: lower()
+                inputVariablesShort += (self.inputVariables[i][0])
+
+        # TODO upper()
+        outputVariablesShort += self.outputVariable[0]
+
+        if len(self.dataProbabilityEntries) == 0:
+            self.dataProbabilityEntries.append(None)
+
+        self.dataProbabilityEntries[0] = 'logQ' + outputVariablesShort + inputVariablesShort
 
     def registerProbabilityNames(self, layerName):
         '''
@@ -44,12 +70,29 @@ class Distribution(DistributionInterface):
         '''
         raise NotImplementedError("Not implemented")
 
-    def _registerMappingInterfaceDistribution(self):
+    def registerMappingInterfaceDistribution(self):
         '''
         registers a mapping and data function
         :change
         '''
-        raise NotImplementedError("Not implemented")
+        print('debug:')
+        self.registerDataFunctions=True
+        print('end deugb')
+        if self.registerDataFunctions:
+            self.addMappingFunction(self.sampleFromDistribution)
+            if self.outputVariable is not None:
+                self.setDataProbabilityEntries()
+                if self.registerDataFunctions:
+                    if self.inputVariables is None:
+                        inputArgsLogLik = [self.inputVariables,
+                                           self.outputVariable, self.additionalInputVariables]
+                    else:
+                        inputArgsLogLik = [self.inputVariables,
+                                           self.outputVariable, self.additionalInputVariables]
+
+                    self.addDataManipulationFunction(
+                        self.getDataProbabilities, inputArgsLogLik,
+                        self.dataProbabilityEntries)
 
     def sampleFromDistribution(self, numElements):
         '''

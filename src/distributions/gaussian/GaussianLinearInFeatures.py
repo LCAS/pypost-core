@@ -31,7 +31,7 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
     '''
 
     def __init__(self, dataManager, outputVariable, inputVariables,
-                 functionName, featureGenerator=None, doInitWeights=None):
+                 functionName, featureGenerator=None, doInitWeights=True):
         '''
         Constructor
 

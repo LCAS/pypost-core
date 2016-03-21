@@ -1,3 +1,4 @@
+import numpy as np
 from functions.Mapping import Mapping
 from functions.Function import Function
 from parametricModels.ParametricFunction import ParametricFunction
@@ -44,11 +45,13 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         self.inputVariables = None
         self.functionName = functionName
         self.featureGenerator = None
-        self.featureHasHyperParameters = False;
+        print('doInitWeights', doInitWeights)
+        self.doInitWeights = doInitWeights
+        self.featureHasHyperParameters = False
 
         # represents the liniar function as
         # y = weights * x + bias
-        self.bias = 0
+        self.bias = None
         self.initSigmaMu = 0.01
         self.doInitWeights = doInitWeights
         self.initMu = []
@@ -86,12 +89,15 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
             self.weights = np.zeros((self.dimOutput, self.dimInput))
 
             if len(self.initMu) == 0:
-                Range = self.dataManager.getRange(self.outputVariable)
-                meanRange = (self.dataManager.getMinRange(self.outputVariable)
-                    + self.dataManager.getMaxRange(self.outputVariable)) / 2;
+                minRange = self.dataManager.getMinRange(self.outputVariable)
+                maxRange = self.dataManager.getMaxRange(self.outputVariable)
+                range_diff = np.subtract(maxRange, minRange)
 
-                self.bias  = (meanRange.conj().T + range.conj().T *\
-                    self.initSigmaMu * (np.rand(self.dimOutput, 1) - 0.5))
+                meanRange = np.mean(np.array([minRange, maxRange]), axis=0)
+
+                self.bias  = (meanRange.conj().T + range_diff.conj().T *\
+                    self.initSigmaMu * (np.random.rand(
+                        self.dimOutput, 1) - 0.5))
             else:
                 self.bias  = np.copy(self.initMu)
                 if self.bias.size == 1 and self.dimOutput > 1:
@@ -137,9 +143,8 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         it to be zero and only returns the bias. Otherwise this function
         will return the weighted expectation.
         '''
-
         value = np.tile(self.bias.conj().T, (numElements, 1))
-        value = value + inputFeatures * self.weights.conj().T;
+        value = value + inputFeatures * self.weights.conj().T
         return value
 
     def setWeightsAndBias(self, weights, bias):
