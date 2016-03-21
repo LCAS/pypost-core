@@ -25,8 +25,9 @@ if __name__ == '__main__':
 
     print(experiment)
 
-    # FIXME(Sebastian): Find out what these parameters actually mean
-    evaluation = experiment.addEvaluation(None, None, numTrials)
+    # FIXME(Sebastian): Find out what these parameters actually mean and fix
+    # them
+    evaluation = experiment.addEvaluation(['maxSizeReferenceStat'], [300], numTrials)
 
     experiment.startLocal()
 

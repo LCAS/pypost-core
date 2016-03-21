@@ -145,6 +145,16 @@ class Settings():
         for p, v in properties.items():
             self.setProperty(p, v)
 
+    def clone(self, evaluationId='new'):
+        '''
+        Clones everything except for the clients!
+        '''
+        newSettings = Settings(evaluationId)
+
+        for p in self._properties:
+            newSettings.registerProperty(p, self.getProperty(p))
+        return newSettings
+
     def hasValue(self, propertyName, value):
         '''Checks if a property with the given name and value exists.
 

@@ -128,7 +128,7 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
             inputFeatures = self.featureGenerator.getFeatures(
                 numElements, *args)
         else:
-            inputFeatures = args[0];
+            inputFeatures = args[0]
 
         inputFeatures = self.featureGenerator.getFeatures(
             numElements, *args)
@@ -143,7 +143,7 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         it to be zero and only returns the bias. Otherwise this function
         will return the weighted expectation.
         '''
-        numElements = 1
+        print('sb', self.bias.shape)
         print('numElements', numElements, self.bias, self.bias.conj().T.shape)
         value = np.tile(self.bias.conj().T, (numElements, 1))
 
@@ -171,6 +171,7 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
             self.weights = self.weights.conj().T
 
         # TODO: assert
+        raise RuntimeError('asserts are not implemented')
         # assert(size(self.weights,1) == self.dimOutput && size(self.weights,2) == self.dimInput && size(self.bias,1) == self.dimOutput);
 
     def setBias(self, bias):
@@ -204,7 +205,7 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
 
     ### Parametric Model Function
     def getNumParameters(self):
-        return dataManager.getNumDimensions(self.outputVariable.dot()).dot(
+        return dataManager.getNumDimensions(self.outputVariable).dot(
             1 + dataManager.getNumDimensions(self.inputVariables))
 
     def getGradient(self, inputMatrix):

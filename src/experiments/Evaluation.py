@@ -23,13 +23,13 @@ class Evaluation():
         self.path = os.path.join(experiment.path, self.evaluationName)
         self.experiment = experiment
 
-    def createFileStructure(self):
+    def createFileStructure(self, overwrite):
         for i in range(0, self.numTrials):
             trialPath = os.path.join(self.path, 'trial%03d' % i)
             if not os.path.isfile(os.path.join(trialPath, 'trial')):
                 trial = self.experiment.createTrial(self.settings,
                                                     self.path, i)
-                trial.storeTrial()
+                trial.storeTrial(overwrite)
                 trial.storeTrialInFile('initialTrial')
             self.experiment.registerTrial(self, trialPath)
 

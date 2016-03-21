@@ -6,6 +6,7 @@ import re
 import numpy as np
 
 from common.Settings import Settings
+from experiments.Evaluation import Evaluation
 
 
 class Experiment(object):
@@ -44,8 +45,7 @@ class Experiment(object):
         self.expId = []
         self.experimentId = -1
 
-        self.evaluationIndexMap = np.empty((100, 1))
-        self.evaluationIndexMap.fill(-1)
+        self.evaluationIndexMap = dict()
 
         self.trialToEvaluationMap = {}
         self.trialIndexToDirectorymap = {}
@@ -115,7 +115,7 @@ class Experiment(object):
         if not os.path.exists(newExperiment.experimentPath):
             os.mkdir(newExperiment.experimentPath)
 
-        newExperiment.defaultTrial = newExperiment.createTrial(
+        newExperiment.defaultTrial = newExperiment.createTrial(None,
             newExperiment.experimentPath, 0)
         newExperiment.defaultTrial.storeTrial()
 
@@ -182,7 +182,7 @@ class Experiment(object):
         This is only for a single evaluation. Please use evaluation collections for multiple ones
         :param list parameterNames: A list of parameter names
         :param list parameterValues: A list of parameter values
-        :param int numTrials: The number of trials 
+        :param int numTrials: The number of trials
         '''
         if len(parameterValues) != 1:
             raise RuntimeError(
@@ -191,7 +191,15 @@ class Experiment(object):
         # TODO why don't we already accept a settings object itself in the
         # arguments of this functions?
         evaluationSettings = self.defaultSettings.clone()
-        evaluationSettings.setProperties(parameterNames, parametervalues)
+
+        properties = dict()
+        i = 0
+        for name in parameterNames:
+            print(name)
+            properties[name] = parameterValues[i]
+            i += 1
+
+        evaluationSettings.setProperties(properties)
         evaluationIndex = -1
 
         # check if the evaluation was already executed
@@ -205,7 +213,7 @@ class Experiment(object):
 
         # find first "0" entry in index map and reserve it for this evaluation
         if evaluationIndex < 0:
-            for key, val in evaluationIndexMap.iteritems():
+            for key, val in self.evaluationIndexMap:
                 if val == 0:
                     evaluationIndex = key
                     break
@@ -218,7 +226,7 @@ class Experiment(object):
             parameterValues,
             numTrials)
         self.evaluations[evaluationIndex] = evaluation
-        self.evaluations[evaluationIndex].createDirectories(true)
+        self.evaluations[evaluationIndex].createFileStructure(True)
 
         self.storeExperiment()
 
@@ -284,8 +292,8 @@ class Experiment(object):
 
     '''
     Executes the experiment on the local machine.
-    
-    :param list trialIndices: A list containg the indices of the trials to run. 
+
+    :param list trialIndices: A list containg the indices of the trials to run.
                               If None, all trials are executed.
     '''
 
