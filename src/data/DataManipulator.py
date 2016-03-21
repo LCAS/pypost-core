@@ -262,6 +262,7 @@ class DataManipulator(DataManipulatorInterface):
                         as input for the function.
         :return: The output data of the called function.
         '''
+        print(indices)
         if samplerName not in self._samplerFunctions:
             raise ValueError("Data function %s is not defined" % samplerName)
         functionNames = self._samplerFunctions[samplerName]
@@ -341,6 +342,7 @@ class DataManipulator(DataManipulatorInterface):
             if dataManipulationStruct.takesNumElements:
                 outputDepth = self._dataManager.getDataEntryDepth(
                     dataManipulationStruct.depthEntry)
+                print(indices)
                 numElements = data.getNumElementsForIndex(outputDepth, indices)
 
             outArgs = self._callDataFuntionInternalMatrices(

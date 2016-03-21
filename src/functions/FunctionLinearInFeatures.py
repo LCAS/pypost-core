@@ -45,7 +45,6 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         self.inputVariables = None
         self.functionName = functionName
         self.featureGenerator = None
-        print('doInitWeights', doInitWeights)
         self.doInitWeights = doInitWeights
         self.featureHasHyperParameters = False
 
@@ -86,6 +85,7 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
 
         if self.doInitWeights:
             self.bias = np.zeros((self.dimOutput, 1))
+            print(self.inputVariables, 'dimOutput', self.dimOutput, 'dimInput', self.dimInput)
             self.weights = np.zeros((self.dimOutput, self.dimInput))
 
             if len(self.initMu) == 0:
@@ -135,7 +135,7 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         return self.getExpectation(numElements, inputFeatures)
 
 
-    def getExpectation(self, numElements, inputFeatures):
+    def getExpectation(self, numElements, inputFeatures=None):
         '''
         Returns the expectation of the Function.
 
@@ -143,8 +143,21 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         it to be zero and only returns the bias. Otherwise this function
         will return the weighted expectation.
         '''
+        numElements = 1
+        print('numElements', numElements, self.bias, self.bias.conj().T.shape)
         value = np.tile(self.bias.conj().T, (numElements, 1))
-        value = value + inputFeatures * self.weights.conj().T
+
+        if inputFeatures is None:
+            print('FunctionLinearInFeatures: inputFeatures is None')
+
+        print('d', value.shape, inputFeatures.dot(self.weights.conj().T).shape)
+
+
+        print(self.weights.shape)
+        print(self.bias.shape)
+
+        mult = inputFeatures.dot(self.weights.conj().T)
+        value = value + mult
         return value
 
     def setWeightsAndBias(self, weights, bias):

@@ -51,6 +51,8 @@ class IndependentSampler(Sampler):
         if numElements is not None:
             raise NotImplementedError
 
+        print(numSamples, numElements)
+
         numElements = []
 
         if numSamples > 0:

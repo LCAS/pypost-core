@@ -30,7 +30,6 @@ class PowerRosenbrock(Trial):
         self.settings.setProperty("numParameters", 15)
         self.settings.setProperty("numContexts", 15)
         self.settings.setProperty("numSamplesEpisodes", 10)
-        self.settings.setProperty("numParameters", 15)
         self.settings.setProperty("numIterations", 2000)
 
         self.sampler = EpisodeSampler()
@@ -60,8 +59,8 @@ class PowerRosenbrock(Trial):
         newData = self.dataManager.getDataObject(10)
 
         for i in range(0, self.settings.getProperty('numIterations')):
+            print('newData', newData)
             self.sampler.createSamples(newData)
-
             # keep old samples strategy comes here
             data = newData
 
@@ -82,5 +81,5 @@ class PowerRosenbrock(Trial):
 
 
 # For testing purposes. Maybe implement a better way to start trials directly?
-#power_rosenbrock = PowerRosenbrock("/tmp/trial/", 0)
-#power_rosenbrock.start()
+power_rosenbrock = PowerRosenbrock("/tmp/trial/", 0)
+power_rosenbrock.start()
