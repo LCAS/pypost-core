@@ -35,7 +35,7 @@ class Trial():
             os.chmod(logFile, 0o664)
         else:
             # Matlab prints trialDir here, but that doesn't make any sense
-            raise FileNotFoundError("Trial %s: Directory not found" % evalDir)
+            print("Trial %s: Directory not found" % evalDir)
 
         self.index = index
         self.properties = {}

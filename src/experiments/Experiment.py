@@ -88,10 +88,16 @@ class Experiment(object):
     def addToDataBase(newExperiment):
         # TODO(Sebastian): There's some weird shit happening here and I don't
         # know if we can actually implement it like that in python
-
         if not os.path.exists(newExperiment.path):
-            os.mkdir(newExperiment.path)
+            print("Creating directories for new experiment...")
 
+        while not os.path.exists(newExperiment.path):
+            path = newExperiment.path
+            while not os.path.exists(os.path.abspath(os.path.join(path, os.pardir))):
+                path = os.path.abspath(os.path.join(path, os.pardir))
+            os.mkdir(path)
+            
+            
         experimentId = -1
 
         for file in os.listdir(newExperiment.path):

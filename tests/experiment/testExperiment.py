@@ -1,5 +1,8 @@
 import unittest
 import os
+import sys
+sys.path.append(
+    os.path.abspath(os.path.dirname(os.path.realpath(__file__))+'/../../src'))
 from experiments.Experiment import Experiment
 from experiments.ExperimentFromScript import ExperimentFromScript
 from experiments.Evaluation import Evaluation
@@ -23,7 +26,8 @@ class testExperiment(unittest.TestCase):
         self.experiment.deleteExperiment()
         
     def testPath(self):
-        self.assertEqual(self.experiment.experimentPath, "Experiments/data/testCategory/TestTrial")
+        self.assertEqual(self.experiment.path, '/tmp/testCategory/TestTrial')
+        self.assertEqual(self.experiment.experimentPath, '/tmp/testCategory/TestTrial/settings000')
         
     def testFfjksdhjkfhsduzh(self):
         e = self.experiment
