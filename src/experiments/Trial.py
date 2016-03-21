@@ -28,14 +28,16 @@ class Trial():
 
         if os.path.isdir(evalDir):
             self.trialDir = os.path.join(evalDir, 'trial%03d' % index)
-            os.mkdir(self.trialDir)
-            os.chmod(self.trialDir, 0o775)
+            if not os.path.exists(self.trialDir):
+                os.mkdir(self.trialDir)
+                os.chmod(self.trialDir, 0o775)
             logFile = os.path.join(self.trialDir, 'trial.log')
             os.close(os.open(logFile, os.O_CREAT | os.O_APPEND))
             os.chmod(logFile, 0o664)
         else:
             # Matlab prints trialDir here, but that doesn't make any sense
             print("Trial %s: Directory not found" % evalDir)
+            self.trialDir = None
 
         self.index = index
         self.properties = {}
@@ -103,6 +105,9 @@ class Trial():
         :rtpye: bool
         '''
         # TODO  Use filename
+        if not self.trialDir:
+            return
+        
         data = {}
         for name in self.storePerTrial:
             data[name] = self.getProperty(name)

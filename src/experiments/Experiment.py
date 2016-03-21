@@ -36,7 +36,6 @@ class Experiment(object):
         self.evaluationCollections = {}
         self.nodes = {}
 
-        # FIXME where do we get a default trial from?
         self.defaultTrial = None
         self.defaultSettings = Settings("defaultSettings")
 
@@ -134,8 +133,7 @@ class Experiment(object):
         if not self.trialToEvaluationMap:
             trialId = 0
         else:
-            trialId = self.trialToEvaluationMap[
-                max(self.trialToEvaluationMap, key=self.trialToEvaluationMap.get)] + 1
+            trialId = max(self.trialToEvaluationMap.keys()) + 1
 
         self.trialToEvaluationMap[trialId] = evaluation
         self.trialIndexToDirectorymap[trialId] = trialDir
@@ -180,6 +178,8 @@ class Experiment(object):
         experiment = self;
         save(fullfile(self.experimentPath,'experiment'),'experiment','-v7.3');
         '''
+        # TODO(Sebastian): Really not sure what to do here... 
+        # We can't serialize this object because there's to much stuff attached
         raise RuntimeError("Not implemented")
 
     def addEvaluation(self, parameterNames, parameterValues, numTrials):
