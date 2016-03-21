@@ -8,6 +8,13 @@ import DataUtil
 
 class testDataManager(unittest.TestCase):
 
+    def test_assert(self):
+        dataManager = DataUtil.createTestManager()
+        data = dataManager.getDataObject([10, 20, 30])
+
+        self.assertRaises(ValueError, data.setDataEntry, 'parameters', ...,
+                          None)
+
     def test_completeLayerIndex(self):
         dataManager = DataUtil.createTestManager()
         data = dataManager.getDataObject([10, 20, 30])

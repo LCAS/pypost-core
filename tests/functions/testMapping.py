@@ -194,6 +194,7 @@ class testMapping(unittest.TestCase):
         dataManager = DataManager('values')
         dataManager.addDataEntry('X', 1)
         dataManager.addDataEntry('Y', 1)
+        dataManager.addDataEntry('A', 1)
 
         mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
 

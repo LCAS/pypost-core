@@ -27,9 +27,8 @@ class DataManipulationFunction():
         self.takesNumElements = takesNumElements
 
     def __str__(self):
-        return "%s: %s -> %s\n   depthEntry: %s\n   indices: %s\n   takesData: %s\n   callType: %s\n   takesNumElements: %s\n" % (
-                self.function.__name__, self.inputArguments,
-                self.outputArguments, self.depthEntry, self.indices, self.takesData, self.callType, self.takesNumElements)
+        return "%s: %s -> %s" % (self.function.__name__, self.inputArguments,
+                                 self.outputArguments)
 
 class DataManipulator(DataManipulatorInterface):
     '''

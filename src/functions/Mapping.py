@@ -66,8 +66,8 @@ class Mapping(DataManipulator, MappingInterface):
 
         # self.dimOutput = {}
         # TODO: check the following line
+        self.dimOutput = self.dataManager.getNumDimensions(self.outputVariables)
         print(self.dimOutput)
-        self.dimOutput = self.dataManager.getNumDimensions(self.outputVariable)
 
         self.mappingFunctions = []
 

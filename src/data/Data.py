@@ -266,7 +266,6 @@ class Data():
         Otherwise the feature generators would not realize that the
         features need to be recomputed
         '''
-
         for dataEntry in self.entryInfoMap:
             if self.entryInfoMap[dataEntry].isFeature:
                 numElements = self.getNumElements(dataEntry)

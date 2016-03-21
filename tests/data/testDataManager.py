@@ -121,6 +121,14 @@ class testDataManager(unittest.TestCase):
         self.assertTrue((dataManager.dataEntries['parameters'].maxRange ==
                          [1, 1, 3, 1, 1]).all())
 
+    def test_isDataEntry(self):
+        dataManager = DataUtil.createTestManager()
+
+        self.assertTrue(dataManager.isDataEntry('parameters'))
+        self.assertTrue(dataManager.isDataEntry('context'))
+        self.assertTrue(dataManager.isDataEntry('subActions'))
+        self.assertFalse(dataManager.isDataEntry('notaparameter'))
+
     def test_getDataEntryDepth(self):
         dataManager = DataUtil.createTestManager()
         self.assertEqual(dataManager.getDataEntryDepth('context'), 0)
@@ -317,6 +325,35 @@ class testDataManager(unittest.TestCase):
 
         self.assertRaises(ValueError, dataManager.getMaxRange, 'alias')
 
+    def test_setRange(self):
+        dataManager = DataUtil.createTestManager()
+        dataManager.setRange('parameters', -1337*np.ones(5), 1337*np.ones(5))
+
+        self.assertTrue(
+            (dataManager.getMaxRange('parameters') == 1337*np.ones(5)).all())
+
+        self.assertTrue(
+            (dataManager.getMinRange('parameters') == -1337*np.ones(5)).all())
+
+        self.assertRaises(ValueError, dataManager.setRange, 'parameters',
+        -1337*np.ones(3), 1337*np.ones(5))
+
+        self.assertRaises(ValueError, dataManager.setRange, 'parameters',
+        -1337*np.ones(5), 1337*np.ones(3))
+
+        self.assertRaises(ValueError, dataManager.setRange, 'parameters',
+        -1337*np.ones(3), 1337*np.ones(3))
+
+        self.assertRaises(ValueError, dataManager.setRange, 'notaparameter',
+        -1337*np.ones(5), 1337*np.ones(5))
+
+        dataManager.finalize()
+
+        self.assertRaises(RuntimeError, dataManager.setRange, 'parameters',
+                          -1337*np.ones(5), 1337*np.ones(5))
+
+
+
     def test_getElementNames(self):
         dataManager = DataUtil.createTestManager()
         self.assertEqual(sorted(dataManager.getElementNames()),
@@ -353,8 +390,8 @@ class testDataManager(unittest.TestCase):
         self.assertEqual(data.dataStructure['parameters'].shape[0], 20)
 
         for i in range(0, 20):
-            self.assertEqual(data.dataStructure['steps'][i]['states'].shape[0],
-                             20)
+            self.assertEqual(
+                data.dataStructure['steps'][i]['states'].shape[0], 20)
             self.assertEqual(
                 data.dataStructure['steps'][i]['actions'].shape[0], 20)
 
