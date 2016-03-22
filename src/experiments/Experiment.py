@@ -95,8 +95,8 @@ class Experiment(object):
             while not os.path.exists(os.path.abspath(os.path.join(path, os.pardir))):
                 path = os.path.abspath(os.path.join(path, os.pardir))
             os.mkdir(path)
-            
-            
+
+
         experimentId = -1
 
         for file in os.listdir(newExperiment.path):
@@ -115,8 +115,8 @@ class Experiment(object):
             # FIXME(Sebastian): Find first free index
             experimentId = 0
 
-        newExperiment.experimentPath = os.path.join(newExperiment.path,
-                                                    'settings%03d' % experimentId)
+        newExperiment.experimentPath = os.path.join(
+            newExperiment.path, 'settings%03d' % experimentId)
         if not os.path.exists(newExperiment.experimentPath):
             os.mkdir(newExperiment.experimentPath)
 
@@ -178,9 +178,10 @@ class Experiment(object):
         experiment = self;
         save(fullfile(self.experimentPath,'experiment'),'experiment','-v7.3');
         '''
-        # TODO(Sebastian): Really not sure what to do here... 
+        # TODO(Sebastian): Really not sure what to do here...
         # We can't serialize this object because there's to much stuff attached
-        raise RuntimeError("Not implemented")
+        print('WARNING: Experiment.storeExperiment is not implemented!')
+        #raise RuntimeError("Not implemented")
 
     def addEvaluation(self, parameterNames, parameterValues, numTrials):
         '''
@@ -281,12 +282,13 @@ class Experiment(object):
         trialName = os.path.join(
             self.trialIndexToDirectorymap[trialID],
             'trial.mat')
-        raise RuntimeError("Not implemented")
+        print('WARNING: Experiment.loadFromDataBase is not implemented.')
+        #raise RuntimeError("Not implemented")
         '''
         FIXME matlab code:
         load(trialName);
         '''
-        return trial
+        #return trial
 
     '''
     Returns the number of trials.
@@ -306,13 +308,12 @@ class Experiment(object):
 
     def startLocal(self, trialIndices=None):
         if not trialIndices:
-            trialIndices = self.trialIndexToDirectorymap.keys()
+            trialIndices = self.trialIndexToDirectorymap
 
-        for i in range(0, len(trialIndices) - 1):
-            # FIXME use a log system
-            print('Starting Trial {0} locally\n'.format(trialIndices[i]))
+        for key in trialIndices:
+            print('Starting Trial {0} locally\n'.format(key))
 
-            trial = Experiment.loadTrialFromID(self, trialIndices[i])
+            trial = Experiment.loadTrialFromID(self, key)
             trial.start()
 
     '''
