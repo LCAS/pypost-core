@@ -2,6 +2,15 @@ from collections import namedtuple
 from common import DataPrinter
 import yaml
 
+PropertyInfo = namedtuple('PropertyInfo', ['value', 'clients'])
+'''
+Tuple storing the name of a property and a list of ClientInfo
+'''
+ClientInfo = namedtuple('ClientInfo', ['client', 'clientPropName'])
+'''
+Tuple storing a reference to the client and the name of the property in the client
+'''
+
 
 class Settings():
     # TODO: revise comment
@@ -25,15 +34,6 @@ class Settings():
     :change: The notation 'id' has been replaced with 'name' due to name conflicts
     :change: isSameSettings() has been replaced with getDifferentProperties()
     :change: getPropertyNames() and getNumProperties() are not implemented
-    '''
-
-    propertyInfo= namedtuple('PropertyInfo', ['value', 'clients'])
-    '''
-    Tuple storing the name of a property and a list of ClientInfo
-    '''
-    clientInfo = namedtuple('ClientInfo', ['client', 'clientPropName'])
-    '''
-    Tuple storing a reference to the client and the name of the property in the client
     '''
 
     def __init__(self, name):
@@ -70,9 +70,9 @@ class Settings():
         :param value: value of the property
         '''
         if propName in self._properties:
-            self._properties[propName] = self.propertyInfo(value, self._properties[propName].clients)
+            self._properties[propName] = PropertyInfo(value, self._properties[propName].clients)
         else:
-            self._properties[propName] = self.propertyInfo(value, [])
+            self._properties[propName] = PropertyInfo(value, [])
 
             # NOTE: Use properties for changes?
 
@@ -96,7 +96,7 @@ class Settings():
         else:
             self.registerProperty(settingsPropName, client.globalProperties[clientPropName])
 
-        self._properties[settingsPropName].clients.append(self.clientInfo(client, clientPropName))
+        self._properties[settingsPropName].clients.append(ClientInfo(client, clientPropName))
 
     def getProperty(self, propName):
         '''Returns the value of the property that is registered in the parameter pool with the given name.
