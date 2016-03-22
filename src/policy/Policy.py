@@ -36,7 +36,7 @@ class Policy(object):
         return self._policyName
 
     def getPoolName(self):
-        return self._policyName
+        return self._poolName
 
     def __call__(self, *args, **kw):
         '''
