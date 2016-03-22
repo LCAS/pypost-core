@@ -93,9 +93,9 @@ class Trial():
         return self.properties[name]
 
     def storeTrial(self, overwrite=True):
-        return self.storeTrialInFile('trial', overwrite)
+        return self.storeTrialInFile(self.trialDir, overwrite)
 
-    def storeTrialInFile(self, fileName, overwrite=True):
+    def storeTrialInFile(self, trialDir, overwrite=True):
         '''
         Stores the trial in the given file.
         Data and settings are stored separately.
@@ -111,18 +111,37 @@ class Trial():
         data = {}
         for name in self.storePerTrial:
             data[name] = self.getProperty(name)
-        dataFile = os.path.join(self.trialDir, 'data.npy')
+        dataFile = os.path.join(trialDir, 'data.npy')
 
-        # Test this
-        np.save(dataFile, data)
+        if overwrite or not os.path.isfile(dataFile):
+            np.save(dataFile, data)
+        else:
+            return False
 
-        settingsFile = os.path.join(self.trialDir, 'settings.yaml')
+        settingsFile = os.path.join(trialDir, 'settings.yaml')
         if overwrite or not os.path.isfile(settingsFile):
 
             self.settings.store(settingsFile)
 
             return True
         return False
+
+    def loadTrial(self):
+        self.loadTrialFromFile(self.trialDir)
+
+    def loadTrialFromFile(self, trialDir):
+        print("Loading trial %s" % trialDir)
+        if not os.path.isdir(trialDir):
+            raise FileNotFoundError("Trial directory does not exist")
+        settingsFile = os.path.join(trialDir, 'settings.yaml')
+        dataFile = os.path.join(trialDir, 'data.npy')
+        if not os.path.isfile(settingsFile):
+            raise FileNotFoundError("Settings file not found")
+        if not os.path.isfile(dataFile):
+            raise FileNotFoundError("Data file not found")
+        self.settings.load(settingsFile)
+        # FIXME(Sebastian): Load data too?
+        data = np.load(dataFile)
 
     def start(self, withCatch=False, withProfiling=False):
         # FIXME: withProfiling is probably useless in python

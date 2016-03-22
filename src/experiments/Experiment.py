@@ -7,6 +7,7 @@ import numpy as np
 
 from common.Settings import Settings
 from experiments.Evaluation import Evaluation
+from experiments.Trial import Trial
 
 
 class Experiment(object):
@@ -137,6 +138,8 @@ class Experiment(object):
 
         self.trialToEvaluationMap[trialId] = evaluation
         self.trialIndexToDirectorymap[trialId] = trialDir
+        
+        print("Trial registered: %s" % trialDir)
 
     def getEvaluation(self, evalNumber):
         # TODO mathlab accessed self.evaluation (without "s"), does this
@@ -271,42 +274,38 @@ class Experiment(object):
 
         return evaluationCollection
 
-    '''
-    Loads the trials with the given ID from file system.
-    :param int trialID: The ID of the trial to load
-    :return: The loaded trial
-    :rtype: experiments.Trial
-    '''
-
     def loadTrialFromID(self, trialID):
-        trialName = os.path.join(
-            self.trialIndexToDirectorymap[trialID],
-            'trial.mat')
-        print('WARNING: Experiment.loadFromDataBase is not implemented.')
-        #raise RuntimeError("Not implemented")
         '''
-        FIXME matlab code:
-        load(trialName);
+        Loads the trials with the given ID from file system.
+        :param int trialID: The ID of the trial to load
+        :return: The loaded trial
+        :rtype: experiments.Trial
         '''
-        #return trial
-
-    '''
-    Returns the number of trials.
-    :return: The number of trials
-    :rtype: int
-    '''
+        trialDir = self.trialIndexToDirectorymap[trialID]
+        print("Loading trial %s" % trialDir)
+        if not os.path.exists(trialDir):
+            print("Path doesn't exist")
+        trial = Trial(os.path.abspath(os.path.join(trialDir, os.path.pardir)),
+                      trialID)
+        trial.loadTrial()
+        return trial
 
     def getNumTrials(self):
+        '''
+        Returns the number of trials.
+        :return: The number of trials
+        :rtype: int
+        '''
         return len(self.trialIndexToDirectorymap)
 
-    '''
-    Executes the experiment on the local machine.
-
-    :param list trialIndices: A list containg the indices of the trials to run.
-                              If None, all trials are executed.
-    '''
+    
 
     def startLocal(self, trialIndices=None):
+        '''
+        Executes the experiment on the local machine.
+        :param trialIndices: A list containg the indices of the trials to run.
+                              If None, all trials are executed.
+        '''
         if not trialIndices:
             trialIndices = self.trialIndexToDirectorymap
 
@@ -316,13 +315,14 @@ class Experiment(object):
             trial = Experiment.loadTrialFromID(self, key)
             trial.start()
 
-    '''
-    Returns a list of trial IDs.
-    :return: The trial list.
-    :rtype: list of integers
-    '''
+    
 
     def getTrialIDs(self):
+        '''
+        Returns a list of trial IDs.
+        :return: The trial list.
+        :rtype: list of integers
+        '''
         return self.trialIndexToDirectorymap.keys()
 
     def startBatch(self, **args):
