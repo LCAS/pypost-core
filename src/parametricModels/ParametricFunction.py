@@ -4,7 +4,7 @@ from functions.MappingInterface import MappingInterface
 
 class ParametricFunction(MappingInterface):
 
-    def ParametricFunction():
+    def __init__(self):
         MappingInterface.__init__(self)
 
     def registerGradientFunction(self):

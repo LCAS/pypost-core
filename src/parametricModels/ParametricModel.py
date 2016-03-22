@@ -2,7 +2,7 @@ from functions.MappingInterface import MappingInterface
 
 
 class ParametricModel(MappingInterface):
-    def ParametricModel():
+    def __init__(self):
         MappingInterface.__init__(self)
 
     def registerGradientModelFunction(self):
