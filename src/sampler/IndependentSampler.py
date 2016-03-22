@@ -55,7 +55,8 @@ class IndependentSampler(Sampler):
 
         if numSamples > 0:
             newData.reserveStorage(numSamples)
-            newData.resetFeatureTags()
+            # FIXME feature tags are not supported yet
+            # newData.resetFeatureTags()
             newData.setDataEntry('iterationNumber', 0,
                                  np.array([self._iterationIndex]))
             newIndex = numElements
