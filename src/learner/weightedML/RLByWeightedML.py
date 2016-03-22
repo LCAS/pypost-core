@@ -2,6 +2,7 @@ import numpy as np
 
 from learner.RLLearner import RLLearner
 from data.DataManipulator import DataManipulator
+from data.DataPreprocessor import DataPreprocessor
 
 
 class RLByWeightedML(RLLearner, DataManipulator, object):
@@ -54,7 +55,7 @@ class RLByWeightedML(RLLearner, DataManipulator, object):
         self._registerWeightingFunction()
 
     def updateModel(self, data):
-        self.callDataFunction('computeWeighting', data)
+        self.callDataFunction('computeWeighting', data, ...) # TODO check this
 
         if self.policyLearner is not None:
             self.policyLearner.updateModel(data)
@@ -83,19 +84,11 @@ class RLByWeightedML(RLLearner, DataManipulator, object):
         np.divide(q, np.sum(q), q)
 
         # FIXME magic number
-        index = np.copy(p)
-        for x in np.nditer(index):
-            index[...] = 1.0 if (p > 10 ^ -10) else 0.0
+        index = np.zeros(len(p), bool)
+        for i in range(0, len(p)):
+            index[i] = True if (p[i] > 10e-10) else False
 
-        # calculate: divKL = sum(p(index)  .* log(p(index) ./ q(index)));
-        divKLElements = np.copy(pWeighting)
-        for x, y, z in np.nditer(
-                [divKL[index], p[index], q[index]], op_flags=['readwrite']):
-            for xx, yy in np.nditer([y, z], op_flags=['readwrite']):
-                xx[...] = np.log(xx / yy)
-            x[...] = x * y
-        divKL = np.sum(divKLElements)
-
+        divKL = np.sum(p[index] * np.log(p[index] / q[index]))
         return divKL
 
     def computeWeighting(self, **args):

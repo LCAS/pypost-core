@@ -214,9 +214,10 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         return np.hstack((theta, self.cholA[self.indexForCov]))
 
     def getExpectationAndSigma(self, numElements, *args):
-        print('*args: ', args)
         mean = FunctionLinearInFeatures.getExpectation(self, numElements, *args)
 
-        sigma[1,:, :] = self.cholA
+        sigma = np.ndarray((1,)+self.cholA.shape)
+        print('strange sigma calculation', self.cholA.shape)
+        sigma[0, :, :] = self.cholA
 
         return (mean, sigma)

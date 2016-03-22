@@ -29,18 +29,16 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask):
     def sampleReturn(self, contexts, parameters):
         for i in range(0, parameters.shape[0]):
             vec = (contexts[i,:]).dot(self.A)
-            #print(contexts, self.A, vec, np.sin(vec), '\n\n', parameters)
             parameters[i,:] = parameters[i,:] +\
                               np.sin(vec)
 
         x = parameters
-        x = x[np.newaxis, :].T
+        if len(parameters.shape) >= 2:
+            x = x.conj().T
+        else:
+            x = x[np.newaxis, :].T
 
         # FIXME: reward doesn't make any sense.
-        #print('x', x)
-        #print('a', 1e2*np.sum((x[0: -2, :]**2 - x[1: -1, :])**2, 1))
-        #print('b', np.sum((x[0: -2, :]-1)**2, 1))
-
         reward = 1e2*np.sum((x[0: -2, :]**2 - x[1: -1, :])**2, 1) + \
                  np.sum((x[0: -2, :]-1)**2, 1)
 
@@ -48,6 +46,12 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask):
         reward = 1e2*np.sum((x[3: -2, :]**2 - x[4: -1, :])**2, 1) + \
                  np.sum((x[3: -2, :]-1)**2, 1)
 
-        reward = -1**(reward[np.newaxis, :].T)
+        if len(reward.shape) >= 2:
+            reward = -1**(reward.conj().T)
+        else:
+            reward = -1**(reward[np.newaxis, :].T)
+
+        if reward.shape[0] == 1:
+            reward = reward[0]
 
         return reward

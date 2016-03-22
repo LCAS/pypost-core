@@ -8,22 +8,6 @@ class EpisodicPower(RLByWeightedML):
     Implementation of an episodic PoWER algorithm
     '''
 
-    '''
-    FIXME implement this in python
-    methods (Static)
-        function [learner] = CreateFromTrial(trial)
-            learner = Learner.EpisodicRL.EpisodicPower(trial.dataManager, trial.parameterPolicyLearner);
-        end
-
-        function [learner] = CreateFromTrialKnowsNoise(trial)
-            trial.transitionFunction.registerControlNoiseInData();
-            learner = Learner.EpisodicRL.EpisodicPower(trial.dataManager, trial.policyLearner);
-            learner.addDataPreprocessor(DataPreprocessors.NoiseActionPreprocessor(trial.dataManager));
-            trial.policyLearner.setOutputVariableForLearner('actionsWithNoise');
-
-        end
-    '''
-
     def __init__(self, dataManager, policyLearner):
         '''
         Constructor
@@ -44,11 +28,11 @@ class EpisodicPower(RLByWeightedML):
         minQ = np.min(rewards)
 
         weighting = np.exp(
-            self.temperatureScalingPower * (rewards - maxQ) / ((maxQ - minQ) + 10 ^ -6))
+            self.temperatureScalingPower * (rewards - maxQ) / ((maxQ - minQ) + 10e-6))
         weighting = weighting / np.sum(weighting)
 
         self.divKL = self.getKLDivergence(
-            np.onces(
+            np.ones(
                 np.size(weighting)),
             weighting)
 

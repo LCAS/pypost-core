@@ -1,4 +1,5 @@
 import math
+import numpy as np
 from distributions.Distribution import Distribution
 from data.DataManipulatorInterface import CallType
 
@@ -45,10 +46,6 @@ class DistributionWithMeanAndVariance(Distribution):
         '''
         samples = None
 
-
-        print('sampleFromDistribution numElements:: ', numElements)
-        print('sampleFromDistribution args:: ', args)
-
         (expectation, sigma) = self.getExpectationAndSigma(numElements,
                                                            *args)
 
@@ -63,16 +60,30 @@ class DistributionWithMeanAndVariance(Distribution):
                 # If the first dimension of sigma is 1, there is only
                 # one sigma matrix for all elements. Then we will
                 # use this sigma matrix for every sample.
-                sigma = np.transpose(sigma, (2, 3, 1))
-                samples = expectation +\
-                    np.random.randn(expectation.shape).dot(sigma)
+                sigma = np.transpose(sigma, (1, 2, 0))
+
+                if len(expectation.shape) == 2:
+                    expectRand = np.random.randn(
+                        expectation.shape[0], expectation.shape[1])
+                elif len(expectation.shape) == 3:
+                    expectRand = np.random.randn(
+                        expectation.shape[0], expectation.shape[1],
+                        expectation.shape[2])
+                else:
+                    raise ValueError(
+                        'expectation has an unsupported shape length')
+
+                if sigma.shape[2] == 1:
+                    sigma = sigma[0]
+
+                samples = expectation + expectRand.dot(sigma)
             else:
                 # Every Element has its own sigma matrix
                 samples = expectation
                 for i in range(0, samples.shape[0]):
                     samples[i, :] = samples[i, :] + np.random.randn(
                         1, expectation.shape[1]).dot(
-                            np.transpose(sigma[i, :, :], (2, 3, 1)))
+                            np.transpose(sigma[i, :, :], (1, 2, 0)))
 
         return samples
 

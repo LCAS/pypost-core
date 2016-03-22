@@ -94,6 +94,12 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
 
                 meanRange = np.mean(np.array([minRange, maxRange]), axis=0)
 
+                if len(meanRange.shape) != 1:
+                    raise ValueError('Unsupported meanRange shape!')
+
+                if len(range_diff.shape) != 1:
+                    raise ValueError('Unsupported range_diff shape!')
+
                 self.bias  = (
                     meanRange[np.newaxis, :].T +\
                     range_diff[np.newaxis, :].T *\
@@ -147,20 +153,20 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         it to be zero and only returns the bias. Otherwise this function
         will return the weighted expectation.
         '''
-        print('sb', self.bias.shape)
-        print('numElements', numElements, self.bias, self.bias.conj().T.shape)
-        value = np.tile(self.bias[np.newaxis, :].T, (numElements, 1))
+        if len(self.bias.shape) >= 2:
+            biasTrans = self.bias.conj().T
+        else:
+            biasTrans = self.bias[np.newaxis, :].T
+
+        value = np.tile(biasTrans, (numElements, 1))
 
         if inputFeatures is None:
             print('FunctionLinearInFeatures: inputFeatures is None')
 
-        print('d', value.shape, inputFeatures.dot(self.weights.conj().T).shape)
+        if len(self.weights.shape) == 1:
+            raise ValueError('weight are a vector. This is not handled by the code')
 
-
-        print(self.weights.shape)
-        print(self.bias.shape)
-
-        mult = inputFeatures.dot(self.weights[np.newaxis, :].T)
+        mult = inputFeatures.dot(self.weights.conj().T)
         value = value + mult
         return value
 

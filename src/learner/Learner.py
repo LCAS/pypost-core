@@ -1,4 +1,4 @@
-from dataPreprocessor.DataPreprocessor import DataPreprocessor
+from data.DataPreprocessor import DataPreprocessor
 
 
 class Learner(DataPreprocessor, object):

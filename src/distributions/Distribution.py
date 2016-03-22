@@ -75,9 +75,8 @@ class Distribution(DistributionInterface):
         registers a mapping and data function
         :change
         '''
-        print('debug:')
         self.registerDataFunctions=True
-        print('end deugb')
+
         if self.registerDataFunctions:
             self.addMappingFunction(self.sampleFromDistribution)
             if self.outputVariable is not None:

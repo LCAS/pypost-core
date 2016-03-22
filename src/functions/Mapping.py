@@ -67,7 +67,6 @@ class Mapping(DataManipulator, MappingInterface):
         # self.dimOutput = {}
         # TODO: check the following line
         self.dimOutput = self.dataManager.getNumDimensions(self.outputVariables)
-        print(self.dimOutput)
 
         self.mappingFunctions = []
 
@@ -146,9 +145,7 @@ class Mapping(DataManipulator, MappingInterface):
 
             self.inputVariables = inputVariables
 
-        print(self.inputVariables)
         self.dimInput = self.dataManager.getNumDimensions(self.inputVariables)
-        print(self.dimInput)
 
     def getInputVariables(self):
         return list(self.inputVariables)
@@ -162,7 +159,6 @@ class Mapping(DataManipulator, MappingInterface):
 
         self.outputVariables = outputVariables
         self.dimOutput = self.dataManager.getNumDimensions(self.outputVariables)
-        print(outputVariables, self.dimOutput)
 
     # def cloneDataManipulationFunctions(self, cloneDataManipulator):
         #raise "Not implemented"

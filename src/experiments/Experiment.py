@@ -138,7 +138,7 @@ class Experiment(object):
 
         self.trialToEvaluationMap[trialId] = evaluation
         self.trialIndexToDirectorymap[trialId] = trialDir
-        
+
         print("Trial registered: %s" % trialDir)
 
     def getEvaluation(self, evalNumber):
@@ -206,7 +206,6 @@ class Experiment(object):
         properties = dict()
         i = 0
         for name in parameterNames:
-            print(name)
             properties[name] = parameterValues[i]
             i += 1
 
@@ -298,7 +297,7 @@ class Experiment(object):
         '''
         return len(self.trialIndexToDirectorymap)
 
-    
+
 
     def startLocal(self, trialIndices=None):
         '''
@@ -315,7 +314,7 @@ class Experiment(object):
             trial = Experiment.loadTrialFromID(self, key)
             trial.start()
 
-    
+
 
     def getTrialIDs(self):
         '''
@@ -342,9 +341,8 @@ class Experiment(object):
     def startCluster(self, clusterJobID, jobID):
         trialIndices = self.clusterJobs[clusterJobID]
         # FIXME use a log system
-        print(
-            'Starting Trial {0} on the cluster\n'.format(
-                trialIndices[jobID]))
+        print('Starting Trial {0} on the cluster\n'.format(
+            trialIndices[jobID]))
 
         trial = self.loadTrialFromID(trialIndices[jobID])
         trial.start()
