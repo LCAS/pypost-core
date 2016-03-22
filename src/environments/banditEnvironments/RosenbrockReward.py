@@ -34,7 +34,7 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask):
                               np.sin(vec)
 
         x = parameters
-        x = x.conj().T
+        x = x[np.newaxis, :].T
 
         # FIXME: reward doesn't make any sense.
         #print('x', x)

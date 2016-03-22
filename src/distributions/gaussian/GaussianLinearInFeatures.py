@@ -123,9 +123,10 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
             return self.cholA
 
     def getJointGaussians(self, muInput, SigmaInput):
-        muNew = np.hstack((muInput, self.bias + self.weights * muInput))
+        muNew = np.hstack((muInput, self.bias + self.weights.dot(muInput)))
 
         tmp = self.weights.dot(SigmaInput).conj().T
+        print('ATTENTION(conj()): ', tmp)
         SigmaNew = np.vstack((np.hstack((SigmaInput, tmp)),
                               np.hstack(
                                 tmp.conj().T,

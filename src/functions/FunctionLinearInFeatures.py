@@ -85,7 +85,6 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
 
         if self.doInitWeights:
             self.bias = np.zeros((self.dimOutput, 1))
-            print(self.inputVariables, 'dimOutput', self.dimOutput, 'dimInput', self.dimInput)
             self.weights = np.zeros((self.dimOutput, self.dimInput))
 
             if len(self.initMu) == 0:
@@ -95,9 +94,12 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
 
                 meanRange = np.mean(np.array([minRange, maxRange]), axis=0)
 
-                self.bias  = (meanRange.conj().T + range_diff.conj().T *\
+                self.bias  = (
+                    meanRange[np.newaxis, :].T +\
+                    range_diff[np.newaxis, :].T *\
                     self.initSigmaMu * (np.random.rand(
                         self.dimOutput, 1) - 0.5))
+
             else:
                 self.bias  = np.copy(self.initMu)
                 if self.bias.size == 1 and self.dimOutput > 1:
@@ -107,6 +109,8 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
 
                 if self.bias.shape[1] > 1:
                     self.bias = self.bias.conj().T
+                else:
+                    raise ValueError('Better check the code twice!')
 
 
     def setFeatureGenerator(self, featureGenerator):
@@ -145,7 +149,7 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         '''
         print('sb', self.bias.shape)
         print('numElements', numElements, self.bias, self.bias.conj().T.shape)
-        value = np.tile(self.bias.conj().T, (numElements, 1))
+        value = np.tile(self.bias[np.newaxis, :].T, (numElements, 1))
 
         if inputFeatures is None:
             print('FunctionLinearInFeatures: inputFeatures is None')
@@ -156,7 +160,7 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         print(self.weights.shape)
         print(self.bias.shape)
 
-        mult = inputFeatures.dot(self.weights.conj().T)
+        mult = inputFeatures.dot(self.weights[np.newaxis, :].T)
         value = value + mult
         return value
 
@@ -168,7 +172,10 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
             self.bias = self.bias.conj().T
 
         if self.weights.shape[0] != self.dimOutput:
-            self.weights = self.weights.conj().T
+            self.weights = self.weights[np.newaxis, :].T
+
+        if self.weights.shape[0] != self.dimOutput: #pragma no branch
+            raise ValueError('Invalid weights shape!')
 
         # TODO: assert
         raise RuntimeError('asserts are not implemented')
