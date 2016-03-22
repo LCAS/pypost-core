@@ -1,7 +1,8 @@
-import sys
 import os
+import sys
 sys.path.insert(0, os.path.abspath("../../.."))
 
+import numpy as np
 from experiments.Trial import Trial
 from sampler.EpisodeSampler import EpisodeSampler
 from common.Settings import Settings
@@ -59,7 +60,6 @@ class PowerRosenbrock(Trial):
         newData = self.dataManager.getDataObject(10)
 
         for i in range(0, self.settings.getProperty('numIterations')):
-            print('newData', newData)
             self.sampler.createSamples(newData)
             # keep old samples strategy comes here
             data = newData
@@ -69,7 +69,7 @@ class PowerRosenbrock(Trial):
             self.policyLearner.updateModel(newData)
 
             # FIXME Test if this works
-            trial.store("avgReturns",np.mean(newData.getDataEntry("returns")), Experiments.StoringType.ACCUMULATE)
+            #trial.store("avgReturns",np.mean(newData.getDataEntry("returns")), Experiments.StoringType.ACCUMULATE)
 
             print(
                 "Iteration: %d, Episodes: %d, AvgReturn: %f\n" %
@@ -81,5 +81,5 @@ class PowerRosenbrock(Trial):
 
 
 # For testing purposes. Maybe implement a better way to start trials directly?
-#power_rosenbrock = PowerRosenbrock("/tmp/trial/", 0)
-#power_rosenbrock.start()
+power_rosenbrock = PowerRosenbrock("/tmp/trial/", 0)
+power_rosenbrock.start()
