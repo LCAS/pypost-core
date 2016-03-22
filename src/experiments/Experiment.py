@@ -196,6 +196,7 @@ class Experiment(object):
 
         # TODO why don't we already accept a settings object itself in the
         # arguments of this functions?
+        # Note(Sebastian): I think only a subset of settings entries is modified
         evaluationSettings = self.defaultSettings.clone()
 
         properties = dict()
