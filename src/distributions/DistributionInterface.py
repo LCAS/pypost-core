@@ -1,12 +1,9 @@
-# FIXME why is this needed?
 from functions.MappingInterface import MappingInterface
 
 
 class DistributionInterface(MappingInterface):
     '''
     Distribution Interface
-
-    #FIXME this is an interface. move the mathlab reference code from this file to a Distribution base class
     '''
 
     def __init__(self):
@@ -15,15 +12,14 @@ class DistributionInterface(MappingInterface):
         '''
         MappingInterface.__init__(self)
 
-        self.dataProbabilityEntries = []
-
     def setDataProbabilityEntries(self):
         '''
         This function will create a new ProbabilityEntries to the
-        dataProbabilityEntries list. The DataEntry will be a combined
-        "logQ" + <uppercase first letter output> + <lowercase first letter input>
+        dataProbabilityEntries list. The Dataentry will be a combined
+        string `'logQ' + <uppercase of the first letter of the output
+        variable> + <lowercase of the first letter of the input variable>`.
         The list of data probability entries can be registered via
-        registerProbabilityNames()
+        `:func:registerProbabilityNames()`.
         '''
         raise NotImplementedError("Not implemented")
 

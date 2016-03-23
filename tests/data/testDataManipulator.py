@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
 from data.DataManipulator import DataManipulator
+from data.DataManipulator import DataManipulationFunction
 from data.DataManipulatorInterface import CallType
 import DataUtil
 
@@ -29,6 +30,10 @@ class testDataManipulator(unittest.TestCase):
 
     def test_init(self):
         self.assertRaises(ValueError, DataManipulator, None)
+
+    def test_DataManipulationFunction_init(self):
+        self.assertRaises(ValueError, DataManipulationFunction,
+            None, None, None, None, None, None, None)
 
     def test_addDataManipulationFunction(self):
         dataManager = DataUtil.createTestManager()
@@ -74,6 +79,10 @@ class testDataManipulator(unittest.TestCase):
                         lambda numElements: np.ones((numElements, 10)),
                         [], ['parameters'], None, None, 'lambdaFunction')
         self.assertIn('lambdaFunction', manipulator._manipulationFunctions)
+
+        # Add string instead of function
+        self.assertRaises(ValueError, manipulator.addDataManipulationFunction,
+            'function', [], [])
 
     def test_isSamplerFunction(self):
         dataManager = DataUtil.createTestManager()
@@ -301,5 +310,6 @@ class testDataManipulator(unittest.TestCase):
             data,
             [...])
         self.assertTrue((parameters == 9 * np.ones((20, 5))).all())
+
 if __name__ == '__main__':
     unittest.main()

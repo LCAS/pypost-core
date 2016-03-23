@@ -8,7 +8,7 @@ from data.DataCollection import DataCollection
 
 import DataUtil
 
-from dataPreprocessor.DataPreprocessor import DataPreprocessor
+from data.DataPreprocessor import DataPreprocessor
 
 
 class testDataPreprocessor(unittest.TestCase):
@@ -17,7 +17,7 @@ class testDataPreprocessor(unittest.TestCase):
         datapreprocessor = DataPreprocessor()
 
         self.assertIsInstance(datapreprocessor, DataPreprocessor)
-        self.assertEqual(datapreprocessor.name, "DataPreprocessor")
+        self.assertEqual(datapreprocessor.name, 'data')
         self.assertEqual(datapreprocessor.iteration, 0)
 
     def test_init_givenName_expectNoException(self):
@@ -27,10 +27,8 @@ class testDataPreprocessor(unittest.TestCase):
         self.assertEqual(datapreprocessor.name, "TestName")
         self.assertEqual(datapreprocessor.iteration, 0)
 
-    def test_init_givenEmptyName_expectRuntimeError(
-            self):
-        self.assertRaises(
-            RuntimeError, lambda: DataPreprocessor(""))
+    def test_init_givenEmptyName_expectRuntimeError(self):
+        self.assertRaises(ValueError, DataPreprocessor, "")
 
     def test_preprocessData_NotImplementedError(self):
         datapreprocessor = DataPreprocessor("TestName")
@@ -58,7 +56,7 @@ class testDataPreprocessor(unittest.TestCase):
         dataCollection.setStandardData(True)
 
         datapreprocessor.preprocessDataCollection(dataCollection)
-        self.assertEqual(dataCollection.getDataObject(DataPreprocessor), False)
+        self.assertEqual(dataCollection.getDataObject('TestName'), False)
 
     def test_setIteration_givenPositiveIterationValue_expectGivenInputVariable(
             self):

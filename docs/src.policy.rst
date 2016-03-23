@@ -1,13 +1,13 @@
-policy package
-==============
+.policy package
+==================
 
 Submodules
 ----------
 
-policy.Policy module
---------------------
+.policy.Policy module
+------------------------
 
-.. automodule:: policy.Policy
+.. automodule:: .policy.Policy
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ policy.Policy module
 Module contents
 ---------------
 
-.. automodule:: policy
+.. automodule:: .policy
     :members:
     :undoc-members:
     :show-inheritance:

@@ -12,13 +12,7 @@ class ParametricModel(MappingInterface):
             [self.outputVariable[0] + 'GradLike'])
 
     def getFisherInformationMatrix(self):
-        # TODO warning
-        print('WARNING: policysearchtoolbox: Fisher Information Matrix not implemented');
-        Fim = np.zeros(self.numParameters, self.numParameters)
-        return Fim
+        raise NotImplementedError()
 
     def getLikelihoodGradient(self):
-        # TODO: needed?
-        print('WARNING: policysearchtoolbox: Likelihood Gradient not implemented');
-        gradient = np.zeros(self.numParameters, 1)
-        return gradient
+        raise NotImplementedError()

@@ -3,26 +3,18 @@ import sys
 sys.path.insert(0, os.path.abspath("../../.."))
 
 import numpy as np
-from experiments.Trial import Trial
-from sampler.EpisodeSampler import EpisodeSampler
 from common.Settings import Settings
-from learner.episodicRL.EpisodicPower import EpisodicPower
-from environments.banditEnvironments.RosenbrockReward import RosenbrockReward
 from distributions.gaussian.GaussianParameterPolicy import \
 GaussianParameterPolicy
+from environments.banditEnvironments.RosenbrockReward import RosenbrockReward
+from experiments.Trial import Trial
+from experiments.Trial import StoringType
+from learner.episodicRL.EpisodicPower import EpisodicPower
+from sampler.EpisodeSampler import EpisodeSampler
 
 
 class PowerRosenbrock(Trial):
     # FIXME add some infos about this class
-
-    # trial, settingsEval = Experiment.getTrialForScript()
-
-    # What's this?
-    '''
-    def PowerRosenbrock():
-        super()
-        start()
-    '''
 
     def __init__(self, evalDir, trialIndex):
         super(PowerRosenbrock, self).__init__(evalDir, trialIndex)
@@ -58,28 +50,42 @@ class PowerRosenbrock(Trial):
             raise RuntimeError("The trial has to be configured first.")
 
         newData = self.dataManager.getDataObject(10)
+        fullData = self.dataManager.getDataObject(0)
 
         for i in range(0, self.settings.getProperty('numIterations')):
+            self.sampler.setSamplerIteration(i)
             self.sampler.createSamples(newData)
-            # keep old samples strategy comes here
-            data = newData
+
+            # keep old samples strategy comes here...
+            fullData = newData
+            #fullData.mergeData(newData);
+            #deletionStrategy.deleteSamples(fullData)
 
             # data preprocessors come here
+            # ...
+            #importanceWeighting.preprocessData(data);
 
-            self.policyLearner.updateModel(newData)
+            # learning comes here...
+            self.policyLearner.updateModel(fullData)
+
+            self.store('avgReturns', np.mean(newData.getDataEntry('returns')), StoringType.ACCUMULATE)
+            '''
+            % log the results...
+            %self.store('entropy', policyLearner.entropyAfter, Experiments.StoringType.ACCUMULATE);
+            self.store('divMean', policyLearner.divMean, Experiments.StoringType.ACCUMULATE);
+            self.store('divCov', policyLearner.divCov, Experiments.StoringType.ACCUMULATE);
+            %self.store('divKL', policyLearner.divKL, Experiments.StoringType.ACCUMULATE);
+            '''
 
             # FIXME Test if this works
             #trial.store("avgReturns",np.mean(newData.getDataEntry("returns")), Experiments.StoringType.ACCUMULATE)
 
             print(
-                "Iteration: %d, Episodes: %d, AvgReturn: %f\n" %
-                (i,
-                 i *
-                 self.settings.getProperty('numSamplesEpisodes'),
-                 np.mean(
-                     newData.getDataEntry('returns'))))
+                "Iteration: %d, Episodes: %d, AvgReturn: %f" %
+                (i, i * self.settings.getProperty('numSamplesEpisodes'),
+                 np.mean(newData.getDataEntry('returns'))))
 
 
 # For testing purposes. Maybe implement a better way to start trials directly?
-power_rosenbrock = PowerRosenbrock("/tmp/trial/", 0)
-power_rosenbrock.start()
+#power_rosenbrock = PowerRosenbrock("/tmp/trial/", 0)
+#power_rosenbrock.start()

@@ -9,13 +9,9 @@ class GaussianParameterPolicy(GaussianLinearInFeatures):
         Constructor
         '''
         if inputVar is None:
-            outputVar = ['parameters']
+            outputVar = 'parameters'
             inputVar = ['contexts']
 
         GaussianLinearInFeatures.__init__(self, dataManager, outputVar, inputVar, policyName)
-
-        # TODO: move addDataManipulationFunction somewhere else?
-        #self.addDataManipulationFunction(self.sampleFromDistribution, inputVar,
-        #                                 outputVar)
 
         self.addDataFunctionAlias('sampleParameter', 'sampleFromDistribution')

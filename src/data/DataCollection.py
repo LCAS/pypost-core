@@ -1,13 +1,13 @@
-class DataCollection(object):
+class DataCollection():
     '''
     A collection for storing data objects
     '''
 
     def __init__(self, standartData=None):
         '''
-        Set up a DataCollection with a standard data entry
+        Set up a DataCollection with a default data entry
 
-        :param standartData: the data object to store as standard data
+        :param standartData: the data object to store as default data
         '''
         self.dataMap = {}
 

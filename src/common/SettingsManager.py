@@ -116,9 +116,6 @@ def setRootSettings(settings):
     '''Sets the root settings
 
     :param settings: A settings object
-
-    FIXME: is this function needed anymore?
-
     '''
     global collection
     collection[getDefaultName()] = settings

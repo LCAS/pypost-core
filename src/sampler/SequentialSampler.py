@@ -22,17 +22,8 @@ class SequentialSampler(Sampler):
         super().__init__(dataManager, samplerName)
 
         self._isActiveSampler = None
-        '''
-        TODO
-        '''
         self._transitionElementOldStep = {}
-        '''
-        FIXME
-        '''
         self._transitionElementNewStep = {}
-        '''
-        FIXME
-        '''
 
         # TODO pass an other IsActiveStepSampler by parameters
         self._setIsActiveSampler(IsActiveNumSteps(dataManager, stepNames))

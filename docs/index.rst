@@ -4,14 +4,6 @@
 Welcome to Robot Learning Toolbox's documentation!
 ==================================================
 
-The following modules included in this release are still being worked on
-or have not been fully tested yet:
-
--  sampler/
--  experiments/
--  learner/
--  episodicPower tutorial
-
 Overview
 ========
 
@@ -20,8 +12,7 @@ toolbox:
 
 -  ``/src`` Holds all the toolbox source code. When using the toolbox,
    you only have to import files from this directory.
--  ``/test`` Tests for all the classes in *src/*. You can also use it to
-   lookup the correct usage of class methods.
+-  ``/test`` Tests for all the classes in *src/*.
 -  ``/tools`` Tools for quality assurance, like performance measurements
    or code coverage.
 -  ``/tutorials`` Tutorials on how to use the toolbox classes,

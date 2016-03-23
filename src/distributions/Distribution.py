@@ -3,7 +3,23 @@ from distributions.DistributionInterface import DistributionInterface
 
 class Distribution(DistributionInterface):
     '''
-    classdocs
+    The Distribution class is the base class for distributions.
+
+    The functions `func:setDataProbabilityEntries()` and
+    `func:registerProbabilityNames()` can be used to create and register
+    Dataentries that contain correlation of two sets of data.
+
+    This class registers the abstract functions `func:sampleFromDistribution`
+    and `func:getDataProbabilities()`.
+
+    The to create a subclass of distribution you need to define the
+    following abstract classes:
+
+    - `func:sampleFromDistribution(numElements)`: should
+      return a matrix of numElements many random samples from this distribution.
+    - `func:getDataProbabilities(inputData, outputData)`: should return the
+      log likelihood for a given set of input data and output data to be related
+      in this distribution.
     '''
 
     def __init__(self, dataManager):
@@ -28,27 +44,23 @@ class Distribution(DistributionInterface):
         '''
         This function will create a new ProbabilityEntries to the
         dataProbabilityEntries list. The Dataentry will be a combined
-        string <tt>’logQ’ + <uppercase of the first letter of the output
-        variable> +<lowercase of the first letter of the input variable></tt>.
+        string `'logQ' + <uppercase of the first letter of the output
+        variable> + <lowercase of the first letter of the input variable>`.
         The list of data probability entries can be registered via
-        <tt>registerProbabilityNames()</tt>.
+        `:func:registerProbabilityNames()`.
         '''
-        # FIXME we left this unimplemented because we didn't see a real use case
-        # this function
         inputVariablesShort = ''
         outputVariablesShort = ''
 
         for i in range(0, len(self.inputVariables)):
             if isinstance(self.inputVariables[i], list):
                 for j in range(0, len(self.inputVariables[i])):
-                    # TODO: lower()
-                    inputVariablesShort.append(self.inputVariables[i][j][0])
+                    inputVariablesShort.append(
+                        self.inputVariables[i][j][0].lower())
             else:
-                # TODO: lower()
-                inputVariablesShort += (self.inputVariables[i][0])
+                inputVariablesShort += self.inputVariables[i][0].lower()
 
-        # TODO upper()
-        outputVariablesShort += self.outputVariable[0]
+        outputVariablesShort += self.outputVariable[0].upper()
 
         if len(self.dataProbabilityEntries) == 0:
             self.dataProbabilityEntries.append(None)
@@ -65,9 +77,6 @@ class Distribution(DistributionInterface):
                 [layerName + "." + self.dataProbabilityEntries[i]], 1)
 
     def getDataProbabilityNames(self, dataManager, layerName):
-        '''
-        FIXME we left this unimplemented because we didn't see a real use case
-        '''
         raise NotImplementedError("Not implemented")
 
     def registerMappingInterfaceDistribution(self):
@@ -95,8 +104,7 @@ class Distribution(DistributionInterface):
 
     def sampleFromDistribution(self, numElements):
         '''
-        get a matrix of with numElements many samples from this distribution
-        #TODO there where varargs, check if the are really needed
+        Get a matrix of with numElements many samples from this distribution
         '''
         raise NotImplementedError("Not implemented")
 

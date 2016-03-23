@@ -1,6 +1,6 @@
 import numpy as np
 from evaluator import Evaluator
-from experiments import StoringType
+from experiments.Trial import StoringType
 
 
 class ReturnDecisionStagesEvaluator(Evaluator):

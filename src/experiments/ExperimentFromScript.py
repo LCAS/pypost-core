@@ -19,10 +19,10 @@ class ExperimentFromScript(Experiment):
         super(ExperimentFromScript, self).__init__(rootDir, category,
                                                    TrialClass.__name__)
         self.TrialClass = TrialClass
-        self.defaultTrial = self.createTrial(None, self.path, 0)
+        self.defaultTrial = self.createTrial(self.path, 0)
         self.defaultSettings = self.defaultTrial.settings
 
-    def createTrial(self, settings, evalPath, trialIdx):
+    def createTrial(self, evalPath, trialIdx):
         '''
         Creates a new trial with given path and index.
         :param evalPath: Path of the evaluation

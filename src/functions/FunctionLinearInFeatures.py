@@ -40,6 +40,10 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         :param featureGenerator: feature generator of the dataset
         :param doInitWeights: flag if weights and bias should be initiated
         '''
+        if isinstance(outputVariable, list):
+            raise ValueError('multiple outputVariables are not supported!',
+                             outputVariable)
+
         self.dataManager = dataManager
         self.outputVariable = outputVariable
         self.inputVariables = None
@@ -55,7 +59,7 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         self.doInitWeights = doInitWeights
         self.initMu = []
 
-        Mapping.__init__(self, dataManager, outputVariable, inputVariables,
+        Mapping.__init__(self, dataManager, [outputVariable], inputVariables,
                          functionName)
         Function.__init__(self)
         ParametricFunction.__init__(self)

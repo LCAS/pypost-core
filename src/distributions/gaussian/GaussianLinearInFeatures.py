@@ -82,8 +82,7 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
 
 
     def getSigma(self):
-        # TODO: check this
-        return self.cholA[1, ..., ...]
+        return self.cholA[1, :, :]
 
     def getCovariance(self):
         '''
@@ -216,8 +215,7 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
     def getExpectationAndSigma(self, numElements, *args):
         mean = FunctionLinearInFeatures.getExpectation(self, numElements, *args)
 
-        sigma = np.ndarray((1,)+self.cholA.shape)
-        print('strange sigma calculation', self.cholA.shape)
+        sigma = np.ndarray((1,) + self.cholA.shape)
         sigma[0, :, :] = self.cholA
 
         return (mean, sigma)

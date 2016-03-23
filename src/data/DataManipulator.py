@@ -365,8 +365,9 @@ class DataManipulator(DataManipulatorInterface):
             args.append(numElements)
         if dataManipulationStruct.takesData:
             args.append(data)
-        if inputArgs is not None:
-            args.extend(inputArgs)
+
+        args.extend(inputArgs)
         args = tuple(args)
 
+        #print(dataManipulationStruct.function, args)
         return dataManipulationStruct.function(*args)
