@@ -22,7 +22,6 @@ class testSettings(unittest.TestCase):
         self.assertIs(SettingsManager.getSettings('testSettings01'), settings)
         self.assertEqual(SettingsManager.getSettings('testSettings01').getProperty('A'), 42.21)
         self.assertEqual(cli.settingsClientName, 'client_001')
-        self.assertEqual(SettingsManager.getDefaultSettings().name, 'default')
 
         SettingsManager.pushDefaultName('standard')
         self.assertEqual(SettingsManager.getDefaultName(), 'standard')
@@ -118,7 +117,22 @@ class testSettings(unittest.TestCase):
         print("\nClonedSettings Properties:")
         clonedSettings.printProperties()
 
-    def testSettingsStoreLoad(self):
+    def test_settings_clone(self):
+        settings = Settings('testSettings1')
+        settings.setProperty('testProp1', 41)
+        SettingsManager.setSettings(settings)
+        cli = SettingsClient()
+        cli.globalProperties['testProp2'] = 42
+
+        settings2 = settings.clone('newSettings')
+        settings2.setProperty('testProp3', 43)
+
+        self.assertEqual(settings2.getProperty('testProp1'), 41)
+        self.assertEqual(cli.globalProperties['testProp2'], 42)
+        self.assertEqual(settings2.getProperty('testProp3'), 43)
+
+
+    def test_settings_store_load(self):
         settings = Settings('testSettings1')
         settings.setProperty('testProp1', 42)
         SettingsManager.setSettings(settings)
