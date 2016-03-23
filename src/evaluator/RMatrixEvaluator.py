@@ -5,7 +5,7 @@ Created on Dec 14, 2015
 '''
 from numpy.linalg.linalg import eig
 from evaluator import Evaluator
-from experiments import StoringType
+from experiments.Trial import StoringType
 from evaluator import LogType
 
 class RMatrixEvaluator(Evaluator):

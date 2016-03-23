@@ -27,6 +27,9 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask):
         # self.linkProperty('rewardNoise');
 
     def sampleReturn(self, contexts, parameters):
+        # FIXME parameters is empty
+        #raise ValueError('hehe')
+        #print('p', contexts, parameters)
         for i in range(0, parameters.shape[0]):
             vec = (contexts[i,:]).dot(self.A)
             parameters[i,:] = parameters[i,:] +\
@@ -37,6 +40,8 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask):
             x = x.conj().T
         else:
             x = x[np.newaxis, :].T
+
+        #print(parameters, x)
 
         # FIXME: reward doesn't make any sense.
         reward = 1e2*np.sum((x[0: -2, :]**2 - x[1: -1, :])**2, 1) + \
@@ -53,5 +58,7 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask):
 
         if reward.shape[0] == 1:
             reward = reward[0]
+
+        #print(reward)
 
         return reward

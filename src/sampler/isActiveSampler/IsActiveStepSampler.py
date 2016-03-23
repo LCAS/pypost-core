@@ -1,4 +1,4 @@
-from interfaces import DataManipulatorInterface
+from data.DataManipulatorInterface import DataManipulatorInterface
 
 
 class IsActiveStepSampler(DataManipulatorInterface):

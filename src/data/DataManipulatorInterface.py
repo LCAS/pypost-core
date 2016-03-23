@@ -5,13 +5,10 @@ CallType = Enum('CallType', 'SINGLE_SAMPLE ALL_AT_ONCE PER_EPISODE')
 
 class DataManipulatorInterface():
     '''
-    FIXME
+    The interface for the DataManipulator
     '''
 
     def __init__(self):
-        '''
-        Constructor
-        '''
         super().__init__()
 
     def addDataManipulationFunction(self, function, inputArguments,

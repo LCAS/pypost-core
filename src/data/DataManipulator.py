@@ -369,4 +369,5 @@ class DataManipulator(DataManipulatorInterface):
             args.extend(inputArgs)
         args = tuple(args)
 
+        #print(dataManipulationStruct.function, args)
         return dataManipulationStruct.function(*args)

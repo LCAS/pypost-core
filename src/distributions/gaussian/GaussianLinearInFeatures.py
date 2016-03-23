@@ -82,8 +82,7 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
 
 
     def getSigma(self):
-        # TODO: check this
-        return self.cholA[1, ..., ...]
+        return self.cholA[1, :, :]
 
     def getCovariance(self):
         '''

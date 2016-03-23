@@ -25,5 +25,4 @@ class ParametricFunction(MappingInterface):
         raise NotImplementedError()
 
     def setParameterVector(self, theta):
-        # TODO: matlab code does not make sense
-        return getParameterVector(self)
+        raise NotImplementedError()

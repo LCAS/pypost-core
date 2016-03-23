@@ -5,7 +5,7 @@ Created on Dec 14, 2015
 '''
 import numpy as np
 from evaluator import Evaluator
-from experiments import StoringType
+from experiments.Trial import StoringType
 
 class SupervisedLearningMSEEvaluator(Evaluator):
     '''
@@ -30,6 +30,7 @@ class SupervisedLearningMSEEvaluator(Evaluator):
         outputs = evaluationData.getDataEntry(
             trial.functionApproximator.outputVariable)
 
+        raise NotImplementedError()
         '''TODO
         valid = ~any(lambda x: isnan(x),inputs[2])
         # FIXME check correct translation of ~any(isnan(inputs),2)

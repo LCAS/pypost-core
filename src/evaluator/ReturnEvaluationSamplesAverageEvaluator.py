@@ -4,7 +4,7 @@ Created on Dec 14, 2015
 @author: moritz
 '''
 from evaluator import Evaluator
-from experiments import StoringType
+from experiments.Trial import StoringType
 
 class ReturnEvaluationSamplesAverageEvaluator(Evaluator):
     '''

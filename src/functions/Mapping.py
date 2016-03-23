@@ -43,7 +43,6 @@ class Mapping(DataManipulator, MappingInterface):
         self.name = name
         '''
         Name of the mapping function
-        TODO change to property
         '''
 
         self.inputVariables = []

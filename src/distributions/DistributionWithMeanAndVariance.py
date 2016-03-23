@@ -102,7 +102,6 @@ class DistributionWithMeanAndVariance(Distribution):
         samples = None
         qData = None
 
-        # TODO: restrictToRangeLogLik was removed, check if it's needed anymore
         minRange = self.getDataManager().getMinRange(self.outputVariable)
         maxRange = self.getDataManager().getMaxRange(self.outputVariable)
         # TODO: check this:

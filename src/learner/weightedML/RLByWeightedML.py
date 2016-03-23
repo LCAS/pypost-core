@@ -88,7 +88,8 @@ class RLByWeightedML(RLLearner, DataManipulator, object):
         for i in range(0, len(p)):
             index[i] = True if (p[i] > 10e-10) else False
 
-        divKL = np.sum(p[index] * np.log(p[index] / q[index]))
+        divKL = np.sum(p[index] * np.log(np.divide(p[index], q[index])))
+        print(divKL)
         return divKL
 
     def computeWeighting(self, **args):
@@ -98,9 +99,6 @@ class RLByWeightedML(RLLearner, DataManipulator, object):
         raise NotImplementedError("Not implemented")
 
     def _registerWeightingFunction(self):
-        # FIXME remove magic strings
-        # TODO why do we even derive from a Mapping class, if we only access
-        # the DataManipulator
         inputs = [self.rewardName]
         inputs.extend(self.additionalInputData)
         self.addDataManipulationFunction(self.computeWeighting, inputs,

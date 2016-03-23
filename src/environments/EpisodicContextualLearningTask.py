@@ -43,10 +43,8 @@ class EpisodicContextualLearningTask(DataManipulator):
         minRange = self.dataManager.getMinRange('contexts')
         maxRange = self.dataManager.getMaxRange('contexts')
 
-        # TODO: check this code. There might be an error because of the stange
-        # MatLab syntax
         states = np.rand(numSamples, size(minRange,2)) *\
-            np.tile(maxRange - minRange, (numSamples, 1)) * minRange
+            np.tile(maxRange - minRange, (numSamples, 1))
         return states
 
     def sampleStatesGaussian(self, numSamples):

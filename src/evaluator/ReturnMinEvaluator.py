@@ -5,7 +5,7 @@ Created on Dec 14, 2015
 '''
 import numpy as np
 from evaluator import Evaluator
-from experiments import StoringType
+from experiments.Trial import StoringType
 
 class ReturnMinEvaluator(Evaluator):
     '''

@@ -1,12 +1,9 @@
-# FIXME why is this needed?
 from functions.MappingInterface import MappingInterface
 
 
 class DistributionInterface(MappingInterface):
     '''
     Distribution Interface
-
-    #FIXME this is an interface. move the mathlab reference code from this file to a Distribution base class
     '''
 
     def __init__(self):
@@ -14,8 +11,6 @@ class DistributionInterface(MappingInterface):
         Constructor
         '''
         MappingInterface.__init__(self)
-
-        self.dataProbabilityEntries = []
 
     def setDataProbabilityEntries(self):
         '''

@@ -6,7 +6,7 @@ Created on Dec 14, 2015
 import numpy as np
 from numpy.linalg.linalg import eig
 from evaluator import Evaluator
-from experiments import StoringType
+from experiments.Trial import StoringType
 
 class ReturnSearchDistributionEigValueEvaluator(Evaluator):
     '''

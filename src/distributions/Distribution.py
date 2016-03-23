@@ -3,7 +3,23 @@ from distributions.DistributionInterface import DistributionInterface
 
 class Distribution(DistributionInterface):
     '''
-    classdocs
+    The Distribution class is the base class for distributions.
+
+    The functions `func:setDataProbabilityEntries()` and
+    `func:registerProbabilityNames()` can be used to create and register
+    Dataentries that contain correlation of two sets of data.
+
+    This class registers the abstract functions `func:sampleFromDistribution`
+    and `func:getDataProbabilities()`.
+
+    The to create a subclass of distribution you need to define the
+    following abstract classes:
+
+    - `func:sampleFromDistribution(numElements)`: should
+      return a matrix of numElements many random samples from this distribution.
+    - `func:getDataProbabilities(inputData, outputData)`: should return the
+      log likelihood for a given set of input data and output data to be related
+      in this distribution.
     '''
 
     def __init__(self, dataManager):
@@ -61,9 +77,6 @@ class Distribution(DistributionInterface):
                 [layerName + "." + self.dataProbabilityEntries[i]], 1)
 
     def getDataProbabilityNames(self, dataManager, layerName):
-        '''
-        FIXME we left this unimplemented because we didn't see a real use case
-        '''
         raise NotImplementedError("Not implemented")
 
     def registerMappingInterfaceDistribution(self):
@@ -91,8 +104,7 @@ class Distribution(DistributionInterface):
 
     def sampleFromDistribution(self, numElements):
         '''
-        get a matrix of with numElements many samples from this distribution
-        #TODO there where varargs, check if the are really needed
+        Get a matrix of with numElements many samples from this distribution
         '''
         raise NotImplementedError("Not implemented")
 
