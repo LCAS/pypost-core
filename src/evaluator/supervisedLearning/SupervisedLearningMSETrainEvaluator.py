@@ -4,7 +4,7 @@ Created on Dec 14, 2015
 @author: moritz
 '''
 import numpy as np
-from SupervisedLearningMSEEvaluator import SupervisedLearningMSEEvaluator
+from evaluator.supervisedLearning.SupervisedLearningMSEEvaluator import SupervisedLearningMSEEvaluator
 from evaluator import Evaluator
 from experiments.Trial import StoringType
 

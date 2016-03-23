@@ -11,6 +11,10 @@ from evaluator import LogType
 class RMatrixEvaluator(Evaluator):
     '''
     Evaluates if every eigenvalue is positive
+
+    Methods (annotated):
+    def __init__(self, params) -> 
+    getEvaluation(self, data, newData, trial)
     '''
 
     def __init__(self, params):

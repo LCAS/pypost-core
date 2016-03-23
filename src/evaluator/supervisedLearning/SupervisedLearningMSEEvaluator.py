@@ -10,6 +10,10 @@ from experiments.Trial import StoringType
 class SupervisedLearningMSEEvaluator(Evaluator):
     '''
     FIXME add description
+
+    Methods (annotated):
+    def __init__(self, additionalName: str ='')
+    def getEvaluation(self, data: data.Data, newData: data.Data, trial)
     '''
 
     def __init__(self, additionalName=''):

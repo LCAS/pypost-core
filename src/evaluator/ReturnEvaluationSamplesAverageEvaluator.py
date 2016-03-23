@@ -5,15 +5,17 @@ Created on Dec 14, 2015
 '''
 from evaluator import Evaluator
 from experiments.Trial import StoringType
+from common.SettingsClient import SettingsClient
 
-class ReturnEvaluationSamplesAverageEvaluator(Evaluator):
+class ReturnEvaluationSamplesAverageEvaluator(Evaluator, SettingsClient):
     '''
     Evaluates the parameterPolicyLearner.KL variable
     '''
 
     def __init__(self, numSamplesEvaluation):
-        '''
-        Constructor
+        ''' Constructor
+
+        :param numSamplesEvaluation: 
         '''
         super().__init__('rewardEval', {'preLoop', 'endLoop'}, StoringType.ACCUMULATE)
         
@@ -24,6 +26,7 @@ class ReturnEvaluationSamplesAverageEvaluator(Evaluator):
         
         self._data=None
         
+        self.globalProperties['numSamplesEvaluation'] = numSamplesEvaluation
         self.linkProperty('numSamplesEvaluation')
         
     def getEvaluation(self, data, newData, trial):

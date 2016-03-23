@@ -1,11 +1,16 @@
 import numpy as np
 from evaluator import Evaluator
 from experiments.Trial import StoringType
+from sampler.isActiveSampler.IsActiveNumSteps import IsActiveNumSteps
 
 
 class ReturnDecisionStagesEvaluator(Evaluator):
     '''
     Returns the max value from all return values
+
+    Methods (annotated):
+    def __init__(self, sampler: sampler.Sampler, numSamplesEvaluation: int =100, numStepsEvaluation: int =50)
+    def getEvaluation(self, data: data.Data, newData: data.Data, trial: experiments.Trial) -> None
     '''
 
     def __init__(self, sampler, numSamplesEvaluation=100,

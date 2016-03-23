@@ -8,12 +8,19 @@ from evaluator.LogType import LogType
 class Evaluator(object):
     '''
     Base evaluator class
+
+    Methods (annotated):
+    def __init__(self, name: str, hook: Set of str, storingType: experiments.Trial.Storingtype) -> None
+    def publish(self, string: str, logType: evaluator.LogType =None) -> None
     '''
 
 
     def __init__(self, name, hook, storingType):
-        '''
-        Constructor
+        ''' Constructor
+
+        :param name: Name of the evaluator
+        :param hook: Array of iterations
+        :param storingType: Type of storage
         TODO seems like every evaluator uses the endLoop hook, maybe hard-code it?
         '''
         
@@ -33,6 +40,11 @@ class Evaluator(object):
         '''
         
     def publish(self, string, logType=None):
+        ''' Prints the given message for the Evaluator
+
+        :param string: The message to be printed
+        :param logType: The type of this message (EVALUATION, WARNING, ERROR)
+        '''
         if logType==None:
             logType=LogType.EVALUATION
         
