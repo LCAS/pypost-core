@@ -55,26 +55,25 @@ class Trial():
             if name not in self.storePerIteration:
                 self.storePerIteration.append(name)
         elif mode is StoringType.ACCUMULATE_PER_ITERATION:
+            if not isinstance(value, np.ndarray):
+                value = np.array(value)
             if self.isProperty(name):
-                if isinstance(value, np.ndarray):
                     self.setProperty(name, np.vstack((self.getProperty(name),
                                                       value)))
-                else:
-                    raise RuntimeError("The given value is not a ndarray.")
             else:
                 self.setProperty(name, value)
             if name not in self.storePerIteration:
                 self.storePerIteration.append(name)
         elif mode is StoringType.ACCUMULATE:
+            if not isinstance(value, np.ndarray):
+                value = np.array(value)
             if self.isProperty(name):
                 if isinstance(value, np.ndarray):
                     self.setProperty(name, np.vstack((self.getProperty(name),
                                                       value)))
-                else:
-                    raise RuntimeError("The given value is not a ndarray.")
             else:
                 self.setProperty(name, value)
-            if name not in self.storPerTrial:
+            if name not in self.storePerTrial:
                 self.storePerTrial.append(name)
         elif mode is StoringType.STORE:
             self.setProperty(name, value)
