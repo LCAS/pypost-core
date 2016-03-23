@@ -17,7 +17,7 @@ class testDataPreprocessor(unittest.TestCase):
         datapreprocessor = DataPreprocessor()
 
         self.assertIsInstance(datapreprocessor, DataPreprocessor)
-        self.assertEqual(datapreprocessor.name, "DataPreprocessor")
+        self.assertEqual(datapreprocessor.name, 'data')
         self.assertEqual(datapreprocessor.iteration, 0)
 
     def test_init_givenName_expectNoException(self):
@@ -56,7 +56,7 @@ class testDataPreprocessor(unittest.TestCase):
         dataCollection.setStandardData(True)
 
         datapreprocessor.preprocessDataCollection(dataCollection)
-        self.assertEqual(dataCollection.getDataObject(DataPreprocessor), False)
+        self.assertEqual(dataCollection.getDataObject('TestName'), False)
 
     def test_setIteration_givenPositiveIterationValue_expectGivenInputVariable(
             self):

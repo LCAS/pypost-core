@@ -10,7 +10,7 @@ class DataPreprocessor(object):
 
         self.iteration = 0
 
-        self.name = "DataPreprocessor"
+        self.name = 'data'
 
         if name is not None:
             if name == "":
