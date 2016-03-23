@@ -28,27 +28,23 @@ class Distribution(DistributionInterface):
         '''
         This function will create a new ProbabilityEntries to the
         dataProbabilityEntries list. The Dataentry will be a combined
-        string <tt>’logQ’ + <uppercase of the first letter of the output
-        variable> +<lowercase of the first letter of the input variable></tt>.
+        string `'logQ' + <uppercase of the first letter of the output
+        variable> + <lowercase of the first letter of the input variable>`.
         The list of data probability entries can be registered via
-        <tt>registerProbabilityNames()</tt>.
+        `:func:registerProbabilityNames()`.
         '''
-        # FIXME we left this unimplemented because we didn't see a real use case
-        # this function
         inputVariablesShort = ''
         outputVariablesShort = ''
 
         for i in range(0, len(self.inputVariables)):
             if isinstance(self.inputVariables[i], list):
                 for j in range(0, len(self.inputVariables[i])):
-                    # TODO: lower()
-                    inputVariablesShort.append(self.inputVariables[i][j][0])
+                    inputVariablesShort.append(
+                        self.inputVariables[i][j][0].lower())
             else:
-                # TODO: lower()
-                inputVariablesShort += (self.inputVariables[i][0])
+                inputVariablesShort += self.inputVariables[i][0].lower()
 
-        # TODO upper()
-        outputVariablesShort += self.outputVariable[0]
+        outputVariablesShort += self.outputVariable[0].upper()
 
         if len(self.dataProbabilityEntries) == 0:
             self.dataProbabilityEntries.append(None)

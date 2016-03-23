@@ -20,10 +20,11 @@ class DistributionInterface(MappingInterface):
     def setDataProbabilityEntries(self):
         '''
         This function will create a new ProbabilityEntries to the
-        dataProbabilityEntries list. The DataEntry will be a combined
-        "logQ" + <uppercase first letter output> + <lowercase first letter input>
+        dataProbabilityEntries list. The Dataentry will be a combined
+        string `'logQ' + <uppercase of the first letter of the output
+        variable> + <lowercase of the first letter of the input variable>`.
         The list of data probability entries can be registered via
-        registerProbabilityNames()
+        `:func:registerProbabilityNames()`.
         '''
         raise NotImplementedError("Not implemented")
 

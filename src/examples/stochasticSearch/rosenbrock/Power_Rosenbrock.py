@@ -72,7 +72,7 @@ class PowerRosenbrock(Trial):
             #trial.store("avgReturns",np.mean(newData.getDataEntry("returns")), Experiments.StoringType.ACCUMULATE)
 
             print(
-                "Iteration: %d, Episodes: %d, AvgReturn: %f\n" %
+                "Iteration: %d, Episodes: %d, AvgReturn: %f" %
                 (i,
                  i *
                  self.settings.getProperty('numSamplesEpisodes'),
