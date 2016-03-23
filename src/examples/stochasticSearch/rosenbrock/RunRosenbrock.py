@@ -1,8 +1,5 @@
-'''
-Created on 20.03.2016
+#!/usr/bin/python
 
-@author: Sebastian Kreutzer
-'''
 import os
 import sys
 sys.path.append(
@@ -31,4 +28,4 @@ if __name__ == '__main__':
 
     experiment.startLocal()
 
-    # TODO(Sebastian): Add fancy plotting and shit
+    # TODO(Sebastian): Add fancy plotting
