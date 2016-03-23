@@ -14,7 +14,7 @@ class DataPreprocessor(object):
 
         if name is not None:
             if name == "":
-                raise RuntimeError("name can not be empty")
+                raise ValueError("name can not be empty")
             self.name = name
 
     def preprocessData(self, data):

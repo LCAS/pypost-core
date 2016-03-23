@@ -8,7 +8,7 @@ from data.DataCollection import DataCollection
 
 import DataUtil
 
-from dataPreprocessor.DataPreprocessor import DataPreprocessor
+from data.DataPreprocessor import DataPreprocessor
 
 
 class testDataPreprocessor(unittest.TestCase):
@@ -27,10 +27,8 @@ class testDataPreprocessor(unittest.TestCase):
         self.assertEqual(datapreprocessor.name, "TestName")
         self.assertEqual(datapreprocessor.iteration, 0)
 
-    def test_init_givenEmptyName_expectRuntimeError(
-            self):
-        self.assertRaises(
-            RuntimeError, lambda: DataPreprocessor(""))
+    def test_init_givenEmptyName_expectRuntimeError(self):
+        self.assertRaises(ValueError, DataPreprocessor, "")
 
     def test_preprocessData_NotImplementedError(self):
         datapreprocessor = DataPreprocessor("TestName")
