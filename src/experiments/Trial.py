@@ -97,16 +97,16 @@ class Trial():
 
     def storeTrialInFile(self, trialDir, overwrite=True):
         '''
-        Stores the trial in the given file.
+        Stores the trial in the given directory.
         Data and settings are stored separately.
         :param string filename: File name
         :param bool overwrite: Overwrite
         :return: True if storing is successful, False otherwise
         :rtpye: bool
         '''
-        # TODO  Use filename
-        if not self.trialDir:
-            return
+        
+        if trialDir is None or not os.path.isdir(trialDir):
+            return False
         
         data = {}
         for name in self.storePerTrial:
@@ -130,6 +130,10 @@ class Trial():
         self.loadTrialFromFile(self.trialDir)
 
     def loadTrialFromFile(self, trialDir):
+        '''
+        Loads a trial from the given directory.
+        :param trialDir: The directory of the trial to load
+        '''
         print("Loading trial %s" % trialDir)
         if not os.path.isdir(trialDir):
             raise FileNotFoundError("Trial directory does not exist")

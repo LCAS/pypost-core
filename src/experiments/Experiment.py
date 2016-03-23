@@ -121,7 +121,7 @@ class Experiment(object):
         if not os.path.exists(newExperiment.experimentPath):
             os.mkdir(newExperiment.experimentPath)
 
-        newExperiment.defaultTrial = newExperiment.createTrial(None,
+        newExperiment.defaultTrial = newExperiment.createTrial(
             newExperiment.experimentPath, 0)
         newExperiment.defaultTrial.storeTrial()
 
@@ -284,7 +284,7 @@ class Experiment(object):
         print("Loading trial %s" % trialDir)
         if not os.path.exists(trialDir):
             print("Path doesn't exist")
-        trial = Trial(os.path.abspath(os.path.join(trialDir, os.path.pardir)),
+        trial = self.createTrial(os.path.abspath(os.path.join(trialDir, os.path.pardir)),
                       trialID)
         trial.loadTrial()
         return trial
@@ -356,5 +356,5 @@ class Experiment(object):
 
         self.defaultSettings.set(parameterName, parameterValue)
 
-    def createTrial(self, settings, evalPath, trialIndex):
+    def createTrial(self, evalPath, trialIndex):
         raise NotImplementedError("Abstract Method")

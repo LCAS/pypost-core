@@ -29,6 +29,9 @@ class testExperiment(unittest.TestCase):
         self.assertEqual(self.experiment.path, '/tmp/testCategory/TestTrial')
         self.assertEqual(self.experiment.experimentPath, '/tmp/testCategory/TestTrial/settings000')
         
+    def testLoadTrial(self):
+        
+        
     def testFfjksdhjkfhsduzh(self):
         e = self.experiment
         e.startDefaultTrial()
