@@ -572,3 +572,23 @@ class DataManager():
             for subStructure in dataStructure. \
                     dataStructureLocalLayer[self.subDataManager.name]:
                 self.subDataManager.reserveStorage(subStructure, numElements)
+
+    def mergeDataStructures(self, dataStructure1, dataStructure2):
+        '''
+        Merges two data structures together.
+        The entries of the first data structure will be in front.
+        :param dataStructure1: The first data structure
+        :param dataStructure2: The second data structure
+        :return: The result of the merge operation
+        '''
+        for entry in self.dataEntries:
+            dataStructure1.dataStructureLocalLayer[entry] = \
+                np.vstack((dataStructure1[entry], dataStructure2[entry]))
+        dataStructure1.numElements = dataStructure1.numElements + \
+            dataStructure2.numElements
+
+        if self.subDataManager is not None:
+            subName = self.subDataManager.name
+            dataStructure1.dataStructureLocalLayer[subName] = \
+                dataStructure1[subName] + dataStructure2[subName]
+        return dataStructure1

@@ -280,3 +280,19 @@ class Data():
                             should be able to handle.
         '''
         self.dataManager.reserveStorage(self.dataStructure, numElements)
+
+    def mergeData(self, other, inBack=True):
+        '''
+        Merges two data objects. The data from the second data object
+        is either added in the back or in the front of the data points
+        of the current object.
+        :param other: The other data object
+        :param inBack: If True, adds the data to the back
+        '''
+        otherStructure = other.dataStructure
+        if inBack:
+            self.dataStructure = self.dataManager.mergeDataStructures(
+                                            self.dataStructure, otherStructure)
+        else:
+            self.dataStructure = self.dataManager.mergeDataStructures(
+                                            otherStructure, self.dataStructure)
