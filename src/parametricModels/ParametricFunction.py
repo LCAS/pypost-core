@@ -15,7 +15,7 @@ class ParametricFunction(MappingInterface):
                                              [self.outputVariable[0] + 'Grad'])
 
     def registerGradientDataEntry(self):
-        self.dataManager.addDataEntry(self.outpurVariable + 'Grad',
+        self.dataManager.addDataEntry(self.outputVariable + 'Grad',
                                       self.numParameters);
 
     def getGradient(self, *args):
