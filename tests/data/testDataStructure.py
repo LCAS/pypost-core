@@ -86,6 +86,13 @@ class testDataStructure(unittest.TestCase):
         self.assertRaises(ValueError, dataStructure.getDataEntry,
                           ['a', 'b'], [Exception(), ...])
 
+    def test_getDataEntry_invalid_indices_type(self):
+        dataStructure = DataStructure(-1)
+        dataStructure.createEntry('parameters', np.ndarray((3,4)))
+
+        self.assertRaises(ValueError, dataStructure.getDataEntry,
+            ['parameters'], 'x')
+
     def test_setDataEntry_empty_path(self):
         dataStructure = DataStructure(-1)
         self.assertRaises(ValueError, dataStructure.setDataEntry, [], [],
