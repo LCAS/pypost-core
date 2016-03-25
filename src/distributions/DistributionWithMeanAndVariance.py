@@ -137,23 +137,25 @@ class DistributionWithMeanAndVariance(Distribution):
 
         samplesDist = sum(samples**2, 2)
         # samplesDist = samplesDist - min(samplesDist)
-        qData = -0.5 * samplesDist + qData - expectation.shape[1]/2 *\
-                math.log(2*math.pi) # Misssing 2 pi?
+        qData = -0.5 * samplesDist + qData - expectation.shape[1] / 2 *\
+            math.log(2 * math.pi)  # Misssing 2 pi?
 
         return qData
 
-    def registerMappingInterfaceDistribution(self):
-        Distribution.registerMappingInterfaceDistribution(self)
+    def _registerMappingInterfaceDistribution(self):
+        Distribution._registerMappingInterfaceDistribution(self)
 
         if self.registerDataFunctions:
             self.addDataManipulationFunction(
                 self.getExpectationAndSigma,
-                [self.inputVariables, self.additionalInputVariables],
-                [self.outputVariable[0]+'Mean', self.outputVariable[0]+'Std'],
+                self.inputVariables + self.additionalInputVariables,
+                [self.outputVariable[0] +
+                 'Mean', self.outputVariable[0] +
+                 'Std'],
                 CallType.ALL_AT_ONCE, True)
-
 
     def getExpectationAndSigma(self, numElements, inputData, *args):
         # return mean, sigma
-        # Check how this function is expected to behave in the documentation of this class
+        # Check how this function is expected to behave in the documentation of
+        # this class
         raise NotImplementedError()

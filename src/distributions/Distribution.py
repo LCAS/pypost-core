@@ -1,25 +1,10 @@
 from distributions.DistributionInterface import DistributionInterface
+from functions.Mapping import Mapping
 
 
-class Distribution(DistributionInterface):
+class Distribution(DistributionInterface, Mapping):
     '''
-    The Distribution class is the base class for distributions.
-
-    The functions `func:setDataProbabilityEntries()` and
-    `func:registerProbabilityNames()` can be used to create and register
-    Dataentries that contain correlation of two sets of data.
-
-    This class registers the abstract functions `func:sampleFromDistribution`
-    and `func:getDataProbabilities()`.
-
-    The to create a subclass of distribution you need to define the
-    following abstract classes:
-
-    - `func:sampleFromDistribution(numElements)`: should
-      return a matrix of numElements many random samples from this distribution.
-    - `func:getDataProbabilities(inputData, outputData)`: should return the
-      log likelihood for a given set of input data and output data to be related
-      in this distribution.
+    classdocs
     '''
 
     def __init__(self, dataManager):
@@ -29,11 +14,7 @@ class Distribution(DistributionInterface):
         :change: dataManager was removed from function arguments and is now a constructor argument.
         '''
         DistributionInterface.__init__(self)
-
-        self.dataManager = dataManager
-        '''
-        The data manager to register the distribution to
-        '''
+        Mapping.__init__(self, dataManager)
 
         self.dataProbabilityEntries = []
         '''
@@ -43,75 +24,72 @@ class Distribution(DistributionInterface):
     def setDataProbabilityEntries(self):
         '''
         This function will create a new ProbabilityEntries to the
-        dataProbabilityEntries list. The Dataentry will be a combined
-        string `'logQ' + <uppercase of the first letter of the output
-        variable> + <lowercase of the first letter of the input variable>`.
+        dataProbabilityEntries list. The DataEntry will be a combined
+        string <tt>'logQ' + <uppercase of the first letter of the output
+        variable>+<lowercase of the first letter of the input variable></tt>.
         The list of data probability entries can be registered via
-        `:func:registerProbabilityNames()`.
+        <tt>registerProbabilityNames()</tt>.
         '''
-        inputVariablesShort = ''
-        outputVariablesShort = ''
+        inputVariablesShort = ""
+        outputVariablesShort = ""
 
-        for i in range(0, len(self.inputVariables)):
-            if isinstance(self.inputVariables[i], list):
-                for j in range(0, len(self.inputVariables[i])):
-                    inputVariablesShort.append(
-                        self.inputVariables[i][j][0].lower())
-            else:
-                inputVariablesShort += self.inputVariables[i][0].lower()
+        # concatenate the first letter of all input vars
+        for inputVar in self.inputVariables:
+            inputVariablesShort = inputVariablesShort + inputVar[0].lower()
 
-        outputVariablesShort += self.outputVariable[0].upper()
+        for outputVar in self.outputVariables:
+            outputVariablesShort = outputVariablesShort + outputVar[0].upper()
 
-        if len(self.dataProbabilityEntries) == 0:
-            self.dataProbabilityEntries.append(None)
-
-        self.dataProbabilityEntries[0] = 'logQ' + outputVariablesShort + inputVariablesShort
+        self.dataProbabilityEntries.append(
+            'logQ' +
+            outputVariablesShort +
+            inputVariablesShort)
 
     def registerProbabilityNames(self, layerName):
         '''
         registers all data probability entries on the dataProbabilityEntries
         list
         '''
-        for i in range(len(self.dataProbabilityEntries)):
+        for dataProbabilityEntry in self.dataProbabilityEntries:
             self.dataManager.addDataEntry(
-                [layerName + "." + self.dataProbabilityEntries[i]], 1)
+                layerName +
+                "." +
+                dataProbabilityEntry,
+                1)
 
-    def getDataProbabilityNames(self, dataManager, layerName):
-        raise NotImplementedError("Not implemented")
+    def getDataProbabilityNames(self):
+        return list(self.dataProbabilityEntries)
 
-    def registerMappingInterfaceDistribution(self):
+    def _registerMappingInterfaceDistribution(self):
         '''
         registers a mapping and data function
-        :change
         '''
-        self.registerDataFunctions=True
-
         if self.registerDataFunctions:
-            self.addMappingFunction(self.sampleFromDistribution)
-            if self.outputVariable is not None:
+            self.addMappingFunction("sampleFromDistribution")
+
+            if not self.outputVariables:
                 self.setDataProbabilityEntries()
-                if self.registerDataFunctions:
-                    if self.inputVariables is None:
-                        inputArgsLogLik = [self.inputVariables,
-                                           self.outputVariable, self.additionalInputVariables]
-                    else:
-                        inputArgsLogLik = [self.inputVariables,
-                                           self.outputVariable, self.additionalInputVariables]
+                self.addDataManipulationFunction(
+                    self.getDataProbabilities,
+                    self.inputVariables + self.outputVariables,
+                    self.dataProbabilityEntries)
 
-                    self.addDataManipulationFunction(
-                        self.getDataProbabilities, inputArgsLogLik,
-                        self.dataProbabilityEntries)
-
-    def sampleFromDistribution(self, numElements):
+    def sampleFromDistribution(self, numElements, *args):
         '''
-        Get a matrix of with numElements many samples from this distribution
+        get a matrix of with numElements many samples from this distribution
+        :param numElements
+        :param varargin:    parameter for the abstract `getExpectationAndSigma()`
+                            function. Parameters depend on the subclass you are using.
+        :return             a number of random samples of the distribution
+        :abstract
         '''
         raise NotImplementedError("Not implemented")
 
     def getDataProbabilities(self, inputData, outputData):
         '''
-        get the log likelihood for a given set of in- and output data to be related
+        get the log likelihood for a given set of in- and output data to be related in this distribution
         #TODO there where varargs, check if the are really needed
         :returns: log likelihood of in- and output data to be related
+        :abstract
         '''
         raise NotImplementedError("Not implemented")
