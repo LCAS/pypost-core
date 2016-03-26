@@ -63,6 +63,7 @@ class Distribution(DistributionInterface, Mapping):
     def _registerMappingInterfaceDistribution(self):
         '''
         registers a mapping and data function
+        #FIXME it seems like registerDataFunctions is never set to true ^moritz
         '''
         if self.registerDataFunctions:
             self.addMappingFunction("sampleFromDistribution")

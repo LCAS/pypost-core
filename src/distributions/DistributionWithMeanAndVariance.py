@@ -37,8 +37,7 @@ class DistributionWithMeanAndVariance(Distribution):
 
     def sampleFromDistribution(self, numElements, *args):
         '''
-        FIXME: varargin
-        :param varargin: parameter for the abstract `getExpectationAndSigma()`
+        :param *args: parameter for the abstract `getExpectationAndSigma()`
                          function. The first parameter is always `numElements`,
                          the rest is dependent on the subclass you are using
                          returns a number of random samples of the distribution
@@ -91,7 +90,7 @@ class DistributionWithMeanAndVariance(Distribution):
         '''
         :param inputData: vector of input data
         :param outputData: vector of output data
-        :param varargin: used in `getExpectationAndSigma()`. Returns a vector
+        :param *args: used in `getExpectationAndSigma()`. Returns a vector
                          of the probability of inputData resulting in
                          outputData.
         '''
@@ -156,6 +155,7 @@ class DistributionWithMeanAndVariance(Distribution):
 
     def getExpectationAndSigma(self, numElements, inputData, *args):
         # return mean, sigma
+        # FIXME
         # Check how this function is expected to behave in the documentation of
         # this class
         raise NotImplementedError()
