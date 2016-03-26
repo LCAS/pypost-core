@@ -12,7 +12,7 @@ class Function(MappingInterface):
 
     def __init__(self):
         MappingInterface.__init__(self)
-        self.registerDataFunctions = False # TODO check this
+        self.registerDataFunctions = True # TODO check this
         pass
 
     def registerMappingInterfaceFunction(self):

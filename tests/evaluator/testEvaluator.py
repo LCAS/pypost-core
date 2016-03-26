@@ -13,7 +13,7 @@ class testEvaluator(unittest.TestCase):
         pass
 
     def test_init(self):
-        self.assertEqual(self.evaluator.name, 'testEvaluator')
+        self.assertEqual(self.evaluator.name, 'testEval')
 
     def test_publish(self):
         self.evaluator.publish('Testmessage1. Success!')

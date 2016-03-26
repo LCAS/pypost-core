@@ -65,7 +65,7 @@ class Distribution(DistributionInterface, Mapping):
         registers a mapping and data function
         '''
         if self.registerDataFunctions:
-            self.addMappingFunction("sampleFromDistribution")
+            self.addMappingFunction(self.sampleFromDistribution)
 
             if not self.outputVariables:
                 self.setDataProbabilityEntries()
