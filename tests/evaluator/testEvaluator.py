@@ -1,18 +1,16 @@
 import unittest
 from evaluator.Evaluator import Evaluator
 from evaluator.LogType import LogType
+from experiments.Trial import StoringType
 
 
 class testEvaluator(unittest.TestCase):
-
-
     def setUp(self):
-        self.evaluator = Evaluator('testEvaluator')
-
+        self.evaluator = Evaluator(
+            'testEval', {'preLoop', 'endLoop'}, StoringType.ACCUMULATE)
 
     def tearDown(self):
         pass
-
 
     def test_init(self):
         self.assertEqual(self.evaluator.name, 'testEvaluator')
@@ -21,9 +19,8 @@ class testEvaluator(unittest.TestCase):
         self.evaluator.publish('Testmessage1. Success!')
         self.evaluator.publish('Testmessage2. Success!', LogType.EVALUATION)
 
-    def test_getEvaluation():
-        with self.assertRaises():
-            self.evaluator.getEvaluation()
+    def test_getEvaluation(self):
+        self.assertRaises(NotImplementedError, self.evaluator.getEvaluation)
 
 
 if __name__ == "__main__":
