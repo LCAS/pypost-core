@@ -4,8 +4,9 @@ Created on Dec 13, 2015
 @author: moritz
 '''
 from evaluator.LogType import LogType
+from experiments.Trial import StoringType
 
-class Evaluator(object):
+class Evaluator():
     '''
     Base evaluator class
 
@@ -21,24 +22,25 @@ class Evaluator(object):
         :param name: Name of the evaluator
         :param hook: Array of iterations
         :param storingType: Type of storage
+
         TODO seems like every evaluator uses the endLoop hook, maybe hard-code it?
         '''
-        
+
         self.name=name
         '''
         Name of the evaluator
         '''
-        
+
         self.hook=hook
         '''
         array of iterations to execute the evaluator
         '''
-        
+
         self.storingType=storingType
         '''
-        FIXME enum?
+        the storing type as an Enum
         '''
-        
+
     def publish(self, string, logType=None):
         ''' Prints the given message for the Evaluator
 
@@ -47,10 +49,10 @@ class Evaluator(object):
         '''
         if logType==None:
             logType=LogType.EVALUATION
-        
+
         #FIXME add filters for different log types
         print(self.name+': '+string)
-    
+
     def getEvaluation(self, data, newData, trial):
         '''
         Evaluate the given data

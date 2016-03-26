@@ -10,7 +10,7 @@ from experiments.Evaluation import Evaluation
 from experiments.Trial import Trial
 
 
-class Experiment(object):
+class Experiment():
     '''
     This class provides the basic functionality for defining experiments.
     An experiments is always a combination of a LearningSetup and a TaskSetup.

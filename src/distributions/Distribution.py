@@ -66,7 +66,7 @@ class Distribution(DistributionInterface, Mapping):
         #FIXME it seems like registerDataFunctions is never set to true ^moritz
         '''
         if self.registerDataFunctions:
-            self.addMappingFunction("sampleFromDistribution")
+            self.addMappingFunction(self.sampleFromDistribution)
 
             if not self.outputVariables:
                 self.setDataProbabilityEntries()
