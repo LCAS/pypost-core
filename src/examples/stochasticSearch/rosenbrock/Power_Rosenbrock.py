@@ -14,7 +14,6 @@ from sampler.EpisodeSampler import EpisodeSampler
 
 
 class PowerRosenbrock(Trial):
-    # FIXME add some infos about this class
 
     def __init__(self, evalDir, trialIndex):
         super(PowerRosenbrock, self).__init__(evalDir, trialIndex)
@@ -68,6 +67,7 @@ class PowerRosenbrock(Trial):
             # learning comes here...
             self.policyLearner.updateModel(fullData)
 
+            #print(newData.getDataEntry('returns'), np.mean(newData.getDataEntry('returns')))
             self.store('avgReturns', np.mean(newData.getDataEntry('returns')), StoringType.ACCUMULATE)
             '''
             % log the results...

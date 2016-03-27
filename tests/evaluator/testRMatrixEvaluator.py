@@ -5,14 +5,11 @@ from experiments.Trial import Trial
 
 class testRMatrixEvaluator(unittest.TestCase):
 
-
     def setUp(self):
         self.evaluator = RMatrixEvaluator()
 
-
     def tearDown(self):
         pass
-
 
     def test_init(self):
         self.assertIsInstance(self.evaluator, RMatrixEvaluator)
@@ -28,5 +25,4 @@ class testRMatrixEvaluator(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

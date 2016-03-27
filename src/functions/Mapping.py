@@ -61,12 +61,6 @@ class Mapping(DataManipulator, MappingInterface):
         if outputVariables is not None:
             self.setOutputVariables(outputVariables)
 
-        # self.dimInput = {}
-
-        # self.dimOutput = {}
-        # TODO: check the following line
-        self.dimOutput = self.dataManager.getNumDimensions(self.outputVariables)
-
         self.mappingFunctions = []
 
     def getAdditionalInputVariables(self):
@@ -134,7 +128,7 @@ class Mapping(DataManipulator, MappingInterface):
             > Look into the Matlab code for more detail.
             '''
             raise DeprecationWarning("Function interface changed, the numDim" +
-                " parameter now hold the number of dimensions")
+                                     " parameter now hold the number of dimensions")
 
         if append:
             self.inputVariables.extend(inputVariables)
@@ -157,7 +151,15 @@ class Mapping(DataManipulator, MappingInterface):
             raise RuntimeError("Only single output variable supported")
 
         self.outputVariables = outputVariables
-        self.dimOutput = self.dataManager.getNumDimensions(self.outputVariables)
+        self.dimOutput = self.dataManager.getNumDimensions(
+            self.outputVariables)
+
+        # TODO there was a call to setOutputArguments but I didn't find a
+        # single definition of this function anywhere in the code ^moritz
+
+    def setOutputDimension(self, dimension):
+        self.dimOutput = dimension
+        self.outputVariables = []
 
     # def cloneDataManipulationFunctions(self, cloneDataManipulator):
         #raise "Not implemented"

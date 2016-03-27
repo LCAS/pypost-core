@@ -6,7 +6,5 @@ from experiments.Evaluation import Evaluation
 class testEvaluation(unittest.TestCase):
 
     def testSetExperiment(self):
-        testExperiment = Experiment("test", "test")
+        testExperiment = Experiment('/tmp/', "test", "test")
         evaluation = Evaluation(testExperiment, 0, None, None, None)
-
-        # Not sure how to test this shit

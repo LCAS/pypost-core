@@ -76,6 +76,11 @@ with python e.g.
 Further information on the code or how to use certain methods can be
 looked up in the documentation or the corresponding tests.
 
+For a detailed overview over the key differences and a table of MATLAB-NumPy expression equivalents, we stongly recommend to read the NumPy for Matlab users guide [1]. There also is another overview table that shows the differences between Matlab and Python in general [2].
+
+[1] https://docs.scipy.org/doc/numpy-dev/user/numpy-for-matlab-users.html
+
+[2] http://mathesaurus.sourceforge.net/matlab-numpy.html
 
 Module Overview
 ===============

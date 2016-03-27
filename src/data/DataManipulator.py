@@ -337,10 +337,13 @@ class DataManipulator(DataManipulatorInterface):
                     inputArgs[i] = arg[:, dataManipulationStruct.indices[i]]
 
             numElements = None
-            if dataManipulationStruct.takesNumElements:
+            if dataManipulationStruct.takesNumElements and \
+               len(dataManipulationStruct.depthEntry) != 0:
                 outputDepth = self._dataManager.getDataEntryDepth(
                     dataManipulationStruct.depthEntry)
                 numElements = data.getNumElementsForIndex(outputDepth, indices)
+            else:
+                numElements = 0
 
             outArgs = self._callDataFuntionInternalMatrices(
                 dataManipulationStruct, data, numElements,

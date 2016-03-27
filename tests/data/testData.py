@@ -1,5 +1,12 @@
 import unittest
 import numpy as np
+import sys
+import os
+sys.path.append(
+    os.path.abspath(os.path.dirname(os.path.realpath(__file__))+'/..'))
+sys.path.append(
+    os.path.abspath(os.path.dirname(os.path.realpath(__file__))+'/../../src/'))
+
 from numpy.core.numeric import ones
 from data.DataEntry import DataEntry
 from data.DataManager import DataManager
@@ -559,6 +566,50 @@ class testDataManager(unittest.TestCase):
         self.assertEqual(data.getNumElementsForIndex(1, [...]), 3)
         self.assertEqual(data.getNumElementsForIndex(1, [..., ...]), 3)
         self.assertEqual(data.getNumElementsForIndex(1, [slice(2, 3)]), 1)
+        
+    def test_mergeDataBack(self):
+        dataManager = DataManager("manager")
+        subDataManager = DataManager("subDataManager")
+        dataManager.subDataManager = subDataManager
+        dataManager.addDataEntry("entry1", 2)
+        subDataManager.addDataEntry("entry2", 3)
+        
+        data1 = dataManager.getDataObject([10, 10])
+        data1.setDataEntry("entry1", ..., np.ones((10, 2)))
+        data1.setDataEntry("entry2", ..., np.ones((100, 3)))
+        
+        data2 = dataManager.getDataObject([5, 5])
+        data2.setDataEntry("entry1", ..., np.zeros((5, 2)))
+        data2.setDataEntry("entry2", ..., np.zeros((25, 3)))
+        
+        data1.mergeData(data2, True)
+        
+        self.assertEqual(data1.getNumElements("entry1"), 15)
+        self.assertEqual(len(data1.dataStructure["subDataManager"]), 15)
+        self.assertTrue((data1.getDataEntry("entry1", ...) == 
+                        np.vstack((np.ones((10, 2)), np.zeros((5, 2))))).all())
 
+    def test_mergeDataFront(self):
+        dataManager = DataManager("manager")
+        subDataManager = DataManager("subDataManager")
+        dataManager.subDataManager = subDataManager
+        dataManager.addDataEntry("entry1", 2)
+        subDataManager.addDataEntry("entry2", 3)
+        
+        data1 = dataManager.getDataObject([10, 10])
+        data1.setDataEntry("entry1", ..., np.ones((10, 2)))
+        data1.setDataEntry("entry2", ..., np.ones((100, 3)))
+        
+        data2 = dataManager.getDataObject([5, 5])
+        data2.setDataEntry("entry1", ..., np.zeros((5, 2)))
+        data2.setDataEntry("entry2", ..., np.zeros((25, 3)))
+        
+        data1.mergeData(data2, False)
+        
+        self.assertEqual(data1.getNumElements("entry1"), 15)
+        self.assertEqual(len(data1.dataStructure["subDataManager"]), 15)
+        self.assertTrue((data1.getDataEntry("entry1", ...) == 
+                        np.vstack((np.zeros((5, 2)), np.ones((10, 2))))).all())
+        
 if __name__ == '__main__':
     unittest.main()

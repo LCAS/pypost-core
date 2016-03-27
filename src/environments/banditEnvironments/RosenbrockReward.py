@@ -35,8 +35,8 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask):
             parameters[i,:] = parameters[i,:] +\
                               np.sin(vec)
 
-        x = parameters
-        if len(parameters.shape) >= 2:
+        x = contexts
+        if len(contexts.shape) >= 2:
             x = x.conj().T
         else:
             x = x[np.newaxis, :].T
@@ -52,9 +52,9 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask):
                  np.sum((x[3: -2, :]-1)**2, 1)
 
         if len(reward.shape) >= 2:
-            reward = -1**(reward.conj().T)
+            reward = -1*(reward.conj().T)
         else:
-            reward = -1**(reward[np.newaxis, :].T)
+            reward = -1*(reward[np.newaxis, :].T)
 
         if reward.shape[0] == 1:
             reward = reward[0]

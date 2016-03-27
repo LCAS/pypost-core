@@ -2,12 +2,12 @@ import math
 import numpy as np
 from functions.FunctionLinearInFeatures import FunctionLinearInFeatures
 from distributions.DistributionWithMeanAndVariance import \
-DistributionWithMeanAndVariance
+    DistributionWithMeanAndVariance
 from parametricModels.ParametricModel import ParametricModel
 
 
 class GaussianLinearInFeatures(FunctionLinearInFeatures,
-    DistributionWithMeanAndVariance, ParametricModel):
+                               DistributionWithMeanAndVariance, ParametricModel):
     '''
     The  GaussianLinearInFeatures class models gaussian distributions where the
     mean can be a linear function of the feature vectors.
@@ -62,23 +62,24 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         # FIXME
         #self.indexForCov = []
         #index = 0
-        #for i in range(0, self.dimOutput)
+        # for i in range(0, self.dimOutput)
         #    self.indexForCov.append(index + (i:self.dimOutput))
         #    index = index + self.dimOutput
 
-        #if (ischar(outputVariable))
+        # if (ischar(outputVariable))
         #    self.linkProperty('initSigma', ['initSigma',  #upper(self.outputVariable(1)), self.outputVariable(2:end)])
-        #else
+        # else
         #    self.linkProperty('initSigma')
-        #end
+        # end
 
-        self.registerMappingInterfaceDistribution()
+        self._registerMappingInterfaceDistribution()
         self.registerMappingInterfaceFunction()
         self.registerGradientModelFunction()
 
     def getNumParameters(self):
-        numParameters = LinearInFeatures.getNumParameters() +\
+        numParameters = self.getNumParameters() +\
         self.numParameters + self.dimOutput * (self.dimOutput + 1) / 2
+        return numParameters
 
     def getCovariance(self):
         '''
@@ -130,22 +131,22 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         print('ATTENTION(conj()): ', tmp)
         SigmaNew = np.vstack((np.hstack((SigmaInput, tmp)),
                               np.hstack(
-                                tmp.conj().T,
-                                self.getCovariance() + self.weights.dot(tmp))))
+            tmp.conj().T,
+            self.getCovariance() + self.weights.dot(tmp))))
 
-        return (nuNew, SigmaNew)
+        return (muNew, SigmaNew)
 
     def getGaussianFromJoint(self, muJoint, SigmaJoint):
         tmpN = self.dimInput
         muInput = muJoint[0:tmpN]
         SigmaInput = SigmaJoint[0:tmpN, 0:tmpN]
 
-        SigmaInputOutput = SigmaJoint[0:tmpN, tmpN:-1] # TODO: check
+        SigmaInputOutput = SigmaJoint[0:tmpN, tmpN:-1]  # TODO: check
         self.weights = np.linalg.lstsq(SigmaInput.T, SigmaInputOutput)
         self.bias = muJoint[tmpN:-1] - self.weights.dot(muInput)
 
         SigmaOutput = SigmaJoint[tmpN:-1, tmpN:-1] -\
-                      self.weights.dot(SigmaInputOutput)
+            self.weights.dot(SigmaInputOutput)
         self.setCovariance(SigmaOutput)
 
     def getLikelihoodGradient(self, inputMatrix, outputMatrix):
@@ -155,22 +156,22 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         n = outputMatrix.shape[0]
         d = outputMatrix.shape[1]
         zmx = outputMatrix - expectation
-        C  = self.getCovariance()
+        C = self.getCovariance()
 
         duplicate = inputMatrix.shape[1] + 1
         gradMeanFactor = np.linalg.lstsq(C.T, zmx.T)
         gradMeanFactor = np.tile(gradMeanFactor, (1, duplicate))
         gradMean = gradientFunction * gradMeanFactor
 
-        gradCholA = np.zeros((n, d*(d+1)/2))
+        gradCholA = np.zeros((n, d * (d + 1) / 2))
 
         for s in range(0, n):
             R = np.linalg.lstsq(
-                    np.linalg.lstsq(
-                        self.cholA.conj().T,
-                        (zmx[s, :].conj().T).dot(zmx[s, :])).T,
-                    C.T) - np.diag(np.diag(self.cholA)**-1)
-            gradCholA[s,:] = R[self.indexForCov]
+                np.linalg.lstsq(
+                    self.cholA.conj().T,
+                    (zmx[s, :].conj().T).dot(zmx[s, :])).T,
+                C.T) - np.diag(np.diag(self.cholA)**-1)
+            gradCholA[s, :] = R[self.indexForCov]
 
         return (gradMean, gradCholA)
 
@@ -183,12 +184,12 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         F0 = np.linalg.inv(C)
         Fim[0:d, 0:d] = F0
 
-        ix_act = d+1
-        ix_nxt = 2*d
+        ix_act = d + 1
+        ix_nxt = 2 * d
 
         # TODO Check with Paper
         for k in range(0, d):
-            f = np.zeros((d-k+1, d-k+1))
+            f = np.zeros((d - k + 1, d - k + 1))
             f[0, 0] = math.pow(self.cholA[k, k], -2)
             D = F0[k:-1, k:-1]
 
@@ -207,15 +208,16 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         theta = theta[self.dimOutput.dot(1 + self.dimInput):-1]
         self.cholA[self.indexForCov] = theta
 
-
     def getParameterVector(self):
-        # Replaced the following line, not sure if legal syntax?
-        #theta = self.getParameterVector@Functions.FunctionLinearInFeatures()
         theta = super(GaussianLinearInFeatures, self).getParameterVector()
         return np.hstack((theta, self.cholA[self.indexForCov]))
 
     def getExpectationAndSigma(self, numElements, *args):
-        mean = FunctionLinearInFeatures.getExpectation(self, numElements, *args)
+        mean = FunctionLinearInFeatures.getExpectation(
+            self,
+            numElements,
+            *
+            args)
 
         sigma = np.ndarray((1,) + self.cholA.shape)
         sigma[0, :, :] = self.cholA

@@ -37,8 +37,7 @@ class DistributionWithMeanAndVariance(Distribution):
 
     def sampleFromDistribution(self, numElements, *args):
         '''
-        FIXME: varargin
-        :param varargin: parameter for the abstract `getExpectationAndSigma()`
+        :param *args: parameter for the abstract `getExpectationAndSigma()`
                          function. The first parameter is always `numElements`,
                          the rest is dependent on the subclass you are using
                          returns a number of random samples of the distribution
@@ -91,7 +90,7 @@ class DistributionWithMeanAndVariance(Distribution):
         '''
         :param inputData: vector of input data
         :param outputData: vector of output data
-        :param varargin: used in `getExpectationAndSigma()`. Returns a vector
+        :param *args: used in `getExpectationAndSigma()`. Returns a vector
                          of the probability of inputData resulting in
                          outputData.
         '''
@@ -137,23 +136,26 @@ class DistributionWithMeanAndVariance(Distribution):
 
         samplesDist = sum(samples**2, 2)
         # samplesDist = samplesDist - min(samplesDist)
-        qData = -0.5 * samplesDist + qData - expectation.shape[1]/2 *\
-                math.log(2*math.pi) # Misssing 2 pi?
+        qData = -0.5 * samplesDist + qData - expectation.shape[1] / 2 *\
+            math.log(2 * math.pi)  # Misssing 2 pi?
 
         return qData
 
-    def registerMappingInterfaceDistribution(self):
-        Distribution.registerMappingInterfaceDistribution(self)
+    def _registerMappingInterfaceDistribution(self):
+        Distribution._registerMappingInterfaceDistribution(self)
 
         if self.registerDataFunctions:
             self.addDataManipulationFunction(
                 self.getExpectationAndSigma,
-                [self.inputVariables, self.additionalInputVariables],
-                [self.outputVariable[0]+'Mean', self.outputVariable[0]+'Std'],
+                self.inputVariables + self.additionalInputVariables,
+                [self.outputVariable[0] +
+                 'Mean', self.outputVariable[0] +
+                 'Std'],
                 CallType.ALL_AT_ONCE, True)
-
 
     def getExpectationAndSigma(self, numElements, inputData, *args):
         # return mean, sigma
-        # Check how this function is expected to behave in the documentation of this class
+        # FIXME
+        # Check how this function is expected to behave in the documentation of
+        # this class
         raise NotImplementedError()

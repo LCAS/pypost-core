@@ -15,9 +15,6 @@ class EpisodicContextualParameterLearningTask(EpisodicContextualLearningTask):
        self.maxRangeParameters = self.dataManager.getMaxRange('parameters')
        self.dimParameters = self.dataManager.getNumDimensions('parameters')
 
-    def setInputParametersReturn(self, *args):
-        self.setInputArguments('sampleReturn', *args)
-
     def sampleReturn(self, *args):
         raise NotImplementedError("This method should be implemented in a " +
             "subclass.")

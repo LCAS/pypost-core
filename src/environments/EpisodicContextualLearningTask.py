@@ -1,6 +1,6 @@
 from data.DataManipulator import DataManipulator
-
 import numpy as np
+
 
 class EpisodicContextualLearningTask(DataManipulator):
 
@@ -43,7 +43,7 @@ class EpisodicContextualLearningTask(DataManipulator):
         minRange = self.dataManager.getMinRange('contexts')
         maxRange = self.dataManager.getMaxRange('contexts')
 
-        states = np.rand(numSamples, size(minRange,2)) *\
+        states = np.random.rand(numSamples, minRange.shape[0]) *\
             np.tile(maxRange - minRange, (numSamples, 1))
         return states
 
@@ -52,7 +52,7 @@ class EpisodicContextualLearningTask(DataManipulator):
         maxRange = self.dataManager.getMaxRange('contexts')
 
         states = np.tile((minRange + maxRange) / 2, (numSamples, 1)) +\
-                 np.randn(numSamples, self.dimState) *\
+                 np.random.randn(numSamples, self.dimState) *\
                  np.tile((maxRange - minRange) / 2, (numSamples, 1))
 
         return states
