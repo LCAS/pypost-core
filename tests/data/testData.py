@@ -610,6 +610,23 @@ class testDataManager(unittest.TestCase):
         self.assertEqual(len(data1.dataStructure["subDataManager"]), 15)
         self.assertTrue((data1.getDataEntry("entry1", ...) == 
                         np.vstack((np.zeros((5, 2)), np.ones((10, 2))))).all())
+
+    def test_mergeDataFrontNoSubmanager(self):
+        dataManager = DataManager("manager")
+        dataManager.addDataEntry("entry1", 2)
+
+        data1 = dataManager.getDataObject([10, 10])
+        data1.setDataEntry("entry1", ..., np.ones((10, 2)))
         
+        data2 = dataManager.getDataObject([5, 5])
+        data2.setDataEntry("entry1", ..., np.zeros((5, 2)))
+        
+        data1.mergeData(data2, False)
+        
+        self.assertEqual(data1.getNumElements("entry1"), 15)
+        self.assertTrue((data1.getDataEntry("entry1", ...) == 
+                        np.vstack((np.zeros((5, 2)), np.ones((10, 2))))).all())
+
+
 if __name__ == '__main__':
     unittest.main()
