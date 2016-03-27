@@ -8,7 +8,7 @@ class GaussianParameterPolicy(GaussianLinearInFeatures):
         '''
         Constructor
         '''
-        if inputVar is None:
+        if inputVar is None: #pragma nobranch
             outputVar = 'parameters'
             inputVar = ['contexts']
 

@@ -5,8 +5,8 @@ import math
 from data.DataAlias import DataAlias
 from data.DataEntry import DataEntry
 from data.DataManager import DataManager
-
 import DataUtil
+
 
 from functions.Mapping import Mapping
 
@@ -56,6 +56,17 @@ class testMapping(unittest.TestCase):
         mapping.setAdditionalInputVariables(['W', 'Z'])
 
         self.assertEqual(mapping.getAdditionalInputVariables(), ['W', 'Z'])
+
+    def test_setInputVariables_givenIntputvariablesString_expectDeprecationWarning(
+            self):
+        dataManager = DataManager('values')
+        dataManager.addDataEntry('X', 1)
+        dataManager.addDataEntry('Y', 1)
+
+        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+
+        self.assertRaises(DeprecationWarning,
+                          mapping.setInputVariables, 'var1')
 
     def test_addMappingFunction_givenOneToOneMappingFromMinusToPlusPi_expectSinAndSinGradientOutput(
             self):
@@ -212,6 +223,18 @@ class testMapping(unittest.TestCase):
 
         self.assertRaises(
             RuntimeError, lambda: mapping.setOutputVariables(['A', 'B']))
+
+    def test_setOutputDimension(self):
+        dataManager = DataManager('values')
+        dataManager.addDataEntry('X', 1)
+        dataManager.addDataEntry('Y', 1)
+
+        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+
+        mapping.setOutputDimension(4324)
+
+        self.assertEqual(4324, mapping.dimOutput)
+        self.assertEqual([], mapping.outputVariables)
 
 if __name__ == '__main__':
     unittest.main()

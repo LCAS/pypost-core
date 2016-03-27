@@ -134,7 +134,7 @@ class Mapping(DataManipulator, MappingInterface):
             self.inputVariables.extend(inputVariables)
         else:
             if isinstance(inputVariables, str):
-                raise ValueError('inputVariables has to be an array')
+                raise DeprecationWarning('inputVariables has to be an array')
 
             self.inputVariables = inputVariables
 

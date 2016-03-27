@@ -12,12 +12,14 @@ class Function(MappingInterface):
 
     def __init__(self):
         MappingInterface.__init__(self)
-        self.registerDataFunctions = True # TODO check this
+        self.registerDataFunctions = True
         pass
 
     def registerMappingInterfaceFunction(self):
         if self.registerDataFunctions:
             self.addMappingFunction(self.getExpectation)
+        else:
+            print("WARNING: registerDataFunctions is False")
 
     def getExpectation(self, numElements, *args):
         '''

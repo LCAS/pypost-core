@@ -10,9 +10,3 @@ class MappingInterface(DataManipulatorInterface):
         '''
         Constructor
         '''
-
-    def registerMappingInterface(self):
-        '''
-        #FIXME what is this doing?
-        '''
-        raise NotImplementedError("Not implemented")
