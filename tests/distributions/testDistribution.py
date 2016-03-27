@@ -31,6 +31,53 @@ class testDistribution(unittest.TestCase):
 
         self.assertEqual(distribution.getDataProbabilityNames(), ["logQOii"])
 
+    def test_setDataProbabilityEntries_givenNames_expectOnceRegisteredPropabilityEntry(
+            self):
+        # we are testing, that calling setDataProbabilityEntries does not
+        # register the function multiple times
+        dataManager = DataManager("TestDataManager")
+        dataManager.addDataEntry("Out", 1)
+        dataManager.addDataEntry("In", 1)
+        dataManager.addDataEntry("In2", 1)
+        distribution = Distribution(dataManager)
+
+        distribution.setOutputVariables(["Out"])
+        distribution.setInputVariables(["In", "In2"])
+
+        distribution.setDataProbabilityEntries()
+        distribution.setDataProbabilityEntries()
+
+        self.assertEqual(distribution.getDataProbabilityNames(), ["logQOii"])
+
+    def test__registerMappingInterfaceDistribution_givenData_expectRegisteredFunction(
+            self):
+        dataManager = DataManager("TestDataManager")
+        dataManager.addDataEntry("Out", 1)
+        dataManager.addDataEntry("In", 1)
+        dataManager.addDataEntry("In2", 1)
+        distribution = Distribution(dataManager)
+
+        distribution.setOutputVariables(["Out"])
+        distribution.setInputVariables(["In", "In2"])
+        distribution._registerMappingInterfaceDistribution()
+
+        # FIXME assert registered function
+
+    def test__registerMappingInterfaceDistribution_givenNoRegisterFlag_expectNoRegisteredFunction(
+            self):
+        dataManager = DataManager("TestDataManager")
+        dataManager.addDataEntry("Out", 1)
+        dataManager.addDataEntry("In", 1)
+        dataManager.addDataEntry("In2", 1)
+        distribution = Distribution(dataManager)
+        distribution.registerDataFunctions = False
+
+        distribution.setOutputVariables(["Out"])
+        distribution.setInputVariables(["In", "In2"])
+        distribution._registerMappingInterfaceDistribution()
+
+        # FIXME assert non registered
+
     def test_registerProbabilityNames_givenNames_expectRegisteredFunction(
             self):
         dataManager = DataManager("TestDataManager")

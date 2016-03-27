@@ -20,6 +20,10 @@ class Distribution(DistributionInterface, Mapping):
         '''
         The distribution entries to register
         '''
+        self.registerDataFunctions = True
+        '''
+        Whether or not to register a data function for this distribution
+        '''
 
     def setDataProbabilityEntries(self):
         '''
@@ -40,10 +44,13 @@ class Distribution(DistributionInterface, Mapping):
         for outputVar in self.outputVariables:
             outputVariablesShort = outputVariablesShort + outputVar[0].upper()
 
-        self.dataProbabilityEntries.append(
-            'logQ' +
-            outputVariablesShort +
-            inputVariablesShort)
+        name = 'logQ' + outputVariablesShort + inputVariablesShort
+
+        # short name is always registered at index 0
+        if not self.dataProbabilityEntries:
+            self.dataProbabilityEntries.append(name)
+        else:
+            self.dataProbabilityEntries[0] = name
 
     def registerProbabilityNames(self, layerName):
         '''
@@ -62,12 +69,11 @@ class Distribution(DistributionInterface, Mapping):
 
     def _registerMappingInterfaceDistribution(self):
         '''
-        registers a mapping and data function
-        #FIXME it seems like registerDataFunctions is never set to true ^moritz
+        Registers a mapping and data function.
+        Use the registerDataFunctions switch to turn function registration off
         '''
         if self.registerDataFunctions:
             self.addMappingFunction(self.sampleFromDistribution)
-
             if not self.outputVariables:
                 self.setDataProbabilityEntries()
                 self.addDataManipulationFunction(
