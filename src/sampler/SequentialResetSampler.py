@@ -4,21 +4,35 @@ from sampler import Sampler
 class SequentialResetSampler(Sampler):
     '''
     classdocs
+
+    def __init__(self, dataManager: data.DataManager, samplerName: str) -> None
+    def createSamples(self, newData: data.Data, *args: unpacked list of int) -> None
+    def getNumSamples(self, data: data.Data, index) -> int
+    
     '''
     # FIXME why isn't this class derived from sequential sampler?
 
     def __init__(self, dataManager, samplerName):
         '''
         Constructor
+
+        :param dataManager: DataManager this sampler operates on
+        :param samplerName: Name of the sampler
         '''
         super().__init__(dataManager, samplerName)
 
         self._numSamples = self.toReserve()
         '''
-        The number of samples for this sampler
+        The number of samples for this sampler.
         '''
 
     def createSamples(self, newData, *args):
+        '''
+        Creates the samples from the given Data.
+
+        :param newData: the data structure the sampler operates on
+        :param args: hierarchical indexing of the data structure
+        '''
         layerIndex = args
 
         reservedStorage = toReserve()

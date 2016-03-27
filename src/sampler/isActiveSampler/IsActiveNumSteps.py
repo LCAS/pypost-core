@@ -1,9 +1,18 @@
-from sampler.isActiveSampler import IsActiveStepSampler
+from sampler.isActiveSampler.IsActiveStepSampler import IsActiveStepSampler
+from common.SettingsClient import SettingsClient
 
 
-class IsActiveNumSteps(IsActiveStepSampler):
+
+class IsActiveNumSteps(IsActiveStepSampler, SettingsClient):
     '''
     The sampler is active until to number of steps is reached
+
+    Methods (annotated):
+    def __init__(self, dataManager: data.DataManager, stepName: str =None, numTimeSteps: int =40) -> None
+    def getNumTimeSteps(self) -> int
+    def setNumTimeSteps(self, numTimeSteps: int) -> None
+    def isActiveStep(self, nextStates, timeSteps: int) -> Boolean
+    def toReserve(self) -> int
     '''
 
     def __init__(self, dataManager, stepName=None, numTimeSteps=40):
@@ -13,7 +22,7 @@ class IsActiveNumSteps(IsActiveStepSampler):
         :param stepName: Name of the steps to operate on (default: "timeSteps")
         :param numTimeSteps: number of time steps to run
 
-        :change: new parameter of timesteps, since 40 is a magic number
+        :change: new parameter for timesteps, since 40 is a magic number
         #FIXME default numTimeSteps value is still a magic number
         '''
         super().__init__(dataManager, stepName)
@@ -33,9 +42,10 @@ class IsActiveNumSteps(IsActiveStepSampler):
         FIXME
         '''
 
-        # ASK Why is "num" needed. magical constant.
+        self.globalProperties['numTimeSteps'] = numTimeSteps
         self.linkProperty(
-            "numTimeSteps", ["num", stepName[0].upper(), stepName[1:]])
+            "numTimeSteps", "num" + stepName.capitalize())
+        #FIXME linked property not used
 
     # getter & setters
 

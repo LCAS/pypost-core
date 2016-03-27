@@ -4,22 +4,30 @@ from sampler.Sampler import Sampler
 
 class IndependentSampler(Sampler):
     '''
-    classdocs
+    Methods (annotated):
+    def __init__(self, dataManager: data.DataManager, samplerName: str) -> null
+    def setParallelSampling(self, parallelSampling: Boolean) -> null
+    def getParallelSampling(self) -> Boolean
+    def createSamples(self, newData: data.Data, numElements: int = None) -> null
     '''
 
-    def __init__(self, dataManager, samplerName):
+    def __init__(self, dataManager, samplerName, numSamples = 10):
         '''
         Constructor
+        
+        :param dataManager: DataManager this sampler operates on
+        :param samplerName: Name of this sampler
+        :param numSamples: The number of samples to use for after the initial iteration
+        : 
         '''
         super().__init__(dataManager, samplerName)
 
         self._parallelSampling = True
         '''
-        Determines if the episodes are samples parallel or in sequentially
+        Determines if the episodes are sampled parallel or in sequentially
         '''
 
-        # FIXME magic number ...
-        self._numSamples = 10
+        self._numSamples = numSamples
         '''
         The number of samples to use for after the initial iteration
         '''
@@ -40,12 +48,24 @@ class IndependentSampler(Sampler):
         #                   ["numInitialSamples", samplerName])
 
     def setParallelSampling(self, parallelSampling):
+        '''
+        When set True, the episodes are sampled parallel; otherwise: sequentially
+        '''
         self._parallelSampling = parallelSampling
 
     def getParallelSampling(self):
+        '''
+        Returns True, if the episodes are sampled parallel; False, if they are sampled sequentially
+        '''
         return self._parallelSampling
 
     def createSamples(self, newData, numElements=None):
+        '''
+        Creates the samples from the given Data.
+
+        :param newData: the data structure the sampler operates on
+        :param numElements: Not implemented yet
+        '''
         numSamples = self.getNumSamples(newData)
 
         if numElements is not None:
@@ -74,9 +94,16 @@ class IndependentSampler(Sampler):
 
     # TODO this seems like an interface function. refactor ...
     def isValidEpisode(self):
+        '''
+        Returns True, if this is a valid episode (which is the case)
+        '''
         return True
 
     def getNumSamples(self, data, *args):
+        '''
+        Returns number of samples to use for the current iteration
+        '''
+        # @mw ASK: args needed?
         if isinstance(self._numSamples, int):
             if self._iterationIndex == 0 and self._numInitialSamples > 0:
                 numSamples = self._numInitialSamples

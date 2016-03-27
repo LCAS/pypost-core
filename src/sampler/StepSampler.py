@@ -24,6 +24,17 @@ class StepSampler(SequentialSampler):
     In addition to the data manipulation functions above this sampler also adds the data entries 'states', 'nextStates' and 'timeSteps'
 
     #FIXME step priorities are currently magic numbers ...
+
+    Methods (annotated):
+    def __init__(self, dataManager: data.DataManager, samplerName: str) -> None
+    def setInitStateFunction(self, initStateSampler: sampler.Sampler, samplerName: str =None) -> None
+    def setPolicy(self, policy: sampler.Sampler, samplerName: str =None) -> None
+    def setTransitionFunction(self, transitionFunction: sampler.Sampler, samplerName: str =None) -> None
+    def setRewardFunction(self, rewardFunction: sampler.Sampler, samplerName: str =None) -> None
+    def _endTransition(self, data: data.Data, *args: unpacked list of int) -> None
+    def _initSamples(self, data: data.Data, *args: unpacked list of int) -> None
+    def _createSamplesForStep(self, data: data.Data, *args: unpacked list of int) -> None
+    
     '''
 
     def __init__(self, dataManager, samplerName):
@@ -54,7 +65,7 @@ class StepSampler(SequentialSampler):
         if samplerName is None:
             samplerName = "sampleInitState"
         self._addSamperFunctionToPool(
-            "Policy", samplerName, initStateSampler, -1)
+            "sampleInitState", samplerName, initStateSampler, -1)
 
     def setPolicy(self, policy, samplerName=None):
         '''
@@ -86,7 +97,7 @@ class StepSampler(SequentialSampler):
         if samplerName is None:
             samplerName = "sampleReward"
         self._addSamperFunctionToPool(
-            "Policy", samplerName, rewardFunction, -1)
+            "RewardSampler", samplerName, rewardFunction, -1)
 
     # change removed all flush functions. e.g. use
     # getSamplerPool("Policy").flush()

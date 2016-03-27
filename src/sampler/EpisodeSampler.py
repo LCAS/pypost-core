@@ -25,6 +25,19 @@ class EpisodeSampler(IndependentSampler):
 
     - Return (Priority 7):  Calculates the return of each episode by
     summing the reward and the final reward
+
+    Methods (annotated):
+    def __init__(self, dataManager: data.DataManager = None, samplerName: str =None) -> None
+    def getEpisodeDataManager(self) -> data.DataManager
+    def setFinalRewardSampler(self, rewardSampler: sampler.Sampler, samplerName: str =None, isReturnSampler: Boolean) -> None
+    def setReturnFunction(self, rewardSampler: sampler.Sampler, samplerName: str ='sampleReturn') -> None
+    def setParameterPolicy(self, parameterSampler: sampler.Sampler, samplerName: str =None, isParameterPolicy: Boolean) -> None
+    def setContextSampler(self, contextSampler: sampler.Sampler, samplerName: str =None, isContextDistribution: Boolean) -> None
+    def flushReturnFunction(self) -> None
+    def flushFinalRewardFunction(self) -> None
+    def flushParameterPolicy(self) -> None
+    def flushContextSampler(self) -> None
+    
     '''
 
     def __init__(self, dataManager=None, samplerName=None):
@@ -40,7 +53,7 @@ class EpisodeSampler(IndependentSampler):
 
         super().__init__(dataManager, samplerName)
 
-        self.dataManager.contextDistribution = None
+        self.contextDistribution = None
         self.returnSampler = None
         self.parameterPolicy = None
 
@@ -53,20 +66,21 @@ class EpisodeSampler(IndependentSampler):
     def getEpisodeDataManager(self):
         return self.dataManager
 
-    def setFinalRewardSampler(self, rewardSampler, samplerName=None):
+    def setFinalRewardSampler(self, rewardSampler, samplerName=None, isReturnSampler=True):
         '''
         :param rewardSampler: sampler function to set
         :param samplerName: name of the sampler function
+        :param isReturnSampler: set True or skip this to set the sampler as the returnSampler
+        :change new parameter: isReturnSampler
         #TODO require explicit sampler
         '''
         if samplerName is None:
             samplerName = "sampleReturn"
 
-        # FIXME add extra argument and do not rely on sampler name
-        if samplerName == "sampleReturn":
+        if isReturnSampler:
             self.returnSampler = rewardSampler
 
-        self.addSamplerFunctionToPool("Return", samplerName, rewardSampler, -1)
+        self.addSamplerFunctionToPool("FinalReward", samplerName, rewardSampler, -1)
 
     def setReturnFunction(self, rewardSampler, samplerName='sampleReturn'):
         if samplerName == 'sampleReturn':
@@ -74,33 +88,35 @@ class EpisodeSampler(IndependentSampler):
 
         self.addSamplerFunctionToPool('Return', samplerName, rewardSampler, -1)
 
-    def setParameterPolicy(self, parameterSampler, samplerName=None):
+    def setParameterPolicy(self, parameterSampler, samplerName=None, isParameterPolicy=True):
         '''
         :param parameterSampler: sampler function to set
         :param samplerName: name of the sampler function
+        :param isParameterPolicy: set True or skip this to set the sampler as the parameterPolicy
+        :change new parameter: isParameterPolicy
         #TODO require explicit sampler
         '''
         if samplerName is None:
             samplerName = "sampleParameter"
 
-        # FIXME add extra argument and do not rely on sampler name
-        if samplerName == "sampleParameter":
+        if isParameterPolicy:
             self.parameterPolicy = parameterSampler
 
         self.addSamplerFunctionToPool(
             "ParameterPolicy", samplerName, parameterSampler, -1)
 
-    def setContextsampler(self, contextSampler, samplerName=None):
+    def setContextSampler(self, contextSampler, samplerName=None, isContextDistribution=True):
         '''
         :param contextSampler: sampler function to set
         :param samplerName: name of the sampler function
+        :param isContextDistribution: set True or skip this to set the sampler as the contextDistribution
+        :change new parameter: isContextDistribution
         #TODO require explicit sampler
         '''
         if samplerName is None:
             samplerName = "sampleContext"
 
-        # FIXME add extra argument and do not rely on sampler name
-        if samplerName == "sampleContext":
+        if isContextDistribution:
             self.contextDistribution = contextSampler
 
         self.addSamplerFunctionToPool(

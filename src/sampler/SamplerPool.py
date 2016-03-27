@@ -1,6 +1,14 @@
 class SamplerPool(object):
     '''
     A collection of samplers
+
+    Methods (annotated):
+    def __init__(self, name: str, priority: int) -> None
+    def getName(self) -> str
+    def _setName(self, name: str) -> None
+    def getPriority(self) -> int
+    def _setPriority(self, priority: int) -> None
+    def flush(self) -> None
     '''
 
     def __init__(self, name, priority):
@@ -8,6 +16,9 @@ class SamplerPool(object):
         Creates a sampler pool with an empty sampler list
         '''
         self.samplerList = []
+        '''
+        List containing the samplers
+        '''
         self._setName(name)
         self._setPriority(priority)
 

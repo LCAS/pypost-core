@@ -6,6 +6,11 @@ import numpy as np
 class GridSampler(IndependentSampler):
     '''
     Sets up an
+    
+    Methods (annotated):
+    def __init__(self, dataManager: data.DataManager, samplerName: str, outputVariable: list, nSamples: int) -> None
+    def getNumSamples(self, data=None, *args) -> int
+    def sampleGrid(self, numElements: int) -> list of Boolean
     '''
 
     def __init__(self, dataManager, samplerName, outputVariable, nSamples):
@@ -61,6 +66,7 @@ class GridSampler(IndependentSampler):
         self.addSamplerFunctionToPool('gridSamplerPool', 'sampleGrid', self, 0)
 
     def getNumSamples(self, data=None, *args):
+        # @mw ASK: parameters?
         return np.prod(self._nSamples)
 
     def sampleGrid(self, numElements):

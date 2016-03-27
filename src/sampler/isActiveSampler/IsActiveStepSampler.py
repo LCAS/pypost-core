@@ -5,6 +5,10 @@ class IsActiveStepSampler(DataManipulatorInterface):
     '''
     IsActiveStepSampler determines whether a sequence is still active
     e.g. whether it is not reset
+
+    Methods (annotated):
+    def __init__(self, dataManager: data.DataManager, stepName: str) -> None
+    def isActiveStep(self, nextStates, timeSteps: int) -> None
     '''
 
     def __init__(self, dataManager, stepName):

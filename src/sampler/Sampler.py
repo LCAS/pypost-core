@@ -188,7 +188,7 @@ class Sampler(SamplerInterface):
 
     # CHANGE flushSamplerPool got deleted. Call getSamplerPool(name).flush()
 
-    def addLowerLevelSampler(
+    def addLowLevelSampler(
             self, samplerPool, lowerLevelSampler, isBeginning):
         '''
         Adds a lower-level sampler to this sampler
