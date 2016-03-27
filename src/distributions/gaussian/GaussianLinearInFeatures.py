@@ -80,10 +80,6 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         numParameters = LinearInFeatures.getNumParameters() +\
         self.numParameters + self.dimOutput * (self.dimOutput + 1) / 2
 
-
-    def getSigma(self):
-        return self.cholA[1, :, :]
-
     def getCovariance(self):
         '''
         Return the covariance matrix
@@ -120,6 +116,12 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
             return chol(self.covMat)
         else:
             return self.cholA
+        
+        # alternative:
+        '''
+        def getSigma(self):
+            return self.cholA[1, :, :]
+        '''
 
     def getJointGaussians(self, muInput, SigmaInput):
         muNew = np.hstack((muInput, self.bias + self.weights.dot(muInput)))
