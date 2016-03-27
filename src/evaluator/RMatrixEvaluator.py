@@ -13,11 +13,11 @@ class RMatrixEvaluator(Evaluator):
     Evaluates if every eigenvalue is positive
 
     Methods (annotated):
-    def __init__(self, params) -> 
-    getEvaluation(self, data, newData, trial)
+    def __init__(self) -> None
+    def getEvaluation(self, data: data.Data, newData: data.Data, trial: experiments.Trial) -> int
     '''
 
-    def __init__(self, params):
+    def __init__(self):
         '''
         Constructor
         '''

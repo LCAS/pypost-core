@@ -1,11 +1,13 @@
 import unittest
+from experiments.Trial import Trial
+from evaluator.ReturnSearchDistributionVarianceEvaluator import ReturnSearchDistributionVarianceEvaluator
 
 
-class Test(unittest.TestCase):
+class testReturnSearchDistributionMeanEvaluator(unittest.TestCase):
 
 
     def setUp(self):
-        self.evaluator = ReturnSearchDistributionMeanEvaluator()
+        self.evaluator = ReturnSearchDistributionVarianceEvaluator()
 
 
     def tearDown(self):
@@ -13,13 +15,16 @@ class Test(unittest.TestCase):
 
 
     def test_init(self):
-        self.assertIsInstance(self.evaluator, ReturnKLEvaluator)
+        self.assertIsInstance(self.evaluator, ReturnSearchDistributionVarianceEvaluator)
 
     def test_getEvaluation(self):
-        data = Data(DataManager('testmngr1'), DataStructure(3))
-        testmngr = DataUtil.createTestManager()
-        newData = Data(testmngr, DataStructure(3))
-        print(self.evaluator.getEvaluation(data, newData, trial))
+        data = None
+        newData = None
+        # trial = GaussianLinearInFeatures(DataManager('testmngr'), outputVariable, inputVariables, functionName, featureGenerator, doInitWeights)
+        with self.assertRaises(RuntimeError):
+            trial = Trial('/tmp', 0)
+        with self.assertRaises(UnboundLocalError):
+            self.evaluator.getEvaluation(data, newData, trial)
 
 
 if __name__ == "__main__":

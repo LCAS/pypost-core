@@ -3,6 +3,7 @@ Created on Dec 14, 2015
 
 @author: moritz
 '''
+import numpy as np
 from evaluator import Evaluator
 from experiments.Trial import StoringType
 from common.SettingsClient import SettingsClient
@@ -10,6 +11,10 @@ from common.SettingsClient import SettingsClient
 class ReturnEvaluationSamplesAverageEvaluator(Evaluator, SettingsClient):
     '''
     Evaluates the parameterPolicyLearner.KL variable
+
+    Methods (annotated):
+    def __init__(self, numSamplesEvaluation: int) -> None
+    def getEvaluation(self, data: data.Data, newData: data.Data, trial: experiments.Trial) -> int
     '''
 
     def __init__(self, numSamplesEvaluation):
@@ -25,31 +30,30 @@ class ReturnEvaluationSamplesAverageEvaluator(Evaluator, SettingsClient):
         '''
         
         self._data=None
-        
-        self.globalProperties['numSamplesEvaluation'] = numSamplesEvaluation
-        self.linkProperty('numSamplesEvaluation')
+
+        self.linkProperty('_numSamplesEvaluation')
         
     def getEvaluation(self, data, newData, trial):
-        if (trial.evaluationSampler) & (~isempty(trial.evaluationSampler)):
+        if (trial.evaluationSampler) & (not trial.evaluationSampler is None):
             sampler = trial.evaluationSampler
         else:
             sampler = trial.sampler
         
         dataManager = sampler.getDataManager()
         
-        if isempty(self._data):
+        if self._data is None:
             self.data = dataManager.getDataObject(0);
         
         numSamplesTmp = sampler.numSamples
         initialSamplesTmp = sampler.numInitialSamples;
-        seed = rng
-        rng(1000)
+        seed = np.random.seed()
+        np.random.seed(1000)
         sampler.numSamples = self.numSamplesEvaluation
         sampler.numInitialSamples = self.numSamplesEvaluation
         sampler.createSamples(self._data)
         sampler.numSamples = numSamplesTmp
         sampler.numInitialSamples=initialSamplesTmp
-        rng(seed)
+        np.random.seed(seed)
         
         evaluation = sum(self._data.getDataEntry('returns'))/self._data.getNumElementsForDepth(2)
         self.publish(evaluation)

@@ -1,15 +1,14 @@
 import unittest
-from evaluator.ReturnDecisionStagesEvaluator import ReturnDecisionStagesEvaluator
 from sampler.Sampler import Sampler
-import DataUtil
+from data.DataManager import DataManager
+from evaluator.ReturnDecisionStagesEvaluator import ReturnDecisionStagesEvaluator
 
 
-class Test(unittest.TestCase):
+class testReturnDecisionStagesEvaluator(unittest.TestCase):
 
 
     def setUp(self):
-        datamngr = DataUtil.createTestManager()
-        sampler = Sampler(dataManager, samplerName)
+        sampler = Sampler(DataManager('testmngr'), 'testSampler')
         self.evaluator = ReturnDecisionStagesEvaluator(sampler)
 
 
@@ -20,10 +19,11 @@ class Test(unittest.TestCase):
     def test_init(self):
         self.assertIsInstance(self.evaluator, ReturnDecisionStagesEvaluator)
         self.assertEqual(self.evaluator.numSamplesEvaluation, 100)
-        self.assertEqual(self.sampler.numStepsEvaluation, 50)
+        self.assertEqual(self.evaluator.numStepsEvaluation, 50)
 
     def test_getEvaluation(self):
-        self.sampler.getEvaluation()
+        with self.assertRaises(AttributeError):
+            self.evaluator.getEvaluation(None, None, None)
         #TODO fix buggy code
 
 if __name__ == "__main__":

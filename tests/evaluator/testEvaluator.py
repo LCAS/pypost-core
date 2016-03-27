@@ -21,8 +21,8 @@ class testEvaluator(unittest.TestCase):
         self.evaluator.publish('Testmessage1. Success!')
         self.evaluator.publish('Testmessage2. Success!', LogType.EVALUATION)
 
-    def test_getEvaluation():
-        with self.assertRaises():
+    def test_getEvaluation(self):
+        with self.assertRaises(NotImplementedError):
             self.evaluator.getEvaluation()
 
 

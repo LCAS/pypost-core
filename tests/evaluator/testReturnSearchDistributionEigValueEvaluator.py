@@ -1,8 +1,9 @@
 import unittest
 from evaluator.ReturnSearchDistributionEigValueEvaluator import ReturnSearchDistributionEigValueEvaluator
+from experiments.Trial import Trial
 
 
-class Test(unittest.TestCase):
+class testReturnSearchDistributionEigValueEvaluator(unittest.TestCase):
 
 
     def setUp(self):
@@ -17,10 +18,12 @@ class Test(unittest.TestCase):
         self.assertIsInstance(self.evaluator, ReturnSearchDistributionEigValueEvaluator)
 
     def test_getEvaluation(self):
-        data = Data(DataManager('testmngr1'), DataStructure(3))
-        testmngr = DataUtil.createTestManager()
-        newData = Data(testmngr, DataStructure(3))
-        print(self.evaluator.getEvaluation(data, newData, trial))
+        data = None
+        newData = None
+        with self.assertRaises(RuntimeError):
+            trial = Trial('/tmp', 0)
+        with self.assertRaises(UnboundLocalError):
+            self.evaluator.getEvaluation(data, newData, trial)
 
 
 

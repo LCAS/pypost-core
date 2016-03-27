@@ -4,13 +4,18 @@ Created on Dec 14, 2015
 @author: moritz
 '''
 import numpy as np
-from SupervisedLearningMSEEvaluator import SupervisedLearningMSEEvaluator
+from evaluator.supervisedLearning.SupervisedLearningMSEEvaluator import SupervisedLearningMSEEvaluator
 from evaluator import Evaluator
 from experiments.Trial import StoringType
+import sampler
 
 class SupervisedLearningMSETestEvaluator(SupervisedLearningMSEEvaluator):
     '''
     FIXME add description
+
+    Methods (annotated):
+    def __init__(self, additionalName: str =None) -> None
+    def getEvaluationData(self, data: data.Data, trial: experiments.Trial) -> data.Data
     '''
 
     def __init__(self, additionalName=None):
@@ -33,19 +38,19 @@ class SupervisedLearningMSETestEvaluator(SupervisedLearningMSEEvaluator):
         '''
         Get the evaluation data from the data & trial objects
         '''
-        sampler = Sampler.SamplerFromFile(trial.dataManager, trial.fileNameTest)
+        sampler = SamplerFromFile(trial.dataManager, trial.fileNameTest)
         #FIXME wait for concept for in/output
 
         dataManager = sampler.getDataManager
         self._evaluationData = dataManager.getDataObject(0)
 
-        seed = rng()
+        seed = np.random.seed()
         sampler.numImitationEpisodes = self._numSamplesEvaluation
         sampler.createSamples(self._evaluationData)
-        rng(seed)
+        np.random.seed(seed)
 
         # preprocess evaluation data
-        for i in range(0, length(trial.scenario.dataPreprocessorFunctions)):
+        for i in range(0, len(trial.scenario.dataPreprocessorFunctions)):
             self.evaluationData = trial.scenario.dataPreprocessorFunctions[i].\
                 preprocessData(self._evaluationData)
 

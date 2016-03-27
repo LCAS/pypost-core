@@ -12,8 +12,8 @@ class SupervisedLearningMSEEvaluator(Evaluator):
     FIXME add description
 
     Methods (annotated):
-    def __init__(self, additionalName: str ='')
-    def getEvaluation(self, data: data.Data, newData: data.Data, trial)
+    def __init__(self, additionalName: str ='') -> None
+    def getEvaluation(self, data: data.Data, newData: data.Data, trial: experiments.Trial) -> None
     '''
 
     def __init__(self, additionalName=''):

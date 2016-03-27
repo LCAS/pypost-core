@@ -9,7 +9,7 @@ class ReturnDecisionStagesEvaluator(Evaluator):
     Returns the max value from all return values
 
     Methods (annotated):
-    def __init__(self, sampler: sampler.Sampler, numSamplesEvaluation: int =100, numStepsEvaluation: int =50)
+    def __init__(self, sampler: sampler.Sampler, numSamplesEvaluation: int =100, numStepsEvaluation: int =50) -> None
     def getEvaluation(self, data: data.Data, newData: data.Data, trial: experiments.Trial) -> None
     '''
 
@@ -52,13 +52,13 @@ class ReturnDecisionStagesEvaluator(Evaluator):
 
     def getEvaluation(self, data, newData, trial):
         #FIXME setup on _numStepsEvaluation change
-        if self.isActiveStepSampler == 0:
-            self.isActiveStepSampler = IsActiveNumSteps(trial.dataManager,
+        if self._isActiveStepSampler == 0:
+            self._isActiveStepSampler = IsActiveNumSteps(trial.dataManager,
                                                         'decisionSteps')
-            self.isActiveStepSampler.numTimeSteps = self.numStepsEvaluation
+            self._isActiveStepSampler.numTimeSteps = self.numStepsEvaluation
 
         #FIXME setup on object creation
-        if self._sampler.length == 0:
+        if self._sampler is None:
             currSampler = trial.sampler
         else:
             currSampler = self._sampler
@@ -80,18 +80,18 @@ class ReturnDecisionStagesEvaluator(Evaluator):
 
             numSamplesTmp = sampler.numSamples
             initialSamplesTmp = sampler.numInitialSamples
-            seed = rng
-            rng(1000)
+            seed = np.random.seed()
+            np.random.seed(1000)
             sampler.numSamples = self.numSamplesEvaluation
             sampler.numInitialSamples = self.numSamplesEvaluation
             sampler.createSamples(self._data)
 
             sampler.numSamples = numSamplesTmp
             sampler.numInitialSamples=initialSamplesTmp
-            rng(seed)
+            np.random.seed(seed)
 
 
-            evaluation = mean(self.data.getDataEntry('rewards'))
+            evaluation = np.mean(self.data.getDataEntry('rewards'))
 
             self.publish(evaluation)
             self._data = []

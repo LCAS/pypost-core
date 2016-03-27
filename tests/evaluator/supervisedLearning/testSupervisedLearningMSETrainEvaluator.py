@@ -1,11 +1,15 @@
 import unittest
+from evaluator.supervisedLearning.SupervisedLearningMSETrainEvaluator import SupervisedLearningMSETrainEvaluator
+from data.Data import Data
+from data.DataManager import DataManager
+from data.DataStructure import DataStructure
 
 
-class Test(unittest.TestCase):
+class testSupervisedLearningMSETrainEvaluator(unittest.TestCase):
 
 
     def setUp(self):
-        pass
+        self.evaluator = SupervisedLearningMSETrainEvaluator()
 
 
     def tearDown(self):
@@ -13,7 +17,11 @@ class Test(unittest.TestCase):
 
 
     def test_init(self):
-        pass
+        self.assertIsInstance(self.evaluator, SupervisedLearningMSETrainEvaluator)
+
+    def test_getEvaluationData(self):
+        data = Data(DataManager('testmngr'), DataStructure(1))
+        self.assertIs(self.evaluator.getEvaluationData(data, None), data)
 
 
 if __name__ == "__main__":

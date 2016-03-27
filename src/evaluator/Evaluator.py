@@ -4,8 +4,9 @@ Created on Dec 13, 2015
 @author: moritz
 '''
 from evaluator.LogType import LogType
+from common.SettingsClient import SettingsClient
 
-class Evaluator(object):
+class Evaluator(SettingsClient):
     '''
     Base evaluator class
 
@@ -23,7 +24,7 @@ class Evaluator(object):
         :param storingType: Type of storage
         TODO seems like every evaluator uses the endLoop hook, maybe hard-code it?
         '''
-        
+        super().__init__()
         self.name=name
         '''
         Name of the evaluator
@@ -49,7 +50,7 @@ class Evaluator(object):
             logType=LogType.EVALUATION
         
         #FIXME add filters for different log types
-        print(self.name+': '+string)
+        print(self.name+': '+str(string))
     
     def getEvaluation(self, data, newData, trial):
         '''

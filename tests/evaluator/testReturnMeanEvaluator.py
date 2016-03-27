@@ -1,12 +1,14 @@
 import unittest
+import DataUtil
+import numpy as np
 from evaluator.ReturnMeanEvaluator import ReturnMeanEvaluator
 
 
-class Test(unittest.TestCase):
+class testReturnMeanEvaluator(unittest.TestCase):
 
 
     def setUp(self):
-        self.evaluator = ReturnMeanEvaluator
+        self.evaluator = ReturnMeanEvaluator()
 
 
     def tearDown(self):
@@ -17,10 +19,16 @@ class Test(unittest.TestCase):
         self.assertIsInstance(self.evaluator, ReturnMeanEvaluator)
 
     def test_getEvaluation(self):
-        data = Data(DataManager('testmngr1'), DataStructure(3))
-        testmngr = DataUtil.createTestManager()
-        newData = Data(testmngr, DataStructure(3))
-        print(self.evaluator.getEvaluation(data, newData, trial))
+        data = None
+        testmng = DataUtil.createTestManager2()
+        newData = testmng.getDataObject([5,3,2])
+        a = np.array([[52,36], [12,42], [14,10], [90, 5], [33, 20]])
+        newData.setDataEntry('returns', [], a)
+        trial = None
+        self.assertAlmostEqual(self.evaluator.getEvaluation(data, newData, trial), 31.4, delta = 0.001)
+        a = np.array([[12,93], [92,55], [90,12], [34, 39], [12, 12]])
+        newData.setDataEntry('returns', [], a)
+        self.assertAlmostEqual(self.evaluator.getEvaluation(data, newData, trial), 45.1, delta = 0.001)
 
 
 

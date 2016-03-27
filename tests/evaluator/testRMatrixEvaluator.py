@@ -1,8 +1,9 @@
 import unittest
 from evaluator.RMatrixEvaluator import RMatrixEvaluator
+from experiments.Trial import Trial
 
 
-class Test(unittest.TestCase):
+class testRMatrixEvaluator(unittest.TestCase):
 
 
     def setUp(self):
@@ -17,7 +18,13 @@ class Test(unittest.TestCase):
         self.assertIsInstance(self.evaluator, RMatrixEvaluator)
 
     def test_getEvaluation(self):
-        #TODO trial.learner.Raa??
+        data = None
+        newData = None
+        # trial = GaussianLinearInFeatures(DataManager('testmngr'), outputVariable, inputVariables, functionName, featureGenerator, doInitWeights)
+        with self.assertRaises(RuntimeError):
+            trial = Trial('/tmp', 0)
+        with self.assertRaises(UnboundLocalError):
+            self.evaluator.getEvaluation(data, newData, trial)
 
 
 if __name__ == "__main__":

@@ -1,13 +1,13 @@
 import unittest
-from evaluator.ReturnEvaluationSamplesAverageEvaluator import ReturnEvaluationSamplesAverageEvaluator
+from evaluator import ReturnSearchDistributionMeanEvaluator
 from experiments.Trial import Trial
 
 
-class testReturnEvaluationSamplesAverageEvaluator(unittest.TestCase):
+class testReturnSearchDistributionMeanEvaluator(unittest.TestCase):
 
 
     def setUp(self):
-        self.evaluator = ReturnEvaluationSamplesAverageEvaluator(3)
+        self.evaluator = ReturnSearchDistributionMeanEvaluator()
 
 
     def tearDown(self):
@@ -15,7 +15,7 @@ class testReturnEvaluationSamplesAverageEvaluator(unittest.TestCase):
 
 
     def test_init(self):
-        self.assertIsInstance(self.evaluator, ReturnEvaluationSamplesAverageEvaluator)
+        self.assertIsInstance(self.evaluator, ReturnSearchDistributionMeanEvaluator)
 
     def test_getEvaluation(self):
         data = None

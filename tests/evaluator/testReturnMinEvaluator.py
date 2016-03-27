@@ -1,8 +1,10 @@
 import unittest
+import DataUtil
+import numpy as np
 from evaluator.ReturnMinEvaluator import ReturnMinEvaluator
 
 
-class Test(unittest.TestCase):
+class testReturnMinEvaluator(unittest.TestCase):
 
 
     def setUp(self):
@@ -14,13 +16,19 @@ class Test(unittest.TestCase):
 
 
     def test_init(self):
-        self.assertIsInstance(self.evaluator, ReturnKLEvaluator)
+        self.assertIsInstance(self.evaluator, ReturnMinEvaluator)
 
     def test_getEvaluation(self):
-        data = Data(DataManager('testmngr1'), DataStructure(3))
-        testmngr = DataUtil.createTestManager()
-        newData = Data(testmngr, DataStructure(3))
-        print(self.evaluator.getEvaluation(data, newData, trial))
+        data = None
+        testmng = DataUtil.createTestManager2()
+        newData = testmng.getDataObject([5,3,2])
+        a = np.array([[52,36], [12,42], [14,10], [90, 5], [33, 20]])
+        newData.setDataEntry('returns', [], a)
+        trial = None
+        self.assertEqual(self.evaluator.getEvaluation(data, newData, trial), 5)
+        a = np.array([[12,93], [92,55], [90,12], [34, 39], [12, 12]])
+        newData.setDataEntry('returns', [], a)
+        self.assertEqual(self.evaluator.getEvaluation(data, newData, trial), 12)
 
 
 

@@ -6,13 +6,17 @@ Created on Dec 14, 2015
 import numpy as np
 from evaluator import Evaluator
 from experiments.Trial import StoringType
+from common.SettingsClient import SettingsClient
 
 class WindowPredictionEvaluator(Evaluator):
     '''
     Returns the max value from all return values
+
+    Methods (annotated):
+    def __init__(self) -> None
     '''
 
-    def __init__(self, params):
+    def __init__(self):
         '''
         Constructor
         '''
@@ -40,16 +44,16 @@ class WindowPredictionEvaluator(Evaluator):
 
         # FIXME replace magic strings by constants
         # FIXME replace linkProperty
+        self.globalProperties['_numSamplesEvaluation'] = self._numSamplesEvaluation
+        self.globalProperties['_observationIndex'] = self._observationIndex
+        self.globalProperties['_groundtruthName'] = self._groundtruthName
         self.linkProperty('_numSamplesEvaluation','numSamplesEvaluation');
         self.linkProperty('_observationIndex', 'observationIndex');
         self.linkProperty('_groundtruthName','groundtruthName');
 
 
     def getEvaluation(self, data, newData, trial):
-<<<<<<< Updated upstream
         raise NotImplementedError()
-=======
-        raise NotImplementedError
         #get data
         #TODO
         '''
@@ -99,10 +103,10 @@ class WindowPredictionEvaluator(Evaluator):
 
             observations = observations(:,valid,:);
             groundtruth = groundtruth(:,valid,:);
->>>>>>> Stashed changes
 
     def squaredError(data, estimates):
         raise NotImplementedError()
 
     def euclideanDistances(data, estimates, window_size):
         raise NotImplementedError()
+        '''

@@ -6,9 +6,13 @@ from experiments.Trial import StoringType
 class ReturnSearchDistributionMeanEvaluator(Evaluator):
     '''
     Evaluates the exploration mean value
+
+    Methods (annotated):
+    def __init__(self) -> None
+    def getEvaluation(self, data: data.Data, newData: data.Data, trial: experiments.Trial) -> int
     '''
 
-    def __init__(self, params):
+    def __init__(self):
         '''
         Constructor
         '''

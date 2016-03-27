@@ -9,9 +9,13 @@ from experiments.Trial import StoringType
 class ReturnKLEvaluator(Evaluator):
     '''
     Evaluates the parameterPolicyLearner.KL variable
+
+    Methods (annotated):
+    def __init__(self) -> None
+    def getEvaluation(self, data: data.Data, newData: data.Data, trial: experiments.Trial) -> int
     '''
 
-    def __init__(self, params):
+    def __init__(self):
         '''
         Constructor
         '''

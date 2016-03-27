@@ -1,11 +1,12 @@
 import unittest
+from evaluator.supervisedLearning.SupervisedLearningMSETestEvaluator import SupervisedLearningMSETestEvaluator
 
 
-class Test(unittest.TestCase):
+class testSupervisedLearningMSETestEvaluator(unittest.TestCase):
 
 
     def setUp(self):
-        pass
+        self.evaluator = SupervisedLearningMSETestEvaluator()
 
 
     def tearDown(self):
@@ -13,7 +14,11 @@ class Test(unittest.TestCase):
 
 
     def test_init(self):
-        pass
+        self.assertIsInstance(self.evaluator, SupervisedLearningMSETestEvaluator)
+
+    def test_getEvaluation(self):
+        with self.assertRaises(NameError):
+            self.evaluator.getEvaluation(None, None, None)
 
 
 if __name__ == "__main__":

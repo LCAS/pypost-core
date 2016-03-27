@@ -2,7 +2,7 @@ import unittest
 from evaluator.WindowPredictionEvaluator import WindowPredictionEvaluator
 
 
-class Test(unittest.TestCase):
+class testWindowPredictionEvaluator(unittest.TestCase):
 
 
     def setUp(self):
@@ -18,7 +18,7 @@ class Test(unittest.TestCase):
 
     def test_getEvaluation(self):
         with self.assertRaises(NotImplementedError):
-            self.evaluator.getEvaluation()
+            self.evaluator.getEvaluation(None, None, None)
 
 
 if __name__ == "__main__":
