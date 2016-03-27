@@ -11,10 +11,7 @@ class Learner(DataPreprocessor, object):
         Constructor
         '''
         self.dataPreprocessors = []
-        self.featureGeneratorLearners = []
-
         self.dataNameLearner = 'data'
-
         self.iteration = 0
 
         DataPreprocessor.__init__(self)
@@ -50,10 +47,3 @@ class Learner(DataPreprocessor, object):
 
     def addDataPreprocessor(self, dataPreprocessor):
         self.dataPreprocessors.append(dataPreprocessor)
-
-    def learnFeatureGenerators(self, data):
-        for featureGeneratorLearner in self.featureGeneratorLearners:
-            featureGeneratorLearner.updateModel(data)
-
-    def addFeatureGeneratorLearner(self, featureGeneratorLearner):
-        self.featureGeneratorLearners.append(featureGeneratorLearner)

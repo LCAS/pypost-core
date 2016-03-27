@@ -39,9 +39,6 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         :param outputVariable: set of output Variables of the gaussian function
         :param inputVariables: set of input Variables of the gaussian function
         :param functionName: name of the gaussian function
-
-        FIXME varargin
-        :param varargin: optional featureGenerator, doInitWeights (see superclass Functions.FunctionLinearInFeatures)
         '''
         ParametricModel.__init__(self)
         FunctionLinearInFeatures.__init__(self, dataManager, outputVariable,
@@ -117,7 +114,7 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
             return chol(self.covMat)
         else:
             return self.cholA
-        
+
         # alternative:
         '''
         def getSigma(self):
