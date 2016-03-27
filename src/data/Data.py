@@ -14,7 +14,7 @@ class DataEntryInfo():
         :param depth: The depth in which the DataEntryInfo resides within the
                       data structure.
         :param entryList: The entry list of the data entry.
-        :param numDimensions: The dimentsions of the data entry.
+        :param numDimensions: The dimensions of the data entry.
         :param minRange: The minimum values of the data entry
         :param maxRange: The maximum values of the data entry
         """
