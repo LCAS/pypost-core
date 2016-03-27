@@ -35,7 +35,7 @@ def createTestManager2():
 
     dataManager.addDataEntry('parameters', 5, -100, 100)
     dataManager.addDataEntry('context', 4, -100, 100)
-    dataManager.addDataEntry('goals', 8, -100, 100)
+    dataManager.addDataEntry('returns', 2, -100, 100)
     subDataManager.addDataEntry('states', 1, -100, 100)
     subDataManager.addDataEntry('actions', 2)
     subSubDataManager.addDataEntry('subStates', 1)
