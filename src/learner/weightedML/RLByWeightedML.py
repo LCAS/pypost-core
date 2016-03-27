@@ -89,7 +89,7 @@ class RLByWeightedML(RLLearner, DataManipulator, object):
             index[i] = True if (p[i] > 10e-10) else False
 
         divKL = np.sum(p[index] * np.log(np.divide(p[index], q[index])))
-        print(divKL)
+        #print(divKL)
         return divKL
 
     def computeWeighting(self, **args):

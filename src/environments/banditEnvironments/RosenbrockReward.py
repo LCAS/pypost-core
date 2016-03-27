@@ -59,6 +59,6 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask):
         if reward.shape[0] == 1:
             reward = reward[0]
 
-        print(reward)
+        #print(reward)
 
         return reward

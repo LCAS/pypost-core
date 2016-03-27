@@ -74,12 +74,13 @@ class Distribution(DistributionInterface, Mapping):
         '''
         if self.registerDataFunctions:
             self.addMappingFunction(self.sampleFromDistribution)
-            if not self.outputVariables:
+            if len(self.outputVariables) != 0:
                 self.setDataProbabilityEntries()
-                self.addDataManipulationFunction(
-                    self.getDataProbabilities,
-                    self.inputVariables + self.outputVariables,
-                    self.dataProbabilityEntries)
+                if self.registerDataFunctions:
+                    self.addDataManipulationFunction(
+                        self.getDataProbabilities,
+                        self.inputVariables + self.outputVariables,
+                        self.dataProbabilityEntries)
 
     def sampleFromDistribution(self, numElements, *args):
         '''

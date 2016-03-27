@@ -164,14 +164,14 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
 
         value = np.tile(biasTrans, (numElements, 1))
 
-        if inputFeatures is None:
-            print('FunctionLinearInFeatures: inputFeatures is None')
-
         if len(self.weights.shape) == 1:
             raise ValueError('weight are a vector. This is not handled by the code')
 
-        mult = inputFeatures.dot(self.weights.conj().T)
-        value = value + mult
+        if inputFeatures is not None:
+            print('FunctionLinearInFeatures: inputFeatures is None')
+            mult = inputFeatures.dot(self.weights.conj().T)
+            value = value + mult
+
         return value
 
     def setWeightsAndBias(self, weights, bias):
