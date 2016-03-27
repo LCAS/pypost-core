@@ -13,14 +13,11 @@ class SettingsClient(object):
         '''
         Get a unique name for this client
         '''
-        self.globalProperties = {}
-        '''
-        Contains the properties to be linked with a parameter pool
-        '''
-        
+        self._localPropertyMap = {}
+
     def linkProperty(self, clientPropName, settingsPropName = None, settings = None):
         '''Registers the property 'clientPropName' of the object into the parameter pool.
-        
+
         The parameter 'settingsPropName' sets the global name of the
         property used in the parameter pool (default is the same name
         as the internal name used for the class). The parameter
@@ -46,9 +43,25 @@ class SettingsClient(object):
             settings = SettingsManager.getDefaultSettings()
 
         settings.linkProperty(self, clientPropName, settingsPropName)
-        
+        self._localPropertyMap[clientPropName] = settingsPropName
 
     def printProperties(self):
         '''Print the properties
         '''
-        DataPrinter.printData(self.globalProperties)
+        for cn in self._localPropertyMap.keys():
+            DataPrinter.printData(cn + ': ' + str(self.getProperty(cn)))
+
+    def getProperty(self, varName):
+        '''Returns the value of the attribute with the given name.
+
+        :param varName: Name of the property
+        '''
+        return getattr(self, varName)
+
+    def setProperty(self, varName, value):
+        '''Sets the value of the attribute with the given name.
+
+        :param varName: Name of the property
+        :param value: The new value
+        '''
+        setattr(self, varName, value)

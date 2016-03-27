@@ -13,7 +13,6 @@ Tuple storing a reference to the client and the name of the property in the clie
 
 
 class Settings():
-    # TODO: revise comment
     '''
     The Settings class implements a parameter pool where we can link
     properties of several objects. The value of the linked properties
@@ -96,9 +95,9 @@ class Settings():
         :param settingsPropName: The property's name as (it should be) defined in the settings
         '''
         if settingsPropName in self._properties:
-            client.globalProperties[clientPropName] = self._properties[settingsPropName].value
+            client.setProperty(clientPropName, self._properties[settingsPropName].value)
         else:
-            self.registerProperty(settingsPropName, client.globalProperties[clientPropName])
+            self.registerProperty(settingsPropName, client.getProperty(clientPropName))
 
         self._properties[settingsPropName].clients.append(ClientInfo(client, clientPropName))
 
@@ -208,7 +207,7 @@ class Settings():
         '''
         if propName in self._properties:
             for c, n in self._properties[propName].clients:
-                c.globalProperties[n] = self._properties[propName].value
+                c.setProperty(n, self._properties[propName].value)
 
     def printProperties(self):
         '''Prints the properties
