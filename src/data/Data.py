@@ -278,6 +278,7 @@ class Data():
 
         :param numElements: The number of elements that the data structure
                             should be able to handle.
+        :change No "varargin" needed anymore
         '''
         self.dataManager.reserveStorage(self.dataStructure, numElements)
 
