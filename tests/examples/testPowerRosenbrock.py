@@ -9,6 +9,7 @@ from examples.stochasticSearch.rosenbrock.Power_Rosenbrock import PowerRosenbroc
 class testPowerRosenbrock(unittest.TestCase):
 
     def testPowerRosenbrock(self):
+
         if not os.path.isdir('/tmp/testCategory'):
             os.mkdir('/tmp/testCategory')
             if not os.path.isdir('/tmp/testCategory/PowerRosenbrock'):
@@ -23,3 +24,7 @@ class testPowerRosenbrock(unittest.TestCase):
                                               numTrials)
 
         experiment.startLocal()
+
+        experiment.defaultTrial.configured = False
+        with self.assertRaises(RuntimeError):
+            experiment.defaultTrial.run()
