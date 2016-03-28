@@ -7,7 +7,7 @@ class testSettings(unittest.TestCase):
     '''Tests Settings, SettingsManager, SettingsClient from common
     '''
 
-    def testSetProperty(self):
+    def test_setProperty(self):
         self.assertEqual(SettingsManager.inDebugMode(), False)
         SettingsManager.activateDebugMode()
         self.assertEqual(SettingsManager.inDebugMode(), True)
@@ -21,7 +21,7 @@ class testSettings(unittest.TestCase):
         cli.linkProperty('prop_a', 'A', SettingsManager.getSettings('testSettings01'))
         self.assertIs(SettingsManager.getSettings('testSettings01'), settings)
         self.assertEqual(SettingsManager.getSettings('testSettings01').getProperty('A'), 42.21)
-        self.assertEqual(cli.settingsClientName, 'client_001')
+        self.assertEqual(cli.settingsClientName[:-3], 'client_')
 
         SettingsManager.pushDefaultName('standard')
         self.assertEqual(SettingsManager.getDefaultName(), 'standard')
@@ -149,7 +149,7 @@ class testSettings(unittest.TestCase):
         self.assertEqual(settings2.getProperty('testProp1'), 9)
 
         # FIXME: check if globalProperties should be stored to disk
-        self.assertEqual(cli.globalProperties['testProp2'], 42)
+        self.assertEqual(cli.globalProperties['testProp2'], 8)
 
 if __name__ == "__main__":
     unittest.main()
