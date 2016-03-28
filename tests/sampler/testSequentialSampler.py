@@ -3,20 +3,22 @@ import DataUtil
 from sampler.SequentialSampler import SequentialSampler
 from data.Data import Data
 from data.DataStructure import DataStructure
+from sampler.SamplerPool import SamplerPool
+from data.DataManager import DataManager
 
 
-class Test(unittest.TestCase):
+class testSequentialSampler(unittest.TestCase):
 
 
     def setUp(self):
-        self.sampler = SequentialSampler(DataUtil.createTestManager(), 'testSampler1')
+        self.sampler = SequentialSampler(DataUtil.createTestManager(), 'testSampler1', None)
         self.sampler.addSamplerPool(SamplerPool('testPool1', 0))
         self.sampler.addSamplerPool(SamplerPool('testPool2', 7))
         self.sampler.addSamplerPool(SamplerPool('testPool3', 2))
         self.sampler.addSamplerPool(SamplerPool('testPool4', 11))
-        self.sampler2 = SequentialSampler(DataManager('testDataManager2'), 'testSampler2')
+        self.sampler2 = SequentialSampler(DataManager('testDataManager2'), 'testSampler2', 'mySteps')
         self.sampler2.addSamplerPool(SamplerPool('testPool5', 9))
-        self.sampler.addLowerLevelSampler('testPool1', sampler2, False)
+        self.sampler.addLowLevelSampler('testPool1', self.sampler2, False)
 
 
     def tearDown(self):
@@ -34,13 +36,24 @@ class Test(unittest.TestCase):
 
     def test_createSamples(self): #TODO
         data = Data(DataUtil.createTestManager(), DataStructure(1))
-        self.sampler.createSamples(data)
+        #self.sampler.createSamples(data)
 
     def test_getNumSamples(self):
-        #TODO
+        pass
 
     def test_selectActiveIdxs(self):
-        
+        pass
+
+    def test_endTransitation(self):
+        pass
+
+    def test_initSamples(self):
+        with self.assertRaises(NotImplementedError):
+            self.sampler._initSamples(None)
+
+    def test_createSamplesForStep(self):
+        with self.assertRaises(NotImplementedError):
+            self.sampler._createSamplesForStep(None)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

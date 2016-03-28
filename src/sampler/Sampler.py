@@ -201,6 +201,9 @@ class Sampler(SamplerInterface):
         self.addSamplerFunction(samplerPool, lowerLevelSampler, isBeginning)
         self._lowerLevelSamplers.append(lowerLevelSampler)
 
+    def addSamplerFunction(self, samplerPool, lowerLevelSampler, isBeginning):
+        pass
+
     # ASK unify names as low- or lowerLevelSamplers?
     def getLowerLevelSamplers(self):
         '''

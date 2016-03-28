@@ -1,4 +1,4 @@
-from sampler import Sampler
+from sampler.Sampler import Sampler
 
 
 class SequentialResetSampler(Sampler):
@@ -21,7 +21,7 @@ class SequentialResetSampler(Sampler):
         '''
         super().__init__(dataManager, samplerName)
 
-        self._numSamples = self.toReserve()
+        self._numSamples = self._toReserve()
         '''
         The number of samples for this sampler.
         '''
@@ -33,32 +33,41 @@ class SequentialResetSampler(Sampler):
         :param newData: the data structure the sampler operates on
         :param args: hierarchical indexing of the data structure
         '''
-        layerIndex = args
 
-        reservedStorage = toReserve()
-        newData.reserveStorage(reservedStorage, layerIndex[:])
+        reservedStorage = self._toReserve()
+        newData.reserveStorage(reservedStorage)
 
-        activeIndex = layerIndex
-        activeIndex[args.length] = 1
+        activeIndex = list(args)
+        it = 1
+        activeIndex.append(it)
 
         self._initSamples(newData, activeIndex[:])
 
-        it = 1
-        while(activeIndex[-1].length >= 1):
+        while(len(activeIndex[-2]) >= 1):
             if (it > reservedStorage):
                 reservedStorage = reservedStorage * 2
-                newData.reservestorage(reservedStorage, activeIndex[0:-1])
+                newData.reserveStorage(reservedStorage)
 
-            activeIndex.append(it)
+            activeIndex[-1] = it
+            # last index is the number of the current iteration
             activeIndex = self._createSamplesForStep(newData, activeIndex[:])
             self._endTransition(newData, activeIndex)
             it = it + 1
-        adjustReservedStorage()
+        self._adjustReservedStorage(newData, activeIndex)
 
     def getNumSamples(self, data, index):
+        '''
+        Return the number of samples
+        '''
         return self.numTimeSteps
 
-    def _endTransition(self, data, *args):
+    def _toReserve(self):
+        '''
+        Returns the storage to reserve
+        '''
+        raise NotImplementedError("Not implemented")
+
+    def _endTransition(self, data, indexing):
         '''
         Ends the transition
         '''
@@ -66,38 +75,38 @@ class SequentialResetSampler(Sampler):
         # sampler(interface) itself?
         raise NotImplementedError("Not implemented")
 
-    def _initSamples(self, data, *args):
+    def _initSamples(self, data, indexing):
         '''
         Initialize the data of the step sampler
         :param data: data to be operated on
-        :param args: index of the layer
+        :param indexing: index of the layer
         '''
         raise NotImplementedError("Not implemented")
 
-    def _createSamplesForStep(self, data, *args):
+    def _createSamplesForStep(self, data, indexing):
         '''
         create samples for the current step
         :param data: to be operated on
-        :param args: index of the layer
+        :param indexing: index of the layer
         '''
         # FIXME this function is redefined in some other classes, refactor to
         # sequential sampler?
         raise NotImplementedError("Not implemented")
 
-    def _adjustReservedStorage(self, data, *args):
+    def _adjustReservedStorage(self, data, indexing):
         '''
         Ends the transition
         :param data to be operated on
-        :param args: index of the layer
+        :param indexing: index of the layer
         '''
         raise NotImplementedError("Not implemented")
 
-    def _selectActiveIdxs(self, data, *args):
+    def _selectActiveIdxs(self, data, indexing):
         '''
         Ends the transition
         :param data: to be operated on
-        :param args: index of the layer
+        :param indexing: index of the layer
         '''
-        # FIXME this function is redefined in some other classes, refactor to
+        # This function is redefined in some other classes, refactor to
         # sequential sampler?
         raise NotImplementedError("Not implemented")

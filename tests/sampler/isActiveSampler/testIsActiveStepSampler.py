@@ -8,7 +8,7 @@ class Test(unittest.TestCase):
 
     def setUp(self):
         self.dataManager = DataManager('testmngr')
-        self.ia2s = IsActiveStepSampler(self.dataManager)
+        self.ia2s = IsActiveStepSampler(self.dataManager, None)
 
 
     def tearDown(self):
@@ -16,7 +16,7 @@ class Test(unittest.TestCase):
 
 
     def test_init(self):
-        self.assertEqual(self.ia2s.stepName, 'timestep')
+        self.assertIsInstance(self.ia2s, IsActiveStepSampler)
 
     def test_isActiveStep(self):
         with self.assertRaises(NotImplementedError):

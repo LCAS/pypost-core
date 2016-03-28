@@ -8,7 +8,7 @@ class Test(unittest.TestCase):
 
     def setUp(self):
         self.dataManager = DataUtil.createTestManager()
-        self.sampler = GridSampler(dataManager, 'testSampler1', outputVariable= , 3)
+        self.sampler = GridSampler(self.dataManager, 'testSampler1', None, 3)
 
     def tearDown(self):
         pass

@@ -1,9 +1,8 @@
 from sampler.isActiveSampler.IsActiveStepSampler import IsActiveStepSampler
-from common.SettingsClient import SettingsClient
 
 
 
-class IsActiveNumSteps(IsActiveStepSampler, SettingsClient):
+class IsActiveNumSteps(IsActiveStepSampler):
     '''
     The sampler is active until to number of steps is reached
 
@@ -42,10 +41,10 @@ class IsActiveNumSteps(IsActiveStepSampler, SettingsClient):
         FIXME
         '''
 
-        self.globalProperties['numTimeSteps'] = numTimeSteps
-        self.linkProperty(
-            "numTimeSteps", "num" + stepName.capitalize())
-        #FIXME linked property not used
+        #self.globalProperties['numTimeSteps'] = numTimeSteps
+        #self.linkProperty(
+        #    "numTimeSteps", "num" + stepName.capitalize())
+        #FIXME linked propert
 
     # getter & setters
 

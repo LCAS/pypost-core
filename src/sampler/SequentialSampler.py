@@ -1,5 +1,5 @@
-from sampler import Sampler
-from sampler.isActiveSampler import IsActiveNumSteps
+from sampler.Sampler import Sampler
+from sampler.isActiveSampler.IsActiveNumSteps import IsActiveNumSteps
 
 
 class SequentialSampler(Sampler):
@@ -21,22 +21,21 @@ class SequentialSampler(Sampler):
       def _endTransitation(self, data: data.Data, *args: list of int) -> null
     '''
 
-    def __init__(self, dataManager, samplerName, stepNames):
-        # @mw FIXME: stepNames should rather be a string than an array!? -> comment
+    def __init__(self, dataManager, samplerName, stepName):
         '''
         Constructor for setting-up an empty step sampler
         :param dataManager: DataManager this sampler operates on
         :param samplerName: name of this sampler
-        :param stepNames: array with the names of the steps
+        :param stepName: name of the steps
         '''
         super().__init__(dataManager, samplerName)
 
         self._isActiveSampler = None
-        self._transitionElementOldStep = {}
-        self._transitionElementNewStep = {}
+        self._transitionElementOldStep = []
+        self._transitionElementNewStep = []
 
         # TODO pass an other IsActiveStepSampler by parameters
-        self._setIsActiveSampler(IsActiveNumSteps(dataManager, stepNames))
+        self._setIsActiveSampler(IsActiveNumSteps(dataManager, stepName))
 
     #getter & setter
 
@@ -69,12 +68,10 @@ class SequentialSampler(Sampler):
         :param args: hierarchical indexing of the data structure
         '''
 
-        layerIndex = args
-
         reservedStorage = self._isActiveSampler.toReserve()
-        data.reserveStorage(reservedStorage, layerIndex.copy())
+        data.reserveStorage(reservedStorage)
 
-        activeIndex = layerIndex
+        activeIndex = list(args)
         activeIndex.append(0)
 
         self._initSamples(data, activeIndex.copy())

@@ -16,7 +16,7 @@ class Test(unittest.TestCase):
         self.sampler.addSamplerPool(SamplerPool('testPool4', 0))
         self.sampler2 = Sampler(DataManager('testDataManager2'), 'testSampler2')
         self.sampler2.addSamplerPool(SamplerPool('testPool5', 3))
-        self.sampler.addLowerLevelSampler('testPool1', sampler2, False)
+        self.sampler.addLowerLevelSampler('testPool1', self.sampler2, False)
 
 
 

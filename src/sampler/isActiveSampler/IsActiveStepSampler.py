@@ -1,7 +1,7 @@
-from data.DataManipulatorInterface import DataManipulatorInterface
+from data.DataManipulator import DataManipulator
 
 
-class IsActiveStepSampler(DataManipulatorInterface):
+class IsActiveStepSampler(DataManipulator):
     '''
     IsActiveStepSampler determines whether a sequence is still active
     e.g. whether it is not reset
@@ -20,12 +20,13 @@ class IsActiveStepSampler(DataManipulatorInterface):
 
         # FIXME DataManipulator interface needs a setDataManager function or a
         # constructor interface
-        self.setDataManager(dataManager)
+        #self.setDataManager(dataManager)
+        super().__init__(dataManager)
 
         if stepName is None:
             stepName = "timeSteps"
-        self._addDataManipulationFunction(
-            "isActiveStep", {"nextStates", stepName}, {"isActive"})
+        self.addDataManipulationFunction(
+            self.isActiveStep, {"nextStates", stepName}, 'isActive')
 
     def isActiveStep(self, nextStates, timeSteps):
         '''

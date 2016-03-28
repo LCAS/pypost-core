@@ -17,8 +17,11 @@ class Test(unittest.TestCase):
 
 
     def test_init(self):
+        self.assertIsInstance(self.ians, IsActiveNumSteps)
         self.assertEqual(self.ians._numTimeSteps, 20)
-        self.assertEqual(SettingsManager.getDefaultSettings().getProperty('numTimeSteps'), 20)
+        datamngr = DataUtil.createTestManager()
+        testIans = IsActiveNumSteps(datamngr, 'testName', 20)
+        self.assertIsNotNone(testIans._manipulationFunctions)
         
 
     def test_getNumTimeSteps(self):
@@ -28,8 +31,11 @@ class Test(unittest.TestCase):
         self.ians.setNumTimeSteps(30)
         self.assertEqual(self.ians._numTimeSteps, 30)
 
+        with self.assertRaises(RuntimeError):
+            self.ians.setNumTimeSteps(-1)
+
     def test_isActiveStep(self):
-        self.assertTrue(self.ians.isActiveStep(None, 20))
+        self.assertTrue(self.ians.isActiveStep(None, 19))
 
     def test_toReserve(self):
         self.assertEqual(self.ians.toReserve(), 20)
