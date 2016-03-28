@@ -75,7 +75,7 @@ print('parameters: \n', myData.getDataEntry('parameters', 1), '\n\n')
 # is crucial to write all pending changes by using setDataEntry().
 print('parameters: \n', myData.getDataEntry('parameters', 1, False), '\n\n')
 
-# and the following command retreives the subActions of all subSteps of the
+# and the following command retrieves the subActions of all subSteps of the
 # first step of the first episode
 print('subActions: \n', myData.getDataEntry(['steps', 'subSteps', 'subActions'],
                                             [1, 1, ...]), '\n\n')
@@ -96,7 +96,7 @@ myData.setDataEntry('parameters', [], parameterData)
 tempParameters = myData.getDataEntry('parameters', ...);
 
 # ... or use indices to access the hierarchical data structure
-# and get all parameters of the first empisode
+# and get all parameters of the first episode
 tempParametersFirstEpisode = myData.getDataEntry('parameters', [1]);
 
 # we can also use the '...# sign to specify that we want to have all elements
