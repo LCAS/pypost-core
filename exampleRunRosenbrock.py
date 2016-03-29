@@ -3,7 +3,7 @@
 import os
 import sys
 sys.path.append(
-    os.path.abspath(os.path.dirname(os.path.realpath(__file__))+'/../../../'))
+    os.path.abspath(os.path.dirname(os.path.realpath(__file__))+'/src/'))
 
 from experiments.Experiment import Experiment
 from experiments.ExperimentFromScript import ExperimentFromScript
