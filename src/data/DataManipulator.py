@@ -235,7 +235,7 @@ class DataManipulator(DataManipulatorInterface):
             raise ValueError("Data function %s is not defined" % name)
         self._manipulationFunctions[name].takesData = takesData
 
-    def callDataFunction(self, samplerName, data, indices):
+    def callDataFunction(self, samplerName, data, indices=Ellipsis):
         '''
         Calls a data function with the given indices.
         Writes the result back into the data object.
@@ -251,7 +251,7 @@ class DataManipulator(DataManipulatorInterface):
             dmf = self._manipulationFunctions[functionName]
             self._callDataFunctionInternal(dmf, data, True, indices)
 
-    def callDataFunctionOutput(self, samplerName, data, indices):
+    def callDataFunctionOutput(self, samplerName, data, indices=Ellipsis):
         '''
         Calls a data function with the given indices.
         Returns the results back to the caller.

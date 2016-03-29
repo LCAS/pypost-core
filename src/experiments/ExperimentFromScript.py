@@ -3,13 +3,7 @@ from experiments.Experiment import Experiment
 
 class ExperimentFromScript(Experiment):
     '''
-    FIXME:
-    No documentation available yet.
-    Please take this opportunity to think about the vastness of the universe
-    and the insignificance of human life.
-    How do you feel? If you like, write about your experience
-    in your diary or draw a picture.
-    Now carry on.
+    Creates a new experiment from a trial script.
     '''
 
     def __init__(self, rootDir, category, TrialClass):
