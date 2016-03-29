@@ -22,11 +22,6 @@ class Experiment():
     epsilon for REPS.
     '''
 
-    # TODO(Sebastian): Find a reasonable root directory to store experiments
-    # Comment(Sebastian): Current solution: Get root over constructor
-    #root = 'Experiments/data'
-    #root = os.getcwd()
-
     def __init__(self, rootDir, category, taskName):
         '''
         Constructor
@@ -60,37 +55,11 @@ class Experiment():
 
     @staticmethod
     def getByPath(self, path):
-        fileName = os.path.join(path, "experiment.mat")
-        '''
-        FIXME
-        load(fileName); <- can not be done in python
-        return experiment
-        '''
-        raise RuntimeError("Not implemented")
+        raise NotImplementedError("Use addToDataBase(path) instead")
 
-    @staticmethod
-    def loadFromDataBase(self, category, configurators, experimentID):
-        expFileName = os.path.join(
-            Experiment.root,
-            category,
-            self.taskName,
-            "settings{03d}".format(experimentID),
-            'experiment.mat')
-
-        raise RuntimeError("Not implemented")
-        '''
-        FIXME
-        load(expFileName);
-        return experiment
-        '''
 
     @staticmethod
     def addToDataBase(newExperiment):
-        # TODO(Sebastian): There's some weird shit happening here and I don't
-        # know if we can actually implement it like that in python
-        if not os.path.exists(newExperiment.path):
-            print("Creating directories for new experiment...")
-
         while not os.path.exists(newExperiment.path):
             path = newExperiment.path
             while not os.path.exists(os.path.abspath(os.path.join(path, os.pardir))):
@@ -139,16 +108,10 @@ class Experiment():
         self.trialToEvaluationMap[trialId] = evaluation
         self.trialIndexToDirectorymap[trialId] = trialDir
 
-        print("Trial registered: %s" % trialDir)
-
     def getEvaluation(self, evalNumber):
-        # TODO mathlab accessed self.evaluation (without "s"), does this
-        # property exist? Is this function even in use?
         return self.evaluations[evalNumber]
 
     def getEvaluationIndex(self, evaluation):
-        # TODO mathlab accessed self.evaluation (without "s"), does this
-        # property exist? Is this function even in use?
         for idKey, evaluationVal in self.evaluations.items():
             if evaluationVal.evaluationName == evaluation.evaluationName:
                 return idKey
@@ -171,7 +134,6 @@ class Experiment():
         self.evaluations[evaluationNumber].getTrialData(self.path)
 
     def deleteExperiment(self):
-        # I also like to live dangerously ( ͡° ͜ʖ ͡°)
         shutil.rmtree(self.path)
 
     def storeExperiment(self):

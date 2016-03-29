@@ -16,10 +16,6 @@ class Trial():
     TODO: Documentation
     '''
 
-    # TODO: add __main__ method
-    # Comment(Sebastian): __main__ should probably be added in inheriting
-    #                     class. I don't think there's a good way to start
-    #                     the trial from here.
     def __init__(self, evalDir, index):
         '''
         Constructor
@@ -35,7 +31,6 @@ class Trial():
             os.close(os.open(logFile, os.O_CREAT | os.O_APPEND))
             os.chmod(logFile, 0o664)
         else:
-            # Matlab prints trialDir here, but that doesn't make any sense
             print("Trial %s: Directory not found" % evalDir)
             self.trialDir = None
 
@@ -166,7 +161,7 @@ class Trial():
         self.storeTrial()
 
     def configure(self):
-        raise RuntimeError("Must be overwritten by subclass")
+        raise NotImplementedError("Must be overwritten by subclass")
 
     def run(self):
-        raise RuntimeError("Must be overwritten by subclass")
+        raise NotImplementedError("Must be overwritten by subclass")

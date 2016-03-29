@@ -7,7 +7,27 @@ from numpy import ones
 sys.path.append('../src')
 from data.DataEntry import DataEntry
 from data.DataManager import DataManager
+from data.DataManipulator import DataManipulator
+from data.DataManipulator import CallType
 
+class TestManipulator(DataManipulator):
+    def __init__(self, dataManager):
+        super().__init__(dataManager)
+        self.addDataManipulationFunction(self.sampleParameters, [],
+                                         ['parameters'])
+        self.addDataManipulationFunction(self.sampleStates, ['parameters'],
+                                         'states', CallType.PER_EPISODE, True)
+        self.addDataManipulationFunction(self.sampleActions, [],
+                                         ['actions'])
+        
+    def sampleParameters(self, numElements):
+        return np.ones((numElements, 10))
+
+    def sampleStates(self, numElements, parameters):
+        return np.ones((numElements, 2))
+
+    def sampleActions(self, numElements):
+        return np.ones((numElements, 2))
 
 class testPerformanceRequirements(unittest.TestCase):
 
@@ -33,7 +53,7 @@ class testPerformanceRequirements(unittest.TestCase):
     def stop(self):
         self.endTime = time.time()
 
-    def compareToReferenceTime(self, testName):
+    def registerTime(self, testName):
         delta = self.endTime - self.startTime
         self.assertIn(
             testName, self.performanceTests, "Performance test %s is not defined" % testName)
@@ -64,12 +84,12 @@ class testPerformanceRequirements(unittest.TestCase):
         self.start()
         myData = dataManager.getDataObject([100, 10, 5])
         self.stop()
-        self.compareToReferenceTime('getDataObject')
+        self.registerTime('getDataObject')
         
         self.start()
         myData.reserveStorage([100, 20, 5])
         self.stop()
-        self.compareToReferenceTime('reserveStorage')
+        self.registerTime('reserveStorage')
         
         actions = np.random.random((2000, 2))
         subActions = np.random.random((5000, 2))
@@ -77,30 +97,56 @@ class testPerformanceRequirements(unittest.TestCase):
         self.start()
         myData.setDataEntry('actions', [..., ...], actions)
         self.stop()
-        self.compareToReferenceTime('setDataEntry1')
+        self.registerTime('setDataEntry1')
         
         self.start()
         myData.setDataEntry('subActions', [..., ..., ...], subActions)
         self.stop()
-        self.compareToReferenceTime('setDataEntry2')
+        self.registerTime('setDataEntry2')
         
         self.start()
         myData.getDataEntry('subActions')
         self.stop()
-        self.compareToReferenceTime('getDataEntry')
+        self.registerTime('getDataEntry')
    
         self.start()
         for i in range(0, 100):
             entryList = myData.getDataEntryList([['steps', 'actions'], ['steps', 'substeps', 'subActions']], [0, 1, 0])
         self.stop()
-        self.compareToReferenceTime('getDataEntryCellArray')
+        self.registerTime('getDataEntryCellArray')
 
         entryList[1] = 2 * entryList[1]
         self.start()
         for i in range(0, 100):
             myData.setDataEntryList([['steps', 'actions'], ['steps', 'substeps', 'subActions']], [0, 1, 0], entryList)
         self.stop()
-        self.compareToReferenceTime('setDataEntryCellArray')
+        self.registerTime('setDataEntryCellArray')
+
+        
+    def test_DataManipulator(self):
+        dataManager = DataManager("episodes")
+        subDataManager = DataManager("steps")
+
+        dataManager.addDataEntry('parameters', 10, -ones(5), ones(5))
+
+        subDataManager.addDataEntry('states', 2, -ones(1), ones(1))
+        subDataManager.addDataEntry('actions', 2, -ones(2), ones(2))
+
+        dataManager.subDataManager = subDataManager
+        
+        data = dataManager.getDataObject([100, 100])
+        
+        manipulator = TestManipulator(dataManager)
+        
+        self.start()
+        manipulator.callDataFunction('sampleParameters', data)
+        self.stop()
+        self.registerTime('callDataFunction')
+        
+        self.start()
+        manipulator.callDataFunctionOutput('sampleActions', data)
+        self.stop()
+        self.registerTime("callDataFunctionOuput")
         
 if __name__ == '__main__':
     unittest.main()

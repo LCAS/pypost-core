@@ -30,8 +30,6 @@ class Evaluation():
         settingsPath = os.path.join(self.path, 'settings.yaml')
         self.settings.store(settingsPath)
 
-        print("Creating evaluation file structure for evaluation in %s" %
-              self.path)
         for i in range(0, self.numTrials):
             trialPath = os.path.join(self.path, 'trial%03d' % i)
             if not os.path.isfile(os.path.join(trialPath, 'trial')):

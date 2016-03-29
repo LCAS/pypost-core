@@ -94,6 +94,8 @@ class Data():
         return self.getNumElementsForIndex(depth, [])
 
     def getNumElementsForIndex(self, depth, indices=[]):
+        if not isinstance(indices, list):
+            indices = [indices]
         while len(indices) <= depth:
             indices.append(...)
 

@@ -6,3 +6,5 @@ setDataEntry2	DataManager	Füllen des bestehenden Datenobjekts (SubActions)	0.04
 getDataEntry	DataManager	Auslesen der Daten (SubActions)	0.039
 getDataEntryCellArray	DataManager	Auslesen verschiedener Einträge als cell array, 100 mal	0.223
 setDataEntryCellArray	DataManager	Setzen von verschiedenen Einträgen als cell array, 100 mal	0.082
+callDataFunction	DataManipulator	Aufruf einer DataManipulationFunction	0
+callDataFunction	DataManipulator	Aufruf einer DataManipulation Function, Rückgabe der Ergebnisse	0
