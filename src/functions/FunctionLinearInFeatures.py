@@ -131,7 +131,6 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
                 'weight are a vector. This is not handled by the code')
 
         if inputFeatures is not None:
-            print('FunctionLinearInFeatures: inputFeatures is None')
             mult = inputFeatures.dot(self.weights.conj().T)
             value = value + mult
 

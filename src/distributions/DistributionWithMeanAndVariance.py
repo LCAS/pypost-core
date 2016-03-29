@@ -51,9 +51,8 @@ class DistributionWithMeanAndVariance(Distribution):
         if sigma.shape[2] == 1:
             # If the second dimension of the sigma matrix is 1, the
             # function expects those values to be the diagonal variance.
-            # TODO: np.random.randn is not deterministic, MatLab's randn is
             samples = expectation + np.random.randn(
-                expectation.shape[0], expectation.shape[1]) * sigma
+                expectation.shape[0], expectation.shape[1]) * sigma[0, 0, 0]
         else:
             if sigma.shape[0] == 1:
                 # If the first dimension of sigma is 1, there is only
@@ -163,8 +162,4 @@ class DistributionWithMeanAndVariance(Distribution):
                 CallType.ALL_AT_ONCE, True)
 
     def getExpectationAndSigma(self, numElements, inputData, *args):
-        # return mean, sigma
-        # FIXME
-        # Check how this function is expected to behave in the documentation of
-        # this class
         raise NotImplementedError()

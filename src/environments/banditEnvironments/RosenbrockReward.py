@@ -27,9 +27,6 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask):
         # self.linkProperty('rewardNoise');
 
     def sampleReturn(self, contexts, parameters):
-        # FIXME parameters is empty
-        #raise ValueError('hehe')
-        #print('p', contexts, parameters)
         for i in range(0, parameters.shape[0]):
             vec = (contexts[i,:]).dot(self.A)
             parameters[i,:] = parameters[i,:] +\

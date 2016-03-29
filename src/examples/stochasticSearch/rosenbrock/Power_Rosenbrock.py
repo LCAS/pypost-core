@@ -7,6 +7,7 @@ from common.Settings import Settings
 from distributions.gaussian.GaussianParameterPolicy import \
 GaussianParameterPolicy
 from environments.banditEnvironments.RosenbrockReward import RosenbrockReward
+from environments.banditEnvironments.SinDistReward import SinDistReward
 from experiments.Trial import Trial
 from experiments.Trial import StoringType
 from learner.episodicRL.EpisodicPower import EpisodicPower
@@ -22,15 +23,16 @@ class PowerRosenbrock(Trial):
         self.settings.setProperty("numParameters", 15)
         self.settings.setProperty("numContexts", 15)
         self.settings.setProperty("numSamplesEpisodes", 10)
-        self.settings.setProperty("numIterations", 2000)
+        self.settings.setProperty("numIterations", 200)
 
         self.sampler = EpisodeSampler()
         self.dataManager = self.sampler.dataManager # TODO is this OK?
 
-        self.returnSampler = RosenbrockReward(
-            self.sampler,
-            self.settings.getProperty('numContexts'),
-            self.settings.getProperty('numParameters'))
+        #self.returnSampler = RosenbrockReward(
+        #    self.sampler,
+        #    self.settings.getProperty('numContexts'),
+        #    self.settings.getProperty('numParameters'))
+        self.returnSampler = SinDistReward(self.sampler)
 
         self.parameterPolicy = GaussianParameterPolicy(self.dataManager)
         self.policyLearner = EpisodicPower(self.dataManager, None)
