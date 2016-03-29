@@ -72,17 +72,18 @@ class DistributionWithMeanAndVariance(Distribution):
                     raise ValueError(
                         'expectation has an unsupported shape length')
 
-                if sigma.shape[2] == 1:
-                    sigma = sigma[0]
+                sigma = sigma[0]
 
                 samples = expectation + expectRand.dot(sigma)
             else:
+                raise NotImplementedError("Not implemented. See code")
+                #
                 # Every Element has its own sigma matrix
-                samples = expectation
-                for i in range(0, samples.shape[0]):
-                    samples[i, :] = samples[i, :] + np.random.randn(
-                        1, expectation.shape[1]).dot(
-                            np.transpose(sigma[i, :, :], (1, 2, 0)))
+                #samples = expectation
+                # for i in range(0, samples.shape[0]):
+                #    samples[i, :] = samples[i, :] + np.random.randn(
+                #        1, expectation.shape[1]).dot(
+                #            np.transpose(sigma[i, :, :], (1, 2, 0)))
 
         return samples
 
@@ -101,38 +102,45 @@ class DistributionWithMeanAndVariance(Distribution):
         samples = None
         qData = None
 
-        minRange = self.getDataManager().getMinRange(self.outputVariable)
-        maxRange = self.getDataManager().getMaxRange(self.outputVariable)
-        # TODO: check this:
-        expectation = lambda: max(min(expectation, maxRange), minRange)
+        # TODO this is failing for some of the branches below.
+        # make sure to invoke this, only for cases were it works
+        #minRange = self.dataManager.getMinRange(self.outputVariables[0])
+        #maxRange = self.dataManager.getMaxRange(self.outputVariables[0])
+        #expectation = np.maximum(np.minimum(expectation, maxRange), minRange)
+
+        samples = outputData - expectation
 
         if sigma.shape[2] == 1:
             # If the second dimension of the sigma matrix is 1, the
             # function expects those values to be the diagonal variance.
-
-            samples = outputData - expectation
             samples = samples / sigma
 
-            qData = -sum(math.log(sigma), 2)
-        else:
+            qData = -sum(np.log(sigma), 2)
+        else:  # pragma: no cover
             # If the first dimension of sigma is 1, there is only
             # one sigma matrix for all elements. Then we will
             # use this sigma matrix for every sample.
+
+            # FIXME not quite sure if this does the right thing, review again,
+            # before including this code - (also remove no cover pragma after doing
+            # this) ^moritz
+            '''
             if sigma.shape[0] == 1:
-                samples = outputData - expectation
-                sigma = np.transpose(sigma, (2, 3, 1))
-                samples = np.linalg.lstsq(sigma.T, samples.T)
+                sigma = np.transpose(sigma, (1, 2, 0))
+                samples = samples / sigma
 
                 # Here we do not need the 0.5 as it is the standard deviation
                 qData = -sum(math.log(np.linalg.eig(sigma)[0]))
             else:
                 # Every Element has its own sigma matrix
-                samples = outputData - expectation
                 qData = np.zeros(samples.shape[0])
                 for i in range(0, samples.shape[0]):
-                    sigma_tmp = np.transpose(sigma[i, :, :], (2, 3, 1))
-                    samples[i, :] = samples[i, :] / sigma_tmp
+                    print(samples.shape, sigma[i])
+                    sigma_tmp = np.transpose(sigma[i], (1, 2, 0))
+                    samples[i] = samples[i] / sigma_tmp
                     qData[i] = -sum(math.log(np.linalg.eig(sigma_tmp)[0]))
+            '''
+            raise NotImplementedError()
 
         samplesDist = sum(samples**2, 2)
         # samplesDist = samplesDist - min(samplesDist)
