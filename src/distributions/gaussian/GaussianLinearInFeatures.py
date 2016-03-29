@@ -12,12 +12,9 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
     The  GaussianLinearInFeatures class models gaussian distributions where the
     mean can be a linear function of the feature vectors.
 
-    This class models a linear Gaussian distribution in the form of
-    \f$\mathcal{N}(\boldsymbol{y}| \boldsymbol{b} + \boldsymbol{W} \boldsymbol{\phi}(\boldsymbol{x}), \boldsymbol{\Sigma})\f$
-
     We omit the scaling scalar because we will work with normalized data.
 
-    This class is a subclass of :class:`Distributions.DistributionWithMeanAndVariance`
+    This class is a subclass of :class:`distributions.DistributionWithMeanAndVariance`
     and defines the abstract :func:`getExpectationAndSigma` so this class acts
     like a Gaussian distribution in the functions :func:`sampleFromDistribution`
     and :func:`getDataProbabilities` of the superclass.
@@ -26,7 +23,7 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
     internally, but is able to return characteristics like mean, expectation
     and the sigma matrix like expected.
 
-    see Functions.Mapping for more information how to use outputVariable
+    see functions.Mapping for more information how to use outputVariable
     and inputVariables etc
     '''
 
