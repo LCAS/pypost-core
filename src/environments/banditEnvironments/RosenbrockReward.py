@@ -3,7 +3,7 @@ from environments.EpisodicContextualParameterLearningTask \
 import EpisodicContextualParameterLearningTask
 
 
-class RosenbrockReward(EpisodicContextualParameterLearningTask):
+class RosenbrockReward(EpisodicContextualParameterLearningTask): #pragma nocover
     def __init__(self, episodeSampler, dimContext, dimParameters):
         super().__init__(episodeSampler, dimContext, dimParameters)
 

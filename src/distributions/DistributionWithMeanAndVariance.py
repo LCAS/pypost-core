@@ -123,22 +123,6 @@ class DistributionWithMeanAndVariance(Distribution):
             # FIXME not quite sure if this does the right thing, review again,
             # before including this code - (also remove no cover pragma after doing
             # this) ^moritz
-            '''
-            if sigma.shape[0] == 1:
-                sigma = np.transpose(sigma, (1, 2, 0))
-                samples = samples / sigma
-
-                # Here we do not need the 0.5 as it is the standard deviation
-                qData = -sum(math.log(np.linalg.eig(sigma)[0]))
-            else:
-                # Every Element has its own sigma matrix
-                qData = np.zeros(samples.shape[0])
-                for i in range(0, samples.shape[0]):
-                    print(samples.shape, sigma[i])
-                    sigma_tmp = np.transpose(sigma[i], (1, 2, 0))
-                    samples[i] = samples[i] / sigma_tmp
-                    qData[i] = -sum(math.log(np.linalg.eig(sigma_tmp)[0]))
-            '''
             raise NotImplementedError()
 
         samplesDist = sum(samples**2, 2)
