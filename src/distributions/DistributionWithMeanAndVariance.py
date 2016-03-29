@@ -156,8 +156,8 @@ class DistributionWithMeanAndVariance(Distribution):
             self.addDataManipulationFunction(
                 self.getExpectationAndSigma,
                 self.inputVariables + self.additionalInputVariables,
-                [self.outputVariable[0] +
-                 'Mean', self.outputVariable[0] +
+                [self.outputVariables[0] +
+                 'Mean', self.outputVariables[0] +
                  'Std'],
                 CallType.ALL_AT_ONCE, True)
 
