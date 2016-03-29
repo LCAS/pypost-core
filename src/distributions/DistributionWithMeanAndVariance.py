@@ -155,9 +155,10 @@ class DistributionWithMeanAndVariance(Distribution):
         if self.registerDataFunctions:
             self.addDataManipulationFunction(
                 self.getExpectationAndSigma,
-                self.inputVariables + self.additionalInputVariables,
-                [self.outputVariables[0] +
-                 'Mean', self.outputVariables[0] +
+                self.inputVariables,
+                # + self.additionalInputVariables, #TODO check if these are used anywhere
+                [self.outputVariables[0][0] +
+                 'Mean', self.outputVariables[0][0] +
                  'Std'],
                 CallType.ALL_AT_ONCE, True)
 

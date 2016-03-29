@@ -3,7 +3,7 @@ from functions.Mapping import Mapping
 from functions.Function import Function
 from parametricModels.ParametricFunction import ParametricFunction
 from learner.parameterOptimization.HyperParameterObject \
-import HyperParameterObject
+    import HyperParameterObject
 
 
 class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
@@ -22,16 +22,16 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
     weights and bias, where weights is the coefficient matrix of the
     function and bias its offset. As Equation:
     \f[
-    	\boldsymbol{y} = \boldsymbol{W} \boldsymbol{\phi}(\boldsymbol{x}) +
-    	\boldsymbol{b},
+        \boldsymbol{y} = \boldsymbol{W} \boldsymbol{\phi}(\boldsymbol{x}) +
+        \boldsymbol{b},
     \f]
     where \f$\boldsymbol{W}\f$ is represented by the variable weights and
     \f$\boldsymbol{b}\f$ by the variable bias.
     '''
 
     def __init__(self, dataManager, outputVariable, inputVariables,
-                                 functionName, featureGenerator,
-                                 doInitWeights=True):
+                 functionName, featureGenerator,
+                 doInitWeights=True):
         '''
         :param dataManager: Datamanger to operate on
         :param outputVariable: dataset defining the output of the function
@@ -45,7 +45,10 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
                              outputVariable)
 
         self.dataManager = dataManager
+        # TODO deprecated: remove outputVariable and use outputVariables[0]
+        # instead
         self.outputVariable = outputVariable
+        self.outputVariables = [outputVariable]
         self.inputVariables = None
         self.functionName = functionName
         self.featureGenerator = None
@@ -62,15 +65,15 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         self.doInitWeights = doInitWeights
         self.initMu = []
 
-        Mapping.__init__(self, dataManager, [outputVariable], inputVariables,
+        Mapping.__init__(self, dataManager, self.outputVariables, inputVariables,
                          functionName)
         Function.__init__(self)
         ParametricFunction.__init__(self)
 
         ''' FIXME
-        if (ischar(outputVariable))
-            self.linkProperty('initSigmaMu', ['initSigmaMu',  upper(self.outputVariable(1)), self.outputVariable(2:end)]);
-            self.linkProperty('initMu', ['initMu', upper(self.outputVariable(1)), self.outputVariable(2:end)]);
+        if (ischar(self.outputVariables[0]))
+            self.linkProperty('initSigmaMu', ['initSigmaMu',  upper(self.outputVariables[0](1)), self.outputVariables[0](2:end)]);
+            self.linkProperty('initMu', ['initMu', upper(self.outputVariables[0][1]), self.outputVariable[0][2:end]]);
         else
             self.linkProperty('initSigmaMu');
             self.linkProperty('initMu');
@@ -85,26 +88,28 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
             self.weights = np.zeros((self.dimOutput, self.dimInput))
 
             if len(self.initMu) == 0:
-                minRange = self.dataManager.getMinRange(self.outputVariable)
-                maxRange = self.dataManager.getMaxRange(self.outputVariable)
+                minRange = self.dataManager.getMinRange(
+                    self.outputVariables[0])
+                maxRange = self.dataManager.getMaxRange(
+                    self.outputVariables[0])
                 range_diff = np.subtract(maxRange, minRange)
 
                 meanRange = np.mean(np.array([minRange, maxRange]), axis=0)
 
-                if len(meanRange.shape) != 1: #pragma nocover
+                if len(meanRange.shape) != 1:  # pragma nocover
                     raise ValueError('Unsupported meanRange shape')
 
-                if len(range_diff.shape) != 1: #pragma nocover
+                if len(range_diff.shape) != 1:  # pragma nocover
                     raise ValueError('Unsupported range_diff shape')
 
                 self.bias = (
-                    meanRange[np.newaxis, :].T +\
-                    range_diff[np.newaxis, :].T *\
+                    meanRange[np.newaxis, :].T +
+                    range_diff[np.newaxis, :].T *
                     self.initSigmaMu * (np.random.rand(
                         self.dimOutput, 1) - 0.5))
 
             else:
-                raise ValueError('Unsupported initMu shape') #pragma nocover
+                raise ValueError('Unsupported initMu shape')  # pragma nocover
 
     def getExpectation(self, numElements, inputFeatures=None):
         '''
@@ -122,7 +127,8 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         value = np.tile(biasTrans, (numElements, 1))
 
         if len(self.weights.shape) == 1:
-            raise ValueError('weight are a vector. This is not handled by the code')
+            raise ValueError(
+                'weight are a vector. This is not handled by the code')
 
         if inputFeatures is not None:
             print('FunctionLinearInFeatures: inputFeatures is None')
@@ -150,14 +156,14 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
 
         self.weights = weights
 
-    ### Parametric Model Function
+    # Parametric Model Function
     def getNumParameters(self):
-        return self.dataManager.getNumDimensions(self.outputVariable) * \
+        return self.dataManager.getNumDimensions(self.outputVariables[0]) * \
             (1 + self.dataManager.getNumDimensions(self.inputVariables))
 
     def getGradient(self, inputMatrix):
         return np.hstack((np.ones((inputMatrix.shape[0], self.dimOutput)),
-                          np.tile(inputMatrix, (1, self.dimOutput))));
+                          np.tile(inputMatrix, (1, self.dimOutput))))
 
     def setParameterVector(self, theta):
         self.weights = theta[1:]

@@ -41,16 +41,16 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         :param functionName: name of the gaussian function
         '''
         ParametricModel.__init__(self)
+        DistributionWithMeanAndVariance.__init__(self, dataManager)
         FunctionLinearInFeatures.__init__(self, dataManager, outputVariable,
                                           inputVariables, functionName,
                                           featureGenerator, doInitWeights)
-        DistributionWithMeanAndVariance.__init__(self, dataManager)
 
         self.saveCovariance = False
         self.initSigma = 0.1
 
-        minRange = self.dataManager.getMinRange(self.outputVariable)
-        maxRange = self.dataManager.getMaxRange(self.outputVariable)
+        minRange = self.dataManager.getMinRange(self.outputVariables[0])
+        maxRange = self.dataManager.getMaxRange(self.outputVariables[0])
         Range = np.subtract(maxRange, minRange)
 
         # Matrix in the Cholesky decomposition
@@ -74,8 +74,8 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         self.registerGradientModelFunction()
 
     def getNumParameters(self):
-        numParameters = self.getNumParameters() +\
-        self.numParameters + self.dimOutput * (self.dimOutput + 1) / 2
+        numParameters = FunctionLinearInFeatures.getNumParameters(self) +\
+            self.numParameters + self.dimOutput * (self.dimOutput + 1) / 2
         return numParameters
 
     def getCovariance(self):
