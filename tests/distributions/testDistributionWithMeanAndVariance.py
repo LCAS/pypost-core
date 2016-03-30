@@ -32,7 +32,8 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
         distribution = DistributionWithMeanAndVarianceTest(dataManager)
 
         samples = distribution.sampleFromDistribution(1, [])
-        self.assertTrue(4.9 <= samples[0][0][0] <= 5.1)
+        # test for 3-sigma env: 99.7% - can fail sometimes
+        self.assertTrue(4.7 <= samples[0][0][0] <= 5.3)
 
     def test_sampleFromDistribution_givenEmptyExpAndMultiSigma_SamplesFromDistribution(
             self):
@@ -44,7 +45,7 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
 
             def getExpectationAndSigma(self, numElements, inputData, *args):
                 return (
-                    np.ones((1, 15, 15)), np.ones((1, 15, 15)))
+                    np.zeros((1, 15, 15)), np.ones((1, 15, 15)))
 
         dataManager = DataManager("TestDataManager")
         distribution = DistributionWithMeanAndVarianceTest(dataManager)
@@ -63,7 +64,7 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
 
             def getExpectationAndSigma(self, numElements, inputData, *args):
                 return (
-                    np.ones((1, 5, 2)), np.ones((1, 5, 2)))
+                    np.zeros((1, 5, 2)), np.ones((1, 5, 2)))
 
         dataManager = DataManager("TestDataManager")
         distribution = DistributionWithMeanAndVarianceTest(dataManager)
@@ -82,7 +83,7 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
 
             def getExpectationAndSigma(self, numElements, inputData, *args):
                 return (
-                    np.ones((2, 5, 2)), np.ones((2, 5, 2)))
+                    np.zeros((2, 5, 2)), np.ones((2, 5, 2)))
 
         dataManager = DataManager("TestDataManager")
         distribution = DistributionWithMeanAndVarianceTest(dataManager)
@@ -90,6 +91,23 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
         self.assertRaises(
             NotImplementedError,
             distribution.sampleFromDistribution, 1, [])
+
+    def test_sampleFromDistribution_given2DExpAnd3DSigma_expectNotImplementedError(
+            self):
+        class DistributionWithMeanAndVarianceTest(
+                DistributionWithMeanAndVariance):
+
+            def DistributionWithMeanAndVarianceTest(self, dataManager):
+                DistributionWithMeanAndVariance.__init__(self, dataManager)
+
+            def getExpectationAndSigma(self, numElements, inputData, *args):
+                return (
+                    np.zeros((2, 2)), np.ones((1, 2, 2)))
+
+        dataManager = DataManager("TestDataManager")
+        distribution = DistributionWithMeanAndVarianceTest(dataManager)
+
+        samples = distribution.sampleFromDistribution(1, [])
 
     def test_sampleFromDistribution_given4DExpAndMultiSigma_expectValueError(
             self):

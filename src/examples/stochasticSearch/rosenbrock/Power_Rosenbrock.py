@@ -20,41 +20,51 @@ class PowerRosenbrock(Trial):
         super(PowerRosenbrock, self).__init__(evalDir, trialIndex)
 
     def configure(self):
+        # set some basic parameters
         self.settings.setProperty("numParameters", 15)
         self.settings.setProperty("numContexts", 15)
         self.settings.setProperty("numSamplesEpisodes", 10)
         self.settings.setProperty("numIterations", 200)
 
+        # create the sampler
         self.sampler = EpisodeSampler()
-        self.dataManager = self.sampler.dataManager # TODO is this OK?
+        self.dataManager = self.sampler.dataManager
 
+        # add the reward function
         #self.returnSampler = RosenbrockReward(
         #    self.sampler,
         #    self.settings.getProperty('numContexts'),
         #    self.settings.getProperty('numParameters'))
         self.returnSampler = SinDistReward(self.sampler)
 
+        # set the parameter policy
         self.parameterPolicy = GaussianParameterPolicy(self.dataManager)
+
+        # create the policy learner
         self.policyLearner = EpisodicPower(self.dataManager, None)
 
-        # FIXME None should be a policyLearner instance ... is this parameter even used?
-        # from the outcommented CreateFromTrial function in EpisodicPower we
-        # would set trial.parameterPolicyLearner and trial.dataManager
-
+        # set the parameter policy in the sampler
         self.sampler.setParameterPolicy(self.parameterPolicy)
+
+        # set the return function in the sampler
         self.sampler.setReturnFunction(self.returnSampler)
 
+        # mark the trail as ready for execution
         self.configured = True
 
     def run(self):
         if not self.configured:
             raise RuntimeError("The trial has to be configured first.")
 
+        # create the data objects which store the data
         newData = self.dataManager.getDataObject(10)
         fullData = self.dataManager.getDataObject(0)
 
+        # do all iterations
         for i in range(0, self.settings.getProperty('numIterations')):
             self.sampler.setSamplerIteration(i)
+
+            # create new samples
             self.sampler.createSamples(newData)
 
             # keep old samples strategy comes here...
@@ -66,10 +76,10 @@ class PowerRosenbrock(Trial):
             # ...
             #importanceWeighting.preprocessData(data);
 
-            # learning comes here...
+            # update the model in order to actually learn something
             self.policyLearner.updateModel(fullData)
 
-            #print(newData.getDataEntry('returns'), np.mean(newData.getDataEntry('returns')))
+            # store some basic values
             self.store('avgReturns', np.mean(newData.getDataEntry('returns')), StoringType.ACCUMULATE)
             '''
             % log the results...
@@ -79,15 +89,8 @@ class PowerRosenbrock(Trial):
             %self.store('divKL', policyLearner.divKL, Experiments.StoringType.ACCUMULATE);
             '''
 
-            # FIXME Test if this works
-            #trial.store("avgReturns",np.mean(newData.getDataEntry("returns")), Experiments.StoringType.ACCUMULATE)
-
+            # print some information about the current progress
             print(
                 "Iteration: %d, Episodes: %d, AvgReturn: %f" %
                 (i, i * self.settings.getProperty('numSamplesEpisodes'),
                  np.mean(newData.getDataEntry('returns'))))
-
-
-# For testing purposes. Maybe implement a better way to start trials directly?
-#power_rosenbrock = PowerRosenbrock("/tmp/trial/", 0)
-#power_rosenbrock.start()

@@ -53,6 +53,8 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         # Matrix in the Cholesky decomposition
         self.cholA = np.diag(Range * self.initSigma)
 
+        self.numParameters = 0
+
         # FIXME
         #self.indexForCov = []
         #index = 0
@@ -71,8 +73,8 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         self.registerGradientModelFunction()
 
     def getNumParameters(self):
-        numParameters = FunctionLinearInFeatures.getNumParameters(self) +\
-            self.numParameters + self.dimOutput * (self.dimOutput + 1) / 2
+        numParameters = FunctionLinearInFeatures.getNumParameters(
+            self) + self.numParameters + self.dimOutput * (self.dimOutput + 1) / 2
         return numParameters
 
     def getCovariance(self):
@@ -94,7 +96,8 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         if (self.saveCovariance):
             self.covMat = covMat
         else:
-            self.cholA = chol(covMat)
+            # np returns L but Matlab is returning R -> transpose
+            self.cholA = np.transpose(np.linalg.cholesky(covMat))
 
     def setSigma(self, cholA):
         '''Set sigma
@@ -102,116 +105,22 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         :param cholA: The squareroot of the covariance in cholesky form
         '''
         if self.saveCovariance:
-            self.cov = np.square(cholA)
+            self.covMat = np.square(cholA)
         else:
             self.cholA = cholA
 
     def getSigma(self):
         if self.saveCovariance:
-            return chol(self.covMat)
+            return np.transpose(np.linalg.cholesky(self.covMat))
         else:
+            # np returns L but Matlab is returning R -> transpose
             return self.cholA
-
-        # alternative:
-        '''
-        def getSigma(self):
-            return self.cholA[1, :, :]
-        '''
-
-    def getJointGaussians(self, muInput, SigmaInput):
-        muNew = np.hstack((muInput, self.bias + self.weights.dot(muInput)))
-
-        tmp = self.weights.dot(SigmaInput).conj().T
-        print('ATTENTION(conj()): ', tmp)
-        SigmaNew = np.vstack((np.hstack((SigmaInput, tmp)),
-                              np.hstack(
-            tmp.conj().T,
-            self.getCovariance() + self.weights.dot(tmp))))
-
-        return (muNew, SigmaNew)
-
-    def getGaussianFromJoint(self, muJoint, SigmaJoint):
-        tmpN = self.dimInput
-        muInput = muJoint[0:tmpN]
-        SigmaInput = SigmaJoint[0:tmpN, 0:tmpN]
-
-        SigmaInputOutput = SigmaJoint[0:tmpN, tmpN:-1]  # TODO: check
-        self.weights = np.linalg.lstsq(SigmaInput.T, SigmaInputOutput)
-        self.bias = muJoint[tmpN:-1] - self.weights.dot(muInput)
-
-        SigmaOutput = SigmaJoint[tmpN:-1, tmpN:-1] -\
-            self.weights.dot(SigmaInputOutput)
-        self.setCovariance(SigmaOutput)
-
-    def getLikelihoodGradient(self, inputMatrix, outputMatrix):
-        expectation = self.getExpectation(inputMatrix.shape[0], inputMatrix)
-        gradientFunction = self.getGradient(inputMatrix)
-
-        n = outputMatrix.shape[0]
-        d = outputMatrix.shape[1]
-        zmx = outputMatrix - expectation
-        C = self.getCovariance()
-
-        duplicate = inputMatrix.shape[1] + 1
-        gradMeanFactor = np.linalg.lstsq(C.T, zmx.T)
-        gradMeanFactor = np.tile(gradMeanFactor, (1, duplicate))
-        gradMean = gradientFunction * gradMeanFactor
-
-        gradCholA = np.zeros((n, d * (d + 1) / 2))
-
-        for s in range(0, n):
-            R = np.linalg.lstsq(
-                np.linalg.lstsq(
-                    self.cholA.conj().T,
-                    (zmx[s, :].conj().T).dot(zmx[s, :])).T,
-                C.T) - np.diag(np.diag(self.cholA)**-1)
-            gradCholA[s, :] = R[self.indexForCov]
-
-        return (gradMean, gradCholA)
-
-    def getFisherInformationMatrix(self):
-        noPars = self.numParameters
-        d = self.dimOutput
-
-        Fim = np.zeros((noPars, noPars))
-        C = self.getCovariance()
-        F0 = np.linalg.inv(C)
-        Fim[0:d, 0:d] = F0
-
-        ix_act = d + 1
-        ix_nxt = 2 * d
-
-        # TODO Check with Paper
-        for k in range(0, d):
-            f = np.zeros((d - k + 1, d - k + 1))
-            f[0, 0] = math.pow(self.cholA[k, k], -2)
-            D = F0[k:-1, k:-1]
-
-            f = f + D
-
-            Fim[ix_act:ix_nxt, ix_act:ix_nxt] = f
-
-            dummy = ix_act
-            ix_act = ix_nxt + 1
-            ix_nxt = ix_nxt + (ix_nxt - dummy)
-
-        return Fim
-
-    def setParameterVector(self, theta):
-        self.setParameterVector(theta)
-        theta = theta[self.dimOutput.dot(1 + self.dimInput):-1]
-        self.cholA[self.indexForCov] = theta
-
-    def getParameterVector(self):
-        theta = super(GaussianLinearInFeatures, self).getParameterVector()
-        return np.hstack((theta, self.cholA[self.indexForCov]))
 
     def getExpectationAndSigma(self, numElements, *args):
         mean = FunctionLinearInFeatures.getExpectation(
             self,
             numElements,
-            *
-            args)
+            *args)
 
         sigma = np.ndarray((1,) + self.cholA.shape)
         sigma[0, :, :] = self.cholA
