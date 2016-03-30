@@ -12,13 +12,11 @@ StoringType = Enum('StoringType', 'STORE, STORE_PER_ITERATION, ACCUMULATE, '
 
 
 class Trial():
-    '''
-    TODO: Documentation
-    '''
 
     def __init__(self, evalDir, index):
         '''
         Constructor
+        Creates the required directories
         '''
         configured = False
 
@@ -145,7 +143,6 @@ class Trial():
         if not os.path.isfile(dataFile):
             raise FileNotFoundError("Data file not found")
         self.settings.load(settingsFile)
-        # FIXME(Sebastian): Load data too?
         self.data = np.load(dataFile)
 
     def start(self):

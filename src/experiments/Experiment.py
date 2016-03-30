@@ -166,9 +166,6 @@ class Experiment(object):
             raise RuntimeError(
                 "Only a single parameter is accepted by this method")
 
-        # TODO why don't we already accept a settings object itself in the
-        # arguments of this functions?
-        # Note(Sebastian): I think only a subset of settings entries is modified
         evaluationSettings = self.defaultSettings.clone()
 
         properties = dict()
@@ -180,15 +177,12 @@ class Experiment(object):
         evaluationSettings.setProperties(properties)
         evaluationIndex = -1
 
-        # check if the evaluation was already executed
         for key, evaluation in self.evaluations.items():
             if evaluation.settings.isSameSettings(evaluationSettings):
                 evaluationIndex = i
-                #self.evaluationIndexMap[evaluationIndex] = evaluationIndex
                 print("Evaluation found with same settings")
                 return evaluation
 
-        # find first "0" entry in index map and reserve it for this evaluation
         evaluationIndex = len(self.evaluations)
 
         evaluation = Evaluation(
@@ -214,9 +208,6 @@ class Experiment(object):
         '''
         evaluations = []
         for i in range(0, len(parameterValues) - 1):
-            # TODO matlab code accessed "evaluations{i}" which was nowhere initialized. is this code still in use?
-            # TODO matlab accessed values like this: {parameterValues[i,...]}
-            # this should be equal to list(parameterValues[i]) but recheck this
             evaluations.append(
                 self.addEvaluation(
                     parameterNames,
@@ -274,11 +265,8 @@ class Experiment(object):
         return self.trialIndexToDirectorymap.keys()
 
     def setDefaultParameter(self, parameterName, parameterValue):
-        # TODO matlab code was comparing for inequality (strcomp()==0) . i changed it since
-        # it seems that "settings." prefixes should get removed from parameter
-        # names
         if parameterName[0:9] == "settings.":
-            parameterName = parameterName[10:]
+            parameterName = parameterName[9:]
 
         self.defaultSettings.setProperty(parameterName, parameterValue)
 
