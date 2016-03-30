@@ -18,7 +18,7 @@ class testPowerRosenbrock(unittest.TestCase):
         numTrials = 4
         experiment = ExperimentFromScript('/tmp', 'testCategory',
                                           PowerRosenbrock)
-        experiment = Experiment.addToDataBase(experiment)
+        experiment.create()
 
         evaluation = experiment.addEvaluation(['maxSizeReferenceStat'], [300],
                                               numTrials)
