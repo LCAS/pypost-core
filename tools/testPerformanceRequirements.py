@@ -17,8 +17,8 @@ class TestManipulator(DataManipulator):
                                          ['parameters'])
         self.addDataManipulationFunction(self.sampleStates, ['parameters'],
                                          'states', CallType.PER_EPISODE, True)
-        self.addDataManipulationFunction(self.sampleActions, [],
-                                         ['actions'])
+        self.addDataManipulationFunction(self.sampleActions, ['parameters', 'states'],
+                                         ['actions'], CallType.PER_EPISODE, True)
         
     def sampleParameters(self, numElements):
         return np.ones((numElements, 10))
@@ -26,8 +26,9 @@ class TestManipulator(DataManipulator):
     def sampleStates(self, numElements, parameters):
         return np.ones((numElements, 2))
 
-    def sampleActions(self, numElements):
-        return np.ones((numElements, 2))
+    def sampleActions(self, numElements, parameters, states):
+        #return np.ones((numElements, 2))
+        return states - parameters[:, 0:1]
 
 class testPerformanceRequirements(unittest.TestCase):
 
@@ -134,19 +135,24 @@ class testPerformanceRequirements(unittest.TestCase):
 
         dataManager.subDataManager = subDataManager
         
-        data = dataManager.getDataObject([100, 100])
+        data = dataManager.getDataObject([10, 10])
         
         manipulator = TestManipulator(dataManager)
         
         self.start()
-        manipulator.callDataFunction('sampleParameters', data)
+        for i in range(0, 1000):
+            manipulator.callDataFunction('sampleParameters', data)
         self.stop()
         self.registerTime('callDataFunction')
         
         self.start()
-        manipulator.callDataFunctionOutput('sampleActions', data)
+        for i in range(0, 100):
+            manipulator.callDataFunctionOutput('sampleActions', data)
         self.stop()
-        self.registerTime("callDataFunctionOuput")
+        self.registerTime('callDataFunctionOuput')
+        
+    def test_Experiment(self):
+        pass
         
 if __name__ == '__main__':
     unittest.main()
