@@ -53,6 +53,8 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         # Matrix in the Cholesky decomposition
         self.cholA = np.diag(Range * self.initSigma)
 
+        self.numParameters = 0
+
         # FIXME
         #self.indexForCov = []
         #index = 0
@@ -71,8 +73,8 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         self.registerGradientModelFunction()
 
     def getNumParameters(self):
-        numParameters = FunctionLinearInFeatures.getNumParameters(self) +\
-            self.numParameters + self.dimOutput * (self.dimOutput + 1) / 2
+        numParameters = FunctionLinearInFeatures.getNumParameters(
+            self) + self.numParameters + self.dimOutput * (self.dimOutput + 1) / 2
         return numParameters
 
     def getCovariance(self):
@@ -94,7 +96,8 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         if (self.saveCovariance):
             self.covMat = covMat
         else:
-            self.cholA = chol(covMat)
+            # np returns L but Matlab is returning R -> transpose
+            self.cholA = np.transpose(np.linalg.cholesky(covMat))
 
     def setSigma(self, cholA):
         '''Set sigma
@@ -102,27 +105,25 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         :param cholA: The squareroot of the covariance in cholesky form
         '''
         if self.saveCovariance:
-            self.cov = np.square(cholA)
+            self.covMat = np.square(cholA)
         else:
             self.cholA = cholA
 
     def getSigma(self):
         if self.saveCovariance:
-            return chol(self.covMat)
+            return np.transpose(np.linalg.cholesky(self.covMat))
         else:
+            # np returns L but Matlab is returning R -> transpose
             return self.cholA
 
-        # alternative:
-        '''
-        def getSigma(self):
-            return self.cholA[1, :, :]
-        '''
-
+    '''
+    #TODO not sure if this methods should be in this class - create sub class ^moritz
     def getJointGaussians(self, muInput, SigmaInput):
         muNew = np.hstack((muInput, self.bias + self.weights.dot(muInput)))
 
         tmp = self.weights.dot(SigmaInput).conj().T
-        print('ATTENTION(conj()): ', tmp)
+        # print('ATTENTION(conj()): ', tmp) #TODO removed print - replace by
+        # log system
         SigmaNew = np.vstack((np.hstack((SigmaInput, tmp)),
                               np.hstack(
             tmp.conj().T,
@@ -198,20 +199,20 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         return Fim
 
     def setParameterVector(self, theta):
-        self.setParameterVector(theta)
+        getParameterVector.setParameterVector(self,theta)
         theta = theta[self.dimOutput.dot(1 + self.dimInput):-1]
         self.cholA[self.indexForCov] = theta
 
     def getParameterVector(self):
         theta = super(GaussianLinearInFeatures, self).getParameterVector()
         return np.hstack((theta, self.cholA[self.indexForCov]))
+    '''
 
     def getExpectationAndSigma(self, numElements, *args):
         mean = FunctionLinearInFeatures.getExpectation(
             self,
             numElements,
-            *
-            args)
+            *args)
 
         sigma = np.ndarray((1,) + self.cholA.shape)
         sigma[0, :, :] = self.cholA

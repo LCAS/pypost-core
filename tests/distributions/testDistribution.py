@@ -56,6 +56,7 @@ class testDistribution(unittest.TestCase):
         dataManager.addDataEntry("In", 1)
         dataManager.addDataEntry("In2", 1)
         distribution = Distribution(dataManager)
+        distribution.registerDataFunctions = True
 
         distribution.setOutputVariables(["Out"])
         distribution.setInputVariables(["In", "In2"])
@@ -73,6 +74,20 @@ class testDistribution(unittest.TestCase):
         distribution.registerDataFunctions = False
 
         distribution.setOutputVariables(["Out"])
+        distribution.setInputVariables(["In", "In2"])
+        distribution._registerMappingInterfaceDistribution()
+
+        # FIXME assert non registered
+
+    def test__registerMappingInterfaceDistribution_givenNoOutputVariables_expectNoRegisteredFunction(
+            self):
+        dataManager = DataManager("TestDataManager")
+        dataManager.addDataEntry("Out", 1)
+        dataManager.addDataEntry("In", 1)
+        dataManager.addDataEntry("In2", 1)
+        distribution = Distribution(dataManager)
+
+        distribution.setOutputVariables([])
         distribution.setInputVariables(["In", "In2"])
         distribution._registerMappingInterfaceDistribution()
 
