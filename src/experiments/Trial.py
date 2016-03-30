@@ -98,10 +98,10 @@ class Trial():
         :return: True if storing is successful, False otherwise
         :rtpye: bool
         '''
-        
+
         if trialDir is None or not os.path.isdir(trialDir):
             return False
-        
+
         data = {}
         for name in self.storePerTrial:
             data[name] = self.getProperty(name)
@@ -139,7 +139,7 @@ class Trial():
             raise FileNotFoundError("Data file not found")
         self.settings.load(settingsFile)
         # FIXME(Sebastian): Load data too?
-        data = np.load(dataFile)
+        self.data = np.load(dataFile)
 
     def start(self, withCatch=False, withProfiling=False):
         # FIXME: withProfiling is probably useless in python

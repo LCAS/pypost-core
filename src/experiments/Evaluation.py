@@ -17,10 +17,11 @@ class Evaluation():
         self.parameterValues = parameterValues
         self.settings = settings
         self.setExperiment(experiment, evaluationID)
+        print("Directory is %s" % self.path)
 
     def setExperiment(self, experiment, evaluationID):
         self.evaluationName = 'eval%03d' % evaluationID
-        self.path = os.path.join(experiment.path, self.evaluationName)
+        self.path = os.path.join(experiment.experimentPath, self.evaluationName)
         self.experiment = experiment
 
     def createFileStructure(self, overwrite):
@@ -32,10 +33,12 @@ class Evaluation():
 
         for i in range(0, self.numTrials):
             trialPath = os.path.join(self.path, 'trial%03d' % i)
-            if not os.path.isfile(os.path.join(trialPath, 'trial')):
+            if not os.path.isfile(os.path.join(trialPath, 'data.npy')):
                 trial = self.experiment.createTrial(self.path, i)
                 trial.storeTrial(overwrite)
                 trial.storeTrialInFile('initialTrial')
+            else:
+                print("Found existing trial %03d, not recreating" % i)
             self.experiment.registerTrial(self, trialPath)
 
         for root, dirs, files in os.walk(self.path):

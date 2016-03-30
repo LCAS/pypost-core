@@ -1,41 +1,120 @@
 import unittest
 import os
 import sys
+from pandas.util.testing import assertRaises
 sys.path.append(
     os.path.abspath(os.path.dirname(os.path.realpath(__file__))+'/../../src'))
+import shutil
 from experiments.Experiment import Experiment
 from experiments.ExperimentFromScript import ExperimentFromScript
 from experiments.Evaluation import Evaluation
 from experiments.Trial import Trial
+from common.Settings import Settings
 
 class TestTrial(Trial):
-
+    
     def configure(self):
-        print("Kill me")
+        pass
 
     def run(self):
-        print("Please")
+        pass
 
 class testExperiment(unittest.TestCase):
 
     def setUp(self):
         self.experiment = ExperimentFromScript('/tmp', 'testCategory', TestTrial)
-        Experiment.addToDataBase(self.experiment)
+        self.experiment.create()
 
     def tearDown(self):
         self.experiment.deleteExperiment()
+        pass
 
     def testPath(self):
         self.assertEqual(self.experiment.path, '/tmp/testCategory/TestTrial')
-        self.assertEqual(self.experiment.experimentPath, '/tmp/testCategory/TestTrial/settings000')
-
+        self.assertEqual(self.experiment.experimentPath, '/tmp/testCategory/TestTrial/experiment000')
+    
+    def testCreateOtherSettings(self):
+        shutil.rmtree(self.experiment.experimentPath)
+        print("fjdsklfjsdklf")
+        print(os.path.exists(self.experiment.experimentPath))
+        print(self.experiment.experimentPath)
+        os.mkdir('/tmp/testCategory/TestTrial/dummy')
+        os.mkdir('/tmp/testCategory/TestTrial/experiment001')
+        settings = Settings("test")
+        settings.registerProperty("dummy", 0)
+        settings.store('/tmp/testCategory/TestTrial/experiment001/settings.yaml')
+        self.experiment.create()
+        self.assertEqual(len(os.listdir('/tmp/testCategory/TestTrial/dummy')), 0)
+        os.rmdir('/tmp/testCategory/TestTrial/dummy')
+        shutil.rmtree('/tmp/testCategory/TestTrial/experiment001')
+    
+    def testCreateTwice(self):
+        self.experiment.create()
+        self.assertEqual(self.experiment.experimentId, 0)
+        
+    def testAddEvaluation(self):
+        eval = self.experiment.addEvaluation(['testParameter'], [100], 10)
+        self.assertEqual(eval.numTrials, 10)
+        self.assertEqual(self.experiment.getNumTrials(), 10)
+        self.assertEqual(len(self.experiment.getTrialIDs()), 10)
+        self.assertTrue(os.path.exists('/tmp/testCategory/TestTrial/experiment000/eval000'))
+        for i in range(0, 10):
+            self.assertTrue(os.path.exists('/tmp/testCategory/TestTrial/experiment000/eval000/trial%03i' % i))
+        self.assertRaises(RuntimeError, self.experiment.addEvaluation, ['foo'], ['foo', 'bar'], 3)
+                    
+    def testAddEvaluationDirectoryExists(self):
+        os.mkdir('/tmp/testCategory/TestTrial/experiment000/eval000/')
+        os.mkdir('/tmp/testCategory/TestTrial/experiment000/eval000/trial000')
+        eval = self.experiment.addEvaluation(['testParameter'], [100], 10)
+        
+    def testAddEvaluationCollection(self):
+        evals = self.experiment.addEvaluationCollection(['testParameter'], [0, 1], 10)
+        self.assertEqual(len(evals), 2)
+    
     def testLoadTrial(self):
-        pass
+        eval = self.experiment.addEvaluation(['testParameter'], [100], 10)
+        trial = self.experiment.loadTrialFromID(0)
+        self.assertEqual(trial.index, 0)
+        self.assertEqual(trial.trialDir, '/tmp/testCategory/TestTrial/experiment000/eval000/trial000')
+        assertRaises(KeyError, self.experiment.loadTrialFromID, 234)
 
-    def testFfjksdhjkfhsduzh(self):
+    def testStart(self):
         e = self.experiment
         e.startDefaultTrial()
-
-
+    
+    def testGetEvaluation(self):
+        eval = self.experiment.addEvaluation(['testParameter'], [100], 10)
+        e2 = self.experiment.getEvaluation(0)
+        self.assertEqual(eval, e2)
+        
+    def testGetEvaluationIndex(self):
+        eval = self.experiment.addEvaluation(['testParameter'], [100], 10)
+        eval2 = self.experiment.addEvaluation(['testParameter2'], [100], 10)
+        eval3 = Evaluation(self.experiment, 14, eval.settings, ['foo'], ['bar'], 10)
+        index = self.experiment.getEvaluationIndex(eval)
+        index2 = self.experiment.getEvaluationIndex(eval2)
+        index3 = self.experiment.getEvaluationIndex(eval3)
+        self.assertEqual(index, 0)
+        self.assertEqual(index2, 1)
+        self.assertEqual(index3, None)
+        
+    def testReset(self):
+        eval = self.experiment.addEvaluation(['testParameter'], [100], 10)
+        self.experiment.resetTrials()
+        
+    def testGetTrialData(self):
+        eval = self.experiment.addEvaluation(['testParameter'], [100], 10)
+        data = self.experiment.getTrialData(0)
+        
+    def testStartLocal(self):
+        eval = self.experiment.addEvaluation(['testParameter'], [100], 10)
+        self.experiment.startLocal()
+        
+    def testSetDefaultParameter(self):
+        self.experiment.setDefaultParameter('parameter1', 14)
+        self.assertEqual(self.experiment.defaultSettings.getProperty('parameter1'), 14)
+        self.experiment.setDefaultParameter('settings.parameter1', 18)
+        self.assertEqual(self.experiment.defaultSettings.getProperty('parameter1'), 18)
+                
 if __name__ == '__main__':
     unittest.main()

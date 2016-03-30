@@ -52,6 +52,10 @@ class Settings():
         It should be structured after the following pattern: {propertyName: Property(value=<value of the property>, ClientInfo(client=<client object>, clientPropName=<property name in client>)}
         Property and ClientInfo are namedtuples
         '''
+    
+    def isSameSettings(self, other):
+        return len(self._properties) == len(other._properties)
+    
     def clean(self):
         '''Removes all properties in this pool.
         '''

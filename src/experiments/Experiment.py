@@ -10,7 +10,7 @@ from experiments.Evaluation import Evaluation
 from experiments.Trial import Trial
 
 
-class Experiment():
+class Experiment(object):
     '''
     This class provides the basic functionality for defining experiments.
     An experiments is always a combination of a LearningSetup and a TaskSetup.
@@ -29,18 +29,13 @@ class Experiment():
         self.category = category
 
         self.evaluations = {}
-        self.evaluationCollections = {}
-        self.nodes = {}
 
         self.defaultTrial = None
         self.defaultSettings = Settings("defaultSettings")
 
         self.user = getpass.getuser()
 
-        self.expId = []
         self.experimentId = -1
-
-        self.evaluationIndexMap = dict()
 
         self.trialToEvaluationMap = {}
         self.trialIndexToDirectorymap = {}
@@ -53,11 +48,38 @@ class Experiment():
         self.path = os.path.join(rootDir, self.category, self.taskName)
         self.experimentPath = None
 
-    @staticmethod
-    def getByPath(self, path):
-        raise NotImplementedError("Use addToDataBase instead")
+    def create(self):
+        while not os.path.exists(self.path):
+            path = self.path
+            while not os.path.exists(os.path.abspath(os.path.join(path, os.pardir))): #pragma: no cover
+                path = os.path.abspath(os.path.join(path, os.pardir))
+            os.mkdir(path)
 
+        maxId = -1
+        for file in os.listdir(self.path):
+            filePath = os.path.join(self.path, file)
+            if os.path.isdir(filePath) \
+               and os.path.basename(file).startswith('experiment'):
+                currentId = int(file[10:13])
+                maxId = max(currentId, maxId)
+                otherSettings = Settings("other")
+                otherSettings.load(os.path.join(filePath, 'settings.yaml'))
+                if self.defaultSettings.isSameSettings(otherSettings):
+                    print("Experiment with same settings found")
+                    self.experimentId = currentId
+                    self.experimentPath = file
+                    self.load()
+                    return
 
+        self.experimentId = maxId+1
+        self.experimentPath = os.path.join(
+            self.path, ('experiment%03d' % self.experimentId))
+        if not os.path.exists(self.experimentPath): #pragma: no cover
+            os.mkdir(self.experimentPath)
+        self.defaultSettings.store(os.path.join(self.experimentPath,
+                                                "settings.yaml"))
+
+    '''
     @staticmethod
     def addToDataBase(newExperiment):
         while not os.path.exists(newExperiment.path):
@@ -95,6 +117,10 @@ class Experiment():
         newExperiment.defaultTrial.storeTrial()
 
         return newExperiment
+    '''
+
+    def load(self):
+        pass
 
     def startDefaultTrial(self):
         self.defaultTrial.start()
@@ -122,31 +148,11 @@ class Experiment():
         for key, evaluation in self.evaluations.items():
             evaluation.resetTrials()
 
-    def prepareDirectories(self):
-        for key, evaluation in self.evaluations.items():
-            self.createDirectories(evaluation)
-
-    #:change: renamed from changePath to setPath
-    def setPath(self, path):
-        self.path = path
-
     def getTrialData(self, evaluationNumber=1):
         self.evaluations[evaluationNumber].getTrialData(self.path)
 
     def deleteExperiment(self):
         shutil.rmtree(self.path)
-
-    def storeExperiment(self):
-        '''
-        FIXME python code:
-
-        experiment = self;
-        save(fullfile(self.experimentPath,'experiment'),'experiment','-v7.3');
-        '''
-        # TODO(Sebastian): Really not sure what to do here...
-        # We can't serialize this object because there's to much stuff attached
-        print('WARNING: Experiment.storeExperiment is not implemented!')
-        #raise RuntimeError("Not implemented")
 
     def addEvaluation(self, parameterNames, parameterValues, numTrials):
         '''
@@ -178,17 +184,12 @@ class Experiment():
         for key, evaluation in self.evaluations.items():
             if evaluation.settings.isSameSettings(evaluationSettings):
                 evaluationIndex = i
-                self.evaluationIndexMap[evaluationIndex] = evaluationIndex
-                # FIXME there was a message 'Evaluation found with same
-                # settings: %d\n, implement this later and use a log system
+                #self.evaluationIndexMap[evaluationIndex] = evaluationIndex
+                print("Evaluation found with same settings")
                 return evaluation
 
         # find first "0" entry in index map and reserve it for this evaluation
-        if evaluationIndex < 0:
-            for key, val in self.evaluationIndexMap:
-                if val == 0:
-                    evaluationIndex = key
-                    break
+        evaluationIndex = len(self.evaluations)
 
         evaluation = Evaluation(
             self,
@@ -200,14 +201,13 @@ class Experiment():
         self.evaluations[evaluationIndex] = evaluation
         self.evaluations[evaluationIndex].createFileStructure(True)
 
-        self.storeExperiment()
-
         return evaluation
 
     def addEvaluationCollection(
             self, parameterNames, parameterValues, numTrials):
         '''
-        Adds a collection of evaluations to the experiment, one for each parameterValue.
+        Adds a collection of evaluations to the experiment,
+        one for each parameterValue.
         :param parameterNames: A list of parameter names
         :param parameterValues: A list of parameter values
         :param numTrials: The number of trials
@@ -220,20 +220,10 @@ class Experiment():
             evaluations.append(
                 self.addEvaluation(
                     parameterNames,
-                    list(
-                        parameterValues[i]),
+                    [parameterValues[i]],
                     numTrials))
 
-        evaluationCollection = EvaluationCollection(
-            self,
-            evaluations,
-            parameterNames,
-            parameterValues)
-        self.evaluationCollections.append(evaluationCollection)
-
-        self. storeExperiment()
-
-        return evaluationCollection
+        return evaluations
 
     def loadTrialFromID(self, trialID):
         '''
@@ -242,12 +232,13 @@ class Experiment():
         :return: The loaded trial
         :rtype: experiments.Trial
         '''
+        if trialID not in self.trialIndexToDirectorymap:
+            raise KeyError("Trial not found")
         trialDir = self.trialIndexToDirectorymap[trialID]
         print("Loading trial %s" % trialDir)
-        if not os.path.exists(trialDir):
-            print("Path doesn't exist")
-        trial = self.createTrial(os.path.abspath(os.path.join(trialDir, os.path.pardir)),
-                      trialID)
+        trial = self.createTrial(os.path.abspath(
+                                    os.path.join(trialDir, os.path.pardir)),
+                                 trialID)
         trial.loadTrial()
         return trial
 
@@ -258,8 +249,6 @@ class Experiment():
         :rtype: int
         '''
         return len(self.trialIndexToDirectorymap)
-
-
 
     def startLocal(self, trialIndices=None):
         '''
@@ -276,8 +265,6 @@ class Experiment():
             trial = Experiment.loadTrialFromID(self, key)
             trial.start()
 
-
-
     def getTrialIDs(self):
         '''
         Returns a list of trial IDs.
@@ -286,29 +273,6 @@ class Experiment():
         '''
         return self.trialIndexToDirectorymap.keys()
 
-    def startBatch(self, **args):
-        # TODO recheck the type if args
-        self.startBatchTrials(self.getTrialIDs(), **args)
-
-    def startBatchTrials(
-            self, trialIDs, numParallelJobs, jobsPerNode, computationTime):
-        # FIXME implement this
-        raise RuntimeError("Not implemented")
-
-    def createLSFFullNode(
-            self, clusterJobID, numParallelJobs, jobsPerNode, computationTime):
-        # FIXME implement this
-        raise RuntimeError("Not implemented")
-
-    def startCluster(self, clusterJobID, jobID):
-        trialIndices = self.clusterJobs[clusterJobID]
-        # FIXME use a log system
-        print('Starting Trial {0} on the cluster\n'.format(
-            trialIndices[jobID]))
-
-        trial = self.loadTrialFromID(trialIndices[jobID])
-        trial.start()
-
     def setDefaultParameter(self, parameterName, parameterValue):
         # TODO matlab code was comparing for inequality (strcomp()==0) . i changed it since
         # it seems that "settings." prefixes should get removed from parameter
@@ -316,7 +280,7 @@ class Experiment():
         if parameterName[0:9] == "settings.":
             parameterName = parameterName[10:]
 
-        self.defaultSettings.set(parameterName, parameterValue)
+        self.defaultSettings.setProperty(parameterName, parameterValue)
 
     def createTrial(self, evalPath, trialIndex):
-        raise NotImplementedError("Abstract Method")
+        raise NotImplementedError("Abstract Method") # pragma: no cover
