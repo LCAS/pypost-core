@@ -1,6 +1,6 @@
 import numpy as np
-from sampler import SequentialSampler
-from sampler import SamplerPool
+from sampler.SequentialSampler import SequentialSampler
+from sampler.SamplerPool import SamplerPool
 
 
 class StepSampler(SequentialSampler):
@@ -46,12 +46,12 @@ class StepSampler(SequentialSampler):
         :change: dataManager is no longer optional
         '''
         super().__init__(
-            dataManager.getDataManagerForName(samplerName), samplerName, [])
+            dataManager.getDataManagerForName(samplerName), samplerName, None)
 
-        self._addSamplerPool(SamplerPool("InitSamples", 1))
-        self._addSamplerPool(SamplerPool("Policy", 20))
-        self._addSamplerPool(SamplerPool("TransitionSampler", 50))
-        self._addSamplerPool(SamplerPool("RewardSampler", 80))
+        self.addSamplerPool(SamplerPool("InitSamples", 1))
+        self.addSamplerPool(SamplerPool("Policy", 20))
+        self.addSamplerPool(SamplerPool("TransitionSampler", 50))
+        self.addSamplerPool(SamplerPool("RewardSampler", 80))
 
         self.addElementsForTransition("nextStates", "states")
         self._dataManager.addDataEntry("timeSteps", 1)
@@ -62,9 +62,13 @@ class StepSampler(SequentialSampler):
         :param initStateSampler: the init state function to set
         :param samplerName: The name of the init state function (default: "sampleInitState")
         '''
+
         if samplerName is None:
             samplerName = "sampleInitState"
-        self._addSamperFunctionToPool(
+
+        if self.getSamplerPool("sampleInitState") is None:
+            self.addSamplerPool(SamplerPool("sampleInitState", 100))
+        self.addSamplerFunctionToPool(
             "sampleInitState", samplerName, initStateSampler, -1)
 
     def setPolicy(self, policy, samplerName=None):
@@ -75,7 +79,7 @@ class StepSampler(SequentialSampler):
         '''
         if samplerName is None:
             samplerName = "sampleAction"
-        self._addSamperFunctionToPool("Policy", samplerName, policy, -1)
+        self.addSamplerFunctionToPool("Policy", samplerName, policy, -1)
 
     def setTransitionFunction(self, transitionFunction, samplerName=None):
         '''
@@ -85,7 +89,7 @@ class StepSampler(SequentialSampler):
         '''
         if samplerName is None:
             samplerName = "sampleNextState"
-        self._addSamperFunctionToPool(
+        self.addSamplerFunctionToPool(
             "TransitionSampler", samplerName, transitionFunction, -1)
 
     def setRewardFunction(self, rewardFunction, samplerName=None):
@@ -96,7 +100,7 @@ class StepSampler(SequentialSampler):
         '''
         if samplerName is None:
             samplerName = "sampleReward"
-        self._addSamperFunctionToPool(
+        self.addSamplerFunctionToPool(
             "RewardSampler", samplerName, rewardFunction, -1)
 
     # change removed all flush functions. e.g. use

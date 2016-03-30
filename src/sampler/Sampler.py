@@ -151,6 +151,7 @@ class Sampler(SamplerInterface):
         '''
         Adds a sampler pool to the sampler pool list
 
+        :param samplerPool: The SamplerPool to add
         :raises: RuntimeError: If a sampler pool with the same name already
                                exists
         :raises: RuntimeError: If a sampler pool with the same priority already
@@ -181,10 +182,11 @@ class Sampler(SamplerInterface):
         Get a reference to a sampler pool
 
         :param name: Name of the sampler pool
-        :returns: requested pool
-        :raises: NameError: if no pool is registered under the given name
+        :returns: requested pool; None, if it doesn't exist
         '''
-        return self._samplerPools[name]
+        if name in self._samplerPools.keys():
+            return self._samplerPools[name]
+        return None
 
     # CHANGE flushSamplerPool got deleted. Call getSamplerPool(name).flush()
 
