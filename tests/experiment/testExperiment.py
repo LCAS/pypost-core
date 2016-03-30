@@ -5,10 +5,12 @@ from pandas.util.testing import assertRaises
 sys.path.append(
     os.path.abspath(os.path.dirname(os.path.realpath(__file__))+'/../../src'))
 import shutil
+import numpy as np
 from experiments.Experiment import Experiment
 from experiments.ExperimentFromScript import ExperimentFromScript
 from experiments.Evaluation import Evaluation
 from experiments.Trial import Trial
+from experiments.Trial import StoringType
 from common.Settings import Settings
 
 class TestTrial(Trial):
@@ -115,6 +117,20 @@ class testExperiment(unittest.TestCase):
         self.assertEqual(self.experiment.defaultSettings.getProperty('parameter1'), 14)
         self.experiment.setDefaultParameter('settings.parameter1', 18)
         self.assertEqual(self.experiment.defaultSettings.getProperty('parameter1'), 18)
-                
+    
+    def testTrialStore(self):
+        trial = self.experiment.defaultTrial
+        trial.store('a', 5, StoringType.STORE_PER_ITERATION)
+        trial.store('a', 10, StoringType.STORE_PER_ITERATION)
+        self.assertIn('a', trial.storePerIteration)
+        self.assertEqual(trial.properties['a'], 10)
+        trial.store('b', 12, StoringType.ACCUMULATE_PER_ITERATION)
+        trial.store('b', [14], StoringType.ACCUMULATE_PER_ITERATION)
+        self.assertTrue((trial.properties['b'] == np.array([[12], [14]])).all())
+        trial.store('c', 4, StoringType.STORE)
+        trial.store('c', 9, StoringType.STORE)
+        self.assertIn('c', trial.storePerTrial)
+        self.assertEqual(trial.properties['c'], 9)
+                        
 if __name__ == '__main__':
     unittest.main()
