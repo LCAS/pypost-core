@@ -592,3 +592,13 @@ class DataManager():
             dataStructure1.dataStructureLocalLayer[subName] = \
                 dataStructure1[subName] + dataStructure2[subName]
         return dataStructure1
+
+    def getDataManagerForName(self, managerName):
+            '''Returns the data manager with a specific name; e.g. episodes.
+            '''
+            if managerName == self.name:
+                return self
+            elif self.subDataManager is None:
+                return None
+            else:
+                return self.subDataManager.getDataManagerForName(managerName)
