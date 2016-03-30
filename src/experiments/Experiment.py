@@ -55,7 +55,7 @@ class Experiment():
 
     @staticmethod
     def getByPath(self, path):
-        raise NotImplementedError("Use addToDataBase(path) instead")
+        raise NotImplementedError("Use addToDataBase instead")
 
 
     @staticmethod
