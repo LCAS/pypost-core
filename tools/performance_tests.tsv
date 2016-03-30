@@ -8,3 +8,5 @@ getDataEntryCellArray	DataManager	Auslesen verschiedener Einträge als cell arra
 setDataEntryCellArray	DataManager	Setzen von verschiedenen Einträgen als cell array, 100 mal	0.082
 callDataFunction	DataManipulator	Aufruf einer DataManipulationFunction	2.97
 callDataFunctionOuput	DataManipulator	Aufruf einer DataManipulation Function, Rückgabe der Ergebnisse	5.80
+createExperiment	Experiment	Erstellen eines Experiments (PowerRosenbrock) mit 100 Trials	1.734
+runExperiment	Experiment	Ausführen eines Experiments (PowerRosenbrock) mit 100 Trials	26.523

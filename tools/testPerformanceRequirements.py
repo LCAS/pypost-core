@@ -2,6 +2,7 @@ import unittest
 import time
 import csv
 import sys
+import os
 import numpy as np
 from numpy import ones
 sys.path.append('../src')
@@ -9,6 +10,9 @@ from data.DataEntry import DataEntry
 from data.DataManager import DataManager
 from data.DataManipulator import DataManipulator
 from data.DataManipulator import CallType
+from experiments.ExperimentFromScript import ExperimentFromScript
+from experiments.Experiment import Experiment
+from examples.stochasticSearch.rosenbrock.Power_Rosenbrock import PowerRosenbrock
 
 class TestManipulator(DataManipulator):
     def __init__(self, dataManager):
@@ -152,7 +156,22 @@ class testPerformanceRequirements(unittest.TestCase):
         self.registerTime('callDataFunctionOuput')
         
     def test_Experiment(self):
-        pass
+        if not os.path.isdir('/tmp/testCategory'):
+            os.mkdir('/tmp/testCategory')
+        if not os.path.isdir('/tmp/testCategory/PowerRosenbrock'):
+            os.mkdir('/tmp/testCategory/PowerRosenbrock')
+
+        self.start()
+        experiment = ExperimentFromScript('/tmp', 'testCategory', PowerRosenbrock)
+        experiment.create()     
+        evaluation = experiment.addEvaluation(['maxSizeReferenceStat'], [300], 100)
+        self.stop()
+        self.registerTime('createExperiment')
+
+        self.start()
+        experiment.startLocal()
+        self.stop()
+        self.registerTime('runExperiment')
         
 if __name__ == '__main__':
     unittest.main()
