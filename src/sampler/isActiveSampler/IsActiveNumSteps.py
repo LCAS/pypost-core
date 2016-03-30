@@ -41,10 +41,8 @@ class IsActiveNumSteps(IsActiveStepSampler):
         FIXME
         '''
 
-        #self.globalProperties['numTimeSteps'] = numTimeSteps
-        #self.linkProperty(
-        #    "numTimeSteps", "num" + stepName.capitalize())
-        #FIXME linked propert
+        self.linkProperty(
+            "_numTimeSteps", "num" + stepName.capitalize())
 
     # getter & setters
 
