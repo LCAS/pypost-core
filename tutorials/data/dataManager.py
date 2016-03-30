@@ -93,17 +93,17 @@ myData.setDataEntry('parameters', [], parameterData)
 
 # Retrieval of our data
 # we can retrieve all our data ...
-tempParameters = myData.getDataEntry('parameters', ...);
+tempParameters = myData.getDataEntry('parameters', ...)
 
 # ... or use indices to access the hierarchical data structure
 # and get all parameters of the first episode
-tempParametersFirstEpisode = myData.getDataEntry('parameters', [1]);
+tempParametersFirstEpisode = myData.getDataEntry('parameters', [1])
 
 # we can also use the '...# sign to specify that we want to have all elements
 # of this layer of the hierarchy this commands returns the first subActions
 # of all episodes of the first step. We can specify as many indices as
 # there are layers. If an index is not specified, it is assumed to be "...".
-tempActions = myData.getDataEntry('subActions', [..., 1, 1]);
+tempActions = myData.getDataEntry('subActions', [..., 1, 1])
 
 # update the data
 tempActions[:, :] = 42
@@ -113,11 +113,11 @@ tempActions[91, 0] = 3
 tempActions[91, 1] = 4
 
 # indicing also works for setDataEntry()
-myData.setDataEntry('subActions', [..., 1, 1], tempActions);
+myData.setDataEntry('subActions', [..., 1, 1], tempActions)
 
 # it is possible to ignore the min-/maxRange restrictions by setting
 # restrictRange to False
-myData.setDataEntry('subActions', [4, 1, 1], np.array([[-100, 999]]), False);
+myData.setDataEntry('subActions', [4, 1, 1], np.array([[-100, 999]]), False)
 
 # retrieve the data again
 print('Updated subActions:\n', myData.getDataEntry('subActions', [..., 1, 1]), '\n')
@@ -132,4 +132,4 @@ print('Both data entries should be the same:',
     (myData.getDataEntry('subActions', [..., 1, -1]) == myData.getDataEntry(
     'subActions', [..., 1, 4])).all())
 
-print('\nThats it, the show is over...');
+print('\nThats it, the show is over...')
