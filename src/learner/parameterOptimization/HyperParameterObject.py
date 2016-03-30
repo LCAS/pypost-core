@@ -25,8 +25,7 @@ class HyperParameterObject():
         return params
 
     def getExpParameterTransformMap(self):
-        # what does 'true' mean?
-        return true(1, self.getNumHyperParameters())
+        return np.ones((1, self.getNumHyperParameters()))
 
     def getNumHyperParameters(self):
         raise NotImplementedError()

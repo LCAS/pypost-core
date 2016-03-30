@@ -103,9 +103,6 @@ class Mapping(DataManipulator, MappingInterface):
             functionName
         )
 
-    # change registerMappingFunction was never used and referenced
-    # self.outputVariables[1] which doesn't even exist
-
     def setInputVariables(self, inputVariables, numDim=None, append=False):
         '''Sets the input variables given to each mapping function registered
         by this Mapping
@@ -160,13 +157,3 @@ class Mapping(DataManipulator, MappingInterface):
     def setOutputDimension(self, dimension):
         self.dimOutput = dimension
         self.outputVariables = []
-
-    # def cloneDataManipulationFunctions(self, cloneDataManipulator):
-        #raise "Not implemented"
-        # FIXME design of this class is not finally finished
-        #    self.cloneDataManipulationFunctions@Data.DataManipulator(cloneDataManipulator);
-        #    self.inputVariables = cloneDataManipulator.inputVariables;
-        #    self.outputVariable = cloneDataManipulator.outputVariable;
-        #    self.dimInput = self.dataManager.getNumDimensions(self.inputVariables);
-        #    self.dimOutput = self.dataManager.getNumDimensions(self.outputVariable);
-        # end
