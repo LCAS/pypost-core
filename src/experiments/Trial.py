@@ -45,6 +45,13 @@ class Trial():
         self.configure()
 
     def store(self, name, value, mode=StoringType.STORE):
+        '''
+        Stores a piece of data. Multiple storage options are available.
+        :param name: The name under which the data is stored
+        :param value: The data
+        :param mode: Can be either one of STORE_PER_ITERATION,
+                     ACCUMULATE_PER_ITERATION, STORE, ACCUMULATE
+        '''
         if mode is StoringType.STORE_PER_ITERATION:
             self.setProperty(name, value)
             if name not in self.storePerIteration:
@@ -74,7 +81,7 @@ class Trial():
             self.setProperty(name, value)
             if name not in self.storePerTrial:
                 self.storePerTrial.append(name)
-        else:
+        else: # pragma: no cover
             RuntimeError("Unknown StoringType")
 
     def isProperty(self, name):
@@ -141,27 +148,18 @@ class Trial():
         # FIXME(Sebastian): Load data too?
         self.data = np.load(dataFile)
 
-    def start(self, withCatch=False, withProfiling=False):
-        # FIXME: withProfiling is probably useless in python
+    def start(self):
         if self.isFinished:
             raise RuntimeError("Trial %s is already isFinished!" % self.trialDir)
-        # TODO: Add diary equivalent
         SettingsManager.setRootSettings(self.settings)
 
-        if withCatch:
-            try:
-                self.run()
-            except Exception:
-                traceback.print_exc()
-                # Log output
-        else:
-            self.run()
+        self.run()
 
         self.isFinished = True
         self.storeTrial()
 
     def configure(self):
-        raise NotImplementedError("Must be overwritten by subclass")
+        raise NotImplementedError("Must be overwritten by subclass") # pragma: no cover
 
     def run(self):
-        raise NotImplementedError("Must be overwritten by subclass")
+        raise NotImplementedError("Must be overwritten by subclass") # pragma: no cover
