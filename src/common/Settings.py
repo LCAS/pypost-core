@@ -51,10 +51,10 @@ class Settings():
         It should be structured after the following pattern: {propertyName: Property(value=<value of the property>, ClientInfo(client=<client object>, clientPropName=<property name in client>)}
         Property and ClientInfo are namedtuples
         '''
-    
+
     def isSameSettings(self, other):
         return len(self._properties) == len(other._properties)
-    
+
     def clean(self):
         '''Removes all properties in this pool.
         '''
@@ -215,8 +215,14 @@ class Settings():
         DataPrinter.printData(self.getProperties())
 
     def store(self, fileName):
+        dataToStore = dict()
+        for propKey in self._properties.keys():
+            dataToStore[propKey] = PropertyInfo(
+                self._properties[propKey].value, [])
+
+        print(dataToStore)
         with open(fileName, 'w') as stream:
-            yaml.dump(self._properties, stream)
+            yaml.dump(dataToStore, stream)
 
     def load(self, fileName):
         with open(fileName, 'r') as stream:
