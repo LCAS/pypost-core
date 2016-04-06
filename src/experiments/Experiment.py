@@ -144,9 +144,6 @@ class Experiment(object):
 
         return None
 
-    def getTrialData(self, evaluationNumber=1):
-        self.evaluations[evaluationNumber].getTrialData(self.path)
-
     def deleteExperiment(self):
         shutil.rmtree(self.path)
 

@@ -98,10 +98,6 @@ class testExperiment(unittest.TestCase):
         self.assertEqual(index2, 1)
         self.assertEqual(index3, None)
 
-    def testGetTrialData(self):
-        eval = self.experiment.addEvaluation(['testParameter'], [100], 10)
-        data = self.experiment.getTrialData(0)
-
     def testStartLocal(self):
         eval = self.experiment.addEvaluation(['testParameter'], [100], 10)
         self.experiment.startLocal()

@@ -19,14 +19,6 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
-.sampler.GridSampler module
-------------------------------
-
-.. automodule:: .sampler.GridSampler
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 .sampler.IndependentSampler module
 -------------------------------------
 
