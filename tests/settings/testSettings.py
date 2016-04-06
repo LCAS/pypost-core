@@ -17,7 +17,7 @@ class testSettings(unittest.TestCase):
         settings = Settings('testSettings01')
         SettingsManager.setSettings(settings)
         cli = SettingsClient()
-        cli.setProperty('prop_a', 42.21)
+        cli.setVar('prop_a', 42.21)
         cli.linkProperty('prop_a', 'A', SettingsManager.getSettings('testSettings01'))
         self.assertIs(SettingsManager.getSettings('testSettings01'), settings)
         self.assertEqual(SettingsManager.getSettings('testSettings01').getProperty('A'), 42.21)
@@ -34,11 +34,11 @@ class testSettings(unittest.TestCase):
         SettingsManager.popDefaultName()
         self.assertEqual(SettingsManager.getDefaultName(), 'default')
 
-        cli.setProperty('prop_b', False)
+        cli.setVar('prop_b', False)
         cli.linkProperty('prop_b', 'B')
         self.assertEqual(SettingsManager.getDefaultSettings().getProperty('B'), False)
 
-        cli.setProperty('prop_c', 'testStr')
+        cli.setVar('prop_c', 'testStr')
         cli.linkProperty('prop_c')
         self.assertEqual(SettingsManager.getDefaultSettings().getProperty('prop_c'), 'testStr')
 
@@ -58,7 +58,7 @@ class testSettings(unittest.TestCase):
         settings.registerProperty('A', 84.42)
         self.assertEqual(settings.getProperty('A'), 84.42)
         settings.setToClients()
-        self.assertEqual(cli.getProperty('prop_a'), 84.42)
+        self.assertEqual(cli.getVar('prop_a'), 84.42)
 
         self.assertDictEqual(settings.getProperties(), {'A': 84.42})
 
@@ -76,7 +76,7 @@ class testSettings(unittest.TestCase):
         self.assertTrue(clonedSettings.hasValue('D', 97))
         self.assertTrue(clonedSettings.hasProperty('E'))
 
-        cli.setProperty('prop_d', 13)
+        cli.setVar('prop_d', 13)
         cli.linkProperty('prop_d', 'D', emptySettings)
         emptySettings.copyProperties(settings)
         dClis = emptySettings._properties['D'].clients
@@ -84,9 +84,9 @@ class testSettings(unittest.TestCase):
         self.assertListEqual(emptySettings._properties['D'].clients, dClis)
         self.assertEqual(emptySettings.getProperty('A'), 84.42)
 
-        cli.setProperty('prop_e', 2)
+        cli.setVar('prop_e', 2)
         cli.linkProperty('prop_e', 'E', clonedSettings)
-        self.assertEqual(cli.getProperty('prop_e'), (2, 7))
+        self.assertEqual(cli.getVar('prop_e'), (2, 7))
 
         self.assertIsNone(settings.getProperty('nonExistent'))
 
@@ -122,13 +122,13 @@ class testSettings(unittest.TestCase):
         settings.setProperty('testProp1', 41)
         SettingsManager.setSettings(settings)
         cli = SettingsClient()
-        cli.setProperty('testProp2', 42)
+        cli.setVar('testProp2', 42)
 
         settings2 = settings.clone('newSettings')
         settings2.setProperty('testProp3', 43)
 
         self.assertEqual(settings2.getProperty('testProp1'), 41)
-        self.assertEqual(cli.getProperty('testProp2'), 42)
+        self.assertEqual(cli.getVar('testProp2'), 42)
         self.assertEqual(settings2.getProperty('testProp3'), 43)
 
 
@@ -150,7 +150,7 @@ class testSettings(unittest.TestCase):
         self.assertEqual(settings2.getProperty('testProp1'), 9)
 
         # FIXME: check if globalProperties should be stored to disk
-        self.assertEqual(cli.getProperty('test2'), 8)
+        self.assertEqual(cli.getVar('test2'), 8)
 
 if __name__ == "__main__":
     unittest.main()

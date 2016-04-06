@@ -49,16 +49,16 @@ class SettingsClient(object):
         '''Print the properties
         '''
         for cn in self._localPropertyMap.keys():
-            DataPrinter.printData(cn + ': ' + str(self.getProperty(cn)))
+            DataPrinter.printData(cn + ': ' + str(self.getVar(cn)))
 
-    def getProperty(self, varName):
+    def getVar(self, varName):
         '''Returns the value of the attribute with the given name.
 
         :param varName: Name of the property
         '''
         return getattr(self, varName)
 
-    def setProperty(self, varName, value):
+    def setVar(self, varName, value):
         '''Sets the value of the attribute with the given name.
 
         :param varName: Name of the property

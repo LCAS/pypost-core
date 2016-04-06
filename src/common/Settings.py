@@ -95,9 +95,9 @@ class Settings():
         :param settingsPropName: The property's name as (it should be) defined in the settings
         '''
         if settingsPropName in self._properties:
-            client.setProperty(clientPropName, self._properties[settingsPropName].value)
+            client.setVar(clientPropName, self._properties[settingsPropName].value)
         else:
-            self.registerProperty(settingsPropName, client.getProperty(clientPropName))
+            self.registerProperty(settingsPropName, client.getVar(clientPropName))
 
         self._properties[settingsPropName].clients.append(ClientInfo(client, clientPropName))
 
@@ -207,7 +207,7 @@ class Settings():
         '''
         if propName in self._properties:
             for c, n in self._properties[propName].clients:
-                c.setProperty(n, self._properties[propName].value)
+                c.setVar(n, self._properties[propName].value)
 
     def printProperties(self):
         '''Prints the properties
