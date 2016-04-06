@@ -9,7 +9,7 @@ sys.path.append(
 from experiments.Experiment import Experiment
 from experiments.ExperimentFromScript import ExperimentFromScript
 from examples.stochasticSearch.rosenbrock.Power_Rosenbrock import PowerRosenbrock
-    
+
 def runRosenbrock(numTrials):
     # Create directories if non-existent
     if not os.path.isdir('/tmp/testCategory'):
@@ -20,12 +20,12 @@ def runRosenbrock(numTrials):
     experiment = ExperimentFromScript('/tmp', 'testCategory', PowerRosenbrock)
     experiment.create()
 
-    # FIXME(Sebastian): Find out what these parameters actually mean and fix
+    # FIXME: Find out what these parameters actually mean and fix
     # them
     evaluation = experiment.addEvaluation(['maxSizeReferenceStat'], [300], numTrials)
 
     experiment.startLocal()
-    # TODO(Sebastian): Add fancy plotting
-    
+    # TODO: Add fancy plotting
+
 if __name__ == '__main__':
     runRosenbrock(4)

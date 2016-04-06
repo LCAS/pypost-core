@@ -34,7 +34,7 @@ class StepSampler(SequentialSampler):
     def _endTransition(self, data: data.Data, *args: unpacked list of int) -> None
     def _initSamples(self, data: data.Data, *args: unpacked list of int) -> None
     def _createSamplesForStep(self, data: data.Data, *args: unpacked list of int) -> None
-    
+
     '''
 
     def __init__(self, dataManager, samplerName):
@@ -45,8 +45,9 @@ class StepSampler(SequentialSampler):
         :change: sampler name is no longer optional
         :change: dataManager is no longer optional
         '''
-        super().__init__(
-            dataManager.getDataManagerForName(samplerName), samplerName, None)
+        super().__init__(dataManager.getDataManagerForName(samplerName),
+                         samplerName,
+                         None)
 
         self.addSamplerPool(SamplerPool("InitSamples", 1))
         self.addSamplerPool(SamplerPool("Policy", 20))
@@ -117,7 +118,7 @@ class StepSampler(SequentialSampler):
         # ASK see parent function
         layerIndexNew = args.copy()
         layerIndexNew[-1] = layerIndexNew[-1] + 1
-        numElements = data.getNumElementsForIndex(args.length, *args)
+        numElements = data.getNumElementsForIndex(len(args), *args)
         data.setDataEntry("timeSteps", np.ones(
             (numElements, 1)) * layerIndexNew[-1], layerIndexNew.copy())
 
@@ -131,7 +132,7 @@ class StepSampler(SequentialSampler):
         # in matlab we have some lines commented out that set states &
         # timeSteps, are they still needed?
         self._createsamplesFromPool("InitSamples", data, *args)
-        numElements = data.getNumElementsForIndex(args.length, *args)
+        numElements = data.getNumElementsForIndex(len(args), *args)
         data.setDataEntry("timeSteps", np.ones((numElements, 1)), *args)
 
     def _createSamplesForStep(self, data, *args):

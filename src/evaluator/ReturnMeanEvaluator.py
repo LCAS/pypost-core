@@ -22,9 +22,9 @@ class ReturnMeanEvaluator(Evaluator):
         Constructor
         '''
         super().__init__('avgReturn', {'endLoop'}, StoringType.ACCUMULATE)
-        
+
     def getEvaluation(self, data, newData, trial):
         evaluation=np.mean(newData.getDataEntry('returns'))
         self.publish(evaluation)
-        
+
         return evaluation

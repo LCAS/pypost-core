@@ -1,11 +1,11 @@
 from common import SettingsManager, DataPrinter
 
-class SettingsClient(object):
+class SettingsClient():
     '''Base class for all IASObjects.
 
     Implements basic functionality for registering properties of an object in the global parameter pool.
     '''
-    
+
     def __init__(self):
         '''Creates a new object.
         '''

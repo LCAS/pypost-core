@@ -20,31 +20,31 @@ class ReturnEvaluationSamplesAverageEvaluator(Evaluator, SettingsClient):
     def __init__(self, numSamplesEvaluation):
         ''' Constructor
 
-        :param numSamplesEvaluation: 
+        :param numSamplesEvaluation:
         '''
-        Evaluator.__init__('rewardEval', {'preLoop', 'endLoop'}, StoringType.ACCUMULATE)
+        Evaluator.__init__(self, 'rewardEval', {'preLoop', 'endLoop'}, StoringType.ACCUMULATE)
         SettingsClient.__init__(self)
 
         self._numSamplesEvaluation = numSamplesEvaluation
         '''
         Number of evaluation samples
         '''
-        
+
         self._data=None
 
         self.linkProperty('_numSamplesEvaluation')
-        
+
     def getEvaluation(self, data, newData, trial):
         if (trial.evaluationSampler) & (not trial.evaluationSampler is None):
             sampler = trial.evaluationSampler
         else:
             sampler = trial.sampler
-        
+
         dataManager = sampler.getDataManager()
-        
+
         if self._data is None:
             self.data = dataManager.getDataObject(0);
-        
+
         numSamplesTmp = sampler.numSamples
         initialSamplesTmp = sampler.numInitialSamples;
         seed = np.random.seed()
@@ -55,7 +55,7 @@ class ReturnEvaluationSamplesAverageEvaluator(Evaluator, SettingsClient):
         sampler.numSamples = numSamplesTmp
         sampler.numInitialSamples=initialSamplesTmp
         np.random.seed(seed)
-        
+
         evaluation = sum(self._data.getDataEntry('returns'))/self._data.getNumElementsForDepth(2)
         self.publish(evaluation)
         self._data = []

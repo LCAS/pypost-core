@@ -24,7 +24,7 @@ class Mapping(DataManipulator, MappingInterface):
 
         :param dataManager: the data manager the mapping is operating on
         :param inputVariables: iterable of input variable names
-        :param outputVariable: name of the output variable
+        :param outputVariables: name of the output variable
         :param name: name of the mapping
 
         :change: dataManager was removed from function arguments and is now a constructor argument.

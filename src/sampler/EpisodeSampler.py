@@ -37,7 +37,7 @@ class EpisodeSampler(IndependentSampler):
     def flushFinalRewardFunction(self) -> None
     def flushParameterPolicy(self) -> None
     def flushContextSampler(self) -> None
-    
+
     '''
 
     def __init__(self, dataManager=None, samplerName=None):

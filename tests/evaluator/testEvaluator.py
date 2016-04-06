@@ -21,7 +21,7 @@ class testEvaluator(unittest.TestCase):
 
     def test_getEvaluation(self):
         with self.assertRaises(NotImplementedError):
-            self.evaluator.getEvaluation()
+            self.evaluator.getEvaluation(None, None, None)
 
 
 if __name__ == "__main__":

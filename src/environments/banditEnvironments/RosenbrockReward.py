@@ -6,7 +6,8 @@ import EpisodicContextualParameterLearningTask
 
 class RosenbrockReward(EpisodicContextualParameterLearningTask, SettingsClient): #pragma nocover
     def __init__(self, episodeSampler, dimContext, dimParameters):
-        EpisodicContextualParameterLearningTask.__init__(episodeSampler, dimContext, dimParameters)
+        EpisodicContextualParameterLearningTask.__init__(
+            self, episodeSampler, dimContext, dimParameters)
         SettingsClient.__init__(self)
 
         self.rewardCenter = 0
@@ -23,8 +24,8 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask, SettingsClient):
                                   -50 * np.ones(dimParameters),
                                   +50 * np.ones(dimParameters));
 
-        # FIXME ASK how to initialize A
-        self.A = np.ndarray((dimContext, dimContext))
+        self.A = np.random.randn((dimContext, dimParameters)) +\
+                 3 * np.ones((dimContext, dimParameters))
 
         self.linkProperty('rewardNoise')
 

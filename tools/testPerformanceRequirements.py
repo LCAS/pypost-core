@@ -23,7 +23,7 @@ class TestManipulator(DataManipulator):
                                          'states', CallType.PER_EPISODE, True)
         self.addDataManipulationFunction(self.sampleActions, ['parameters', 'states'],
                                          ['actions'], CallType.PER_EPISODE, True)
-        
+
     def sampleParameters(self, numElements):
         return np.ones((numElements, 10))
 
@@ -51,10 +51,10 @@ class testPerformanceRequirements(unittest.TestCase):
                     'domain': domain, 'description': description, 'time': float(time)}
 
         unittest.TestCase.__init__(self, methodName=methodName)
-        
+
     def start(self):
         self.startTime = time.time()
-        
+
     def stop(self):
         self.endTime = time.time()
 
@@ -90,30 +90,30 @@ class testPerformanceRequirements(unittest.TestCase):
         myData = dataManager.getDataObject([100, 10, 5])
         self.stop()
         self.registerTime('getDataObject')
-        
+
         self.start()
         myData.reserveStorage([100, 20, 5])
         self.stop()
         self.registerTime('reserveStorage')
-        
+
         actions = np.random.random((2000, 2))
         subActions = np.random.random((5000, 2))
-    
+
         self.start()
         myData.setDataEntry('actions', [..., ...], actions)
         self.stop()
         self.registerTime('setDataEntry1')
-        
+
         self.start()
         myData.setDataEntry('subActions', [..., ..., ...], subActions)
         self.stop()
         self.registerTime('setDataEntry2')
-        
+
         self.start()
         myData.getDataEntry('subActions')
         self.stop()
         self.registerTime('getDataEntry')
-   
+
         self.start()
         for i in range(0, 100):
             entryList = myData.getDataEntryList([['steps', 'actions'], ['steps', 'substeps', 'subActions']], [0, 1, 0])
@@ -127,7 +127,7 @@ class testPerformanceRequirements(unittest.TestCase):
         self.stop()
         self.registerTime('setDataEntryCellArray')
 
-        
+
     def test_DataManipulator(self):
         dataManager = DataManager("episodes")
         subDataManager = DataManager("steps")
@@ -138,23 +138,23 @@ class testPerformanceRequirements(unittest.TestCase):
         subDataManager.addDataEntry('actions', 2, -ones(2), ones(2))
 
         dataManager.subDataManager = subDataManager
-        
+
         data = dataManager.getDataObject([10, 10])
-        
+
         manipulator = TestManipulator(dataManager)
-        
+
         self.start()
         for i in range(0, 1000):
             manipulator.callDataFunction('sampleParameters', data)
         self.stop()
         self.registerTime('callDataFunction')
-        
+
         self.start()
         for i in range(0, 100):
             manipulator.callDataFunctionOutput('sampleActions', data)
         self.stop()
         self.registerTime('callDataFunctionOuput')
-        
+
     def test_Experiment(self):
         if not os.path.isdir('/tmp/testCategory'):
             os.mkdir('/tmp/testCategory')
@@ -163,7 +163,7 @@ class testPerformanceRequirements(unittest.TestCase):
 
         self.start()
         experiment = ExperimentFromScript('/tmp', 'testCategory', PowerRosenbrock)
-        experiment.create()     
+        experiment.create()
         evaluation = experiment.addEvaluation(['maxSizeReferenceStat'], [300], 100)
         self.stop()
         self.registerTime('createExperiment')
@@ -172,6 +172,6 @@ class testPerformanceRequirements(unittest.TestCase):
         experiment.startLocal()
         self.stop()
         self.registerTime('runExperiment')
-        
+
 if __name__ == '__main__':
     unittest.main()

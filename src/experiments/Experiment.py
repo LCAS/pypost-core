@@ -144,10 +144,6 @@ class Experiment(object):
 
         return None
 
-    def resetTrials(self):
-        for key, evaluation in self.evaluations.items():
-            evaluation.resetTrials()
-
     def getTrialData(self, evaluationNumber=1):
         self.evaluations[evaluationNumber].getTrialData(self.path)
 
@@ -207,7 +203,7 @@ class Experiment(object):
         :param numTrials: The number of trials
         '''
         evaluations = []
-        for i in range(0, len(parameterValues) - 1):
+        for i in range(0, len(parameterValues)):
             evaluations.append(
                 self.addEvaluation(
                     parameterNames,

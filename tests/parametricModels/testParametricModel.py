@@ -13,7 +13,7 @@ class testParametricModel(unittest.TestCase):
         class ParametricModelWithTestVariables(ParametricModel):
             def __init__(self):
                 self.inputVariables = ['context', 'parameters']
-                self.outputVariable = 'return'
+                self.outputVariables = ['return']
                 self.numParameters = 10
 
             def getLikelihoodGradient(self):

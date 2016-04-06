@@ -116,8 +116,8 @@ class SequentialSampler(Sampler):
         tCurrent = args[-1]
 
         # ASK what is this doing?
-        if args.length > 2:
-            if args[0].length > 1:
+        if len(args) > 2:
+            if len(args[0]) > 1:
                 activeIdxs = [args[1:-2](isActive), args[-1], tCurrent]
                 stoppedIdxs = [args[1:-2](not isActive), args[-1], tCurrent]
             else:

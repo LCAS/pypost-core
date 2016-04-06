@@ -225,7 +225,6 @@ class Sampler(SamplerInterface):
     def addSamplerFunctionToPool(
             self, samplerPoolName, samplerName, objHandle, addLocationFlag=1):
         '''
-        #FIXME this function does multiple things a once. bad design?
         Add a function or sampler to a sampler pool
 
         The function behaves differently for different values of addLocationFlag

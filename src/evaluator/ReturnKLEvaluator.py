@@ -20,9 +20,9 @@ class ReturnKLEvaluator(Evaluator):
         Constructor
         '''
         super().__init__('trueKL', {'endLoop'}, StoringType.ACCUMULATE)
-        
+
     def getEvaluation(self, data, newData, trial):
         evaluation=trial.parameterPolicyLearner.KL
         self.publish(evaluation)
-        
+
         return evaluation

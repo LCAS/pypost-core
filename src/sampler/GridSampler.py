@@ -1,4 +1,5 @@
-from sampler import IndependentSampler, SamplerPool
+from sampler.IndependentSampler import IndependentSampler
+from sampler.SamplerPool import SamplerPool
 from functools import reduce
 import numpy as np
 
@@ -6,21 +7,21 @@ import numpy as np
 class GridSampler(IndependentSampler):
     '''
     Sets up an
-    
+
     Methods (annotated):
     def __init__(self, dataManager: data.DataManager, samplerName: str, outputVariable: list, nSamples: int) -> None
     def getNumSamples(self, data=None, *args) -> int
     def sampleGrid(self, numElements: int) -> list of Boolean
     '''
 
-    def __init__(self, dataManager, samplerName, outputVariable, nSamples):
+    def __init__(self, dataManager, samplerName, outputVariables, nSamples):
         '''
         :param dataManager: DataManager this sampler operates on
         :param samplerName: name of this sampler
-        :param outputVariable: list containing aliases to output
+        :param outputVariables: list containing aliases to output
         :param nSamples: number of samples for each grid cell
 
-        :change: outputVariable has to be an array of arrays
+        :change: outputVariables has to be an array of arrays
         #FIXME grid
         '''
         super().__init__(dataManager, samplerName)
@@ -41,16 +42,16 @@ class GridSampler(IndependentSampler):
         '''
 
         # TODO use array=[func(i) for i in iterator] scheme
-        namesCell = [None] * outputVariable.length
-        self._minValues = [None] * outputVariable.length
-        self._maxValues = [None] * outputVariable.length
-        for index, cell in enumerate(outputVariable):
+        namesCell = [None] * len(outputVariables)
+        self._minValues = [None] * len(outputVariables)
+        self._maxValues = [None] * len(outputVariables)
+        for index, cell in enumerate(outputVariables):
             names = self._dataManager.getDataManagerForEntry(
                 cell).dataAliases[cell].entryNames.copy()
             namesCell[index] = names
 
-            self._minValues[index] = [None] * names.length
-            self._maxValues[index] = [None] * names.length
+            self._minValues[index] = [None] * len(names)
+            self._maxValues[index] = [None] * len(names)
             for nameIndex, name in enumerate(names):
                 dataEntries = self._dataManager.getDataManagerForEntry(
                     name).dataEntries(name)
@@ -62,7 +63,7 @@ class GridSampler(IndependentSampler):
         self.addSamplerPool(SamplerPool('gridSamplerPool', 1))
 
         # register function
-        self.addDataManipulationFunction(self.sampleGrid, {}, outputVariable)
+        self.addDataManipulationFunction(self.sampleGrid, {}, outputVariables)
         self.addSamplerFunctionToPool('gridSamplerPool', 'sampleGrid', self, 0)
 
     def getNumSamples(self, data=None, *args):

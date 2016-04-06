@@ -22,7 +22,7 @@ class testParametricFunction(unittest.TestCase):
         class ParametricFunctionWithTestVariables2(ParametricFunction):
             def __init__(self):
                 self.inputVariables = None
-                self.outputVariable = 'return'
+                self.outputVariables = ['return']
 
         q = ParametricFunctionWithTestVariables2()
         self.assertRaises(NotImplementedError, q.registerGradientFunction)
@@ -33,7 +33,7 @@ class testParametricFunction(unittest.TestCase):
     def test_registerGradientDataEntry(self):
         class ParametricFunctionWithTestVariables(ParametricFunction):
             def __init__(self):
-                self.outputVariable = 'return'
+                self.outputVariables = ['return']
                 self.numParameters = 10
                 self.dataManager = DataManager('testDataManager')
 

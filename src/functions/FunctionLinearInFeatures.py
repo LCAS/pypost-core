@@ -50,7 +50,7 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         self.dataManager = dataManager
         # TODO deprecated: remove outputVariable and use outputVariables[0]
         # instead
-        self.outputVariable = outputVariable
+        #self.outputVariable = outputVariable
         self.outputVariables = [outputVariable]
         self.inputVariables = None
         self.functionName = functionName

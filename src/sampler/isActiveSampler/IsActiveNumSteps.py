@@ -28,19 +28,19 @@ class IsActiveNumSteps(IsActiveStepSampler, SettingsClient):
         IsActiveStepSampler.__init__(self, dataManager, stepName)
         SettingsClient.__init__(self)
 
-        self._numTimeSteps = numTimeSteps
+        self.numTimeSteps = numTimeSteps
         '''
         Number of timesteps to run
         '''
 
-        self._resetProb = 1 / self._numTimeSteps
+        self.resetProb = 1 / self.numTimeSteps
         '''
         Probability of a time step to reset
         '''
         if stepName is None:
             stepName = "timeSteps"
         self.linkProperty('resetProb', 'resetProb' + stepName.capitalize())
-        self.linkProperty("_numTimeSteps", "num" + stepName.capitalize())
+        self.linkProperty("numTimeSteps", "num" + stepName.capitalize())
 
     # getter & setters
 
@@ -49,7 +49,7 @@ class IsActiveNumSteps(IsActiveStepSampler, SettingsClient):
         Get the number of timesteps
         :returns: number of time steps
         '''
-        return self._numTimeSteps
+        return self.numTimeSteps
 
     def setNumTimeSteps(self, numTimeSteps):
         '''
@@ -59,7 +59,7 @@ class IsActiveNumSteps(IsActiveStepSampler, SettingsClient):
         '''
         if numTimeSteps < 0:
             raise RuntimeError("The number has to be equal or greater to 0")
-        self._numTimeSteps = numTimeSteps
+        self.numTimeSteps = numTimeSteps
 
     def isActiveStep(self, nextStates, timeSteps):
         '''
@@ -68,7 +68,7 @@ class IsActiveNumSteps(IsActiveStepSampler, SettingsClient):
         :param timeSteps: number of time steps
         :returns: True if the timestep if still active, False otherwise
         '''
-        return (timeSteps < self._numTimeSteps)
+        return (timeSteps < self.numTimeSteps)
 
     def toReserve(self):
         '''

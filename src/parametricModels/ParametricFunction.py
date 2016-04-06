@@ -12,10 +12,13 @@ class ParametricFunction(MappingInterface):
            self.inputVariables[0], np.ndarray):
             self.addDataManipulationFunction(self.getGradient,
                                              self.inputVariables,
-                                             [self.outputVariable[0] + 'Grad'])
+                                             [self.outputVariables[0] + 'Grad'])
 
     def registerGradientDataEntry(self):
-        self.dataManager.addDataEntry(self.outputVariable + 'Grad',
+        if not isinstance(self.outputVariables, list):
+            raise ValueError('self.outputVariables has to be a list')
+
+        self.dataManager.addDataEntry(self.outputVariables[0] + 'Grad',
                                       self.numParameters);
 
     def getGradient(self, *args):

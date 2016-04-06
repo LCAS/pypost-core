@@ -21,9 +21,9 @@ class ReturnMedianEvaluator(Evaluator):
         Constructor
         '''
         super().__init__('medianReturn', {'endLoop'}, StoringType.ACCUMULATE)
-        
+
     def getEvaluation(self, data, newData, trial):
         evaluation=np.median(newData.getDataEntry('returns'))
         self.publish(evaluation)
-        
+
         return evaluation

@@ -96,7 +96,6 @@ class Distribution(DistributionInterface, Mapping):
     def getDataProbabilities(self, inputData, outputData):
         '''
         get the log likelihood for a given set of in- and output data to be related in this distribution
-        #TODO there where varargs, check if the are really needed
         :returns: log likelihood of in- and output data to be related
         :abstract
         '''

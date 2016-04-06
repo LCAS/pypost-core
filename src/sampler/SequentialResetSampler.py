@@ -8,10 +8,8 @@ class SequentialResetSampler(Sampler):
     def __init__(self, dataManager: data.DataManager, samplerName: str) -> None
     def createSamples(self, newData: data.Data, *args: unpacked list of int) -> None
     def getNumSamples(self, data: data.Data, index) -> int
-    
-    '''
-    # FIXME why isn't this class derived from sequential sampler?
 
+    '''
     def __init__(self, dataManager, samplerName):
         '''
         Constructor
@@ -71,8 +69,6 @@ class SequentialResetSampler(Sampler):
         '''
         Ends the transition
         '''
-        # FIXME this function is redefined in some other classes, refactor to
-        # sampler(interface) itself?
         raise NotImplementedError("Not implemented")
 
     def _initSamples(self, data, indexing):
@@ -89,8 +85,6 @@ class SequentialResetSampler(Sampler):
         :param data: to be operated on
         :param indexing: index of the layer
         '''
-        # FIXME this function is redefined in some other classes, refactor to
-        # sequential sampler?
         raise NotImplementedError("Not implemented")
 
     def _adjustReservedStorage(self, data, indexing):

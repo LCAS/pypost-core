@@ -32,19 +32,10 @@ class SupervisedLearningMSEEvaluator(Evaluator):
         inputs = evaluationData.getDataEntry(
             trial.functionApproximator.inputVariables[1])
         outputs = evaluationData.getDataEntry(
-            trial.functionApproximator.outputVariable)
+            trial.functionApproximator.outputVariables[0])
 
         raise NotImplementedError()
-        '''TODO
-        valid = ~any(lambda x: isnan(x),inputs[2])
-        # FIXME check correct translation of ~any(isnan(inputs),2)
-
-        error = predictedOutput[valid,:] - outputs[valid, ...]
-
-        evaluation = mean(bsxfun(@rdivide, sum(error.^2, 1) / size(error,1), var(outputs)), 2)
-
-        return evaluation
-        '''
+        # TODO: not implemented
 
     def getEvaluationData(self, data, trial):
         '''

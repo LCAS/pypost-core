@@ -20,7 +20,7 @@ class testReturnSearchDistributionMeanEvaluator(unittest.TestCase):
     def test_getEvaluation(self):
         data = None
         newData = None
-        # trial = GaussianLinearInFeatures(DataManager('testmngr'), outputVariable, inputVariables, functionName, featureGenerator, doInitWeights)
+        # trial = GaussianLinearInFeatures(DataManager('testmngr'), outputVariables[0], inputVariables, functionName, featureGenerator, doInitWeights)
         with self.assertRaises(RuntimeError):
             trial = Trial('/tmp', 0)
         with self.assertRaises(UnboundLocalError):

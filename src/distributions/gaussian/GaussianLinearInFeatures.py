@@ -25,23 +25,23 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
     internally, but is able to return characteristics like mean, expectation
     and the sigma matrix like expected.
 
-    see functions.Mapping for more information how to use outputVariable
+    see functions.Mapping for more information how to use outputVariables
     and inputVariables etc
     '''
 
-    def __init__(self, dataManager, outputVariable, inputVariables,
+    def __init__(self, dataManager, outputVariables, inputVariables,
                  functionName, featureGenerator=None, doInitWeights=True):
         '''
         Constructor
 
         :param dataManager: DataManager to operate on
-        :param outputVariable: set of output Variables of the gaussian function
+        :param outputVariables: set of output Variables of the gaussian function
         :param inputVariables: set of input Variables of the gaussian function
         :param functionName: name of the gaussian function
         '''
         ParametricModel.__init__(self)
         DistributionWithMeanAndVariance.__init__(self, dataManager)
-        FunctionLinearInFeatures.__init__(self, dataManager, outputVariable,
+        FunctionLinearInFeatures.__init__(self, dataManager, outputVariables,
                                           inputVariables, functionName,
                                           featureGenerator, doInitWeights)
         SettingsClient.__init__(self)
@@ -58,16 +58,16 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
 
         self.numParameters = 0
 
-        # FIXME
+        # NOTE: indexForCov is not needed and therefore not calculated
         #self.indexForCov = []
         #index = 0
         # for i in range(0, self.dimOutput)
         #    self.indexForCov.append(index + (i:self.dimOutput))
         #    index = index + self.dimOutput
 
-        if isinstance(outputVariable, str):
+        if isinstance(outputVariables[0], str):
             self.linkProperty('initSigma', 'initSigma' +
-                              self.outputVariable.capitalize())
+                              self.outputVariables[0].capitalize())
         else:
             self.linkProperty('initSigma')
 

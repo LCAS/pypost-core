@@ -8,8 +8,8 @@ class ParametricModel(MappingInterface):
     def registerGradientModelFunction(self):
         self.addDataManipulationFunction(
             self.getLikelihoodGradient,
-            [self.inputVariables[:], self.outputVariable],
-            [self.outputVariable[0] + 'GradLike'])
+            [self.inputVariables[:], self.outputVariables[0]],
+            [self.outputVariables[0] + 'GradLike'])
 
     def getFisherInformationMatrix(self):
         raise NotImplementedError()

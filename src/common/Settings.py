@@ -53,7 +53,7 @@ class Settings():
         '''
 
     def isSameSettings(self, other):
-        return len(self._properties) == len(other._properties)
+        return len(self.getDifferentProperties(other)) == 0
 
     def clean(self):
         '''Removes all properties in this pool.
@@ -95,7 +95,8 @@ class Settings():
         :param settingsPropName: The property's name as (it should be) defined in the settings
         '''
         if settingsPropName in self._properties:
-            client.setVar(clientPropName, self._properties[settingsPropName].value)
+            client.setVar(clientPropName,
+                          self._properties[settingsPropName].value)
         else:
             self.registerProperty(settingsPropName, client.getVar(clientPropName))
 
@@ -220,11 +221,9 @@ class Settings():
             dataToStore[propKey] = PropertyInfo(
                 self._properties[propKey].value, [])
 
-        print(dataToStore)
         with open(fileName, 'w') as stream:
             yaml.dump(dataToStore, stream)
 
     def load(self, fileName):
         with open(fileName, 'r') as stream:
             settings = yaml.load(stream)
-            print(settings)

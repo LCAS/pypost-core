@@ -22,7 +22,7 @@ class RMatrixEvaluator(Evaluator):
         Constructor
         '''
         super().__init__('RMatrix', {'endLoop'}, StoringType.ACCUMULATE)
-        
+
     def getEvaluation(self, data, newData, trial):
         '''
         Evaluates to 0 if every eigenvalue is less-than 0
@@ -30,13 +30,12 @@ class RMatrixEvaluator(Evaluator):
         '''
         #FIXME hard coded access path: learner.Raa. Define interface ...
         r = trial.learner.Raa
-        
+
         #FIXME check for correct eig function
         if all(map(lambda x: x<0,eig(r))):
             evaluation = 0
         else:
             evaluation = 1
             self.publish("Warning: The R matrix is not negative definite",LogType.WARNING)
-        
+
         return evaluation
-        

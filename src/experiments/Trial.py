@@ -35,7 +35,6 @@ class Trial(SettingsClient):
             self.trialDir = None
 
         self.index = index
-        self.properties = {}
         self.storePerIteration = []
         self.storePerTrial = []
         self.settings = Settings('trialsettings')
@@ -88,8 +87,12 @@ class Trial(SettingsClient):
         return hasattr(self, name)
 
     def setProperty(self, name, value):
-        setattr(self, name, value)
-        self.linkProperty(name)
+        if not hasattr(self, name):
+            setattr(self, name, value)
+            self.linkProperty(name)
+        else:
+            self.setVar(name, value)
+            # TODO: update the property in the settings?
 
     def getProperty(self, name):
         return getattr(self, name)

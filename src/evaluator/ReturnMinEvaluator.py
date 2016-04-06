@@ -22,9 +22,9 @@ class ReturnMinEvaluator(Evaluator):
         Constructor
         '''
         super().__init__('minReturn', {'endLoop'}, StoringType.ACCUMULATE)
-        
+
     def getEvaluation(self, data, newData, trial):
         evaluation = np.min(newData.getDataEntry('returns'))
         self.publish(evaluation)
-        
+
         return evaluation

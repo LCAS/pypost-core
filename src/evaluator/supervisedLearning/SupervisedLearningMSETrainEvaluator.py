@@ -23,7 +23,7 @@ class SupervisedLearningMSETrainEvaluator(SupervisedLearningMSEEvaluator):
         Constructor
         '''
         super().__init__('Train')
-        
+
     def getEvaluationData(self, data, trial):
         '''
         Get the evaluation data from the data & trial objects

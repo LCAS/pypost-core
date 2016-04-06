@@ -22,10 +22,10 @@ class ReturnSearchDistributionEigValueEvaluator(Evaluator):
         Constructor
         '''
         super().__init__('searchDistributionEigValue', {'endLoop'}, StoringType.ACCUMULATE)
-        
+
     def getEvaluation(self, data, newData, trial):
         cholAEval = trial.parameterPolicy.cholA;
-        
+
         evaluation = np.transpose(eig(np.transpose(cholAEval)*cholAEval))
-        
+
         return evaluation
