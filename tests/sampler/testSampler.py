@@ -60,8 +60,8 @@ class Test(unittest.TestCase):
     def test_addLowerLevelSampler(self):
         sampler3 = Sampler(DataManager('testDataManager3'), 'testSampler3')
         sampler4 = Sampler(DataManager('testDataManager4'), 'testSampler4')
-        self.sampler.addLowerLevelSampler('testPool1', sampler3, False)
-        self.sampler.addLowerLevelSampler('testPool1', sampler4, True)
+        self.sampler.addLowLevelSampler('testPool1', sampler3, False)
+        self.sampler.addLowLevelSampler('testPool1', sampler4, True)
         self.assertTrue(sampler3 in self.sampler.getLowLevelSamplers())
         self.assertTrue(sampler4 in self.sampler.getLowLevelSamplers())
         #TODO Test isBeginning

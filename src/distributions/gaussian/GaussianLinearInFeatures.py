@@ -4,10 +4,12 @@ from functions.FunctionLinearInFeatures import FunctionLinearInFeatures
 from distributions.DistributionWithMeanAndVariance import \
     DistributionWithMeanAndVariance
 from parametricModels.ParametricModel import ParametricModel
+from common.SettingsClient import SettingsClient
 
 
 class GaussianLinearInFeatures(FunctionLinearInFeatures,
-                               DistributionWithMeanAndVariance, ParametricModel):
+                               DistributionWithMeanAndVariance, ParametricModel,
+                               SettingsClient):
     '''
     The  GaussianLinearInFeatures class models gaussian distributions where the
     mean can be a linear function of the feature vectors.
@@ -42,6 +44,7 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         FunctionLinearInFeatures.__init__(self, dataManager, outputVariable,
                                           inputVariables, functionName,
                                           featureGenerator, doInitWeights)
+        SettingsClient.__init__(self)
 
         self.saveCovariance = False
         self.initSigma = 0.1
@@ -62,11 +65,11 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         #    self.indexForCov.append(index + (i:self.dimOutput))
         #    index = index + self.dimOutput
 
-        # if (ischar(outputVariable))
-        #    self.linkProperty('initSigma', ['initSigma',  #upper(self.outputVariable(1)), self.outputVariable(2:end)])
-        # else
-        #    self.linkProperty('initSigma')
-        # end
+        if isinstance(outputVariable, str):
+            self.linkProperty('initSigma', 'initSigma' +
+                              self.outputVariable.capitalize())
+        else:
+            self.linkProperty('initSigma')
 
         self._registerMappingInterfaceDistribution()
         self.registerMappingInterfaceFunction()

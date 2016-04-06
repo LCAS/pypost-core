@@ -1,11 +1,13 @@
 import numpy as np
+from common.SettingsClient import SettingsClient
 from environments.EpisodicContextualParameterLearningTask \
 import EpisodicContextualParameterLearningTask
 
 
-class RosenbrockReward(EpisodicContextualParameterLearningTask): #pragma nocover
+class RosenbrockReward(EpisodicContextualParameterLearningTask, SettingsClient): #pragma nocover
     def __init__(self, episodeSampler, dimContext, dimParameters):
-        super().__init__(episodeSampler, dimContext, dimParameters)
+        EpisodicContextualParameterLearningTask.__init__(episodeSampler, dimContext, dimParameters)
+        SettingsClient.__init__(self)
 
         self.rewardCenter = 0
         self.rewardDistance = 0
@@ -24,7 +26,7 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask): #pragma nocover
         # FIXME ASK how to initialize A
         self.A = np.ndarray((dimContext, dimContext))
 
-        # self.linkProperty('rewardNoise');
+        self.linkProperty('rewardNoise')
 
     def sampleReturn(self, contexts, parameters):
         for i in range(0, parameters.shape[0]):

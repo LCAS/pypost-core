@@ -1,9 +1,10 @@
 import numpy as np
 
 from learner.weightedML.RLByWeightedML import RLByWeightedML
+from common.SettingsClient import SettingsClient
 
 
-class EpisodicPower(RLByWeightedML):
+class EpisodicPower(RLByWeightedML, SettingsClient):
     '''
     Implementation of an episodic PoWER algorithm
     '''
@@ -12,16 +13,17 @@ class EpisodicPower(RLByWeightedML):
         '''
         Constructor
         '''
+        
 
         RLByWeightedML.__init__(self, dataManager, policyLearner)
+        SettingsClient.__init__(self)
 
         # TODO find default value
         self.divKL = None
 
         self.temperatureScalingPower = 10.0
 
-        # FIXME linkProperty
-        #self.linkProperty('temperatureScalingPower')
+        self.linkProperty('temperatureScalingPower')
 
     def computeWeighting(self, rewards):
         maxQ = np.max(rewards)

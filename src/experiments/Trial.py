@@ -6,18 +6,20 @@ import random
 import traceback
 import numpy as np
 from enum import Enum
+from common.SettingsClient import SettingsClient
 
 StoringType = Enum('StoringType', 'STORE, STORE_PER_ITERATION, ACCUMULATE, '
                    'ACCUMULATE_PER_ITERATION')
 
 
-class Trial():
+class Trial(SettingsClient):
 
     def __init__(self, evalDir, index):
         '''
         Constructor
         Creates the required directories
         '''
+        super().__init__()
         configured = False
 
         if os.path.isdir(evalDir):
@@ -83,13 +85,14 @@ class Trial():
             RuntimeError("Unknown StoringType")
 
     def isProperty(self, name):
-        return name in self.properties
+        return hasattr(self, name)
 
     def setProperty(self, name, value):
-        self.properties[name] = value
+        setattr(self, name, value)
+        self.linkProperty(name)
 
     def getProperty(self, name):
-        return self.properties[name]
+        return getattr(self, name)
 
     def storeTrial(self, overwrite=True):
         return self.storeTrialInFile(self.trialDir, overwrite)

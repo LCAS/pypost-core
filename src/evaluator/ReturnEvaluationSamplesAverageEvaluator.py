@@ -22,8 +22,9 @@ class ReturnEvaluationSamplesAverageEvaluator(Evaluator, SettingsClient):
 
         :param numSamplesEvaluation: 
         '''
-        super().__init__('rewardEval', {'preLoop', 'endLoop'}, StoringType.ACCUMULATE)
-        
+        Evaluator.__init__('rewardEval', {'preLoop', 'endLoop'}, StoringType.ACCUMULATE)
+        SettingsClient.__init__(self)
+
         self._numSamplesEvaluation = numSamplesEvaluation
         '''
         Number of evaluation samples

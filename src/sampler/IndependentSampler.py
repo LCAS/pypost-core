@@ -1,8 +1,9 @@
 import numpy as np
 from sampler.Sampler import Sampler
+from common.SettingsClient import SettingsClient
 
 
-class IndependentSampler(Sampler):
+class IndependentSampler(Sampler, SettingsClient):
     '''
     Methods (annotated):
     def __init__(self, dataManager: data.DataManager, samplerName: str) -> null
@@ -20,7 +21,8 @@ class IndependentSampler(Sampler):
         :param numSamples: The number of samples to use for after the initial iteration
         : 
         '''
-        super().__init__(dataManager, samplerName)
+        Sampler.__init__(self, dataManager, samplerName)
+        SettingsClient.__init__(self)
 
         self._parallelSampling = True
         '''
@@ -42,10 +44,8 @@ class IndependentSampler(Sampler):
         # important? (Dont "correct" user errors!)
         self.dataManager.addDataEntry('iterationNumber', 1)
 
-        # FIXME: What is this for?
-        #self._linkProperty('numSamples', ['numSamples', samplerName])
-        #self._linkProperty("numInitialSamples",
-        #                   ["numInitialSamples", samplerName])
+        self.linkProperty('_numSamples', 'numSamples' + samplerName)
+        self.linkProperty("_numInitialSamples", "numInitialSamples" + samplerName)
 
     def setParallelSampling(self, parallelSampling):
         '''

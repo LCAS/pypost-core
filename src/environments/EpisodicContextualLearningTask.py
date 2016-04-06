@@ -1,8 +1,9 @@
 from data.DataManipulator import DataManipulator
 import numpy as np
+from common.SettingsClient import SettingsClient
 
 
-class EpisodicContextualLearningTask(DataManipulator):
+class EpisodicContextualLearningTask(DataManipulator, SettingsClient):
 
     def __init__(self, episodeSampler, dimContext):
         '''Constructor
@@ -10,7 +11,8 @@ class EpisodicContextualLearningTask(DataManipulator):
         :param episodeSampler: The sampler for the lerning task
         :param dimContext: The dimensions of the context
         '''
-        super().__init__(episodeSampler.dataManager)
+        DataManipulator.__init__(self, episodeSampler.dataManager)
+        SettingsClient.__init__(self)
 
         self.dataManager = episodeSampler.dataManager
         self.sampleInitContextFunc = 0
@@ -24,8 +26,8 @@ class EpisodicContextualLearningTask(DataManipulator):
 
         self.dataManager.addDataEntry('returns', 1)
 
-        # FIXME self.linkProperty('sampleInitContextFunc');
-        self.addDataManipulationFunction(self.sampleContext, [], ['contexts']);
+        self.linkProperty('sampleInitContextFunc')
+        self.addDataManipulationFunction(self.sampleContext, [], ['contexts'])
 
 
     def sampleContext(self, numSamples, *args):

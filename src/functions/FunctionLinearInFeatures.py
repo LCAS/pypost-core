@@ -2,12 +2,13 @@ import numpy as np
 from functions.Mapping import Mapping
 from functions.Function import Function
 from parametricModels.ParametricFunction import ParametricFunction
+from common.SettingsClient import SettingsClient
 from learner.parameterOptimization.HyperParameterObject \
     import HyperParameterObject
 
 
 class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
-                               HyperParameterObject):
+                               HyperParameterObject, SettingsClient):
     '''
     TODO: check documentation
     The FunctionLinearInFeatures is a subclass of mapping and implements
@@ -40,6 +41,8 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         :param featureGenerator: feature generator of the dataset
         :param doInitWeights: flag if weights and bias should be initiated
         '''
+        SettingsClient.__init__(self)
+
         if isinstance(outputVariable, list):
             raise ValueError('multiple outputVariables are not supported!',
                              outputVariable)
@@ -70,15 +73,12 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         Function.__init__(self)
         ParametricFunction.__init__(self)
 
-        ''' FIXME
-        if (ischar(self.outputVariables[0]))
-            self.linkProperty('initSigmaMu', ['initSigmaMu',  upper(self.outputVariables[0](1)), self.outputVariables[0](2:end)]);
-            self.linkProperty('initMu', ['initMu', upper(self.outputVariables[0][1]), self.outputVariable[0][2:end]]);
-        else
-            self.linkProperty('initSigmaMu');
-            self.linkProperty('initMu');
-        end
-        '''
+        if isinstance(self.outputVariables[0], str):
+            self.linkProperty('initSigmaMu', 'initSigmaMu' + self.outputVariables[0].capitalize())
+            self.linkProperty('initMu', 'initMu' + self.outputVariables[0].capitalize())
+        else:
+            self.linkProperty('initSigmaMu')
+            self.linkProperty('initMu')
 
         self.registerMappingInterfaceFunction()
         self.registerGradientFunction()
