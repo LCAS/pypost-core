@@ -14,7 +14,7 @@ class Experiment(object):
     '''
     This class provides the basic functionality for defining experiments.
     An experiments is always a combination of a LearningSetup and a TaskSetup.
-    For example, in order to learn ball i the cup for with parameter based
+    For example, in order to learn ball in the cup for with parameter based
     REPS, we need a parameter based learning setup with the task setup from SL.
     For each experiment, we can define several evaluations. An evaluation is a
     specific setup of the parameter values of the algorithms. For example, we

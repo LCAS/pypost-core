@@ -1,7 +1,7 @@
 from learner.Learner import Learner
 
 
-class RLLearner(Learner, object):
+class RLLearner(Learner):
     '''
     Base class for reinforcement learners
     '''

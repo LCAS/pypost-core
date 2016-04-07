@@ -1,9 +1,10 @@
 from data.DataPreprocessor import DataPreprocessor
 
 
-class Learner(DataPreprocessor, object):
+class Learner(DataPreprocessor):
     '''
-    Base class for all learners
+    The Learner class serves as a base class for all learners and predefines
+    all necessary methods.
     '''
 
     def __init__(self):
