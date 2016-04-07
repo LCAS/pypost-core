@@ -11,21 +11,23 @@ class Test(unittest.TestCase):
         dataManager = DataUtil.createTestManager()
         self.ians = IsActiveNumSteps(dataManager, None, 20)
 
-
     def tearDown(self):
         pass
 
 
     def test_init(self):
         self.assertIsInstance(self.ians, IsActiveNumSteps)
-        self.assertEqual(self.ians.numTimeSteps, 20)
+        # TODO: check linkProperty
+        self.assertEqual(self.ians.numTimeSteps, 40)
         datamngr = DataUtil.createTestManager()
-        testIans = IsActiveNumSteps(datamngr, 'testName', 20)
+        # TODO: check linkProperty
+        testIans = IsActiveNumSteps(datamngr, 'testName', 40)
         self.assertIsNotNone(testIans._manipulationFunctions)
 
 
     def test_getNumTimeSteps(self):
-        self.assertEqual(self.ians.getNumTimeSteps(), 20)
+        # TODO: check linkProperty
+        self.assertEqual(self.ians.getNumTimeSteps(), 40)
 
     def test_setNumTimeSteps(self):
         self.ians.setNumTimeSteps(30)
@@ -38,7 +40,8 @@ class Test(unittest.TestCase):
         self.assertTrue(self.ians.isActiveStep(None, 19))
 
     def test_toReserve(self):
-        self.assertEqual(self.ians.toReserve(), 20)
+        # TODO: check linkProperty
+        self.assertEqual(self.ians.toReserve(), 40)
 
 
 if __name__ == "__main__":

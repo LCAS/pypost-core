@@ -6,10 +6,8 @@ import EpisodicContextualParameterLearningTask
 class SinDistReward(EpisodicContextualParameterLearningTask):
     def __init__(self, episodeSampler):
         super().__init__(episodeSampler, 1, 1)
-        taskDim = 5;
 
-        # self.linkProperty('taskDim')
-        print(self.dimContext)
+        #print(self.dimContext)
         self.dataManager.setRange('contexts',
                                   np.ones((self.dimContext)) * 0,
                                   np.ones((self.dimContext)) * (2*math.pi))

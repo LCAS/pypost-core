@@ -27,10 +27,9 @@ class testIndependentSampler(unittest.TestCase):
         self.assertFalse(self.sampler.getParallelSampling())
 
     def test_createSamples(self):
-        data = Data(DataUtil.createTestManager(), DataStructure(3))
+        data = self.dataManager.getDataObject(3)
         self.sampler.createSamples(data)
 
-        data = Data(DataUtil.createTestManager()), DataStructure(3)
         with self.assertRaises(NotImplementedError):
             self.sampler.createSamples(data, 3)
 
@@ -38,8 +37,8 @@ class testIndependentSampler(unittest.TestCase):
         self.assertTrue(self.sampler.isValidEpisode())
 
     def test_getNumSamples(self):
-        data = Data(DataUtil.createTestManager(), DataStructure(2))
-        self.assertEqual(self.sampler.getNumSamples(data), 0)
+        data = self.dataManager.getDataObject(2)
+        self.assertEqual(self.sampler.getNumSamples(data), 10)
         self.sampler._numInitialSamples = 2
         self.assertEqual(self.sampler.getNumSamples(data), 2)
 

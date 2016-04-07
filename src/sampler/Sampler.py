@@ -92,7 +92,7 @@ class Sampler(SamplerInterface):
             self._samplerMap[sampler.getSamplerName()] = sampler
 
         if finalizeData:
-            self.dataManager.finalizeDataManager()
+            self.dataManager.finalize()
 
     def copyPoolsFromSampler(self, sampler):
         '''
@@ -202,6 +202,14 @@ class Sampler(SamplerInterface):
         # ASK where is addSamplerFunction defined
         self.addSamplerFunction(samplerPool, lowerLevelSampler, isBeginning)
         self._lowerLevelSamplers.append(lowerLevelSampler)
+
+    def getLowLevelSamplers(self):
+        lowLevelSamplers = self._lowerLevelSamplers
+        for i in range(0, len(self._lowerLevelSamplers)):
+            lowLevelSamplers.append(
+                self.lowLevelSamplers[i].getLowLevelSamplers())
+
+        return lowLevelSamplers
 
     def addSamplerFunction(self, samplerPool, lowerLevelSampler, isBeginning):
         pass

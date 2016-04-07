@@ -166,9 +166,7 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
 
     def setParameterVector(self, theta):
         self.weights = theta[1:]
-        print('a', self.weights.shape)
         self.bias = theta[0, :].conj().T
-        print('a', self.bias.shape)
 
     def getParameterVector(self):
         return np.vstack([self.bias, self.weights])

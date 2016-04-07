@@ -36,7 +36,7 @@ class testExperiment(unittest.TestCase):
 
     def testCreateOtherSettings(self):
         shutil.rmtree(self.experiment.experimentPath)
-        print(os.path.exists(self.experiment.experimentPath))
+        print('Path exists:', os.path.exists(self.experiment.experimentPath))
         print(self.experiment.experimentPath)
         os.mkdir('/tmp/testCategory/TestTrial/dummy')
         os.mkdir('/tmp/testCategory/TestTrial/experiment001')
