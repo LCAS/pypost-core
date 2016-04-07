@@ -35,8 +35,8 @@ class testSequentialSampler(unittest.TestCase):
         self.sampler.addElementsForTransition('elemName', 'newElemName')
 
     def test_createSamples(self): #TODO
-        data = Data(DataUtil.createTestManager(), DataStructure(1))
-        self.sampler.createSamples(data)
+        data = DataUtil.createTestManager().getDataObject(1)
+        self.assertRaises(NotImplementedError, self.sampler.createSamples, data)
 
     def test_getNumSamples(self):
         pass
