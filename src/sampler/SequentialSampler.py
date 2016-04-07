@@ -132,11 +132,11 @@ class SequentialSampler(Sampler):
 
         return activeIdxs
 
-    def _endTransitation(self, data, *args):
+    def _endTransition(self, data, *args):
         # ASK are the copies of args necessary?
-        layerIndex = args.copy()
-        layerIndexNew = layerIndex.copy()
-        layerIndexNew = layerIndexNew[-1].copy() + 1
+        layerIndex = args
+        layerIndexNew = layerIndex[:]
+        layerIndexNew[-1] = layerIndexNew[-1] + 1
 
         for old, new in zip(
                 self._transitionElementOldStep, self._transitionElementNewStep):

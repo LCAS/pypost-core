@@ -131,9 +131,9 @@ class StepSampler(SequentialSampler):
         # the documentation states, that we set the following data entries:'states', 'nextStates' and 'timeSteps'
         # in matlab we have some lines commented out that set states &
         # timeSteps, are they still needed?
-        self._createsamplesFromPool("InitSamples", data, *args)
+        self.createSamplesFromPool(self.getSamplerPool("InitSamples"), data, args)
         numElements = data.getNumElementsForIndex(len(args), *args)
-        data.setDataEntry("timeSteps", np.ones((numElements, 1)), *args)
+        data.setDataEntry("timeSteps", np.ones((numElements, 1)), args)
 
     def _createSamplesForStep(self, data, *args):
         '''
@@ -141,4 +141,4 @@ class StepSampler(SequentialSampler):
         :param data: to be operated on
         :param args: index of the layer
         '''
-        self._createSamplePoolsWithPriority(10, 90, data, *args)
+        self.createSamplesFromPoolWithPriority(10, 90, data, args)

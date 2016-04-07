@@ -36,7 +36,7 @@ class testSequentialSampler(unittest.TestCase):
 
     def test_createSamples(self): #TODO
         data = Data(DataUtil.createTestManager(), DataStructure(1))
-        #self.sampler.createSamples(data)
+        self.sampler.createSamples(data)
 
     def test_getNumSamples(self):
         pass

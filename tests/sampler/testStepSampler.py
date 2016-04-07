@@ -29,32 +29,43 @@ class testStepSampler(unittest.TestCase):
         self.sampler.setInitStateFunction(rs)
         self.assertTrue(self.sampler.isSamplerFunction('sampleInitState'))
 
+        #datamngr = DataUtil.createTestManager()
+        #rs = Sampler(datamngr, 'initstatefunc')
+        #self.sampler.setInitStateFunction(rs, 'testName')
+        #self.assertTrue(self.sampler.isSamplerFunction('testName'))
+
     def test_setPolicy(self):
         datamngr = DataUtil.createTestManager()
         rs = Sampler(datamngr, 'policyfunc')
-        self.sampler.setInitStateFunction(rs)
+        self.sampler.setPolicy(rs)
         self.assertTrue(self.sampler.isSamplerFunction('Policy'))
 
     def test_setTransitionFunction(self):
         datamngr = DataUtil.createTestManager()
         rs = Sampler(datamngr, 'transitionfunc')
-        self.sampler.setInitStateFunction(rs)
+        self.sampler.setTransitionFunction(rs)
         self.assertTrue(self.sampler.isSamplerFunction('TransitionSampler'))
 
     def test_setRewardFunction(self):
         datamngr = DataUtil.createTestManager()
         rs = Sampler(datamngr, 'rewardfunc')
-        self.sampler.setInitStateFunction(rs)
+        self.sampler.setRewardFunction(rs)
         self.assertTrue(self.sampler.isSamplerFunction('RewardSampler'))
 
     def test_endTransition(self):
-        pass
+        testmngr = DataUtil.createTestManager()
+        data = testmngr.getDataObject(3)
+        self.sampler._endTransition(data)
 
     def test_initSamples(self):
-        pass
+        testmngr = DataUtil.createTestManager()
+        data = testmngr.getDataObject(3)
+        self.sampler._initSamples(data)
 
     def test_createSamplesForStep(self):
-        pass
+        testmngr = DataUtil.createTestManager()
+        data = testmngr.getDataObject(3)
+        self.sampler._createSamplesForStep(data)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
