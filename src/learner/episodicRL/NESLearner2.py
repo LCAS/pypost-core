@@ -48,7 +48,7 @@ class NESLearner2(SettingsClient, DataManipulator, RLLearner):
 
         self.L = np.add(4, 3 * np.floor(np.log(dimParameters)))
 
-        self.learnRateNESMeans=1
+        self.learnRateNESMeans = 1
         self.learnRateNESSigmas = 0.5 * min(1.0/dimParameters, 0.25)
         #%obj.learnRateNESSigmas = 0.1 ;
 
@@ -74,18 +74,10 @@ class NESLearner2(SettingsClient, DataManipulator, RLLearner):
             [self.rewardName, self.parameterName], [])
 
     def computePolicyUpdate(self, rewards, parameters):
-        print('re', rewards)
-        print('pa', parameters)
+        self.L = 10 #FIXME random constant
+        #print('re', rewards)
+        #print('pa', parameters)
 
-        print(np.arange(1, self.L + 1))
-        print(np.log(np.arange(1, self.L + 1)))
-        print(
-
-                                 np.log(self.L/2+1.0)-
-                                 np.log(
-                                    np.arange(1, self.L + 1))
-
-        )
         self.shape = max(0.0, np.max(
                          np.log(self.L/2+1.0)-np.log(
                             np.arange(1, self.L + 1))))
@@ -96,33 +88,37 @@ class NESLearner2(SettingsClient, DataManipulator, RLLearner):
         expA = self.policy.cholA
         A = scipy.linalg.logm(self.policy.cholA)
         x = self.policy.bias
+
         if len(parameters.shape) <= 1:
-            print("invalid shape", parameters.shape)
-            raise ValueError('invaldid shape')
+            raise RuntimeError('invalid parameters shape', parameters.shape)
 
         X = parameters.conj().T
 
-        print('a', X)
-        print('b', np.tile(x, (1,self.L)))
+        #print('a', X)
+        #print('xL', x, self.L)
+        #print('b', np.tile(x, (1,self.L)))
+        #print('xL', x, self.L)
 
         Z = np.linalg.solve(expA, (X-np.tile(x, (1, self.L))))
         #%Z = randn(d,L); X = repmat(x,1,L)+expA*Z;
-        if len(rewards.shape) != 1:
-            print('invalid shape')
-        self.fit = -rewards[np.newaxis, :].T
+        if len(rewards.shape) < 2:
+            print('invalid shape', rewards.shape)
+        self.fit = -rewards.conj().T
         idx = np.argsort(self.fit)
         self.weights[idx] = self.shape
 
         if len(self.weights.shape) != 1:
-            print('invalid weights shape', self.weights.shape)
-            raise object
+            raise RuntimeError('invalid weights shape', self.weights.shape)
+
+        if len(Z.shape) < 2:
+            raise RuntimeError('invalid Z shape', Z.shape)
 
         #% step 3: compute the gradient for C and x
         G = (np.tile(self.weights, (d, 1)) * Z).dot(Z.conj().T) - sum(self.weights)*np.eye(d)
         # TODO: check this ^
 
         dx = self.learnRateNESMeans * expA.dot(
-            Z.dot(self.weights[newaxis, :].T))
+            Z.dot(self.weights[np.newaxis, :].T))
 
         dA = self.learnRateNESSigmas * G
 
@@ -132,7 +128,7 @@ class NESLearner2(SettingsClient, DataManipulator, RLLearner):
         A = A + dA
 
         self.policy.setBias(x);
-        self.policy.setSigma(np.expm(A))
+        self.policy.setSigma(scipy.linalg.expm(A))
 
     def updateModel(self, data):
         self.callDataFunction('computePolicyUpdate', data)
