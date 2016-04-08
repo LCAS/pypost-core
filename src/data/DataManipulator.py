@@ -99,7 +99,8 @@ class DataManipulator(DataManipulatorInterface):
         Constructor
         '''
         if not isinstance(dataManager, DataManager):
-            raise ValueError("dataManager has to be a DataManager")
+            raise ValueError("dataManager has to be of type DataManager, not " +
+                             str(type(dataManager)))
         self._dataManager = dataManager
         self._samplerFunctions = {}
         self._manipulationFunctions = {}
