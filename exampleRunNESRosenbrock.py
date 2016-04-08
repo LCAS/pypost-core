@@ -14,8 +14,8 @@ def runRosenbrock(numTrials):
     # Create directories if non-existent
     if not os.path.isdir('/tmp/testCategory'):
         os.mkdir('/tmp/testCategory')
-        if not os.path.isdir('/tmp/testCategory/PowerRosenbrock'):
-            os.mkdir('/tmp/testCategory/PowerRosenbrock')
+        if not os.path.isdir('/tmp/testCategory/NESRosenbrock'):
+            os.mkdir('/tmp/testCategory/NESRosenbrock')
 
     experiment = ExperimentFromScript('/tmp', 'testCategory', NESRosenbrock)
     experiment.create()
