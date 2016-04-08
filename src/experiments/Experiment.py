@@ -67,7 +67,7 @@ class Experiment(object):
                 if self.defaultSettings.isSameSettings(otherSettings):
                     print("Experiment with same settings found")
                     self.experimentId = currentId
-                    self.experimentPath = file
+                    self.experimentPath = filePath
                     self.load()
                     return
 
