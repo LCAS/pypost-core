@@ -1,7 +1,6 @@
 import unittest
 import numpy as np
 from data.DataManager import DataManager
-from functions.Mapping import Mapping
 from functions.Function import Function
 from functions.FunctionLinearInFeatures import FunctionLinearInFeatures
 from parametricModels.ParametricFunction import ParametricFunction

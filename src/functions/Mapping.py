@@ -17,8 +17,8 @@ class Mapping(DataManipulator, MappingInterface):
     added with the addMappingFunction()
     '''
 
-    def __init__(self, dataManager, inputVariables=None,
-                 outputVariables=None, name=""):
+    def __init__(self, dataManager, outputVariables=None, inputVariables=None,
+                 name=""):
         '''
         Constructor
 

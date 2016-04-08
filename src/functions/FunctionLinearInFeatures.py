@@ -48,11 +48,8 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
                              outputVariable)
 
         self.dataManager = dataManager
-        # TODO deprecated: remove outputVariable and use outputVariables[0]
-        # instead
-        #self.outputVariable = outputVariable
         self.outputVariables = [outputVariable]
-        self.inputVariables = None
+        self.inputVariables = inputVariables
         self.functionName = functionName
         self.featureGenerator = None
         self.doInitWeights = doInitWeights
@@ -68,8 +65,9 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         self.doInitWeights = doInitWeights
         self.initMu = []
 
-        Mapping.__init__(self, dataManager, self.outputVariables, inputVariables,
-                         functionName)
+
+        Mapping.__init__(self, dataManager, self.outputVariables,
+                         self.inputVariables, functionName)
         Function.__init__(self)
         ParametricFunction.__init__(self)
 
