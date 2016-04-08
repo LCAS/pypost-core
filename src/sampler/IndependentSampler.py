@@ -43,9 +43,11 @@ class IndependentSampler(Sampler, SettingsClient):
         # ASK im Matlab the sampler name was converted into upper case. Is this
         # important? (Dont "correct" user errors!)
         self.dataManager.addDataEntry('iterationNumber', 1)
+        
+        samplerNameUpper = samplerName[0].upper() + samplerName[1:]
 
-        self.linkProperty('_numSamples', 'numSamples' + samplerName)
-        self.linkProperty("_numInitialSamples", "numInitialSamples" + samplerName)
+        self.linkProperty('_numSamples', 'numSamples' + samplerNameUpper)
+        self.linkProperty("_numInitialSamples", "numInitialSamples" + samplerNameUpper)
 
     def setParallelSampling(self, parallelSampling):
         '''
