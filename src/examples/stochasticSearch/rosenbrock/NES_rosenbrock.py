@@ -46,8 +46,6 @@ class NESRosenbrock(Trial):
             self.dataManager, self.parameterPolicy)
         # create the policy learner
         #self.policyLearner = EpisodicPower(self.dataManager, None)
-        self.sampler.setParameterPolicy(self.parameterPolicy)
-        self.sampler.setReturnFunction(self.returnSampler)
 
         # set the parameter policy in the sampler
         self.sampler.setParameterPolicy(self.parameterPolicy)
