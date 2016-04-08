@@ -68,11 +68,6 @@ class NESRosenbrock(Trial):
         for i in range(0, self.dsettings.getProperty('numIterations')):
             # create new samples
             self.sampler.createSamples(newData)
-            for p in self.sampler._samplerPoolPriorityList:
-                print(p._name)
-                for s in p.samplerList:
-                    print('tzu', s)
-            print('asd', newData.dataStructure.dataStructureLocalLayer)
 
             # keep old samples strategy comes here...
             #data = newData

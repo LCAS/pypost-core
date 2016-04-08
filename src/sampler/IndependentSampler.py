@@ -44,10 +44,10 @@ class IndependentSampler(Sampler, SettingsClient):
         # important? (Dont "correct" user errors!)
         self.dataManager.addDataEntry('iterationNumber', 1)
 
-        samplerNameUpper = samplerName[0].upper() + samplerName[1:]
-
-        self.linkProperty('numSamples', 'numSamples' + samplerName)
-        self.linkProperty("_numInitialSamples", "numInitialSamples" + samplerName)
+        self.linkProperty('numSamples',
+                          'numSamples' + samplerName.capitalize())
+        self.linkProperty("_numInitialSamples",
+                          "numInitialSamples" + samplerName.capitalize())
 
 
     def setParallelSampling(self, parallelSampling):
@@ -86,8 +86,6 @@ class IndependentSampler(Sampler, SettingsClient):
             if self.getParallelSampling():
                 newIndex.append(slice(0, numSamples))
                 self.sampleAllPools(newData, newIndex[:])
-                print('********')
-                print(newIndex)
             else:
                 index = 0
                 while index < numSamples[0]:
