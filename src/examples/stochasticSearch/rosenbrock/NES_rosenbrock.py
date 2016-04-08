@@ -1,5 +1,6 @@
 import os
 import sys
+from common import SettingsManager
 sys.path.insert(0, os.path.abspath("../../.."))
 
 import numpy as np
@@ -22,11 +23,12 @@ class NESRosenbrock(Trial):
 
     def configure(self):
         # set some basic parameters
-        self.settings.setProperty("numParameters", 15)
-        self.settings.setProperty("numContexts", 0)
-        self.settings.setProperty("numSamplesEpisodes", 15)
-        self.settings.setProperty("numIterations", 200)
-        self.settings.setProperty("L", 15)
+        self.dsettings = SettingsManager.getDefaultSettings()
+        self.dsettings.setProperty("numParameters", 15)
+        self.dsettings.setProperty("numContexts", 0)
+        self.dsettings.setProperty("numSamplesEpisodes", 15)
+        self.dsettings.setProperty("numIterations", 200)
+        self.dsettings.setProperty("L", 15)
 
         # create the sampler
         self.sampler = EpisodeSampler()
@@ -52,7 +54,6 @@ class NESRosenbrock(Trial):
 
         # set the return function in the sampler
         self.sampler.setReturnFunction(self.returnSampler)
-
         # mark the trail as ready for execution
         self.configured = True
 
@@ -64,9 +65,14 @@ class NESRosenbrock(Trial):
         newData = self.dataManager.getDataObject(0)
 
         # do all iterations
-        for i in range(0, self.settings.getProperty('numIterations')):
+        for i in range(0, self.dsettings.getProperty('numIterations')):
             # create new samples
             self.sampler.createSamples(newData)
+            for p in self.sampler._samplerPoolPriorityList:
+                print(p._name)
+                for s in p.samplerList:
+                    print('tzu', s)
+            print('asd', newData.dataStructure.dataStructureLocalLayer)
 
             # keep old samples strategy comes here...
             #data = newData
@@ -93,5 +99,5 @@ class NESRosenbrock(Trial):
             # print some information about the current progress
             print(
                 "Iteration: %d, Episodes: %d, AvgReturn: %f" %
-                (i, i * self.settings.getProperty('numSamplesEpisodes'),
+                (i, i * self.dsettings.getProperty('numSamplesEpisodes'),
                  np.mean(newData.getDataEntry('returns'))))
