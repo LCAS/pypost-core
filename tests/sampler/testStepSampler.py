@@ -55,7 +55,7 @@ class testStepSampler(unittest.TestCase):
     def test_endTransition(self):
         testmngr = DataUtil.createTestManager()
         data = testmngr.getDataObject(3)
-        self.sampler._endTransition(data)
+        self.sampler._endTransition(data, 0, 1, 2)
 
     def test_initSamples(self):
         testmngr = DataUtil.createTestManager()
