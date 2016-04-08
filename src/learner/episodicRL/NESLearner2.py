@@ -69,12 +69,10 @@ class NESLearner2(SettingsClient, DataManipulator, RLLearner):
         #%obj.settings.setParameter('maxSamples', lambda);
 
     def registerLearningFunction(self):
-        print("dsfd",self.rewardName, self.parameterName)
         self.addDataManipulationFunction(self.computePolicyUpdate,
             [self.rewardName, self.parameterName], [])
 
     def computePolicyUpdate(self, rewards, parameters):
-        self.L = 10 #FIXME random constant
         #print('re', rewards)
         #print('pa', parameters)
 
@@ -102,7 +100,7 @@ class NESLearner2(SettingsClient, DataManipulator, RLLearner):
         Z = np.linalg.solve(expA, (X-np.tile(x, (1, self.L))))
         #%Z = randn(d,L); X = repmat(x,1,L)+expA*Z;
         if len(rewards.shape) < 2:
-            print('invalid shape', rewards.shape)
+            raise RuntimeError('invalid shape', rewards.shape)
         self.fit = -rewards.conj().T
         idx = np.argsort(self.fit)
         self.weights[idx] = self.shape
