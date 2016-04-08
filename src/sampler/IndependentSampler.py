@@ -49,6 +49,7 @@ class IndependentSampler(Sampler, SettingsClient):
         self.linkProperty('numSamples', 'numSamples' + samplerName)
         self.linkProperty("_numInitialSamples", "numInitialSamples" + samplerName)
 
+
     def setParallelSampling(self, parallelSampling):
         '''
         When set True, the episodes are sampled parallel; otherwise: sequentially
@@ -82,10 +83,11 @@ class IndependentSampler(Sampler, SettingsClient):
             newData.setDataEntry('iterationNumber', 0,
                                  np.array([self._iterationIndex]))
             newIndex = numElements
-
             if self.getParallelSampling():
                 newIndex.append(slice(0, numSamples))
                 self.sampleAllPools(newData, newIndex[:])
+                print('********')
+                print(newIndex)
             else:
                 index = 0
                 while index < numSamples[0]:
