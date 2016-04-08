@@ -15,11 +15,11 @@ class IndependentSampler(Sampler, SettingsClient):
     def __init__(self, dataManager, samplerName, numSamples = 10):
         '''
         Constructor
-        
+
         :param dataManager: DataManager this sampler operates on
         :param samplerName: Name of this sampler
         :param numSamples: The number of samples to use for after the initial iteration
-        : 
+        :
         '''
         Sampler.__init__(self, dataManager, samplerName)
         SettingsClient.__init__(self)
@@ -29,7 +29,7 @@ class IndependentSampler(Sampler, SettingsClient):
         Determines if the episodes are sampled parallel or in sequentially
         '''
 
-        self._numSamples = numSamples
+        self.numSamples = numSamples
         '''
         The number of samples to use for after the initial iteration
         '''
@@ -44,7 +44,9 @@ class IndependentSampler(Sampler, SettingsClient):
         # important? (Dont "correct" user errors!)
         self.dataManager.addDataEntry('iterationNumber', 1)
 
-        self.linkProperty('_numSamples', 'numSamples' + samplerName)
+        samplerNameUpper = samplerName[0].upper() + samplerName[1:]
+
+        self.linkProperty('numSamples', 'numSamples' + samplerName)
         self.linkProperty("_numInitialSamples", "numInitialSamples" + samplerName)
 
     def setParallelSampling(self, parallelSampling):
@@ -104,16 +106,16 @@ class IndependentSampler(Sampler, SettingsClient):
         Returns number of samples to use for the current iteration
         '''
         # @mw ASK: args needed?
-        if isinstance(self._numSamples, int):
+        if isinstance(self.numSamples, int):
             if self._iterationIndex == 0 and self._numInitialSamples > 0:
                 numSamples = self._numInitialSamples
             else:
-                numSamples = self._numSamples
+                numSamples = self.numSamples
         else:
             raise RuntimeError("Matlab code doesn't make any sense here.")
         #    if self._iterationIndex == 0 and self._numInitialSamples > 0:
         #        numSamples = self._numInitialSamples
         #    else:
-        #        numSamples = self._numSamples[self._iterationIndex]
+        #        numSamples = self.numSamples[self._iterationIndex]
 
         return numSamples
