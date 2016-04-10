@@ -25,19 +25,6 @@ class EpisodeSampler(IndependentSampler):
 
     - Return (Priority 7):  Calculates the return of each episode by
     summing the reward and the final reward
-
-    Methods (annotated):
-    def __init__(self, dataManager: data.DataManager = None, samplerName: str =None) -> None
-    def getEpisodeDataManager(self) -> data.DataManager
-    def setFinalRewardSampler(self, rewardSampler: sampler.Sampler, samplerName: str =None, isReturnSampler: Boolean) -> None
-    def setReturnFunction(self, rewardSampler: sampler.Sampler, samplerName: str ='sampleReturn') -> None
-    def setParameterPolicy(self, parameterSampler: sampler.Sampler, samplerName: str =None, isParameterPolicy: Boolean) -> None
-    def setContextSampler(self, contextSampler: sampler.Sampler, samplerName: str =None, isContextDistribution: Boolean) -> None
-    def flushReturnFunction(self) -> None
-    def flushFinalRewardFunction(self) -> None
-    def flushParameterPolicy(self) -> None
-    def flushContextSampler(self) -> None
-
     '''
 
     def __init__(self, dataManager=None, samplerName=None):

@@ -27,7 +27,7 @@ class testMapping(unittest.TestCase):
         dataManager.addDataEntry('X', 1)
         dataManager.addDataEntry('Y', 1)
 
-        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+        mapping = Mapping(dataManager, ['Y'], ['X'], "TestMapping")
 
         self.assertIsInstance(mapping, Mapping)
         self.assertEqual(mapping.name, 'TestMapping')
@@ -41,7 +41,7 @@ class testMapping(unittest.TestCase):
         dataManager.addDataEntry('Y', 1)
 
         self.assertRaises(
-            RuntimeError, lambda: Mapping(
+            ValueError, lambda: Mapping(
                 dataManager, ['X'], [
                     'Y', 'Z'], "TestMapping"))
 
@@ -51,7 +51,7 @@ class testMapping(unittest.TestCase):
         dataManager.addDataEntry('X', 1)
         dataManager.addDataEntry('Y', 1)
 
-        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+        mapping = Mapping(dataManager, ['Y'], ['X'], "TestMapping")
 
         mapping.setAdditionalInputVariables(['W', 'Z'])
 
@@ -63,7 +63,7 @@ class testMapping(unittest.TestCase):
         dataManager.addDataEntry('X', 1)
         dataManager.addDataEntry('Y', 1)
 
-        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+        mapping = Mapping(dataManager, ['Y'], ['X'], "TestMapping")
 
         self.assertRaises(DeprecationWarning,
                           mapping.setInputVariables, 'var1')
@@ -81,7 +81,7 @@ class testMapping(unittest.TestCase):
         valueFunction = lambda numElements, X: np.sin(X)
         gradientFunction = lambda numElements, X: np.cos(X)
 
-        mapping = Mapping(dataManager, ['X'], ['Y'], 'TestMapping')
+        mapping = Mapping(dataManager, ['Y'], ['X'], 'TestMapping')
         mapping.addMappingFunction(
             valueFunction,
             None,
@@ -126,7 +126,7 @@ class testMapping(unittest.TestCase):
         dataManager.addDataEntry('X', 1)
         dataManager.addDataEntry('Y', 1)
 
-        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+        mapping = Mapping(dataManager, ['Y'], ['X'], "TestMapping")
 
         self.assertEqual(mapping.getInputVariables(), ['X'])
 
@@ -138,7 +138,7 @@ class testMapping(unittest.TestCase):
         dataManager.addDataEntry('A', 1)
         dataManager.addDataEntry('B', 1)
 
-        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+        mapping = Mapping(dataManager, ['Y'], ['X'], "TestMapping")
 
         mapping.setInputVariables(['A', 'B'], None, False)
 
@@ -152,7 +152,7 @@ class testMapping(unittest.TestCase):
         dataManager.addDataEntry('A', 1)
         dataManager.addDataEntry('B', 1)
 
-        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+        mapping = Mapping(dataManager, ['Y'], ['X'], "TestMapping")
 
         mapping.setInputVariables(['A', 'B'], None, True)
 
@@ -169,7 +169,7 @@ class testMapping(unittest.TestCase):
         dataManager.addDataEntry('A', 1)
         dataManager.addDataEntry('B', 1)
 
-        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+        mapping = Mapping(dataManager, ['Y'], ['X'], "TestMapping")
 
         self.assertRaises(
             NotImplementedError, lambda: mapping.setInputVariables(['A', 'B'], 5))
@@ -185,7 +185,7 @@ class testMapping(unittest.TestCase):
         dataManager.addDataEntry('A', 1)
         dataManager.addDataEntry('B', 1)
 
-        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+        mapping = Mapping(dataManager, ['Y'], ['X'], "TestMapping")
 
         self.assertRaises(
             DeprecationWarning, lambda: mapping.setInputVariables([5, 'A', 'B'], None, True))
@@ -196,7 +196,7 @@ class testMapping(unittest.TestCase):
         dataManager.addDataEntry('X', 1)
         dataManager.addDataEntry('Y', 1)
 
-        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+        mapping = Mapping(dataManager, ['Y'], ['X'], "TestMapping")
 
         self.assertEqual(mapping.getOutputVariables(), ['Y'])
 
@@ -207,7 +207,7 @@ class testMapping(unittest.TestCase):
         dataManager.addDataEntry('Y', 1)
         dataManager.addDataEntry('A', 1)
 
-        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+        mapping = Mapping(dataManager, ['Y'], ['X'], "TestMapping")
 
         mapping.setOutputVariables(['A'])
 
@@ -219,7 +219,7 @@ class testMapping(unittest.TestCase):
         dataManager.addDataEntry('X', 1)
         dataManager.addDataEntry('Y', 1)
 
-        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+        mapping = Mapping(dataManager, ['Y'], ['X'], "TestMapping")
 
         self.assertRaises(
             RuntimeError, lambda: mapping.setOutputVariables(['A', 'B']))
@@ -229,7 +229,7 @@ class testMapping(unittest.TestCase):
         dataManager.addDataEntry('X', 1)
         dataManager.addDataEntry('Y', 1)
 
-        mapping = Mapping(dataManager, ['X'], ['Y'], "TestMapping")
+        mapping = Mapping(dataManager, ['Y'], ['X'], "TestMapping")
 
         mapping.setOutputDimension(4324)
 

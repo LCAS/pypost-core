@@ -13,8 +13,6 @@ class EpisodicPower(RLByWeightedML, SettingsClient):
         '''
         Constructor
         '''
-        
-
         RLByWeightedML.__init__(self, dataManager, policyLearner)
         SettingsClient.__init__(self)
 

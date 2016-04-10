@@ -8,8 +8,9 @@ class ParametricFunction(MappingInterface):
         MappingInterface.__init__(self)
 
     def registerGradientFunction(self):
-        if self.inputVariables is None or not isinstance(
-           self.inputVariables[0], np.ndarray):
+        print(self.inputVariables)
+        if self.inputVariables is None or len(self.inputVariables) == 0 or\
+           not isinstance(self.inputVariables[0], np.ndarray):
             self.addDataManipulationFunction(self.getGradient,
                                              self.inputVariables,
                                              [self.outputVariables[0] + 'Grad'])
