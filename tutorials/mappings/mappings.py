@@ -1,17 +1,15 @@
 import sys
 import numpy as np
 
-sys.path.append('../../src/')
-
-from data.DataManager import DataManager
-from MappingTestClass import MappingTestClass
+from rlt.data.DataManager import DataManager
+from rlt.MappingTestClass import MappingTestClass
 
 '''
 The Mapping class represents the base class of all mathematical
 representations (functions, distributions...) that map an input (possibly an empty set) to one or more output
-values. The mapping class extends the data manipulator interface. A mapping has 
+values. The mapping class extends the data manipulator interface. A mapping has
 predefined input and output variables. If we add a mapping function with
-the method addMappingFunction, a new data manipulation function is created where 
+the method addMappingFunction, a new data manipulation function is created where
 the input and output variables are already predefined according to the
 input and output variables defined by the mapping. The output variables
 can be changed though for each mapping function that we define by the

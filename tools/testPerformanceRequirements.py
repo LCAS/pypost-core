@@ -5,14 +5,14 @@ import sys
 import os
 import numpy as np
 from numpy import ones
-sys.path.append('../src')
-from data.DataEntry import DataEntry
-from data.DataManager import DataManager
-from data.DataManipulator import DataManipulator
-from data.DataManipulator import CallType
-from experiments.ExperimentFromScript import ExperimentFromScript
-from experiments.Experiment import Experiment
-from examples.stochasticSearch.rosenbrock.Power_Rosenbrock import PowerRosenbrock
+
+from rlt.data.DataEntry import DataEntry
+from rlt.data.DataManager import DataManager
+from rlt.data.DataManipulator import DataManipulator
+from rlt.data.DataManipulator import CallType
+from rlt.experiments.ExperimentFromScript import ExperimentFromScript
+from rlt.experiments.Experiment import Experiment
+from rlt.examples.stochasticSearch.rosenbrock.Power_Rosenbrock import PowerRosenbrock
 
 class TestManipulator(DataManipulator):
     def __init__(self, dataManager):

@@ -2,11 +2,9 @@ import unittest
 import sys
 import numpy as np
 
-sys.path.append('../../src/')
-
-from data.DataAlias import DataAlias
-from data.DataEntry import DataEntry
-from data.DataManager import DataManager
+from rlt.data.DataAlias import DataAlias
+from rlt.data.DataEntry import DataEntry
+from rlt.data.DataManager import DataManager
 
 '''
 In this example we are going to see how to use aliases.

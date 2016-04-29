@@ -13,9 +13,6 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
-import os
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -24,8 +21,6 @@ import os
 import sys
 sys.path.append(
     os.path.abspath(os.path.dirname(os.path.realpath(__file__))+'/../'))
-sys.path.append(
-    os.path.abspath(os.path.dirname(os.path.realpath(__file__))+'/../src/'))
 
 # -- General configuration ------------------------------------------------
 

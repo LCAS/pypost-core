@@ -61,3 +61,6 @@ target/
 
 #user specific pydev project settings
 .pydevproject
+
+# Ignore python rope directories
+.ropeproject

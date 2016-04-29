@@ -2,8 +2,6 @@ import unittest
 import sys
 import numpy as np
 
-sys.path.append('../../src/')
-
 from data.DataAlias import DataAlias
 from data.DataEntry import DataEntry
 from data.DataManager import DataManager
