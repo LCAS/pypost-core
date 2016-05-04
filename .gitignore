@@ -64,3 +64,6 @@ target/
 
 # Ignore python rope directories
 .ropeproject
+
+# Ignore IntelliJ project folder
+.idea
