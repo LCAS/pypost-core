@@ -5,7 +5,7 @@ Created on Dec 14, 2015
 '''
 import numpy as np
 from rlt.evaluator import Evaluator
-from experiments.Trial import StoringType
+from rlt.experiments.Trial import StoringType
 
 class SupervisedLearningMSEEvaluator(Evaluator):
     '''

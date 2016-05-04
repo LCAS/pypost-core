@@ -6,7 +6,7 @@ import os
 from numpy.core.numeric import ones
 from rlt.data.DataEntry import DataEntry
 from rlt.data.DataManager import DataManager
-import rlt.tests.DataUtil  # FIXME DataUtil not in rlt path since in test directory
+from rlt.tests import DataUtil
 
 
 class testDataManager(unittest.TestCase):

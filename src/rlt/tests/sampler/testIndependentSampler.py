@@ -1,5 +1,5 @@
 import unittest
-import rlt.tests.DataUtil
+from rlt.tests import DataUtil
 from rlt.sampler.IndependentSampler import IndependentSampler
 from rlt.data.DataManager import DataManager
 from rlt.data.Data import Data

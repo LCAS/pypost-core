@@ -3,7 +3,7 @@ import numpy as np
 from rlt.data.DataManipulator import DataManipulator
 from rlt.data.DataManipulator import DataManipulationFunction
 from rlt.data.DataManipulatorInterface import CallType
-import rlt.tests.DataUtil
+from rlt.tests import DataUtil
 
 
 class TestManipulator(DataManipulator):

@@ -1,5 +1,5 @@
 import unittest
-import rlt.tests.DataUtil
+from rlt.tests import DataUtil
 from rlt.sampler.isActiveSampler.IsActiveNumSteps import IsActiveNumSteps
 from rlt.common import SettingsManager
 

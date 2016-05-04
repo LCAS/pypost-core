@@ -6,9 +6,9 @@ from rlt.data.DataEntry import DataEntry
 from rlt.data.DataManager import DataManager
 from rlt.data.DataCollection import DataCollection
 
-import rlt.tests.DataUtil
+from rlt.tests import DataUtil
 
-from data.DataPreprocessor import DataPreprocessor
+from rlt.data.DataPreprocessor import DataPreprocessor
 
 
 class testDataPreprocessor(unittest.TestCase):

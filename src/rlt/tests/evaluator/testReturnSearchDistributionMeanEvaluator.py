@@ -1,6 +1,6 @@
 import unittest
 from rlt.evaluator.ReturnSearchDistributionMeanEvaluator \
-import rlt.ReturnSearchDistributionMeanEvaluator
+import ReturnSearchDistributionMeanEvaluator
 from rlt.experiments.Trial import Trial
 
 

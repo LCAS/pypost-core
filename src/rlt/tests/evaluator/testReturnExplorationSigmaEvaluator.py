@@ -1,5 +1,5 @@
 import unittest
-import rlt.tests.DataUtil
+from rlt.tests import DataUtil
 from rlt.evaluator.ReturnExplorationSigmaEvaluator import ReturnExplorationSigmaEvaluator
 from rlt.data.Data import Data
 from rlt.data.DataStructure import DataStructure

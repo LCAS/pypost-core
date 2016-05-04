@@ -1,5 +1,5 @@
 import unittest
-import rlt.tests.DataUtil
+from rlt.tests import DataUtil
 import numpy as np
 from rlt.evaluator.ReturnMaxEvaluator import ReturnMaxEvaluator
 from rlt.data.Data import Data

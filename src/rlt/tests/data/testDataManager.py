@@ -3,7 +3,7 @@ import numpy as np
 from rlt.data.DataAlias import DataAlias
 from rlt.data.DataEntry import DataEntry
 from rlt.data.DataManager import DataManager
-import rlt.tests.DataUtil
+from rlt.tests import DataUtil
 
 
 class testDataManager(unittest.TestCase):

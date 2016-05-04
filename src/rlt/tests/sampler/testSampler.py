@@ -1,6 +1,6 @@
 import unittest
 from rlt.sampler.Sampler import Sampler
-import rlt.tests.DataUtil
+from rlt.tests import DataUtil
 from rlt.sampler.SamplerPool import SamplerPool
 from rlt.data.DataManager import DataManager
 

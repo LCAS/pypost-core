@@ -1,5 +1,5 @@
 import unittest
-import rlt.tests.DataUtil
+from rlt.tests import DataUtil
 from rlt.sampler.StepSampler import StepSampler
 from rlt.sampler.Sampler import Sampler
 

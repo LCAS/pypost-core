@@ -14,8 +14,8 @@ __all__ = ['Evaluator',
            'RMatrixEvaluator']
 
 
-from rlt.evaluator import Evaluator
-from rlt.LogType import LogType
+from rlt.evaluator.Evaluator import Evaluator
+from rlt.evaluator.LogType import LogType
 
-from rlt.ReturnMedianEvaluator import ReturnMedianEvaluator
-from rlt.RMatrixEvaluator import RMatrixEvaluator
+from rlt.evaluator.ReturnMedianEvaluator import ReturnMedianEvaluator
+from rlt.evaluator.RMatrixEvaluator import RMatrixEvaluator

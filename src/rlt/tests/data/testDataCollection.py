@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import math
-import rlt.tests.DataUtil
+from rlt.tests import DataUtil
 from rlt.data.DataCollection import DataCollection
 
 class testDataCollection(unittest.TestCase):

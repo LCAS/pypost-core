@@ -3,7 +3,7 @@ import numpy as np
 import math
 from rlt.data.DataManager import DataManager
 
-import rlt.tests.DataUtil
+from rlt.tests import DataUtil
 
 from rlt.distributions.DistributionWithMeanAndVariance import DistributionWithMeanAndVariance
 

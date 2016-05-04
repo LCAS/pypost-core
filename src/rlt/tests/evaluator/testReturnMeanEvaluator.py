@@ -1,5 +1,5 @@
 import unittest
-import rlt.tests.DataUtil
+from rlt.tests import DataUtil
 import numpy as np
 from rlt.evaluator.ReturnMeanEvaluator import ReturnMeanEvaluator
 

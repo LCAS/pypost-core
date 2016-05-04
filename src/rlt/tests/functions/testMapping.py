@@ -5,7 +5,7 @@ import math
 from rlt.data.DataAlias import DataAlias
 from rlt.data.DataEntry import DataEntry
 from rlt.data.DataManager import DataManager
-import rlt.tests.DataUtil
+from rlt.tests import DataUtil
 
 
 from rlt.functions.Mapping import Mapping

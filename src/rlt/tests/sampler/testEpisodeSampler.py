@@ -1,5 +1,5 @@
 import unittest
-import rlt.tests.DataUtil
+from rlt.tests import DataUtil
 from rlt.sampler.EpisodeSampler import EpisodeSampler
 from rlt.data.DataManager import DataManager
 from rlt.sampler.Sampler import Sampler
