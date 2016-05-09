@@ -3,11 +3,10 @@ import sys
 import numpy as np
 import pprint as pp
 
-sys.path.append('../../src/')
-from sampler.EpisodeSampler import EpisodeSampler
-from data.DataEntry import DataEntry
-from data.DataManager import DataManager
-from TestEnvironment import TestEnvironment
+from rlt.sampler.EpisodeSampler import EpisodeSampler
+from rlt.data.DataEntry import DataEntry
+from rlt.data.DataManager import DataManager
+from rlt.TestEnvironment import TestEnvironment
 
 '''
 In this tutorial, we will learn how to create samples and merge them

@@ -1,4 +1,4 @@
-from data.DataManipulator import DataManipulator
+from rlt.data.DataManipulator import DataManipulator
 import numpy as np
 
 '''

@@ -60,6 +60,46 @@ selected for the project. Therefore ``right-click the project`` ->
 ``Properties`` -> ``PyDev - Interpreter/Grammer`` and make sure to have
 grammar version "3.0" and a python 3.0 interpreter selected.
 
+
+Using pip
+=========
+
+Build Package
+-------------
+To build the package use
+    python setup.py sdist
+
+Package upload
+--------------
+1. Register on pypi for package upload
+2. Configure pypi server
+    touch ~/.pypirc
+    and insert repositories
+
+    Example:
+        [pypitest]
+        repository = https://testpypi.python.org/pypi
+        username = <username>
+        password = <password>
+
+3. Upload to pipy test repository with
+    python setup.py sdist upload -r pypitest
+
+Package installation
+--------------------
+a. If you want to use the library only, install from remote repo over pip:
+    root# pip install -i https://testpypi.python.org/pypi RobotLearningToolbox
+
+b. If you want to work on the library:
+    1. Clone repository, and change to folder
+    2. Register package locally with
+        root# pip install -e .
+
+Uninstall
+---------
+root# pip uninstall RobotLearningToolbox
+
+
 Quick Start
 ===========
 

@@ -3,12 +3,10 @@
 import os
 import sys
 import shutil
-sys.path.append(
-    os.path.abspath(os.path.dirname(os.path.realpath(__file__))+'/src/'))
 
-from experiments.Experiment import Experiment
-from experiments.ExperimentFromScript import ExperimentFromScript
-from examples.stochasticSearch.rosenbrock.NES_rosenbrock import NESRosenbrock
+from rlt.experiments.Experiment import Experiment
+from rlt.experiments.ExperimentFromScript import ExperimentFromScript
+from rlt.examples.stochasticSearch.rosenbrock.NES_rosenbrock import NESRosenbrock
 
 def runRosenbrock(numTrials):
     # Create directories if non-existent
