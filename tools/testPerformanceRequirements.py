@@ -6,13 +6,13 @@ import os
 import numpy as np
 from numpy import ones
 
-from rlt.data.DataEntry import DataEntry
-from rlt.data.DataManager import DataManager
-from rlt.data.DataManipulator import DataManipulator
-from rlt.data.DataManipulator import CallType
-from rlt.experiments.ExperimentFromScript import ExperimentFromScript
-from rlt.experiments.Experiment import Experiment
-from rlt.examples.stochasticSearch.rosenbrock.Power_Rosenbrock import PowerRosenbrock
+from pypost.data.DataEntry import DataEntry
+from pypost.data.DataManager import DataManager
+from pypost.data.DataManipulator import DataManipulator
+from pypost.data.DataManipulator import CallType
+from pypost.experiments.ExperimentFromScript import ExperimentFromScript
+from pypost.experiments.Experiment import Experiment
+from pypost.examples.stochasticSearch.rosenbrock.Power_Rosenbrock import PowerRosenbrock
 
 class TestManipulator(DataManipulator):
     def __init__(self, dataManager):

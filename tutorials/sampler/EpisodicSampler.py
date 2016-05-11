@@ -3,10 +3,10 @@ import sys
 import numpy as np
 import pprint as pp
 
-from rlt.sampler.EpisodeSampler import EpisodeSampler
-from rlt.data.DataEntry import DataEntry
-from rlt.data.DataManager import DataManager
-from rlt.TestEnvironment import TestEnvironment
+from pypost.sampler.EpisodeSampler import EpisodeSampler
+from pypost.data.DataEntry import DataEntry
+from pypost.data.DataManager import DataManager
+from pypost.TestEnvironment import TestEnvironment
 
 '''
 In this tutorial, we will learn how to create samples and merge them

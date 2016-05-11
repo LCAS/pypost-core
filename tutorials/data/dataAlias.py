@@ -2,9 +2,9 @@ import unittest
 import sys
 import numpy as np
 
-from rlt.data.DataAlias import DataAlias
-from rlt.data.DataEntry import DataEntry
-from rlt.data.DataManager import DataManager
+from pypost.data.DataAlias import DataAlias
+from pypost.data.DataEntry import DataEntry
+from pypost.data.DataManager import DataManager
 
 '''
 In this example we are going to see how to use aliases.

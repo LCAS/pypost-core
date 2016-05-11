@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 
-from rlt.functions.Mapping import Mapping
+from pypost.functions.Mapping import Mapping
 
 class MappingTestClass(Mapping):
 

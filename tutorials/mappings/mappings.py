@@ -1,8 +1,8 @@
 import sys
 import numpy as np
 
-from rlt.data.DataManager import DataManager
-from rlt.MappingTestClass import MappingTestClass
+from pypost.data.DataManager import DataManager
+from pypost.MappingTestClass import MappingTestClass
 
 '''
 The Mapping class represents the base class of all mathematical

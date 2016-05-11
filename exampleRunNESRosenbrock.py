@@ -4,9 +4,9 @@ import os
 import sys
 import shutil
 
-from rlt.experiments.Experiment import Experiment
-from rlt.experiments.ExperimentFromScript import ExperimentFromScript
-from rlt.examples.stochasticSearch.rosenbrock.NES_rosenbrock import NESRosenbrock
+from pypost.experiments.Experiment import Experiment
+from pypost.experiments.ExperimentFromScript import ExperimentFromScript
+from pypost.examples.stochasticSearch.rosenbrock.NES_rosenbrock import NESRosenbrock
 
 def runRosenbrock(numTrials):
     # Create directories if non-existent
