@@ -165,13 +165,14 @@ class Sampler(SamplerInterface):
         self._samplerPools[samplerPool.getName()] = samplerPool
 
         # add sampler to priority list
-        index = 0
+        # assume new pool has higher priority than every pool in list. Check for lower:
+        index = len(self._samplerPoolPriorityList)
         for idx, pool in enumerate(self._samplerPoolPriorityList):
             if samplerPool.getPriority() == pool.getPriority():
                 raise RuntimeError(
                     "A sampler pool with the same priority already exists")
-
-            if samplerPool.getPriority() > pool.getPriority():
+            # assumes that priority list is always ordered!
+            if samplerPool.getPriority() < pool.getPriority():
                 index = idx
                 break
 
@@ -261,13 +262,13 @@ class Sampler(SamplerInterface):
         if addLocationFlag == -1:
             pool.samplerList.insert(0, sampleFunction)
         elif addLocationFlag == 0:
-            pool.clear()
-            pool.append()
+            pool.samplerList.clear()
+            pool.samplerList.append(sampleFunction)
         elif addLocationFlag == 1:
-            pool.append()
+            pool.samplerList.append(sampleFunction)
         else:
             raise ValueError("Invalid value for addLocationFlag: " +
-                addLocationFlag)
+                             str(addLocationFlag))
 
     def createSamplesFromPool(self, pool, data, indices):
         '''
@@ -303,10 +304,7 @@ class Sampler(SamplerInterface):
         :param indices: hierarchical indexing of the data structure
         '''
         for pool in self._samplerPoolPriorityList:
-            if pool.getPriority() >= lowPriority:
-                # break if we exceed to upper bound
-                if pool.getPriority() > highPriority:
-                    break
+            if lowPriority <= pool.getPriority() <= highPriority:
                 self.createSamplesFromPool(pool, data, indices)
 
     # change _addSamplerToPoolInternal was deleted because it can be replaced by

@@ -1,4 +1,5 @@
 import numpy as np
+from pypost.data.DataManager import DataManager
 from pypost.sampler.SequentialSampler import SequentialSampler
 from pypost.sampler.SamplerPool import SamplerPool
 
@@ -37,7 +38,7 @@ class StepSampler(SequentialSampler):
 
     '''
 
-    def __init__(self, dataManager, samplerName):
+    def __init__(self, dataManager, samplerName='steps'):
         '''
         Constructor for setting-up an empty step sampler
         :param dataManager: DataManager this sampler operates on
@@ -45,7 +46,12 @@ class StepSampler(SequentialSampler):
         :change: sampler name is no longer optional
         :change: dataManager is no longer optional
         '''
-        super().__init__(dataManager.getDataManagerForName(samplerName),
+        if dataManager is None:
+            dataManager = DataManager(samplerName)
+        else:
+            dataManager = dataManager.getDataManagerForName(samplerName)
+
+        super().__init__(dataManager,
                          samplerName,
                          None)
 
@@ -67,10 +73,8 @@ class StepSampler(SequentialSampler):
         if samplerName is None:
             samplerName = "sampleInitState"
 
-        if self.getSamplerPool("sampleInitState") is None:
-            self.addSamplerPool(SamplerPool("sampleInitState", 100))
         self.addSamplerFunctionToPool(
-            "sampleInitState", samplerName, initStateSampler, -1)
+            "InitSamples", samplerName, initStateSampler, -1)
 
     def setPolicy(self, policy, samplerName=None):
         '''
@@ -116,11 +120,11 @@ class StepSampler(SequentialSampler):
         super()._endTransition(data, *args)
 
         # ASK see parent function
-        layerIndexNew = args.copy()
+        layerIndexNew = args[0].copy()
         layerIndexNew[-1] = layerIndexNew[-1] + 1
         numElements = data.getNumElementsForIndex(len(args), *args)
-        data.setDataEntry("timeSteps", np.ones(
-            (numElements, 1)) * layerIndexNew[-1], layerIndexNew.copy())
+        data.setDataEntry("timeSteps", layerIndexNew.copy(), np.ones(
+            (numElements, 1)) * layerIndexNew[-1])
 
     def _initSamples(self, data, *args):
         '''
@@ -131,9 +135,11 @@ class StepSampler(SequentialSampler):
         # the documentation states, that we set the following data entries:'states', 'nextStates' and 'timeSteps'
         # in matlab we have some lines commented out that set states &
         # timeSteps, are they still needed?
-        self.createSamplesFromPool(self.getSamplerPool("InitSamples"), data, args)
+        index = args[0]
+        self.createSamplesFromPool(self.getSamplerPool("InitSamples"), data, index)
         numElements = data.getNumElementsForIndex(len(args), *args)
-        data.setDataEntry("timeSteps", np.ones((numElements, 1)), args)
+        # time steps beginning with zero instead of one, to keep consistent with python indexing
+        data.setDataEntry("timeSteps", index, np.zeros((numElements, 1)))
 
     def _createSamplesForStep(self, data, *args):
         '''
@@ -141,4 +147,5 @@ class StepSampler(SequentialSampler):
         :param data: to be operated on
         :param args: index of the layer
         '''
-        self.createSamplesFromPoolWithPriority(10, 90, data, args)
+        index = args[0]
+        self.createSamplesFromPoolWithPriority(10, 90, data, index)
