@@ -10,12 +10,10 @@ class EpisodeWithStepsSampler(EpisodeSampler):
             samplerNameEpisodes = 'episodes'
         if samplerNameSteps is None:
             samplerNameSteps = 'steps'
-        #if dataManager is None:
-        #    dataManager
 
         super().__init__(dataManager, samplerNameEpisodes)
         self.stepSampler = StepSampler(dataManager, samplerNameSteps)
-        self._dataManager.subDataManager = self.stepSampler.dataManager
+        self.dataManager.subDataManager = self.stepSampler.dataManager
         self.addSamplerFunctionToPool('Episodes', samplerNameSteps, self.stepSampler)
 
     def copyPoolsFromSampler(self, sampler):

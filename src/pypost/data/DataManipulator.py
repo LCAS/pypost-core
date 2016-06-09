@@ -1,6 +1,7 @@
 from pypost.data.DataManipulatorInterface import DataManipulatorInterface
 from pypost.data.DataManipulatorInterface import CallType
 from pypost.data.DataManager import DataManager
+from pypost.common.SettingsClient import SettingsClient
 import numpy as np
 
 
@@ -30,7 +31,7 @@ class DataManipulationFunction():
         return "%s: %s -> %s" % (self.function.__name__, self.inputArguments,
                                  self.outputArguments)
 
-class DataManipulator(DataManipulatorInterface):
+class DataManipulator(DataManipulatorInterface, SettingsClient):
     '''
     TODO: update the class description
 
@@ -101,7 +102,8 @@ class DataManipulator(DataManipulatorInterface):
         if not isinstance(dataManager, DataManager):
             raise ValueError("dataManager has to be of type DataManager, not " +
                              str(type(dataManager)))
-        self._dataManager = dataManager
+        super().__init__()
+        self.dataManager = dataManager
         self._samplerFunctions = {}
         self._manipulationFunctions = {}
 
@@ -340,7 +342,7 @@ class DataManipulator(DataManipulatorInterface):
             numElements = None
             if dataManipulationStruct.takesNumElements and \
                len(dataManipulationStruct.depthEntry) != 0:
-                outputDepth = self._dataManager.getDataEntryDepth(
+                outputDepth = self.dataManager.getDataEntryDepth(
                     dataManipulationStruct.depthEntry)
                 numElements = data.getNumElementsForIndex(outputDepth, indices)
             else:

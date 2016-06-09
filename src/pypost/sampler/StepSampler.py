@@ -61,7 +61,7 @@ class StepSampler(SequentialSampler):
         self.addSamplerPool(SamplerPool("RewardSampler", 80))
 
         self.addElementsForTransition("nextStates", "states")
-        self._dataManager.addDataEntry("timeSteps", 1)
+        self.dataManager.addDataEntry("timeSteps", 1)
 
     def setInitStateFunction(self, initStateSampler, samplerName=None):
         '''

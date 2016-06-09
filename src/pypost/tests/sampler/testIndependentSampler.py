@@ -42,7 +42,7 @@ class testIndependentSampler(unittest.TestCase):
         self.sampler._numInitialSamples = 2
         self.assertEqual(self.sampler.getNumSamples(data), 2)
 
-        self.sampler._numSamples = None
+        self.sampler.numSamples = None
         with self.assertRaises(RuntimeError):
             self.sampler.getNumSamples(data)
 

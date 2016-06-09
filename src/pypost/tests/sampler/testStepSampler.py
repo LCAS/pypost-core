@@ -21,7 +21,7 @@ class testStepSampler(unittest.TestCase):
         self.assertIsNotNone(self.sampler.getSamplerPool('Policy'))
         self.assertIsNotNone(self.sampler.getSamplerPool('TransitionSampler'))
         self.assertIsNotNone(self.sampler.getSamplerPool('RewardSampler'))
-        self.assertTrue(self.sampler._dataManager.isDataEntry('timeSteps'))
+        self.assertTrue(self.sampler.dataManager.isDataEntry('timeSteps'))
 
     def test_setInitStateFunction(self):
         datamngr = DataUtil.createTestManager()
