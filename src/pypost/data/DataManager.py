@@ -555,6 +555,9 @@ class DataManager():
         if isinstance(numElements, list):
             numElementsLocal = numElements[0]
             numElements = numElements[1:]
+        else:
+            numElements = [numElements]
+
         dataStructure.numElements = numElementsLocal
         for name, entry in self.dataEntries.items():
             currentSize = dataStructure.dataStructureLocalLayer[name].shape[0]

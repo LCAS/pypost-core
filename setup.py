@@ -58,7 +58,6 @@ setup(
               'pypost.sampler',
               'pypost.sampler.isActiveSampler',
               'pypost.sampler.initialSampler',
-              'pypost.tests'
               ],
     # TODO Fix error concerning pyyaml directory and uncomment
     # install_requires=['pyyaml', 'scipy']

@@ -2,7 +2,7 @@ import sys
 import numpy as np
 
 from pypost.data.DataManager import DataManager
-from pypost.MappingTestClass import MappingTestClass
+from tutorials.mappings.MappingTestClass import MappingTestClass
 
 '''
 The Mapping class represents the base class of all mathematical
