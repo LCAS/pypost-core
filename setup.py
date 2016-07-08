@@ -53,6 +53,7 @@ setup(
               'pypost.learner.episodicRL',
               'pypost.learner.parameterOptimization',
               'pypost.learner.weightedML',
+              'pypost.optimizer',
               'pypost.parametricModels',
               'pypost.policy',
               'pypost.sampler',
