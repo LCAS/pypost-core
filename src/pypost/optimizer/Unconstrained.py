@@ -10,21 +10,21 @@ class Unconstrained(SettingsClient):
         self.optimizationName = optimizationName
         self.numParams = numParams
 
-        self.l = round(4 + 3 * np.log(numParams)) #?
         self.maxNumOptiIterations = 100
         self.verbose = False
         self.optiStopVal = []
         self.optiAbsfTol = 1e-12
         self.optiAbsxTol = 1e-12
         self.optiMaxTime = 5 * 60 * 60  # in seconds!
+        # for gradient approximation
+        self.epsilon = 1e-6
 
-
-        self.linkProperty('l', optimizationName + 'Lambda')
         self.linkProperty('maxNumOptiIterations', optimizationName + 'maxNumIterations')
         self.linkProperty('optiStopVal', optimizationName + 'OptiStopVal')
         self.linkProperty('optiAbsfTol', optimizationName + 'OptiAbsfTol')
         self.linkProperty('optiAbsxTol', optimizationName + 'OptiAbsxTol')
         self.linkProperty('optiMaxTime', optimizationName + 'OptiMaxTime')
+        self.linkProperty('epsilon', optimizationName + 'epsilon')
 
         self.isMaximize = False
         self.expParameterTransform = np.zeros((numParams, 1), dtype=bool)
@@ -75,7 +75,7 @@ class Unconstrained(SettingsClient):
 
 
         if x0 is None:
-            self.x0 = np.zeros((self.numParams, 1))
+            self.x0 = np.zeros(self.numParams)
         else:
             self.x0 = x0
         

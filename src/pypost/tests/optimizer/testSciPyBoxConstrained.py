@@ -1,7 +1,6 @@
-from src.pypost.optimizer.scipyOptimizers.SciPyUnconstrained import SciPyUnconstrained
+from src.pypost.optimizer.scipyOptimizers.SciPyBoxConstrained import SciPyBoxConstrained
 from scipy.optimize import rosen
 from scipy.optimize import rosen_der
-from scipy.optimize import rosen_hess
 import pypost.common.SettingsManager as SettingsManager
 import numpy as np
 
@@ -13,16 +12,14 @@ optimizerName = 'myOptimizer'
 
 settings = SettingsManager.getDefaultSettings()
 settings.setProperty(optimizerName + 'maxNumIterations', 500)
-settings.setProperty(optimizerName + 'method', 'SLSQP')
+settings.setProperty(optimizerName + 'method', 'BFGS')
 
-optimizer = SciPyUnconstrained(2, optimizationName=optimizerName)
-#optimizer.verbose = True
+lower_bound = np.asarray([5,5])
+
+optimizer = SciPyBoxConstrained(2, lowerBound=lower_bound, optimizationName=optimizerName)
+optimizer.verbose = True
 optimizer.expParameterTransform = np.asarray([False, False])
 
-params, value, iterations = optimizer.optimize(rosen, rosen_der, rosen_hess)
+params, value, iterations = optimizer.optimize(rosen)
 print(params, value, iterations)
-
-
-
-
 
