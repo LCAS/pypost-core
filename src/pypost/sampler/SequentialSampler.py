@@ -35,11 +35,11 @@ class SequentialSampler(Sampler):
         self._transitionElementNewStep = []
 
         # TODO pass an other IsActiveStepSampler by parameters
-        self._setIsActiveSampler(IsActiveNumSteps(dataManager, stepName))
+        self.setIsActiveSampler(IsActiveNumSteps(dataManager, stepName))
 
     #getter & setter
 
-    def _setIsActiveSampler(self, sampler):
+    def setIsActiveSampler(self, sampler):
         self._isActiveSampler = sampler
 
     def addElementsForTransition(
@@ -134,7 +134,7 @@ class SequentialSampler(Sampler):
 
     def _endTransition(self, data, *args):
         # ASK are the copies of args necessary?
-        layerIndex = args
+        layerIndex = args[0]
         layerIndexNew = layerIndex[:]
         layerIndexNew[-1] = layerIndexNew[-1] + 1
 
@@ -143,7 +143,7 @@ class SequentialSampler(Sampler):
             elementNextTimeStep = data.getDataEntry(old, layerIndex.copy())
             # ASK this variable is set but never used
             # numElements=elementNextTimeStep.length
-            data.setDataEntry(new, elementNextTimeStep, layerIndex.copy())
+            data.setDataEntry(new, layerIndexNew.copy(), elementNextTimeStep)
 
     def _initSamples(self, data, *args):
         '''
@@ -160,3 +160,17 @@ class SequentialSampler(Sampler):
         :param args: index of the layer
         '''
         raise NotImplementedError("Not implemented")
+
+    def _createSamples(self, data, *args):
+        reservedStorage = self._isActiveSampler.toReserve()
+        for data_structure in data.dataStructure.dataStructureLocalLayer[self.dataManager.name]:
+            self.dataManager.reserveStorage(data_structure, reservedStorage)
+        active_index = args[0]
+        active_index.append(0)
+        self._initSamples(data, active_index)
+        num_steps = self.getNumSamples(data, args)
+        for i in range(0, num_steps):
+            active_index[-1] = i
+            self._createSamplesForStep(data, active_index)
+            if i < (num_steps-1):
+                self._endTransition(data, active_index)

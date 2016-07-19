@@ -76,7 +76,10 @@ class IndependentSampler(Sampler, SettingsClient):
 
         numElements = []
 
-        if numSamples > 0:
+        if not isinstance(numSamples, list):
+            numSamples = [numSamples]
+
+        if all(numSamples) > 0:
             newData.reserveStorage(numSamples)
             # FIXME feature tags are not supported yet
             # newData.resetFeatureTags()
@@ -84,7 +87,7 @@ class IndependentSampler(Sampler, SettingsClient):
                                  np.array([self._iterationIndex]))
             newIndex = numElements
             if self.getParallelSampling():
-                newIndex.append(slice(0, numSamples))
+                newIndex.append(slice(0, numSamples[0]))
                 self.sampleAllPools(newData, newIndex[:])
             else:
                 index = 0

@@ -555,7 +555,10 @@ class DataManager():
         if isinstance(numElements, list):
             numElementsLocal = numElements[0]
             numElements = numElements[1:]
+        else:
+            numElements = [numElements]
 
+        dataStructure.numElements = numElementsLocal
         for name, entry in self.dataEntries.items():
             currentSize = dataStructure.dataStructureLocalLayer[name].shape[0]
             if currentSize < numElementsLocal:
@@ -569,8 +572,17 @@ class DataManager():
                     slice(numElementsLocal, None, None), 0)
 
         if self.subDataManager is not None and numElements:
-            for subStructure in dataStructure. \
-                    dataStructureLocalLayer[self.subDataManager.name]:
+            subStructureList = dataStructure.dataStructureLocalLayer[self.subDataManager.name]
+            currentSize = len(subStructureList)
+            diff = numElementsLocal - currentSize
+            # adapt amount of sub structures
+            if diff >= 0:
+                for i in range(0, diff):
+                    subStructureList.append(self.subDataManager._createDataStructure(numElements[0]))
+            else:
+                for i in range(0, -diff):
+                    subStructureList.pop(-1)
+            for subStructure in subStructureList:
                 self.subDataManager.reserveStorage(subStructure, numElements)
 
     def mergeDataStructures(self, dataStructure1, dataStructure2):

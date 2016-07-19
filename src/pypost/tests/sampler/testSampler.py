@@ -50,7 +50,7 @@ class Test(unittest.TestCase):
         pass
 
     def test_addSamplerPool(self): # TODO
-        self.sampler.addSamplerPool(SamplerPool('testPool6', 1))
+        self.sampler.addSamplerPool(SamplerPool('testPool6', 7))
 
     def test_getSamplerPool(self):
         self.assertIsInstance(self.sampler.getSamplerPool('testPool3'), SamplerPool)

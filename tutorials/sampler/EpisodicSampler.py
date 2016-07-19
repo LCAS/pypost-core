@@ -6,7 +6,7 @@ import pprint as pp
 from pypost.sampler.EpisodeSampler import EpisodeSampler
 from pypost.data.DataEntry import DataEntry
 from pypost.data.DataManager import DataManager
-from pypost.TestEnvironment import TestEnvironment
+from tutorials.sampler.TestEnvironment import TestEnvironment
 
 '''
 In this tutorial, we will learn how to create samples and merge them
@@ -24,19 +24,19 @@ dataManager = sampler.getEpisodeDataManager()
 newData = dataManager.getDataObject(10)
 newData2 = dataManager.getDataObject(0)
 
-sampler.numSamples = 100
+sampler.numSamples = 10
 sampler.setParallelSampling(True)
 print('Generating Data\n')
 sampler.createSamples(newData)
 pp.pprint(newData.dataStructure.dataStructureLocalLayer)
 
-print('Merging Data\n')
-newData2.mergeData(newData)
-pp.pprint(newData.dataStructure.dataStructureLocalLayer)
+#print('Merging Data\n')
+#newData2.mergeData(newData)
+#pp.pprint(newData.dataStructure.dataStructureLocalLayer)
 
-print('Generating Data 2nd time\n')
-sampler.createSamples(newData)
+#print('Generating Data 2nd time\n')
+#sampler.createSamples(newData)
 
-print('Merging Data\n')
-newData2.mergeData(newData)
-pp.pprint(newData2.dataStructure.dataStructureLocalLayer)
+#print('Merging Data\n')
+#newData2.mergeData(newData)
+#pp.pprint(newData2.dataStructure.dataStructureLocalLayer)

@@ -421,7 +421,7 @@ class testDataManager(unittest.TestCase):
 
         self.assertEqual(data.dataStructure['context'].shape[0], 15)
         self.assertEqual(data.dataStructure['parameters'].shape[0], 15)
-
+        # wont work due to reserveStorage(15) in line 420...
         for i in range(0, 50):
             self.assertEqual(
                 data.dataStructure['steps'][i]['states'].shape[0], 15)
