@@ -61,9 +61,12 @@ target/
 
 #user specific pydev project settings
 .pydevproject
+.project
+.settings
 
 # Ignore python rope directories
 .ropeproject
 
 # Ignore IntelliJ project folder
 .idea
+
