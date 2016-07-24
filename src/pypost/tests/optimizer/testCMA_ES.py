@@ -1,4 +1,4 @@
-from src.pypost.optimizer.cma_es.CMA_ES import CMA_ES
+from pypost.optimizer.cma_es.CMA_ES import CMA_ES
 from scipy.optimize import rosen
 from scipy.optimize import rosen_der
 from scipy.optimize import rosen_hess
@@ -17,7 +17,7 @@ settings = SettingsManager.getDefaultSettings()
 lower_bound = np.asarray([5,5])
 optimizer = CMA_ES(2, optimizationName=optimizerName)
 optimizer.verbose = True
-optimizer.expParameterTransform = np.asarray([False, False])
+optimizer.isMaximize = True
 
-params, value, iterations = optimizer.optimize(rosen, x0=np.asarray([2,2]))
+params, value, iterations = optimizer.optimize(rosen, x0=np.asarray([6,6]), gradient=rosen_der, lowerBound=lower_bound)
 print(params, value, iterations)

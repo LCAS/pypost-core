@@ -4,8 +4,8 @@ from scipy.optimize import minimize
 
 class SciPyBoxConstrained(BoxConstrained):
 
-    def __init__(self, numParams, lowerBound=None, upperBound=None, optimizationName=''):
-        super().__init__(numParams, lowerBound, upperBound, optimizationName)
+    def __init__(self, numParams, optimizationName=''):
+        super().__init__(numParams, optimizationName)
 
         self.method = 'L-BFGS-B'
         self.linkProperty('method', optimizationName + 'method')
@@ -21,7 +21,7 @@ class SciPyBoxConstrained(BoxConstrained):
 
         self._adaptX0()
         bounds = self._build_bounds()
-        result = minimize(self.function, self.x0, method=self.method, jac=self.jacobian, hess=self.hessian,
+        result = minimize(self.function, self.x0, method=self.method, jac=self.gradient, hess=self.hessian,
                           bounds=bounds, options=u.build_dict(self, kwargs))
 
         return result.x, result.fun, result.nit

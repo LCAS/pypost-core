@@ -10,10 +10,10 @@ import nlopt
 # Only works if NLopt is properly installed
 # For installation of NLopt see http://ab-initio.mit.edu/wiki/index.php/NLopt
 
-class NLoptUnconstrained(BoxConstrained):
+class NLoptBoxConstrained(BoxConstrained):
 
-    def __init__(self, numParameters, lowerBound=None, upperBound=None, optimizationName=''):
-        super().__init__(numParameters, lowerBound, upperBound, optimizationName)
+    def __init__(self, numParameters, optimizationName=''):
+        super().__init__(numParameters, optimizationName)
 
         # 0 = no limit
         self.optiMaxEval = 0
@@ -25,6 +25,7 @@ class NLoptUnconstrained(BoxConstrained):
 
     def _optimize_internal(self, **kwargs):
         opt = nlopt.opt(self.method, self.numParams)
+        self.usesGradient = u.usesGradient(opt)
         if self.verbose:
             self._printInformation(opt.get_algorithm_name())
 
@@ -41,7 +42,7 @@ class NLoptUnconstrained(BoxConstrained):
         opt.set_maxeval(self.optiMaxEval)
         opt.set_maxtime(self.optiMaxTime)
 
-        self._check_for_gradient(opt)
+        self._check_for_gradient()
 
         opt.set_min_objective(self._nl_opt_objective)
         x = opt.optimize(self.x0)
@@ -52,18 +53,23 @@ class NLoptUnconstrained(BoxConstrained):
 
 
     def _nl_opt_objective(self, x, grad):
-        if grad.size > 0:
-            # use [:] to avoid reallocation and work in place...
-            grad[:] = self.jacobian(x)
-        return self.function(x)
+        if self.gradient is True and self.usesGradient:
+            f, fd = self.function(x)
+            if grad.size > 0:
+                grad[:] = fd
+            return f
+        else:
+            if grad.size > 0:
+                grad[:] = self.gradient(x)
+            return self.function(x)
 
 
-    def _check_for_gradient(self, optimizer):
-        if u.usesDerivative(optimizer) and self.jacobian is None:
+    def _check_for_gradient(self):
+        if self.usesGradient and self.gradient is None:
             if self.verbose:
                 print('No Gradient given, but needed: using finite differences with epsilon:', self.epsilon)
             gradEstimator = GradientEstimator(self.function, self.numParams, self.epsilon)
-            self.jacobian = gradEstimator.simpleFiniteDifferences
+            self.gradient = gradEstimator.simpleFiniteDifferences
 
     def _printInformation(self, name):
         print('using:', name)

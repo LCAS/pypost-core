@@ -1,5 +1,6 @@
 import cma
 from pypost.optimizer.BoxConstrained import BoxConstrained
+import warnings
 
 
 # For this to run you need the 'cma-es' implementation installed.
@@ -8,8 +9,8 @@ from pypost.optimizer.BoxConstrained import BoxConstrained
 
 class CMA_ES(BoxConstrained):
 
-    def __init__(self, numParams, lowerBound=None, upperBound=None, optimizationName=''):
-        super().__init__(numParams, lowerBound, upperBound, optimizationName)
+    def __init__(self, numParams, optimizationName=''):
+        super().__init__(numParams, optimizationName)
 
 
         self.sigma0 = 1
@@ -29,16 +30,23 @@ class CMA_ES(BoxConstrained):
         self.linkProperty('incpopsize', optimizationName + 'populationIncFact')
         self.linkProperty('evalInitX', optimizationName+ 'evaluateInitialX')
         self.linkProperty('noiseHandler', optimizationName + 'noiseHandler')
-        self.linkProperty('noiseCahngeSigmaExponent', optimizationName + 'noiseChangeSigmaExponent')
+        self.linkProperty('noiseChangeSigmaExponent', optimizationName + 'noiseChangeSigmaExponent')
         self.linkProperty('bipop', optimizationName + 'runBIPOP-CMA-ES')
 
     def _optimize_internal(self, **kwargs):
+
+        # Todo Warning and fallback?
+        if isinstance(self.gradient, bool):
+            self.gradient = None
+            raise ValueError('CMA_ES does not support function returning gradient and function, use separate functions,'
+                             'running without gradient')
+
 
         opt_dict = self._set_options(kwargs)
         self._adaptX0()
 
         res = cma.fmin(objective_function=self.function,
-                       gradf=self.jacobian, #may be none
+                       gradf=self.gradient, #may be none
                        x0=self.x0,
                        sigma0=self.sigma0,
                        options=opt_dict,
@@ -65,6 +73,7 @@ class CMA_ES(BoxConstrained):
         opt_dict['bounds'] = [self.lowerBound, self.upperBound]
         opt_dict['tolx'] = self.optiAbsxTol
         opt_dict['tolfun'] = self.optiAbsfTol
+        opt_dict['maxiter'] = self.maxNumOptiIterations
 
         if not self.verbose:
             # '-9' is 'very quite' according to documentation

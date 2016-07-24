@@ -1,2 +1,4 @@
 __all__ = ['Unconstrained',
-           'SciPyBasedUnconstrained']
+           'BoxConstrained',
+           'GradientEstimation'
+           ]

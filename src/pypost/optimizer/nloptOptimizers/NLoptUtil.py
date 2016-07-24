@@ -13,7 +13,7 @@ def getReturnMessage(returnCode):
     elif returnCode == -5:  return 'optimization failed: forced termination'
     else:                   return 'unknown return code'
 
-def usesDerivative(optimizer):
+def usesGradient(optimizer):
     name = optimizer.get_algorithm_name()
     if 'no-derivative' in name:
         return False

@@ -27,52 +27,65 @@ class Unconstrained(SettingsClient):
         self.linkProperty('epsilon', optimizationName + 'epsilon')
 
         self.isMaximize = False
-        self.expParameterTransform = np.zeros((numParams, 1), dtype=bool)
+        self.expParameterTransform = np.zeros((numParams,), dtype=bool)
 
-    def _transformParameters(self, parameters):
+    #def _transformParameters(self, parameters):
+    def _fromLogSpace(self, parameters):
         parameters[self.expParameterTransform] = np.exp(parameters[self.expParameterTransform])
         return parameters
 
-    def _unTransformParameters(self, parameters):
+
+    #def _unTransformParameters(self, parameters):
+    def _toLogSpace(self, parameters):
         parameters[self.expParameterTransform] = np.log(parameters[self.expParameterTransform])
         return parameters
 
-    def _transformedFunction(self, x):
-        intermediate = self._transformParameters(x)
-        return self.originalFunction(intermediate)
 
-    def _transformedJacobian(self, x):
-        t_params = self._transformParameters(x)
-        return self.originalJacobian(t_params) * t_params
+
+
+    def _transformObjectiveFunction(self):
+        orig_func = self.function
+        self.function = lambda x: orig_func(self._toLogSpace(x))
+        if self.gradient is not None and not isinstance(self.gradient, bool):
+            orig_grad = self.gradient
+            self.gradient = lambda x: orig_grad(self._toLogSpace(x))
+        if self.hessian is not None:
+            orig_hess = self.hessian
+            self.hessian = lambda x: orig_hess(self._toLogSpace(x))
+
+
+    def _invertObjectiveFunction(self):
+        if isinstance(self.gradient, bool) and self.gradient is True:
+            orig_func = self.function
+            def _funcAndGradInv(x):
+                f, fd = orig_func(x)
+                return -f, -fd
+            self.function = _funcAndGradInv
+
+        else:
+            orig_func = self.function
+            self.function = lambda x: - orig_func(x)
+            if self.gradient is not None:
+                orig_grad = self.gradient
+                self.gradient = lambda x: - orig_grad(x)
+            if self.hessian is not None:
+                orig_hess = self.hessian
+                self.hessian = lambda x: - orig_hess(x)
 
 
     # Todo check if transform parameters done right and what it is for
-    def optimize(self, func, jacobian=None, hessian=None, x0=None, **kwargs):
+    def optimize(self, func, gradient=None, hessian=None, x0=None, **kwargs):
+
+        self.function = func
+        self.gradient = gradient
+        self.hessian = hessian
 
         if self.isMaximize:
-            self.function = lambda x: -func(x)
-            if jacobian:
-                self.jacobian = lambda x: -jacobian(x)
-            else:
-                self.jacobian = None
-            if hessian:
-                self.hessian = lambda x: -hessian(x)
-            else:
-                self.hessian = None
+            self._invertObjectiveFunction()
 
-        else:
-            self.function = func
-            self.jacobian = jacobian
-            self.hessian = hessian
-    
         transform_parameters = any(self.expParameterTransform)
-
         if transform_parameters:
-            self.originalFunction = func
-            self.function = self._transformedFunction
-            self.originalJacobian = jacobian
-            self.jacobian = self._transformedJacobian
-
+            self._transformObjectiveFunction()
 
         if x0 is None:
             self.x0 = np.zeros(self.numParams)
@@ -81,10 +94,11 @@ class Unconstrained(SettingsClient):
         
         optimal_params, optimal_value, iterations = self._optimize_internal(**kwargs)
         if transform_parameters:
-            optimal_params = self._unTransformParameters(optimal_params)
+            optimal_params = self._fromLogSpace(optimal_params)
         return optimal_params, optimal_value, iterations
             
-        
+
+
     @abc.abstractmethod
     def _optimize_internal(self, **kwargs):
         return
