@@ -15,14 +15,14 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     # TODO change credentials
-    name='RobotLearningToolbox',
+    name='PyPoST',
     version='0.0.1',
     author='Gerhard Neumann',
     author_email='geri@robot-learning.de',
-    description='Reinforcement Learning Toolbox written in Python.',
+    description='Python Policy Search Toolbox',
     long_description=long_description,
     url='http://www.ausy.tu-darmstadt.de',
-    license='unknown',
+    license='BSD',
 
     classifiers=[
         'Programming Language :: Python :: 3.5',
