@@ -31,12 +31,12 @@ setup(
     #keywords='reinforcement learning',
 
     # pypost package is found in subdirectory src/
-    package_dir={'':'src'},
+    package_dir={'': 'src'},
 
     # TODO use find_packages instead of manual listing.
     # packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-    packages=['pypost',
-              'pypost.common',
+    namespace_packages=['pypost'],
+    packages=['pypost.common',
               'pypost.data',
               'pypost.distributions',
               'pypost.distributions.gaussian',
