@@ -24,7 +24,7 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask, SettingsClient):
                                   -50 * np.ones(dimParameters),
                                   +50 * np.ones(dimParameters));
 
-        self.A = np.random.randn((dimContext, dimParameters)) +\
+        self.A = np.random.randn(dimContext, dimParameters) +\
                  3 * np.ones((dimContext, dimParameters))
 
         self.linkProperty('rewardNoise')
@@ -35,21 +35,22 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask, SettingsClient):
             parameters[i,:] = parameters[i,:] +\
                               np.sin(vec)
 
-        x = contexts
-        if len(contexts.shape) >= 2:
-            x = x.conj().T
-        else:
-            x = x[np.newaxis, :].T
+                #if len(contexts.shape) >= 2:
+        #    x = x.conj().T
+        #else:
+        #    x = x[np.newaxis, :].T
 
         #print(parameters, x)
 
         # FIXME: reward doesn't make any sense.
-        reward = 1e2*np.sum((x[0: -2, :]**2 - x[1: -1, :])**2, 1) + \
-                 np.sum((x[0: -2, :]-1)**2, 1)
+        #reward = 1e2 * sum((x(1:end - 1,:).^ 2 - x(2:end,:)).^ 2, 1) + sum((x(1:end - 1,:)-1).^ 2, 1);
+
+        reward = 1e2*np.sum((parameters[:, 0: -1]**2 - parameters[:, 1:])**2, 1) + \
+                 np.sum((parameters[:, 0: -1]-1)**2, 1)
 
         # FIXME: this is a fake reward that matches the expected shape:
-        reward = 1e2*np.sum((x[3: -2, :]**2 - x[4: -1, :])**2, 1) + \
-                 np.sum((x[3: -2, :]-1)**2, 1)
+        #reward = 1e2*np.sum((x[3: -2, :]**2 - x[4: -1, :])**2, 1) + \
+        #         np.sum((x[3: -2, :]-1)**2, 1)
 
         if len(reward.shape) >= 2:
             reward = -1*(reward.conj().T)

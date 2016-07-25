@@ -11,36 +11,43 @@ from pypost.experiments.Trial import Trial
 from pypost.experiments.Trial import StoringType
 from pypost.learner.episodicRL.EpisodicPower import EpisodicPower
 from pypost.sampler.EpisodeSampler import EpisodeSampler
-
+from pypost.learner.supervisedLearner.LinearGaussianMLLearner import LinearGaussianMLLearner
 
 class PowerRosenbrock(Trial):
 
-    def __init__(self, evalDir, trialIndex):
-        super(PowerRosenbrock, self).__init__(evalDir, trialIndex)
+    def __init__(self, evalDir, trialIndex, trialSettings = None):
+        super(PowerRosenbrock, self).__init__(evalDir, trialIndex, trialSettings)
 
     def configure(self):
         # set some basic parameters
-        self.settings.setProperty("numParameters", 15)
-        self.settings.setProperty("numContexts", 15)
+
+        self.settings.setProperty("numParameters", 2)
+        self.settings.setProperty("numContexts", 0)
         self.settings.setProperty("numSamplesEpisodes", 10)
         self.settings.setProperty("numIterations", 200)
+
+        # Apply external settings
+
+        self.applyTrialSettings()
 
         # create the sampler
         self.sampler = EpisodeSampler()
         self.dataManager = self.sampler.dataManager
 
         # add the reward function
-        #self.returnSampler = RosenbrockReward(
-        #    self.sampler,
-        #    self.settings.getProperty('numContexts'),
-        #    self.settings.getProperty('numParameters'))
-        self.returnSampler = SinDistReward(self.sampler)
+        self.returnSampler = RosenbrockReward(
+            self.sampler,
+            self.settings.getProperty('numContexts'),
+            self.settings.getProperty('numParameters'))
+        #self.returnSampler = SinDistReward(self.sampler)
 
         # set the parameter policy
         self.parameterPolicy = GaussianParameterPolicy(self.dataManager)
 
+        self.policyFitting = LinearGaussianMLLearner(self.dataManager, self.parameterPolicy)
+
         # create the policy learner
-        self.policyLearner = EpisodicPower(self.dataManager, None)
+        self.policyLearner = EpisodicPower(self.dataManager, self.policyFitting)
 
         # set the parameter policy in the sampler
         self.sampler.setParameterPolicy(self.parameterPolicy)
@@ -93,3 +100,9 @@ class PowerRosenbrock(Trial):
                 "Iteration: %d, Episodes: %d, AvgReturn: %f" %
                 (i, i * self.settings.getProperty('numSamplesEpisodes'),
                  np.mean(newData.getDataEntry('returns'))))
+
+
+if __name__ == "__main__":
+    script = PowerRosenbrock('/tmp/testCategory/PowerRosenbrock', 0);
+    script.configure();
+    script.run();

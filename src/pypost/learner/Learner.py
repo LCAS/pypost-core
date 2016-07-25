@@ -1,7 +1,7 @@
 from pypost.data.DataPreprocessor import DataPreprocessor
+from pypost.common.SettingsClient import SettingsClient
 
-
-class Learner(DataPreprocessor):
+class Learner(DataPreprocessor,SettingsClient):
     '''
     The Learner class serves as a base class for all learners and predefines
     all necessary methods.
@@ -16,6 +16,7 @@ class Learner(DataPreprocessor):
         self.iteration = 0
 
         DataPreprocessor.__init__(self)
+        SettingsClient.__init__(self)
 
     def setDataNameLearner(self, dataName):
         self.dataNameLearner = dataName

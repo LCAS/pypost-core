@@ -49,7 +49,7 @@ class DistributionWithMeanAndVariance(Distribution):
                                                            *args)
 
         if sigma.shape[2] == 1:
-            # If the second dimension of the sigma matrix is 1, the
+            # If the third dimension of the sigma matrix is 1, the
             # function expects those values to be the diagonal variance.
             samples = expectation + np.random.randn(
                 expectation.shape[0], expectation.shape[1]) * sigma[0, 0, 0]
@@ -59,6 +59,7 @@ class DistributionWithMeanAndVariance(Distribution):
                 # one sigma matrix for all elements. Then we will
                 # use this sigma matrix for every sample.
                 sigma = np.transpose(sigma, (1, 2, 0))
+                sigmaNew = sigma.reshape(sigma.shape[0], sigma.shape[1])
 
                 if len(expectation.shape) == 2:
                     expectRand = np.random.randn(
@@ -71,9 +72,8 @@ class DistributionWithMeanAndVariance(Distribution):
                     raise ValueError(
                         'expectation has an unsupported shape length')
 
-                sigma = sigma[0]
 
-                samples = expectation + expectRand.dot(sigma)
+                samples = expectation + expectRand.dot(sigmaNew)
             else:
                 raise NotImplementedError("Not implemented. See code")
                 #

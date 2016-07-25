@@ -299,3 +299,9 @@ class Data():
         else:
             self.dataStructure = self.dataManager.mergeDataStructures(
                                             otherStructure, self.dataStructure)
+
+    def printDataAliases(self):
+
+        for key, value in self.entryInfoMap.items():
+
+            print(key, ': NumDimensions: ', value.numDimensions, ', Depth: ', value.depth, ', entryList: ', value.entryList);

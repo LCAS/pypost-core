@@ -26,4 +26,6 @@ def runRosenbrock(numTrials):
     # TODO: Add fancy plotting
 
 if __name__ == '__main__':
+
     runRosenbrock(4)
+
