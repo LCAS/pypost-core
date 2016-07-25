@@ -41,7 +41,7 @@ class RLByWeightedML(RLLearner, DataManipulator, object):
             self.outputWeightName = self.rewardName + 'Weighting'
 
         if policyLearner is not None:
-            self.policyLearner.outputWeightName = self.outputWeightName
+            self.policyLearner.setWeightName(self.outputWeightName)
 
         if not self.dataManager.isDataEntry(self.outputWeightName):
             if level is None:

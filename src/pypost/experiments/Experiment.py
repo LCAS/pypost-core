@@ -247,6 +247,7 @@ class Experiment(object):
             print('Starting Trial {0} locally\n'.format(key))
 
             trial = Experiment.loadTrialFromID(self, key)
+            trial.configure()
             trial.start()
 
     def getTrialIDs(self):

@@ -14,7 +14,7 @@ StoringType = Enum('StoringType', 'STORE, STORE_PER_ITERATION, ACCUMULATE, '
 
 class Trial(SettingsClient):
 
-    def __init__(self, evalDir, index):
+    def __init__(self, evalDir, index, trialSettings = None):
         '''
         Constructor
         Creates the required directories
@@ -37,11 +37,18 @@ class Trial(SettingsClient):
         self.index = index
         self.storePerIteration = []
         self.storePerTrial = []
-        self.settings = Settings('trialsettings')
+
+        if trialSettings is None:
+            self.trialSettings = Settings('trialsettings')
+        else:
+            self.trialSettings = trialSettings.clone()
+
+        self.settings = Settings('defaultSettings')
+        SettingsManager.setRootSettings(self.settings)
+
         self.isFinished = False
         random.seed(index)
         self.rngState = random.getstate()
-        self.configure()
 
     def store(self, name, value, mode=StoringType.STORE):
         '''
@@ -148,7 +155,7 @@ class Trial(SettingsClient):
             raise FileNotFoundError("Settings file not found")
         if not os.path.isfile(dataFile):
             raise FileNotFoundError("Data file not found")
-        self.settings.load(settingsFile)
+        self.trialSettings.load(settingsFile)
         self.data = np.load(dataFile)
 
     def start(self):
@@ -160,6 +167,9 @@ class Trial(SettingsClient):
 
         self.isFinished = True
         self.storeTrial()
+
+    def applyTrialSettings(self):
+        self.settings.copyProperties(self.trialSettings)
 
     def configure(self):
         raise NotImplementedError("Must be overwritten by subclass") # pragma: no cover

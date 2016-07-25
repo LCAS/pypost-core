@@ -1,6 +1,4 @@
-from pypost.distributions.gaussian.GaussianLinearInFeatures import \
-GaussianLinearInFeatures
-
+from pypost.distributions.gaussian.GaussianLinearInFeatures import GaussianLinearInFeatures
 
 class GaussianParameterPolicy(GaussianLinearInFeatures):
     def __init__(self, dataManager, outputVar=None, inputVar=None,

@@ -128,7 +128,7 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
             raise ValueError(
                 'weight are a vector. This is not handled by the code')
 
-        if inputFeatures is not None:
+        if inputFeatures.shape[1] > 0:
             mult = inputFeatures.dot(self.weights.conj().T)
             value = value + mult
 

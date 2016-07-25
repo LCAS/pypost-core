@@ -87,7 +87,7 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         if self.saveCovariance:
             return self.covMat
         else:
-            return self.cholA * self.cholA
+            return np.dot(self.cholA.transpose(), self.cholA)
 
     def getMean(self):
         '''
@@ -95,22 +95,36 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         '''
         return self.bias
 
+    def getBeta(self):
+        return self.weights
+
     def setCovariance(self, covMat):
         if (self.saveCovariance):
             self.covMat = covMat
         else:
+
             # np returns L but Matlab is returning R -> transpose
             self.cholA = np.transpose(np.linalg.cholesky(covMat))
+
+            assert all(np.isreal(covMat)), "pst: cholesky failed, Covariance is illposed"
+
 
     def setSigma(self, cholA):
         '''Set sigma
 
         :param cholA: The squareroot of the covariance in cholesky form
         '''
+
+        assert np.isreal(cholA).all(), "pst: Can not use complex values for Sigma"
+
         if self.saveCovariance:
-            self.covMat = np.square(cholA)
+            self.covMat = np.dot(cholA.transpose, cholA)
         else:
             self.cholA = cholA
+
+
+
+
 
     def getSigma(self):
         if self.saveCovariance:

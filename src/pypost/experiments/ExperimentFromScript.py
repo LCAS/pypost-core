@@ -14,13 +14,14 @@ class ExperimentFromScript(Experiment):
                                                    TrialClass.__name__)
         self.TrialClass = TrialClass
         self.defaultTrial = self.createTrial(self.path, 0)
+        self.defaultTrial.configure();
         self.defaultSettings = self.defaultTrial.settings
 
-    def createTrial(self, evalPath, trialIdx):
+    def createTrial(self, evalPath, trialIdx, settings = None):
         '''
         Creates a new trial with given path and index.
         :param evalPath: Path of the evaluation
         :param trialIdx: Trial index
         :return: The newly created trial object
         '''
-        return self.TrialClass(evalPath, trialIdx)
+        return self.TrialClass(evalPath, trialIdx, settings )

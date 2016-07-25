@@ -29,7 +29,7 @@ dataManager.addDataAlias('twoAlias',
                           ('context', slice(2, 5))])
 
 # it's also possible to create an alias that points to another alias
-# 'aliasAlias' will not be the aquivalent to 'parameters'
+# 'aliasAlias' will now be the aquivalent to 'parameters'
 dataManager.addDataAlias('aliasAlias',
                          [('parameterAlias', ...),
                           ('parameters', slice(2, 5))])
