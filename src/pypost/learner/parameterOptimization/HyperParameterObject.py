@@ -1,9 +1,9 @@
-from math import pow
+import numpy as np
+import math
+from abc import abstractmethod
 
 
-class HyperParameterObject():
-    def HyperParameterObject():
-        pass
+class HyperParameterObject(object):
 
     def getMinHyperParameterRange(self):
         params = self.getHyperParameters()
@@ -12,12 +12,12 @@ class HyperParameterObject():
             params[expParameterTransformMap].dot(math.pow(10, -10))
         # TODO: check this ('not')
         params[not expParameterTransformMap] = \
-            params[not expParameterTransformMap].dot(0.1);
+            params[not expParameterTransformMap].dot(0.1)
         return params
 
     def getMaxHyperParameterRange(self):
-        params = self.getHyperParameters();
-        expParameterTransformMap = self.getExpParameterTransformMap();
+        params = self.getHyperParameters()
+        expParameterTransformMap = self.getExpParameterTransformMap()
         params[expParameterTransformMap] =\
             params[expParameterTransformMap].dot(math.pow(10, 10))
         params[not expParameterTransformMap] =\
@@ -27,11 +27,14 @@ class HyperParameterObject():
     def getExpParameterTransformMap(self):
         return np.ones((1, self.getNumHyperParameters()))
 
+    @abstractmethod
     def getNumHyperParameters(self):
-        raise NotImplementedError()
+        pass
 
+    @abstractmethod
     def setHyperParameters(self, params):
-        raise NotImplementedError()
+        pass
 
+    @abstractmethod
     def getHyperParameters(self):
-        raise NotImplementedError()
+        pass
