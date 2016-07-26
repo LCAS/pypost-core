@@ -55,6 +55,16 @@ class Settings():
     def isSameSettings(self, other):
         return len(self.getDifferentProperties(other)) == 0
 
+    def querySettings(self, dictionary):
+
+        for name,value in dictionary.items():
+            if self.hasProperty(name):
+                if (self.getProperty(name) != value):
+                    return False
+            else:
+                return False
+        return True
+
     def clean(self):
         '''Removes all properties in this pool.
         '''
@@ -146,8 +156,9 @@ class Settings():
                            as keys and the values being the values of each
                            property
         '''
-        for p, v in properties.items():
-            self.setProperty(p, v)
+        if properties is not None:
+            for p, v in properties.items():
+                self.setProperty(p, v)
 
     def clone(self, evaluationId='new'):
         '''
@@ -221,8 +232,7 @@ class Settings():
         '''
         dataToStore = dict()
         for propKey in self._properties.keys():
-            dataToStore[propKey] = PropertyInfo(
-                self._properties[propKey].value, [])
+            dataToStore[propKey] = self._properties[propKey].value
 
         with open(fileName, 'w') as stream:
             yaml.dump(dataToStore, stream)
@@ -233,3 +243,4 @@ class Settings():
         '''
         with open(fileName, 'r') as stream:
             settings = yaml.load(stream)
+            self.setProperties(settings)

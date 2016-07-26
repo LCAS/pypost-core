@@ -7,6 +7,10 @@ import traceback
 import numpy as np
 from enum import Enum
 from pypost.common.SettingsClient import SettingsClient
+from collections import namedtuple
+from pypost.common import DataPrinter
+import yaml
+import shlex, subprocess
 
 StoringType = Enum('StoringType', 'STORE, STORE_PER_ITERATION, ACCUMULATE, '
                    'ACCUMULATE_PER_ITERATION')
@@ -47,6 +51,7 @@ class Trial(SettingsClient):
         SettingsManager.setRootSettings(self.settings)
 
         self.isFinished = False
+        self.gitRevisionNumber = -1;
         random.seed(index)
         self.rngState = random.getstate()
 
@@ -131,12 +136,29 @@ class Trial(SettingsClient):
             return False
 
         settingsFile = os.path.join(trialDir, 'settings.yaml')
+
         if overwrite or not os.path.isfile(settingsFile):
 
-            self.settings.store(settingsFile)
+            self.trialSettings.store(settingsFile)
+
+        else:
+            return False
+
+        trialFile = os.path.join(trialDir, 'trial.yaml')
+        trialDict = dict()
+
+        trialDict['isFinished'] = self.isFinished
+        trialDict['rngState'] = self.rngState
+        trialDict['gitRevisionNumber'] = self.gitRevisionNumber
+
+        if overwrite or not os.path.isfile(trialFile):
+            with open(trialFile, 'w') as stream:
+                yaml.dump(trialDict, stream)
+
 
             return True
-        return False
+        else:
+            return False
 
     def loadTrial(self):
         self.loadTrialFromFile(self.trialDir)
@@ -156,17 +178,37 @@ class Trial(SettingsClient):
         if not os.path.isfile(dataFile):
             raise FileNotFoundError("Data file not found")
         self.trialSettings.load(settingsFile)
-        self.data = np.load(dataFile)
 
-    def start(self):
-        if self.isFinished:
-            raise RuntimeError("Trial %s is already isFinished!" % self.trialDir)
-        SettingsManager.setRootSettings(self.settings)
+        # resolve numpy crazyness with storing dictionary (wraps around and array)
+        temp = np.load(dataFile)
+        self.data = temp[()]
+        for name,value in self.data.items():
+            self.setProperty(name, value)
 
-        self.run()
+        trialFile = os.path.join(trialDir, 'trial.yaml')
 
-        self.isFinished = True
-        self.storeTrial()
+        with open(trialFile, 'r') as stream:
+            trialDict = yaml.load(stream)
+
+        self.isFinished = trialDict['isFinished']
+        self.rngState = trialDict['rngState']
+        self.gitRevisionNumber = trialDict['gitRevisionNumber']
+
+    def start(self, restart = False):
+        if self.isFinished and not restart:
+            print("Trial %s is already isFinished!" % self.trialDir)
+        else:
+            SettingsManager.setRootSettings(self.settings)
+
+            commitCount = subprocess.getoutput(["git rev-list --count HEAD"])
+            revNumber = subprocess.getoutput(["git rev-list --full-history --all | head -1"])
+            date = subprocess.getoutput('date +%Y/%m/%d_%H:%M')
+
+            self.gitRevisionNumber = commitCount + ':' + revNumber + ':' + date
+            self.run()
+
+            self.isFinished = True
+            self.storeTrial()
 
     def applyTrialSettings(self):
         self.settings.copyProperties(self.trialSettings)

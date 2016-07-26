@@ -1,14 +1,12 @@
 import numpy as np
 from pypost.functions.Mapping import Mapping
 from pypost.functions.Function import Function
-from pypost.parametricModels.ParametricFunction import ParametricFunction
 from pypost.common.SettingsClient import SettingsClient
 from pypost.learner.parameterOptimization.HyperParameterObject \
     import HyperParameterObject
 
 
-class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
-                               HyperParameterObject, SettingsClient):
+class FunctionLinearInFeatures(Mapping, Function, HyperParameterObject, SettingsClient):
     '''
     TODO: check documentation
     The FunctionLinearInFeatures is a subclass of mapping and implements
@@ -69,7 +67,6 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
         Mapping.__init__(self, dataManager, self.outputVariables,
                          self.inputVariables, functionName)
         Function.__init__(self)
-        ParametricFunction.__init__(self)
 
         if isinstance(self.outputVariables[0], str):
             self.linkProperty('initSigmaMu', 'initSigmaMu' + self.outputVariables[0].capitalize())
@@ -79,7 +76,6 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
             self.linkProperty('initMu')
 
         self.registerMappingInterfaceFunction()
-        self.registerGradientFunction()
 
         if self.doInitWeights:
             self.bias = np.zeros((self.dimOutput, 1))
@@ -153,18 +149,3 @@ class FunctionLinearInFeatures(Mapping, Function, ParametricFunction,
 
         self.weights = weights
 
-    # Parametric Model Function
-    def getNumParameters(self):
-        return self.dataManager.getNumDimensions(self.outputVariables[0]) * \
-            (1 + self.dataManager.getNumDimensions(self.inputVariables))
-
-    def getGradient(self, inputMatrix):
-        return np.hstack((np.ones((inputMatrix.shape[0], self.dimOutput)),
-                          np.tile(inputMatrix, (1, self.dimOutput))))
-
-    def setParameterVector(self, theta):
-        self.weights = theta[1:]
-        self.bias = theta[0, :].conj().T
-
-    def getParameterVector(self):
-        return np.vstack([self.bias, self.weights])

@@ -6,8 +6,11 @@ import re
 import numpy as np
 
 from pypost.common.Settings import Settings
+from pypost.common.SettingsManager import setRootSettings
+
 from pypost.experiments.Evaluation import Evaluation
 from pypost.experiments.Trial import Trial
+
 
 
 class Experiment(object):
@@ -22,7 +25,7 @@ class Experiment(object):
     epsilon for REPS.
     '''
 
-    def __init__(self, rootDir, category, taskName):
+    def __init__(self, rootDir, category, TrialClass):
         '''
         Constructor
         '''
@@ -30,8 +33,7 @@ class Experiment(object):
 
         self.evaluations = {}
 
-        self.defaultTrial = None
-        self.defaultSettings = Settings("defaultSettings")
+
 
         self.user = getpass.getuser()
 
@@ -42,13 +44,24 @@ class Experiment(object):
 
         self.clusterJobs = {}
 
-        self.taskName = taskName
+        self.taskName = TrialClass.__name__
         self.category = category
 
         self.path = os.path.join(rootDir, self.category, self.taskName)
         self.experimentPath = None
 
-    def create(self):
+        self.TrialClass = TrialClass
+        self.defaultTrial = self.createTrial(self.path, 0)
+        self.defaultTrial.configure()
+        self.defaultSettings = self.defaultTrial.settings
+
+    def create(self, experimentId = 'last'):
+        '''
+
+        :param experimentId: desired ID of the experiment (for loading old experiments). If ID equals -1, new experiment
+        is autmatically created
+        :return:
+        '''
         while not os.path.exists(self.path):
             path = self.path
             while not os.path.exists(os.path.abspath(os.path.join(path, os.pardir))): #pragma: no cover
@@ -62,22 +75,28 @@ class Experiment(object):
                and os.path.basename(file).startswith('experiment'):
                 currentId = int(file[10:13])
                 maxId = max(currentId, maxId)
-                otherSettings = Settings("other")
-                otherSettings.load(os.path.join(filePath, 'settings.yaml'))
-                if self.defaultSettings.isSameSettings(otherSettings):
+
+                if currentId == experimentId:
                     print("Experiment with same settings found")
                     self.experimentId = currentId
                     self.experimentPath = filePath
                     self.load()
                     return
 
-        self.experimentId = maxId+1
-        self.experimentPath = os.path.join(
-            self.path, ('experiment%03d' % self.experimentId))
-        if not os.path.exists(self.experimentPath): #pragma: no cover
-            os.mkdir(self.experimentPath)
-        self.defaultSettings.store(os.path.join(self.experimentPath,
-                                                "settings.yaml"))
+        if (experimentId == 'last' and maxId >= 0):
+            print('Reusing last experiment...(%03d)' % maxId)
+            self.experimentId = maxId
+            self.experimentPath = os.path.join(self.path, ('experiment%03d' % maxId))
+            self.load()
+        else:
+            print("Create new experiment...")
+            self.experimentId = maxId+1
+            self.experimentPath = os.path.join(
+                self.path, ('experiment%03d' % self.experimentId))
+            if not os.path.exists(self.experimentPath): #pragma: no cover
+                os.mkdir(self.experimentPath)
+            self.defaultSettings.store(os.path.join(self.experimentPath,
+                                                    "settings.yaml"))
 
     '''
     @staticmethod
@@ -120,7 +139,19 @@ class Experiment(object):
     '''
 
     def load(self):
-        pass
+        for file in os.listdir(self.experimentPath):
+            filePath = os.path.join(self.experimentPath, file)
+            if os.path.isdir(filePath) \
+                    and os.path.basename(file).startswith('eval'):
+
+                evaluationIndex = int(file[-2:])
+
+                evaluation = Evaluation(
+                    self,
+                    evaluationIndex,
+                    filePath)
+                self.evaluations[evaluationIndex] = evaluation
+                self.evaluations[evaluationIndex].createFileStructure(True)
 
     def startDefaultTrial(self):
         self.defaultTrial.start()
@@ -134,6 +165,8 @@ class Experiment(object):
         self.trialToEvaluationMap[trialId] = evaluation
         self.trialIndexToDirectorymap[trialId] = trialDir
 
+        return trialId
+
     def getEvaluation(self, evalNumber):
         return self.evaluations[evalNumber]
 
@@ -144,8 +177,14 @@ class Experiment(object):
 
         return None
 
-    def deleteExperiment(self):
+    def deleteAllExperiments(self):
         shutil.rmtree(self.path)
+        self.experimentId = -1
+
+    def deleteExperiment(self):
+        shutil.rmtree(self.experimentPath)
+        self.evaluations = {}
+
 
     def addEvaluation(self, parameterNames, parameterValues, numTrials):
         '''
@@ -168,6 +207,7 @@ class Experiment(object):
             i += 1
 
         evaluationSettings.setProperties(properties)
+        setRootSettings(evaluationSettings)
         evaluationIndex = -1
 
         for key, evaluation in self.evaluations.items():
@@ -190,6 +230,14 @@ class Experiment(object):
 
         return evaluation
 
+    def getEvaluationsFromQuery(self, propertyDictionary):
+        evaluationsQuery = []
+        for i in range(0, len(self.evaluations)):
+            if self.evaluations[i].settings.querySettings(propertyDictionary):
+                evaluationsQuery.append(self.evaluations[i])
+
+        return evaluationsQuery
+
     def addEvaluationCollection(
             self, parameterNames, parameterValues, numTrials):
         '''
@@ -209,20 +257,19 @@ class Experiment(object):
 
         return evaluations
 
-    def loadTrialFromID(self, trialID):
+    def loadTrialFromID(self, trialIDglobal):
         '''
         Loads the trials with the given ID from file system.
         :param int trialID: The ID of the trial to load
         :return: The loaded trial
         :rtype: experiments.Trial
         '''
-        if trialID not in self.trialIndexToDirectorymap:
+        if trialIDglobal not in self.trialIndexToDirectorymap:
             raise KeyError("Trial not found")
-        trialDir = self.trialIndexToDirectorymap[trialID]
-        print("Loading trial %s" % trialDir)
-        trial = self.createTrial(os.path.abspath(
-                                    os.path.join(trialDir, os.path.pardir)),
-                                 trialID)
+        trialDir = self.trialIndexToDirectorymap[trialIDglobal]
+        #print("Loading trial %s" % trialDir)
+        trialIDeval = int(trialDir.split('/')[-1][-2:])
+        trial = self.createTrial(os.path.abspath(os.path.join(trialDir, os.path.pardir)),trialIDeval)
         trial.loadTrial()
         return trial
 
@@ -234,7 +281,7 @@ class Experiment(object):
         '''
         return len(self.trialIndexToDirectorymap)
 
-    def startLocal(self, trialIndices=None):
+    def startLocal(self, trialIndices=None, restart = False):
         '''
         Executes the experiment on the local machine.
         :param trialIndices: A list containg the indices of the trials to run.
@@ -248,7 +295,7 @@ class Experiment(object):
 
             trial = Experiment.loadTrialFromID(self, key)
             trial.configure()
-            trial.start()
+            trial.start(restart)
 
     def getTrialIDs(self):
         '''
@@ -264,5 +311,14 @@ class Experiment(object):
 
         self.defaultSettings.setProperty(parameterName, parameterValue)
 
-    def createTrial(self, evalPath, trialIndex):
-        raise NotImplementedError("Abstract Method") # pragma: no cover
+    def createTrial(self, evalPath, trialIdx, settings=None):
+        '''
+        Creates a new trial with given path and index.
+        :param evalPath: Path of the evaluation
+        :param trialIdx: Trial index
+        :return: The newly created trial object
+        '''
+        return self.TrialClass(evalPath, trialIdx, settings)
+
+    def getNumTrials(self):
+        return self.trialIndexToDirectorymap.count()

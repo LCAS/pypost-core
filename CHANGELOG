@@ -1,3 +1,6 @@
 ## Version 1.0.0
 
 Initial release after hand-over from the bachelor project.
+
+Geri, 25.7.2016: Fixed bugs in the experiments package (settings were not used correctly). Implemented supervised learner (linear ML and Gaussian learner). Integrated and tested it for Episodic Power.
+

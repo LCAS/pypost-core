@@ -21,7 +21,7 @@ class TestTrial(Trial):
 class testExperiment(unittest.TestCase):
 
     def setUp(self):
-        self.experiment = ExperimentFromScript('/tmp', 'testCategory', TestTrial)
+        self.experiment = ExperimentFromScript('/tmp', 'testCategory', PowerRosenbrock)
         self.experiment.create()
 
     def tearDown(self):
@@ -119,6 +119,36 @@ class testExperiment(unittest.TestCase):
         trial.store('c', 9, StoringType.STORE)
         self.assertIn('c', trial.storePerTrial)
         self.assertEqual(trial.getProperty('c'), 9)
+
+    def testEvaluationPowerRosenbrock(self):
+        if not os.path.isdir('/tmp/testExperiment'):
+            os.mkdir('/tmp/testExperiment')
+            if not os.path.isdir('/tmp/testExperiment/PowerRosenbrock'):
+                os.mkdir('/tmp/testExperiment/PowerRosenbrock')
+        numTrials = 2
+
+        ExperimentFromScript('/tmp', 'testCategory', PowerRosenbrock)
+        self.experiment.create()
+        evaluation2 = self.experiment.addEvaluationCollection(['numParameters'], [2, 4, 6], numTrials)
+        evaluation1 = self.experiment.addEvaluationCollection(['numSamplesEpisodes'], [10, 20], numTrials)
+
+        self.assertEqual(self.experiment.evaluations.count() == 4)
+
+    def testReload(self):
+            if not os.path.isdir('/tmp/testExperiment'):
+                os.mkdir('/tmp/testExperiment')
+                if not os.path.isdir('/tmp/testExperiment/PowerRosenbrock'):
+                    os.mkdir('/tmp/testExperiment/PowerRosenbrock')
+            numTrials = 2
+            # FIXME: Find out what these parameters actually mean and fix
+            # them
+            evaluation2 = self.experiment.addEvaluationCollection(['numParameters'], [2, 4, 6], numTrials)
+            evaluation1 = self.experiment.addEvaluationCollection(['numSamplesEpisodes'], [10, 20], numTrials)
+
+            self.experiment.startLocal()
+            self.assertEqual(self.experiment.evaluations.count() == 4)
+
+
 
 if __name__ == '__main__':
     unittest.main()

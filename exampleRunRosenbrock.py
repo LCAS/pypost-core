@@ -10,18 +10,16 @@ from pypost.examples.stochasticSearch.rosenbrock.Power_Rosenbrock import PowerRo
 
 def runRosenbrock(numTrials):
     # Create directories if non-existent
-    if not os.path.isdir('/tmp/testCategory'):
-        os.mkdir('/tmp/testCategory')
-        if not os.path.isdir('/tmp/testCategory/PowerRosenbrock'):
-            os.mkdir('/tmp/testCategory/PowerRosenbrock')
 
-    experiment = ExperimentFromScript('/tmp', 'testCategory', PowerRosenbrock)
+    experiment = Experiment('/tmp', 'testCategory', PowerRosenbrock)
     experiment.create()
 
     # FIXME: Find out what these parameters actually mean and fix
     # them
-    evaluation = experiment.addEvaluation(['maxSizeReferenceStat'], [300], numTrials)
+    evaluation2 = experiment.addEvaluationCollection(['numParameters'], [2, 4, 6], numTrials)
+    evaluation1 = experiment.addEvaluationCollection(['numSamplesEpisodes'], [10, 20], numTrials)
 
+    evaluationsQuery = experiment.getEvaluationsFromQuery({'numParameters': 2})
     experiment.startLocal()
     # TODO: Add fancy plotting
 

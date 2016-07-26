@@ -3,13 +3,11 @@ import numpy as np
 from pypost.functions.FunctionLinearInFeatures import FunctionLinearInFeatures
 from pypost.distributions.DistributionWithMeanAndVariance import \
     DistributionWithMeanAndVariance
-from pypost.parametricModels.ParametricModel import ParametricModel
 from pypost.common.SettingsClient import SettingsClient
 
 
 class GaussianLinearInFeatures(FunctionLinearInFeatures,
-                               DistributionWithMeanAndVariance, ParametricModel,
-                               SettingsClient):
+                               DistributionWithMeanAndVariance, SettingsClient):
     '''
     The  GaussianLinearInFeatures class models gaussian distributions where the
     mean can be a linear function of the feature vectors.
@@ -39,7 +37,6 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         :param inputVariables: set of input Variables of the gaussian function
         :param functionName: name of the gaussian function
         '''
-        ParametricModel.__init__(self)
         DistributionWithMeanAndVariance.__init__(self, dataManager)
         FunctionLinearInFeatures.__init__(self, dataManager, outputVariables,
                                           inputVariables, functionName,
@@ -73,12 +70,6 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
 
         self._registerMappingInterfaceDistribution()
         self.registerMappingInterfaceFunction()
-        self.registerGradientModelFunction()
-
-    def getNumParameters(self):
-        numParameters = FunctionLinearInFeatures.getNumParameters(
-            self) + self.numParameters + self.dimOutput * (self.dimOutput + 1) / 2
-        return numParameters
 
     def getCovariance(self):
         '''
