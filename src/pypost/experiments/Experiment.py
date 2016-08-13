@@ -29,6 +29,9 @@ class Experiment(object):
         '''
         Constructor
         '''
+
+
+
         self.category = category
 
         self.evaluations = {}
@@ -48,6 +51,12 @@ class Experiment(object):
         self.category = category
 
         self.path = os.path.join(rootDir, self.category, self.taskName)
+        while not os.path.exists(self.path):
+            path = self.path
+            while not os.path.exists(os.path.abspath(os.path.join(path, os.pardir))):  # pragma: no cover
+                path = os.path.abspath(os.path.join(path, os.pardir))
+            os.mkdir(path)
+
         self.experimentPath = None
 
         self.TrialClass = TrialClass
@@ -178,11 +187,17 @@ class Experiment(object):
         return None
 
     def deleteAllExperiments(self):
-        shutil.rmtree(self.path)
+        try:
+            shutil.rmtree(self.path)
+        except Exception as error:
+            pass
         self.experimentId = -1
 
     def deleteExperiment(self):
-        shutil.rmtree(self.experimentPath)
+        try:
+            shutil.rmtree(self.experimentPath)
+        except Exception as error:
+            pass
         self.evaluations = {}
 
 
@@ -321,4 +336,4 @@ class Experiment(object):
         return self.TrialClass(evalPath, trialIdx, settings)
 
     def getNumTrials(self):
-        return self.trialIndexToDirectorymap.count()
+        return len(self.trialIndexToDirectorymap)

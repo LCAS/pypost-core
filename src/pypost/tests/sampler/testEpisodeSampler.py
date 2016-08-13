@@ -71,11 +71,6 @@ class Test(unittest.TestCase):
         self.assertIsNotNone(self.sampler.getSamplerPool('ParameterPolicy'))
         self.assertIsNotNone(self.sampler.getSamplerPool('Episodes'))
         self.assertIsNotNone(self.sampler.getSamplerPool('Return'))
-        sampler2  = EpisodeSampler(DataManager('testManager'), 'testSampler2')
-        self.assertIsInstance(sampler2, EpisodeSampler)
-        self.assertEqual(sampler2._samplerName, 'testSampler2')
-        self.assertEqual(sampler2.dataManager.name, 'testManager')
-
 
     def test_getEpisodeDataManager(self):
         self.assertIsInstance(self.sampler.getEpisodeDataManager(), DataManager)

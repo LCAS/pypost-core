@@ -11,12 +11,12 @@ class testSequentialSampler(unittest.TestCase):
 
 
     def setUp(self):
-        self.sampler = SequentialSampler(DataUtil.createTestManager(), 'testSampler1', None)
+        self.sampler = SequentialSampler(DataUtil.createTestManager(), 'episodes', 'steps')
         self.sampler.addSamplerPool(SamplerPool('testPool1', 0))
         self.sampler.addSamplerPool(SamplerPool('testPool2', 7))
         self.sampler.addSamplerPool(SamplerPool('testPool3', 2))
         self.sampler.addSamplerPool(SamplerPool('testPool4', 11))
-        self.sampler2 = SequentialSampler(DataManager('testDataManager2'), 'testSampler2', 'mySteps')
+        self.sampler2 = SequentialSampler(DataUtil.createTestManager(), 'episodes', 'steps')
         self.sampler2.addSamplerPool(SamplerPool('testPool5', 9))
 
 

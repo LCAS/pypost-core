@@ -32,7 +32,7 @@ class Test(unittest.TestCase):
             self.samplerPool._setPriority(-1)
 
     def test_flush(self):
-        self.samplerPool.samplerList = [Sampler(DataManager('testManager1'), 'testSampler1'), Sampler(DataManager('testManager2'), 'testSampler2')]
+        self.samplerPool.samplerList = [Sampler(DataManager('episodes'), 'episodes'), Sampler(DataManager('episodes'), 'episodes')]
         self.samplerPool.flush()
         self.assertListEqual(self.samplerPool.samplerList, [])
 

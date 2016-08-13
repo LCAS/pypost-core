@@ -359,7 +359,7 @@ class DataManager(SettingsClient):
 
                     numDim += len(tmpArray[_slice])
                 else:
-                    numDim += self.dataAliases[entryName].numDimensions
+                    numDim += self.dataAliases[entryName].numDimensions[0]
 
 
             self.dataAliases[aliasName].numDimensions = (numDim,)

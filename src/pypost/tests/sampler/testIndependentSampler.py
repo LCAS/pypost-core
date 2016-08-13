@@ -11,7 +11,7 @@ class testIndependentSampler(unittest.TestCase):
 
     def setUp(self):
         self.dataManager = DataUtil.createTestManager()
-        self.sampler = IndependentSampler(self.dataManager, 'testSampler1')
+        self.sampler = IndependentSampler(self.dataManager, 'episodes')
 
 
     def tearDown(self):

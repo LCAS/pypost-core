@@ -17,7 +17,7 @@ class TestSuffixManipulator(DataManipulator):
         super().__init__(dataManager)
 
 
-    @DataManipulator.DataDecorator('parameters1', 'parameters2')
+    @DataManipulator.DataManipulationMethod('parameters1', 'parameters2')
     def dummyFunction(self, parameters):
         return parameters + 10
 
@@ -43,7 +43,7 @@ class testDataSuffix(unittest.TestCase):
         data.setDataEntry('parameters1Agent1', ..., np.ones((10,1)) * 5)
 
         dummyManipulator = TestSuffixManipulator(dataManager)
-        dummyManipulator.dummyFunction(data)
+        dummyManipulator.dummyFunction_fromData(data)
 
         self.assertTrue(np.all(data.getDataEntry("parameters2Agent1") == data.getDataEntry("parameters1Agent1") + 10))
         self.assertTrue(np.all(data.getDataEntry("parametersAgent1") == np.hstack((data.getDataEntry("parameters1Agent1"), data.getDataEntry("parameters2Agent1")))))

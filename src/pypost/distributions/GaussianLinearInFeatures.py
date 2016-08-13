@@ -122,8 +122,7 @@ class GaussianLinearInFeatures(DistributionWithMeanAndVariance, FunctionLinearIn
         return self.cholA
 
     def getExpectationAndSigma(self, *args):
-        mean = FunctionLinearInFeatures.computeOutput(
-            self, *args)
+        mean = FunctionLinearInFeatures.computeOutput(self, *args)
 
         sigma = np.ndarray((1,) + self.cholA.shape)
         sigma[0, :, :] = self.getSigma()

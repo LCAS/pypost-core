@@ -23,7 +23,7 @@ class testLinearGaussianMLLearner(unittest.TestCase):
         numSamples = 1000000
         data = dataManager.getDataObject([numSamples])
 
-        gaussianDist = GaussianLinearInFeatures(dataManager, 'outputs', ['inputs'], 'testFunction')
+        gaussianDist = GaussianLinearInFeatures(dataManager, ['inputs'], 'outputs', 'testFunction')
         gaussianDistLearner = LinearGaussianMLLearner(dataManager, gaussianDist)
 
         meanVec = normal(0, 1,(dimOutput,1))
@@ -38,7 +38,7 @@ class testLinearGaussianMLLearner(unittest.TestCase):
 
         inputVectors = normal(0, 1, (numSamples, dimInput))
 
-        outputVectors = gaussianDist.sampleFromDistribution(numSamples, inputVectors)
+        outputVectors = gaussianDist.sampleFromDistribution(inputVectors)
         weights = uniform(0,1, (numSamples,1))
 
         data.setDataEntry('inputs', [], inputVectors)

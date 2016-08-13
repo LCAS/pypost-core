@@ -10,14 +10,9 @@ class testPowerRosenbrock(unittest.TestCase):
 
     def testPowerRosenbrock(self):
 
-        if not os.path.isdir('/tmp/testCategory'):
-            os.mkdir('/tmp/testCategory')
-            if not os.path.isdir('/tmp/testCategory/PowerRosenbrock'):
-                os.mkdir('/tmp/testCategory/PowerRosenbrock')
 
         numTrials = 4
-        experiment = ExperimentFromScript('/tmp', 'testCategory',
-                                          PowerRosenbrock)
+        experiment = Experiment('/tmp', 'testCategory', PowerRosenbrock)
         experiment.create()
 
         evaluation = experiment.addEvaluation(['maxSizeReferenceStat'], [300],

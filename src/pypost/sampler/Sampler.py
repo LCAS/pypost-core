@@ -28,6 +28,8 @@ class Sampler(DataManipulator):
         self._samplerPools = {}
         self._samplerName = samplerName
 
+        if (not dataManager.getDataManagerForName(samplerName)):
+            raise ValueError('Name of the sampler (%s) must be contained as a layer in the data manager' % samplerName)
         self.samplerDepth = dataManager.getDepthForDataManager(samplerName)
         '''
         Map of all sampler pools by name

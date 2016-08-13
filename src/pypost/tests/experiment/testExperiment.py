@@ -4,11 +4,11 @@ import sys
 import shutil
 import numpy as np
 from pypost.experiments.Experiment import Experiment
-from pypost.experiments.ExperimentFromScript import ExperimentFromScript
 from pypost.experiments.Evaluation import Evaluation
 from pypost.experiments.Trial import Trial
 from pypost.experiments.Trial import StoringType
 from pypost.common.Settings import Settings
+from pypost.examples.stochasticSearch.rosenbrock.Power_Rosenbrock import PowerRosenbrock
 
 class TestTrial(Trial):
 
@@ -21,7 +21,9 @@ class TestTrial(Trial):
 class testExperiment(unittest.TestCase):
 
     def setUp(self):
-        self.experiment = ExperimentFromScript('/tmp', 'testCategory', PowerRosenbrock)
+        self.experiment = Experiment('/tmp', 'testCategory', PowerRosenbrock)
+        self.experiment.deleteAllExperiments()
+        self.experiment = Experiment('/tmp', 'testCategory', PowerRosenbrock)
         self.experiment.create()
 
     def tearDown(self):
@@ -29,22 +31,22 @@ class testExperiment(unittest.TestCase):
         pass
 
     def testPath(self):
-        self.assertEqual(self.experiment.path, '/tmp/testCategory/TestTrial')
-        self.assertEqual(self.experiment.experimentPath, '/tmp/testCategory/TestTrial/experiment000')
+        self.assertEqual(self.experiment.path, '/tmp/testCategory/PowerRosenbrock')
+        self.assertEqual(self.experiment.experimentPath, '/tmp/testCategory/PowerRosenbrock/experiment000')
 
     def testCreateOtherSettings(self):
         shutil.rmtree(self.experiment.experimentPath)
         print('Path exists:', os.path.exists(self.experiment.experimentPath))
         print(self.experiment.experimentPath)
-        os.mkdir('/tmp/testCategory/TestTrial/dummy')
-        os.mkdir('/tmp/testCategory/TestTrial/experiment001')
+        os.mkdir('/tmp/testCategory/PowerRosenbrock/dummy')
+        os.mkdir('/tmp/testCategory/PowerRosenbrock/experiment001')
         settings = Settings("test")
         settings.registerProperty("dummy", 0)
-        settings.store('/tmp/testCategory/TestTrial/experiment001/settings.yaml')
+        settings.store('/tmp/testCategory/PowerRosenbrock/experiment001/settings.yaml')
         self.experiment.create()
-        self.assertEqual(len(os.listdir('/tmp/testCategory/TestTrial/dummy')), 0)
-        os.rmdir('/tmp/testCategory/TestTrial/dummy')
-        shutil.rmtree('/tmp/testCategory/TestTrial/experiment001')
+        self.assertEqual(len(os.listdir('/tmp/testCategory/PowerRosenbrock/dummy')), 0)
+        os.rmdir('/tmp/testCategory/PowerRosenbrock/dummy')
+        shutil.rmtree('/tmp/testCategory/PowerRosenbrock/experiment001')
 
     def testCreateTwice(self):
         self.experiment.create()
@@ -55,14 +57,14 @@ class testExperiment(unittest.TestCase):
         self.assertEqual(eval.numTrials, 10)
         self.assertEqual(self.experiment.getNumTrials(), 10)
         self.assertEqual(len(self.experiment.getTrialIDs()), 10)
-        self.assertTrue(os.path.exists('/tmp/testCategory/TestTrial/experiment000/eval000'))
+        self.assertTrue(os.path.exists('/tmp/testCategory/PowerRosenbrock/experiment000/eval000'))
         for i in range(0, 10):
-            self.assertTrue(os.path.exists('/tmp/testCategory/TestTrial/experiment000/eval000/trial%03i' % i))
+            self.assertTrue(os.path.exists('/tmp/testCategory/PowerRosenbrock/experiment000/eval000/trial%03i' % i))
         self.assertRaises(RuntimeError, self.experiment.addEvaluation, ['foo'], ['foo', 'bar'], 3)
 
     def testAddEvaluationDirectoryExists(self):
-        os.mkdir('/tmp/testCategory/TestTrial/experiment000/eval000/')
-        os.mkdir('/tmp/testCategory/TestTrial/experiment000/eval000/trial000')
+        os.mkdir('/tmp/testCategory/PowerRosenbrock/experiment000/eval000/')
+        os.mkdir('/tmp/testCategory/PowerRosenbrock/experiment000/eval000/trial000')
         eval = self.experiment.addEvaluation(['testParameter'], [100], 10)
 
     def testAddEvaluationCollection(self):
@@ -73,7 +75,7 @@ class testExperiment(unittest.TestCase):
         eval = self.experiment.addEvaluation(['testParameter'], [100], 10)
         trial = self.experiment.loadTrialFromID(0)
         self.assertEqual(trial.index, 0)
-        self.assertEqual(trial.trialDir, '/tmp/testCategory/TestTrial/experiment000/eval000/trial000')
+        self.assertEqual(trial.trialDir, '/tmp/testCategory/PowerRosenbrock/experiment000/eval000/trial000')
         self.assertRaises(KeyError, self.experiment.loadTrialFromID, 234)
 
     def testStart(self):
@@ -127,12 +129,12 @@ class testExperiment(unittest.TestCase):
                 os.mkdir('/tmp/testExperiment/PowerRosenbrock')
         numTrials = 2
 
-        ExperimentFromScript('/tmp', 'testCategory', PowerRosenbrock)
+        Experiment('/tmp', 'testCategory', PowerRosenbrock)
         self.experiment.create()
         evaluation2 = self.experiment.addEvaluationCollection(['numParameters'], [2, 4, 6], numTrials)
         evaluation1 = self.experiment.addEvaluationCollection(['numSamplesEpisodes'], [10, 20], numTrials)
 
-        self.assertEqual(self.experiment.evaluations.count() == 4)
+        self.assertEqual(len(self.experiment.evaluations), 4)
 
     def testReload(self):
             if not os.path.isdir('/tmp/testExperiment'):
@@ -146,7 +148,7 @@ class testExperiment(unittest.TestCase):
             evaluation1 = self.experiment.addEvaluationCollection(['numSamplesEpisodes'], [10, 20], numTrials)
 
             self.experiment.startLocal()
-            self.assertEqual(self.experiment.evaluations.count() == 4)
+            self.assertEqual(len(self.experiment.evaluations), 4)
 
 
 

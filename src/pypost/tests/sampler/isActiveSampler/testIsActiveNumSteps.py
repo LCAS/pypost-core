@@ -9,7 +9,7 @@ class Test(unittest.TestCase):
 
     def setUp(self):
         dataManager = DataUtil.createTestManager()
-        self.ians = IsActiveNumSteps(dataManager, None, 20)
+        self.ians = IsActiveNumSteps(dataManager, None, 40)
 
     def tearDown(self):
         pass
@@ -20,9 +20,6 @@ class Test(unittest.TestCase):
         # TODO: check linkProperty
         self.assertEqual(self.ians.numTimeSteps, 40)
         datamngr = DataUtil.createTestManager()
-        # TODO: check linkProperty
-        testIans = IsActiveNumSteps(datamngr, 'testName', 40)
-        self.assertIsNotNone(testIans._manipulationFunctions)
 
 
     def test_getNumTimeSteps(self):

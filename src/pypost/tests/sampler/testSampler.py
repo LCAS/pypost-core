@@ -9,16 +9,16 @@ class Test(unittest.TestCase):
 
 
     def setUp(self):
-        self.sampler = Sampler(DataUtil.createTestManager(), 'testSampler1')
+        self.sampler = Sampler(DataUtil.createTestManager(), 'episodes')
         self.sampler.addSamplerPool(SamplerPool('testPool1', 3))
         self.sampler.addSamplerPool(SamplerPool('testPool2', 1))
         self.sampler.addSamplerPool(SamplerPool('testPool3', 523))
         self.sampler.addSamplerPool(SamplerPool('testPool4', 0))
-        self.sampler2 = Sampler(DataManager('testDataManager2'), 'testSampler2')
+        self.sampler2 = Sampler(DataUtil.createTestManager(), 'episodes')
         self.sampler2.addSamplerPool(SamplerPool('testPool5', 3))
 
     def test_init(self):
-        self.assertEqual(self.sampler.getSamplerName(), 'testSampler1')
+        self.assertEqual(self.sampler.getSamplerName(), 'episodes')
 
     def test_copyPoolsFromSampler(self):
         self.sampler.copyPoolsFromSampler(self.sampler2)

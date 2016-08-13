@@ -89,8 +89,6 @@ class testStepSampler(unittest.TestCase):
         self.assertTrue((abs(states * 2 - actions) < 0.00001).all())
         self.assertTrue((abs(states * 2 - rewards) < 0.00001).all())
 
-        pypost.envs.BlackBoxTask()
-
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
