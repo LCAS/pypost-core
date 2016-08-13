@@ -25,5 +25,5 @@ def runRosenbrock(numTrials):
 
 if __name__ == '__main__':
 
-    runRosenbrock(4)
+    runRosenbrock(2)
 

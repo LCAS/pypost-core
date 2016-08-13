@@ -1,39 +1,278 @@
-from pypost.data.DataManipulatorInterface import DataManipulatorInterface
-from pypost.data.DataManipulatorInterface import CallType
 from pypost.data.DataManager import DataManager
 from pypost.common.SettingsClient import SettingsClient
 import numpy as np
+from enum import Enum
+
+import copy
+
+CallType = Enum('CallType', 'SINGLE_SAMPLE ALL_AT_ONCE PER_EPISODE')
 
 
-class DataManipulationFunction():
+
+
+class DataManipulationStructure():
     '''
     Represents a data manipulation function used in the DataManipulator class.
     '''
 
-    def __init__(self, function, inputArguments, outputArguments, depthEntry,
-                 indices, takesNumElements, callType):
+    def __init__(self, function, inputArguments, outputArguments, callType = CallType.ALL_AT_ONCE, takesNumElements = False, takesData = False):
         '''
         Constructor
         '''
-        if not isinstance(depthEntry, str):
-            raise ValueError("depthEntry has to be a string: ", depthEntry)
 
         self.function = function
         self.inputArguments = inputArguments
         self.outputArguments = outputArguments
-        self.depthEntry = depthEntry
-        self.indices = indices
-        self.takesData = False
+        self.takesData = takesData
         self.callType = callType
         self.takesNumElements = takesNumElements
+        self.isInitialized = False
+        self.depthEntry = None
+
+        if not isinstance(self.inputArguments, list):
+            self.inputArguments = [self.inputArguments]
+
+        if not isinstance(self.outputArguments, list):
+            self.outputArguments = [self.outputArguments]
 
     def __str__(self):
         return "%s: %s -> %s" % (self.function.__name__, self.inputArguments,
                                  self.outputArguments)
 
-class DataManipulator(DataManipulatorInterface, SettingsClient):
+def DataManipulationFunction(inputArguments, outputArguments, callType = CallType.ALL_AT_ONCE, takesNumElements = False, takesData = False):
+    def wrapper(function):
+        if (hasattr(function, '__self__')):
+            raise ValueError('For class methods, please use the DataManipulator.DataManipulationMethod decorator')
+
+        dataDecorator = _DataDecorator(function, inputArguments, outputArguments, callType, takesNumElements, takesData)
+        newFunction = dataDecorator.getWrapperFunction(isMethod=False)
+        newFunction.dataFunction = newFunction
+        return newFunction
+    return wrapper
+
+
+class _DataDecorator:
+
+    def __init__(self,function, inputArguments, outputArguments, callType = CallType.ALL_AT_ONCE, takesNumElements = False, takesData = False):
+
+        self.dataStruct = DataManipulationStructure(function, inputArguments, outputArguments, callType, takesNumElements, takesData)
+
+
+    @staticmethod
+    def _callDataFunctionInternal(object, dataStruct,  data, indices, registerOutput):
+
+        '''
+        Calls the data function using the right call type.
+        If registerOutput is set, the resulting data will be written back
+        into the object.
+        '''
+        callData = True
+
+        if dataStruct.callType is CallType.PER_EPISODE:
+            indices = data.completeLayerIndex(1, indices)
+        elif dataStruct.callType is CallType.SINGLE_SAMPLE:
+            for i in range(0, len(indices)):
+                if not isinstance(indices[i], int):
+                    raise ValueError("SINGLE_SAMPLE functions cannot be called"
+                                     " with multiple input values")
+            indices = data.completeLayerIndex(
+                data.dataManager.getDataEntryDepth(
+                    dataStruct.depthEntry), indices)
+
+        if dataStruct.callType is CallType.SINGLE_SAMPLE or \
+                        dataStruct.callType is CallType.PER_EPISODE:
+            outArgs = None
+            numLayers = len(indices)
+            if dataStruct.callType is CallType.PER_EPISODE:
+                numLayers = 1
+            for i in range(0, numLayers):
+                if isinstance(indices[i], slice):
+                    # This is somewhat hacky, but it works!
+                    # Maybe clone data and get shape directly?
+                    indexRange = range(0, indices[i].stop)[indices[i]]
+
+                    if len(indexRange) > 1:
+                        callData = False
+                        for j in indexRange:
+                            indicesSingle = indices
+                            indicesSingle[i] = slice(j, j + 1)
+                            if registerOutput:
+                                _DataDecorator._callDataFunctionInternal(object, dataStruct,
+                                    data,
+                                    registerOutput,
+                                    indicesSingle)
+                            else:
+                                tempOut = _DataDecorator._callDataFunctionInternal(object, dataStruct,
+                                    data,
+                                    registerOutput,
+                                    indicesSingle)
+                                if outArgs is None:
+                                    outArgs = tempOut
+                                else:
+                                    for i in range(0, len(outArgs)):
+                                        outArgs[i] = np.vstack((outArgs[i],
+                                                                tempOut[i]))
+
+        if callData:
+            inputArgs = data.getDataEntryList(dataStruct.inputArguments, indices)
+
+
+            numElements = None
+            if dataStruct.takesNumElements and dataStruct.depthEntry:
+                outputDepth = data.dataManager.getDataEntryDepth(dataStruct.depthEntry)
+                numElements = data.getNumElementsForIndex(outputDepth, indices)
+            else:
+                numElements = 0
+
+            outArgs = _DataDecorator._callDataFuntionInternalMatrices(object, dataStruct, data, numElements, inputArgs)
+
+            if not isinstance(outArgs, list):  # pragma: no branch
+                outArgList = [outArgs]
+            else:
+                outArgList = outArgs
+
+            if registerOutput:
+                if (len(outArgList) < len(dataStruct.outputArguments) or not all(x is not None for x in outArgList[:len(dataStruct.outputArguments)]) ):
+                    raise ValueError("Function {0} must return {1} values which are not None".format(dataStruct.function.__name__, len(dataStruct.outputArguments)))
+                try:
+                    data.setDataEntryList(dataStruct.outputArguments, indices, outArgList)
+                except ValueError as error:
+                    raise ValueError('Error when registering output arguments of function ' + dataStruct.function.__name__ +
+                                     ': ' + error.args[0] + '. Please check your output arguments!')
+        return outArgs
+
+    @staticmethod
+    def _callDataFuntionInternalMatrices(object, dataStruct, data, numElements, inputArgs):
+        '''
+        Directly calls the manipulation function and returns the result matrix.
+        '''
+        args = []
+        if dataStruct.takesNumElements:
+            args.append(numElements)
+        if dataStruct.takesData:
+            args.append(data)
+
+        args.extend(inputArgs)
+        args = tuple(args)
+
+        # print(dataManipulationStruct.function, args)
+        function = dataStruct.function
+        return function(*args)
+
+    @staticmethod
+    def preprocessArguments(object, dataStruct):
+
+        inputArgs = []
+        # needed for eval of arguments as property names
+        self = object
+        for i in range(0, len(dataStruct.inputArguments)):
+            if (dataStruct.inputArguments[i] is not None):
+                if (dataStruct.inputArguments[i][0:5] == 'self.'):
+                    if not object:
+                        raise ValueError('self reference can only be used for data manipulation methods, not functions')
+                    temp = eval(dataStruct.inputArguments[i])
+                    if isinstance(temp, list):
+                        inputArgs = inputArgs + temp
+                    elif temp is not None:
+                        inputArgs.append(temp)
+                else:
+                    inputArgs.append(dataStruct.inputArguments[i])
+
+        outputArgs = []
+        for i in range(0, len(dataStruct.outputArguments)):
+            if (dataStruct.outputArguments[i] is not None):
+                if (dataStruct.outputArguments[i][0:5] == 'self.'):
+                    if not object:
+                        raise ValueError('self reference can only be used for data manipulation methods, not functions')
+
+                    temp = eval(dataStruct.outputArguments[i])
+                    if isinstance(temp, list):
+                        outputArgs = outputArgs + temp
+                    elif temp is not None:
+                        outputArgs.append(temp)
+                else:
+                    outputArgs.append(dataStruct.outputArguments[i])
+
+        if (object):
+            dataStruct.outputArguments = object.imposeSuffix(outputArgs)
+            dataStruct.inputArguments = object.imposeSuffix(inputArgs)
+        else:
+            dataStruct.outputArguments = outputArgs
+            dataStruct.inputArguments = inputArgs
+
+
+
+        if not dataStruct.inputArguments and not dataStruct.takesData:
+            dataStruct.takesNumElements = True
+
+        if dataStruct.outputArguments:
+            dataStruct.depthEntry = dataStruct.outputArguments[0]
+        elif len(dataStruct.inputArguments) != 0:
+            dataStruct.depthEntry = dataStruct.inputArguments[0]
+
+    def getWrapperFunction(self, isMethod = True):
+        dataStruct = self.dataStruct
+
+        if isMethod:
+            def data_function( object, data, indices=Ellipsis, registerOutput=True):
+
+                functionName = dataStruct.function.__name__
+
+                if not hasattr(object, 'dataManipulation_' + functionName):
+
+                    newDataStruct = copy.copy(dataStruct)
+                    newDataStruct.function = getattr(object, functionName)
+
+                    self.preprocessArguments(object, newDataStruct)
+
+                    setattr(object, 'dataManipulation_' + functionName, newDataStruct)
+                else:
+                    newDataStruct = getattr(object, 'dataManipulation_' + functionName)
+
+                output = _DataDecorator._callDataFunctionInternal(object, newDataStruct, data, indices, registerOutput)
+                return output
+        else:
+            def data_function(data, indices=Ellipsis, registerOutput=True):
+
+                if not dataStruct.isInitialized:
+                    dataStruct.isInitialized = True
+
+                    self.preprocessArguments(None, dataStruct )
+                    # If we are currently using a suffix stack for the names, impose the suffix to all data entries if we can
+                    # find the name with the suffix. Suffix imposement can be avoided by manually putting "NoSuffix" as a suffix.
+                    # The "NoSuffix" string will be deleted.
+
+                output = _DataDecorator._callDataFunctionInternal(None, dataStruct, data, indices, registerOutput)
+                return output
+
+        return data_function
+
+
+class ManipulatorMetaClass(type):
+    def __init__(cls, name, bases, dct):
+
+        super(ManipulatorMetaClass, cls).__init__(name, bases, dct)
+
+        cloneDict = cls.__dict__.copy()
+        for (key, function) in cloneDict.items():
+
+            if hasattr(function, 'dataFunctionDecorator'):
+                name = function.__name__
+
+                decorator = function.dataFunctionDecorator
+                newFunction = decorator.getWrapperFunction(function)
+
+                setattr(cls, name + '_fromData', newFunction)
+
+                function.dataFunction = newFunction
+                setattr(cls, name, function)
+
+
+
+
+class DataManipulator(SettingsClient, metaclass=ManipulatorMetaClass):
     '''
-    TODO: update the class description
+    TODO: update the class description with decorators
 
     The DataManipulator class defines the interfaces for manipulating the
     data structure. Hence this is the base class for almost all classes
@@ -46,14 +285,14 @@ class DataManipulator(DataManipulatorInterface, SettingsClient):
     Every DataManipulator can publish its data-manipulation functions.
     For each data manipulation function, we have to specify the input and the
     output data entries.
-    If we call a function with the data manipulation interface
+    If we call function with the data manipulation interface
     (DataManipulator.callDataFunction),
     the input arguments get automatically parsed out of the data structure and
     are put in as matrices for the function call.
     The output arguments of the function are also automatically stored back in
     the data structure. Almost every object that is supposed to change a data
     object is implemented as DataManipulator.
-    This includes sampling episodes from different environments, policies,
+    This includes sampling episodes from different envs, policies,
     learned forward models or reward functions. Data manipulation functions
     can also obtain the number of elements that need to be processed as the
     first argument of the call of the function.
@@ -95,6 +334,24 @@ class DataManipulator(DataManipulatorInterface, SettingsClient):
     the function addDataFunctionAlias and the test scripts.
     '''
 
+    @staticmethod
+    def DataFunction(function):
+        function.dataFunction = function
+        return function
+
+    @staticmethod
+    def DataManipulationMethod(inputArguments, outputArguments, callType=CallType.ALL_AT_ONCE, takesNumElements=False, takesData = False):
+
+            def wrapper(function):
+
+                decorator = _DataDecorator(function, inputArguments, outputArguments, callType, takesNumElements, takesData)
+                function.dataFunctionDecorator = decorator
+                return function
+
+            return wrapper
+
+
+
     def __init__(self, dataManager):
         '''
         Constructor
@@ -104,276 +361,17 @@ class DataManipulator(DataManipulatorInterface, SettingsClient):
                              str(type(dataManager)))
         super().__init__()
         self.dataManager = dataManager
-        self._samplerFunctions = {}
-        self._manipulationFunctions = {}
 
-    def addDataFunctionAlias(self, aliasName, functionName, pushToFront=False):
-        '''
-        Adds a function alias. A function alias is just a different
-        name for the same function. Can be used if certain samplers
-        require a specific data manipulation function that is not
-        directly implemented by the class, but there is another
-        function with the same functionality. For example,
-        used by learned distributions that are used as model or
-        policy. In this case, we can tell the data manipulator that
-        instead of the function sampleAction, we can use
-        sampleFromDistribution. We can also use a data function alias to call
-        several data manipulation function sequentially. If a data
-        function alias has already been registered, the functionName
-        is extended to the cell array of functionNames for that
-        sampler function. If the sampler function is called, all
-        registered data manipulation function for that sampler are
-        called sequentially. We can also specify an external sampler
-        in case we want to call a data manipulation function of
-        another class.
-        '''
-        if functionName not in self._manipulationFunctions:
-            raise ValueError("Manipulation function is not defined")
-
-        if aliasName in self._samplerFunctions:
-            functionList = self._samplerFunctions[aliasName]
-            if pushToFront:
-                functionList.insert(0, functionName)
+    def imposeSuffix(self, argumentList):
+        for i in range(0, len(argumentList)):
+            name = argumentList[i]
+            if len(name) > 8 and name[-8:] == 'NoSuffix':
+                name = name[0:-8]
             else:
-                functionList.append(functionName)
-        else:
-            self._samplerFunctions[aliasName] = [functionName]
+                nameWithSuffix = self.getNameWithSuffix(name)
+                if self.dataManager.isDataEntry(nameWithSuffix):
+                    name = nameWithSuffix
 
-    def clearDataFunctionAlias(self, alias):
-        '''
-        Deletes the entry for the given alias name.
-        '''
-        del self._samplerFunctions[alias]
+            argumentList[i] = name
+        return argumentList
 
-    def addDataManipulationFunction(self, function, inputArguments,
-                                    outputArguments,
-                                    callType=None,
-                                    takesNumElements=None,
-                                    name=None):
-        '''
-        Adds a new data manipulation function.
-        :param function: The data manipulation function
-        :param inputArguments: A list of input arguments (can also be a single
-                               string)
-        :param outputArguments: A list of output arguments (can also be a
-                                single string)
-        :param callType: One of the three different call types
-        :param takesNumElements: Whether the function takes the number of
-                                 elements as an input arguments
-        :param name: The name of the function (default is the actual function
-                     name)
-        '''
-        if isinstance(function, str):
-            raise ValueError('The function parameter must not be a string: ',
-                             function)
-
-        if callType is None:
-            callType = CallType.ALL_AT_ONCE
-
-        if takesNumElements is None:
-            takesNumElements = False
-
-        if name is None:
-            name = function.__name__
-
-        if not inputArguments:
-            takesNumElements = True
-
-        if not isinstance(inputArguments, list):
-            inputArguments = [inputArguments]
-
-        if not isinstance(outputArguments, list):
-            outputArguments = [outputArguments]
-
-        depthEntry = ''
-        if outputArguments:
-            depthEntry = outputArguments[0]
-        elif len(inputArguments) != 0:
-            depthEntry = inputArguments[0]
-
-        # A None entry indicates that the whole entry should be used
-        indices = [None] * len(inputArguments)
-
-        dmf = DataManipulationFunction(function, inputArguments,
-                                       outputArguments, depthEntry,
-                                       indices, takesNumElements, callType)
-        self._manipulationFunctions[name] = dmf
-
-        if name in self._samplerFunctions:
-            del self._samplerFunctions[name]
-        self.addDataFunctionAlias(name, name)
-
-    def isSamplerFunction(self, samplerName):
-        '''
-        Checks if the given function name is defined.
-        :param samplerName: The function name
-        :return: True if the function is defined, False otherwise
-        :rtype: bool
-        '''
-        return samplerName in self._samplerFunctions
-
-    def setIndices(self, name, numInput, indices):
-        '''
-        Sets the indices of the data used as input for the given function.
-        :param name: The function name
-        :param numInput: The index of the function arguments
-        :param indices: The selected indices
-        '''
-        if name not in self._manipulationFunctions:
-            raise ValueError("Data function %s is not defined" % name)
-        dataFunction = self._manipulationFunctions[name]
-        if len(dataFunction.inputArguments) <= numInput:
-            raise ValueError("Input argument of index %d is not defined" %
-                             numInput)
-        dataFunction.indices[numInput] = indices
-
-    def setTakesData(self, name, takesData):
-        '''
-        Sets whether the given function takes a data object as input.
-        :param name: The function name
-        :param takesData: If true, the function will be called with a data
-                          object as input
-        '''
-        if name not in self._manipulationFunctions:
-            raise ValueError("Data function %s is not defined" % name)
-        self._manipulationFunctions[name].takesData = takesData
-
-    def callDataFunction(self, samplerName, data, indices=Ellipsis):
-        '''
-        Calls a data function with the given indices.
-        Writes the result back into the data object.
-        :param samplerName: The name of the function
-        :param data: The data object
-        :param indices: The indices that will be selected from the data object
-                        as input for the function.
-        '''
-        if samplerName not in self._samplerFunctions:
-            raise ValueError("Data function %s is not defined" % samplerName)
-        functionNames = self._samplerFunctions[samplerName]
-        for functionName in functionNames:
-            dmf = self._manipulationFunctions[functionName]
-            self._callDataFunctionInternal(dmf, data, True, indices)
-
-    def callDataFunctionOutput(self, samplerName, data, indices=Ellipsis):
-        '''
-        Calls a data function with the given indices.
-        Returns the results back to the caller.
-        :param samplerName: The name of the function
-        :param data: The data object
-        :param indices: The indices that will be selected from the data object
-                        as input for the function.
-        :return: The output data of the called function.
-        '''
-        if samplerName not in self._samplerFunctions:
-            raise ValueError("Data function %s is not defined" % samplerName)
-        functionNames = self._samplerFunctions[samplerName]
-        output = []
-        for functionName in functionNames:
-            dmf = self._manipulationFunctions[functionName]
-            output.append(self._callDataFunctionInternal(dmf, data, False,
-                                                         indices))
-        return output
-
-    def _callDataFunctionInternal(self, dataManipulationStruct, data,
-                                  registerOutput, indices):
-        '''
-        Calls the data function using the right call type.
-        If registerOutput is set, the resulting data will be written back
-        into the object.
-        '''
-        callData = True
-
-        if dataManipulationStruct.callType is CallType.PER_EPISODE:
-            indices = data.completeLayerIndex(1, indices)
-        elif dataManipulationStruct.callType is CallType.SINGLE_SAMPLE:
-            for i in range(0, len(indices)):
-                if not isinstance(indices[i], int):
-                    raise ValueError("SINGLE_SAMPLE functions cannot be called"
-                                     " with multiple input values")
-            indices = data.completeLayerIndex(
-                data.dataManager.getDataEntryDepth(
-                    dataManipulationStruct.depthEntry), indices)
-
-        if dataManipulationStruct.callType is CallType.SINGLE_SAMPLE or \
-                dataManipulationStruct.callType is CallType.PER_EPISODE:
-            outArgs = None
-            numLayers = len(indices)
-            if dataManipulationStruct.callType is CallType.PER_EPISODE:
-                numLayers = 1
-            for i in range(0, numLayers):
-                if isinstance(indices[i], slice):
-                    # This is somewhat hacky, but it works!
-                    # Maybe clone data and get shape directly?
-                    indexRange = range(0, indices[i].stop)[indices[i]]
-
-                    if len(indexRange) > 1:
-                        callData = False
-                        for j in indexRange:
-                            indicesSingle = indices
-                            indicesSingle[i] = slice(j, j + 1)
-                            if registerOutput:
-                                self._callDataFunctionInternal(
-                                            dataManipulationStruct,
-                                            data,
-                                            registerOutput,
-                                            indicesSingle)
-                            else:
-                                tempOut = self._callDataFunctionInternal(
-                                                    dataManipulationStruct,
-                                                    data,
-                                                    registerOutput,
-                                                    indicesSingle)
-                                if outArgs is None:
-                                    outArgs = tempOut
-                                else:
-                                    for i in range(0, len(outArgs)):
-                                        outArgs[i] = np.vstack((outArgs[i],
-                                                                tempOut[i]))
-
-        if callData:
-            inputArgs = data.getDataEntryList(
-                dataManipulationStruct.inputArguments, indices)
-
-            # Select columns according to given indices
-            for i, arg in enumerate(inputArgs):
-                if dataManipulationStruct.indices[i] is not None:
-                    inputArgs[i] = arg[:, dataManipulationStruct.indices[i]]
-
-            numElements = None
-            if dataManipulationStruct.takesNumElements and \
-               len(dataManipulationStruct.depthEntry) != 0:
-                outputDepth = self.dataManager.getDataEntryDepth(
-                    dataManipulationStruct.depthEntry)
-                numElements = data.getNumElementsForIndex(outputDepth, indices)
-            else:
-                numElements = 0
-
-            outArgs = self._callDataFuntionInternalMatrices(
-                dataManipulationStruct, data, numElements,
-                inputArgs)
-
-            if not isinstance(outArgs, list): # pragma: no branch
-                outArgs = [outArgs]
-
-            if registerOutput:
-                data.setDataEntryList(dataManipulationStruct.outputArguments,
-                                      indices, outArgs)
-
-        return outArgs
-
-    def _callDataFuntionInternalMatrices(self, dataManipulationStruct,
-                                         data, numElements, inputArgs):
-        '''
-        Directly calls the manipulation function and returns the result matrix.
-        '''
-        args = []
-        if dataManipulationStruct.takesNumElements:
-            args.append(numElements)
-        if dataManipulationStruct.takesData:
-            args.append(data)
-
-        args.extend(inputArgs)
-        args = tuple(args)
-
-        #print(dataManipulationStruct.function, args)
-        return dataManipulationStruct.function(*args)

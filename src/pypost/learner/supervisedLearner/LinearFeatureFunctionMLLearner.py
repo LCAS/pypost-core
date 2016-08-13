@@ -1,8 +1,9 @@
-from pypost.learner.supervisedLearner.SupervisedLearner import SupervisedLearner
+from pypost.learner.InputOutputLearner import InputOutputLearner
 from pypost.learner.parameterOptimization.HyperParameterObject import HyperParameterObject
 import numpy as np
+from pypost.data.DataManipulator import DataManipulator
 
-class LinearFeatureFunctionMLLearner(SupervisedLearner, HyperParameterObject):
+class LinearFeatureFunctionMLLearner(InputOutputLearner, HyperParameterObject):
     ''' The LinearFeatureFunctionMLLearner fits a linear model using a weighted maximum likelihood estimate. It implements the
     supervised learner interface, i.e., the learning functionality is implemented in the method learnFunction
     The flags < tt > inputDataNormalization < / tt > and < tt > outputDataNormalization < / tt > determine if the
@@ -10,7 +11,7 @@ class LinearFeatureFunctionMLLearner(SupervisedLearner, HyperParameterObject):
     and < tt > mean = 0 < / tt > respectively.
     '''
 
-    def __init__(self, dataManager, functionApproximator,  weightName = "", inputVariables = None, outputVariable = None):
+    def __init__(self, dataManager, functionApproximator,  weightName = None, inputVariables = None, outputVariable = None):
         '''
 
         :param dataManager:
@@ -25,14 +26,14 @@ class LinearFeatureFunctionMLLearner(SupervisedLearner, HyperParameterObject):
 
         self.regularizationRegression = 10 ** -10
 
-        SupervisedLearner.__init__(self, dataManager, functionApproximator,  weightName, inputVariables, outputVariable);
+        InputOutputLearner.__init__(self, dataManager, functionApproximator, weightName, inputVariables, outputVariable);
 
         self.linkProperty('regularizationRegression')
 
-
-    def learnFunction(self, inputData, outputData, weighting = None):
+    @DataManipulator.DataManipulationMethod(inputArguments=['self.inputVariables', 'self.outputVariables', 'self.weightName'], outputArguments=[])
+    def updateModel(self, inputData, outputData, weighting = None):
         if weighting is None:
-            weighting = np.ones(outputData.shape)
+            weighting = np.ones((outputData.shape[0], 1))
 
         numSamples = outputData.shape[0]
 

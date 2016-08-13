@@ -40,7 +40,7 @@ class LinearGaussianMLLearner(LinearFeatureFunctionMLLearner):
         self.linkProperty('priorCovWeight', 'priorCovWeight' + mapName)
 
 
-    def learnFunction(self, inputData, outputData, weighting = None):
+    def updateModel(self, inputData, outputData, weighting = None):
 
         if inputData.shape[0] == 0:
             inputData = np.zeros((outputData.shape[0], 0))
@@ -48,7 +48,7 @@ class LinearGaussianMLLearner(LinearFeatureFunctionMLLearner):
         if weighting is None:
             weighting = np.ones((inputData.shape[0], 1))
 
-        super(LinearGaussianMLLearner, self).learnFunction(inputData, outputData, weighting)
+        super(LinearGaussianMLLearner, self).updateModel(inputData, outputData, weighting)
 
         sumW = weighting.sum()
         weighting = weighting / sumW
@@ -60,7 +60,7 @@ class LinearGaussianMLLearner(LinearFeatureFunctionMLLearner):
         rangeOutput = self.dataManager.getMaxRange(self.functionApproximator.outputVariables[0]) - self.dataManager.getMinRange(self.functionApproximator.outputVariables[0])
 
         if Z > 0:
-            expectedOutput = self.functionApproximator.getExpectation(outputData.shape[0], inputData)
+            expectedOutput = self.functionApproximator.computeOutput(inputData)
 
             difference = expectedOutput - outputData
             differenceW = difference * weighting

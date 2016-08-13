@@ -18,12 +18,11 @@ class IsActiveStepSampler(DataManipulator):
         :param stepName: Name of the steps to operate on (default: "timeSteps")
         '''
         DataManipulator.__init__(self, dataManager)
+        self.stepName = stepName
+        if self.stepName is None:
+            self.stepName = "timeSteps"
 
-        if stepName is None:
-            stepName = "timeSteps"
-        self.addDataManipulationFunction(
-            self.isActiveStep, {"nextStates", stepName}, 'isActive')
-
+    @DataManipulator.DataManipulationMethod(inputArguments=['nextStates', 'self.stepName'], outputArguments=[])
     def isActiveStep(self, nextStates, timeSteps):
         '''
         Returns if the time step is still active

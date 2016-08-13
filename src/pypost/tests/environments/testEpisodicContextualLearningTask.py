@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
 from pypost.data.DataManipulator import DataManipulator
-from pypost.environments.EpisodicContextualLearningTask import \
+from pypost.envs.EpisodicContextualLearningTask import \
 EpisodicContextualLearningTask
 from pypost.sampler.EpisodeSampler import EpisodeSampler
 

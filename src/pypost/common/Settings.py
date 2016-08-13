@@ -46,11 +46,26 @@ class Settings():
         Name of the Settings
         '''
         self._properties = {}
+        self._lockedDict = {}
+        self.suffixStack = []
         '''
         Contains the properties that are stored in the pool and the corresponding clients.
         It should be structured after the following pattern: {propertyName: Property(value=<value of the property>, ClientInfo(client=<client object>, clientPropName=<property name in client>)}
         Property and ClientInfo are namedtuples
         '''
+
+    def pushSuffixStack(self, suffix):
+        self.suffixStack.append(suffix)
+
+    def popSuffixStack(self):
+        if self.suffixStack:
+            self.suffixStack.pop()
+
+    def getSuffixString(self):
+        suffixString = ''
+        for i in range(0,len(self.suffixStack)):
+            suffixString = suffixString + self.suffixStack[i]
+        return suffixString
 
     def isSameSettings(self, other):
         return len(self.getDifferentProperties(other)) == 0
@@ -76,18 +91,43 @@ class Settings():
         for p in self._properties.values():
             del p.clients[:]
 
-    def registerProperty(self, propName, value):
+    def registerProperty(self, propName, value, setValueIfAlreadyRegistered = True):
         '''Registers a the specified property.
 
         :param propName: Name of the property in the settings
         :param value: value of the property
         '''
+
+
         if propName in self._properties:
-            self._properties[propName] = PropertyInfo(value, self._properties[propName].clients)
+            if (setValueIfAlreadyRegistered):
+                if (self._lockedDict[propName]):
+                    raise ValueError('Property %s is already locked! Can not change value any more...' % propName)
+                self._properties[propName] = PropertyInfo(value, self._properties[propName].clients)
         else:
+            setattr(self, propName, value)
             self._properties[propName] = PropertyInfo(value, [])
+            self._lockedDict[propName] = False
+
+    def lockProperty(self, propName):
+        self._lockedDict[propName] = True
+
+    def unlockAllProperties(self):
+        for propName in self._lockedDict:
+            self._lockedDict[propName] = False
 
             # NOTE: Use properties for changes?
+    def __setattr__(self, name, value):
+        if (hasattr(self, '_properties') and self.hasProperty(name)):
+            self.setProperty(name, value)
+        else:
+            super().__setattr__( name, value)
+
+    def __getattr__(self, name):
+            if (name != '_properties' and hasattr(self, '_properties') and self.hasProperty(name)):
+                return self.getProperty(name)
+            else:
+                super().__getattr__(name)
 
     def unregisterProperty(self, propName):
         '''Unregisters the property with the given name.
@@ -136,7 +176,8 @@ class Settings():
         :param value: new value of the property
         '''
         isRegistered = propName in self._properties
-        self.registerProperty(propName, value)
+        self.registerProperty(propName, value, setValueIfAlreadyRegistered=True)
+
         if isRegistered:
             self.informClients(propName)
 

@@ -17,7 +17,7 @@ def createTestManager():
     subDataManager.subDataManager = subSubDataManager
 
     dataManager.addDataEntry('parameters', 5, -100, 100)
-    dataManager.addDataEntry('context', 2, -100, 100)
+    dataManager.addDataEntry('contexts', 1, -100, 100)
     subDataManager.addDataEntry('states', 1, -100, 100)
     subDataManager.addDataEntry('actions', 2)
     subSubDataManager.addDataEntry('subStates', 1)
@@ -40,4 +40,17 @@ def createTestManager2():
     subDataManager.addDataEntry('actions', 2)
     subSubDataManager.addDataEntry('subStates', 1)
     subSubDataManager.addDataEntry('subActions', 2)
+    return dataManager
+
+def createTestManagerSteps():
+    dataManager = DataManager('episodes')
+    dataManager.addDataEntry('contexts', 2)
+    subDataManager = DataManager('steps', isTimeSeries=True)
+
+    dataManager.subDataManager = subDataManager
+
+    subDataManager.addDataEntry('states', 1, -100, 100)
+    subDataManager.addDataEntry('actions', 1)
+    subDataManager.addDataEntry('rewards', 1)
+
     return dataManager

@@ -1,4 +1,7 @@
-class AbstractInputOutputLearner(object):
+from pypost.learner.BatchLearner import BatchLearner
+from pypost.data.DataManipulator import DataManipulator
+
+class InputOutputLearner(BatchLearner):
 
     '''
     The Learner class serves as interface for all learners that learn an input output mapping.
@@ -14,14 +17,10 @@ class AbstractInputOutputLearner(object):
         :param outputVariable: can be specified if different from input variables in functionApproximator
 
         '''
+        BatchLearner.__init__(self, dataManager)
 
         self.functionApproximator = functionApproximator
-        self.additionalInputArguments = []
-
-        if weightName is not None and weightName == True:
-            self.weightName = [weightName]
-        else:
-            self.weightName = []
+        self.weightName = weightName
 
         if self.functionApproximator is None:
             assert inputVariables is not None and outputVariable is not None, "pst:Supervised Learner: If no function approximator is provided you need to pass input and output Variables!"
@@ -41,54 +40,21 @@ class AbstractInputOutputLearner(object):
             self.outputVariables = self.functionApproximator.outputVariables
 
 
-        self.setAdditionalInputArguments()
-
-        self.registerLearnFunction()
-
-
     def setInputVariablesFromMapping(self):
         if self.functionApproximator is not None:
             self.inputVariables = self.functionApproximator.inputVariables
             self.outputVariable = self.functionApproximator.outputVariable
-            self.registerLearnFunction()
 
     def setWeightName(self, weightName):
-        self.weightName = [weightName]
-        self.registerLearnFunction()
+        self.weightName = weightName
 
 
 
     def isWeightedLearner(self):
-        if self.weightName:
-            return True
-        else:
-            return False
+        return self.weightName
 
     def getWeightName(self):
-        return self.weightName[0]
+        return self.weightName
 
 
-    def setInputVariablesForLearner(self, *args):
-        self.inputVariables = list(*args)
-        self.registerLearnFunction()
-
-
-    def setOutputVariableForLearner(self, outputVariable):
-        self.outputVariable = outputVariable
-        self.registerLearnFunction()
-
-
-    def setFunctionApproximator(self, funcApprox):
-        self.functionApproximator = funcApprox
-
-    def setAdditionalInputArguments(self, *args):
-        if self.functionApproximator is not None:
-            self.additionalInputArguments = self.functionApproximator.additionalInputVariables
-        else:
-            self.additionalInputArguments = []
-        self.additionalInputArguments = self.additionalInputArguments +  list(args)
-        self.registerLearnFunction()
-
-    def registerLearnFunction(self):
-        raise NotImplementedError
 

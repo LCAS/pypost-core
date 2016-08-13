@@ -281,7 +281,7 @@ class Experiment(object):
         '''
         return len(self.trialIndexToDirectorymap)
 
-    def startLocal(self, trialIndices=None, restart = False):
+    def startLocal(self, trialIndices=None, restart = 0):
         '''
         Executes the experiment on the local machine.
         :param trialIndices: A list containg the indices of the trials to run.
@@ -294,8 +294,8 @@ class Experiment(object):
             print('Starting Trial {0} locally\n'.format(key))
 
             trial = Experiment.loadTrialFromID(self, key)
-            trial.configure()
-            trial.start(restart)
+
+            trial.start()
 
     def getTrialIDs(self):
         '''

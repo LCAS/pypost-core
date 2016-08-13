@@ -59,13 +59,16 @@ def getDefaultSettings():
         setSettings(default)
     return default
 
-def pushDefaultName(name):
+def pushDefaultSettings(settings):
     '''Adds a new name of default Settings.
 
     :param name: The name to push
     '''
+    setSettings(settings)
+
     global defaultNames
-    defaultNames.append(name)
+    defaultNames.append(settings.name)
+
 
 def getRootName():
     '''Returns the name of the root Settings.
@@ -81,7 +84,7 @@ def getDefaultName():
     '''
     return defaultNames[-1]
 
-def popDefaultName():
+def popDefaultSettings():
     '''Removes the last default name and returns it.
 
     If there is only one name left, it won't be removed.

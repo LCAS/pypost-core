@@ -1,5 +1,5 @@
 import unittest
-from pypost.environments.EpisodicContextualParameterLearningTask import \
+from pypost.envs.EpisodicContextualParameterLearningTask import \
 EpisodicContextualParameterLearningTask
 from pypost.sampler.EpisodeSampler import EpisodeSampler
 

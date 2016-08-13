@@ -6,16 +6,19 @@ class SettingsClient():
     Implements basic functionality for registering properties of an object in the global parameter pool.
     '''
 
-    def __init__(self):
+    def __init__(self, namespace=None):
         '''Creates a new object.
         '''
         self.settingsClientName = SettingsManager.getNextClientName()
+        self.settings = SettingsManager.getDefaultSettings()
+
+        self.suffixString = self.settings.getSuffixString()
         '''
         Get a unique name for this client
         '''
         self._localPropertyMap = {}
 
-    def linkProperty(self, clientPropName, settingsPropName = None, settings = None):
+    def linkProperty(self, clientPropName, settingsPropName = None):
         '''Registers the property 'clientPropName' of the object into the parameter pool.
 
         The parameter 'settingsPropName' sets the global name of the
@@ -39,11 +42,22 @@ class SettingsClient():
         '''
         if settingsPropName is None:
             settingsPropName = clientPropName
-        if settings is None:
-            settings = SettingsManager.getDefaultSettings()
 
-        settings.linkProperty(self, clientPropName, settingsPropName)
+
+        self.settings.linkProperty(self, clientPropName, self.getNameWithSuffix(settingsPropName))
         self._localPropertyMap[clientPropName] = settingsPropName
+
+    def getNameWithSuffix(self, name):
+        if self.suffixString:
+            if isinstance(name, list):
+                for i in range(0, len(name)):
+                    localName = name[i]
+                    if not (len(localName) > len(self.suffixString) and localName[-len(self.suffixString) + 1:] == self.suffixString):
+                        name[i] = localName  + self.suffixString
+            else:
+                if not (len(name) > len(self.suffixString) and name[-len(self.suffixString) + 1:] == self.suffixString):
+                    name = name + self.suffixString
+        return name
 
     def printProperties(self):
         '''Print the properties
@@ -65,3 +79,9 @@ class SettingsClient():
         :param value: The new value
         '''
         setattr(self, varName, value)
+
+    def setIfNotEmpty(self, prop, val):
+
+        if self.getVar(prop) is None:
+            self.setVar(prop, val)
+            self.settings.setProperty(self._localPropertyMap[prop], val)

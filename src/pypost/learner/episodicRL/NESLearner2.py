@@ -68,10 +68,7 @@ class NESLearner2(SettingsClient, DataManipulator, RLLearner):
         #%obj.settings.setParameter('initialSamples', 0);
         #%obj.settings.setParameter('maxSamples', lambda);
 
-    def registerLearningFunction(self):
-        self.addDataManipulationFunction(self.computePolicyUpdate,
-            [self.rewardName, self.parameterName], [])
-
+    @DataManipulator.DataDecorator(['self.rewardName', 'self.parameterName'],[])
     def computePolicyUpdate(self, rewards, parameters):
         #print('re', rewards)
         #print('pa', parameters)
@@ -125,11 +122,11 @@ class NESLearner2(SettingsClient, DataManipulator, RLLearner):
         x = x + dx
         A = A + dA
 
-        self.policy.setBias(x);
+        self.policy.setBias(x)
         self.policy.setSigma(scipy.linalg.expm(A))
 
     def updateModel(self, data):
-        self.callDataFunction('computePolicyUpdate', data)
+        self.computePolicyUpdate(data)
 
     def printMessage(obj, data, results, model):
         pass

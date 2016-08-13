@@ -1,7 +1,7 @@
-from pypost.functions.MappingInterface import MappingInterface
+from pypost.functions.Mapping import Mapping
 
 
-class Function(MappingInterface):
+class Function(Mapping):
     '''
     The Function class is the base class for every function.
 
@@ -10,18 +10,12 @@ class Function(MappingInterface):
     that function.
     '''
 
-    def __init__(self):
-        MappingInterface.__init__(self)
-        self.registerDataFunctions = True
-        pass
+    def __init__(self, dataManager, inputVariables=None, outputVariables=None,
+                 name=""):
+        Mapping.__init__(self, dataManager, inputVariables, outputVariables, name)
 
-    def registerMappingInterfaceFunction(self):
-        if self.registerDataFunctions:
-            self.addMappingFunction(self.getExpectation)
-        else:
-            print("WARNING: registerDataFunctions is False")
-
-    def getExpectation(self, numElements, *args):
+    @Mapping.DataMappingFunction()
+    def computeOutput(self, *args):
         '''
         Returns the expectation of the Function.
         '''

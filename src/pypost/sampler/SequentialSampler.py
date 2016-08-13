@@ -1,6 +1,7 @@
 from pypost.sampler.Sampler import Sampler
+from pypost.data.DataManipulator import DataManipulator
 from pypost.sampler.isActiveSampler.IsActiveNumSteps import IsActiveNumSteps
-
+import numpy as np
 
 class SequentialSampler(Sampler):
     '''
@@ -21,7 +22,7 @@ class SequentialSampler(Sampler):
       def _endTransitation(self, data: data.Data, *args: list of int) -> null
     '''
 
-    def __init__(self, dataManager, samplerName, stepName):
+    def __init__(self, dataManager, samplerName, stepName, isActiveSampler = None):
         '''
         Constructor for setting-up an empty step sampler
         :param dataManager: DataManager this sampler operates on
@@ -30,30 +31,21 @@ class SequentialSampler(Sampler):
         '''
         super().__init__(dataManager, samplerName)
 
-        self._isActiveSampler = None
-        self._transitionElementOldStep = []
-        self._transitionElementNewStep = []
+        if (isActiveSampler == None):
+            self._isActiveSampler = None
 
-        # TODO pass an other IsActiveStepSampler by parameters
-        self.setIsActiveSampler(IsActiveNumSteps(dataManager, stepName))
+            # TODO pass an other IsActiveStepSampler by parameters
+            self.setIsActiveSampler(IsActiveNumSteps(dataManager, stepName))
+        else:
+            self._isActiveSampler = isActiveSampler
 
     #getter & setter
 
     def setIsActiveSampler(self, sampler):
         self._isActiveSampler = sampler
 
-    def addElementsForTransition(
-            self, transitionElementOld, transitionElementNew):
-        '''
-        Adds a transition from an old to a new element name
-        :param transitionElementOld: old name of the element
-        :param transitionElementNew: new name of the element
-        #ASK is this the place where an automatic transition for old/new-name prefixes was requested?
-        '''
-        self._transitionElementOldStep.append(transitionElementOld)
-        self._transitionElementNewStep.append(transitionElementNew)
-
-    def createSamples(self, data, *args):
+    @DataManipulator.DataFunction
+    def createSamples(self, data, activeIndex = Ellipsis):
         '''
         The sequential sampler creates samples by first initiating the data and
         after that run the appropriate sampler pools for each step and, after checking which
@@ -71,79 +63,79 @@ class SequentialSampler(Sampler):
         reservedStorage = self._isActiveSampler.toReserve()
         data.reserveStorage(reservedStorage)
 
-        activeIndex = list(args)
+        if not isinstance(activeIndex, list):
+            activeIndex = [activeIndex]
+
+        for i in range(0, len(activeIndex)):
+            if (isinstance(activeIndex[i], slice)):
+                activeIndex[i] = list(range(activeIndex[i].start, activeIndex[i].stop))
         activeIndex.append(0)
 
         self._initSamples(data, activeIndex.copy())
 
         step = 0
         finished = False
-        numSteps = self.getNumSamples(data, args)
+        numSteps = self.getNumSamples(data, activeIndex)
         while(not finished):
 
             activeIndex[-1] = step
             # TODO activeIndex
-            self.createSamplesForStep(data, activeIndex[:])
+            self._createSamplesForStep(data, activeIndex[:])
 
             step = step + 1
-            activeIndexNew = self.selectActiveIdxs(data, activeIndex[:])
+
+            activeIndexNew, finished = self.selectActiveIdxs(data, activeIndex)
 
             # TODO speed up by merging all&map
-            if (step > reservedStorage and all(
-                    map(lambda x: x.length > 0, activeIndexNew))):
+            if (step > reservedStorage and not finished):
                 reservedStorage = reservedStorage * 2
                 numSteps[0] = reservedStorage
 
-                data.reserveStorageNoReserveOld(numSteps, activeIndexNew[:-1])
+                data.reserveStorage(numSteps, activeIndexNew[:-1])
 
             activeIndex = activeIndexNew
 
-            # TODO speed up by merging any&map
-            finished = any(map(lambda x: x.length == 0, activeIndex))
             if (not finished):
-                self._endTransition(data, activeIndex.copy())
+                self._endTransition(data, activeIndex)
 
     def getNumSamples(self, data, *args):
         # @mw ASK: Mistake in Matlab code? Parameters not used.
         return self._isActiveSampler.toReserve()
 
-    def selectActiveIdxs(self, data, *args):
+    def selectActiveIdxs(self, data, activeIndex):
         '''
         assumes args is a vector
         '''
-        isActive = self._isActiveSampler.callDataFunctionOutput(
-            'isActiveStep', data, *args) # @mw ASK: *args?
-        tCurrent = args[-1]
+        isActive = self._isActiveSampler.isActiveStep_fromData(data, activeIndex) # @mw ASK: *args?
+        tCurrent = activeIndex[-1]
 
-        # ASK what is this doing?
-        if len(args) > 2:
-            if len(args[0]) > 1:
-                activeIdxs = [args[1:-2](isActive), args[-1], tCurrent]
-                stoppedIdxs = [args[1:-2](not isActive), args[-1], tCurrent]
+
+        finished = not any(isActive)
+        # resolve active indices if we have multple layers...
+        if len(activeIndex) > 2:
+            if len(activeIndex[0]) > 1:
+                activeIndexTmp = [activeIndex[0][i] for i, x in enumerate(isActive) if x]
+                stoppedIdxsTmp = [activeIndex[0][i] for i, x in enumerate(isActive) if not x]
+
+                activeIdxs = [activeIndexTmp, activeIndex[1]]
+                stoppedIdxs = [stoppedIdxsTmp, activeIndex[1]]
             else:
-                activeIdxs = [args[1:-2], args[-1](isActive), tCurrent]
-                stoppedIdxs = [args[1:-2], args[-1](not isActive), tCurrent]
+                activeIndexTmp = [activeIndex[1][i] for i, x in enumerate(isActive) if x]
+                stoppedIdxsTmp = [activeIndex[1][i] for i, x in enumerate(isActive) if not x]
+
+                activeIdxs = [activeIndex[0], activeIndexTmp]
+                stoppedIdxs = [activeIndex[0], stoppedIdxsTmp]
         else:
-            activeIdxs = [args[1:-1], args[-1](isActive), tCurrent]
-            stoppedIdxs = [args[1:-1], args[-1](not isActive), tCurrent]
+            activeIdxs = [[activeIndex[0][i] for i, x in enumerate(isActive) if x]]
+            stoppedIdxs = [[activeIndex[0][i] for i, x in enumerate(isActive) if not x]]
 
-        if any(not isActive):
-            data.reserveStorage(tCurrent, stoppedIdxs[1:-1])
+        if len(stoppedIdxs[0]) > 0:
+            data.reserveStorage(tCurrent + 1, stoppedIdxs)
 
-        return activeIdxs
+        activeIdxs.append(tCurrent)
 
-    def _endTransition(self, data, *args):
-        # ASK are the copies of args necessary?
-        layerIndex = args[0]
-        layerIndexNew = layerIndex[:]
-        layerIndexNew[-1] = layerIndexNew[-1] + 1
+        return (activeIdxs, finished)
 
-        for old, new in zip(
-                self._transitionElementOldStep, self._transitionElementNewStep):
-            elementNextTimeStep = data.getDataEntry(old, layerIndex.copy())
-            # ASK this variable is set but never used
-            # numElements=elementNextTimeStep.length
-            data.setDataEntry(new, layerIndexNew.copy(), elementNextTimeStep)
 
     def _initSamples(self, data, *args):
         '''
@@ -174,3 +166,6 @@ class SequentialSampler(Sampler):
             self._createSamplesForStep(data, active_index)
             if i < (num_steps-1):
                 self._endTransition(data, active_index)
+
+    def _endTransition(self, data, *args):
+        pass

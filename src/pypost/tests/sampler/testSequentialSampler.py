@@ -18,7 +18,6 @@ class testSequentialSampler(unittest.TestCase):
         self.sampler.addSamplerPool(SamplerPool('testPool4', 11))
         self.sampler2 = SequentialSampler(DataManager('testDataManager2'), 'testSampler2', 'mySteps')
         self.sampler2.addSamplerPool(SamplerPool('testPool5', 9))
-        self.sampler.addLowLevelSampler('testPool1', self.sampler2, False)
 
 
     def tearDown(self):
@@ -31,8 +30,6 @@ class testSequentialSampler(unittest.TestCase):
     def test_setIsActiveSampler(self):
         pass #TODO
 
-    def test_addElementsForTransition(self):
-        self.sampler.addElementsForTransition('elemName', 'newElemName')
 
     def test_createSamples(self): #TODO
         data = DataUtil.createTestManager().getDataObject(1)

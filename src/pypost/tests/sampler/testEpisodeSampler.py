@@ -2,7 +2,31 @@ import unittest
 from pypost.tests import DataUtil
 from pypost.sampler.EpisodeSampler import EpisodeSampler
 from pypost.data.DataManager import DataManager
+from pypost.data.DataManipulator import DataManipulator
 from pypost.sampler.Sampler import Sampler
+from pypost.functions.Function import Function
+import numpy as np
+
+from pypost.functions.FunctionLinearInFeatures import FunctionLinearInFeatures
+
+class SamplerTestManipulator(DataManipulator):
+    def __init__(self, dataManager):
+        DataManipulator.__init__(self, dataManager)
+
+    @DataManipulator.DataManipulationMethod([], ['contexts'])
+    def sampleContexts(self, numElements):
+        return np.ones((numElements, self.dataManager.getNumDimensions('contexts')))
+
+    @DataManipulator.DataManipulationMethod(['contexts'], ['parameters'])
+    def sampleParameters(self, contexts):
+        return np.ones((contexts.shape[0], self.dataManager.getNumDimensions('contexts'))) + contexts
+
+
+    @DataManipulator.DataManipulationMethod(['contexts', 'parameters'], ['returns'])
+    def sampleReturns(self, contexts, parameters):
+        temp = np.sum(contexts + parameters, 1)
+        temp.resize(contexts.shape[0], 1)
+        return temp
 
 
 class Test(unittest.TestCase):
@@ -10,10 +34,33 @@ class Test(unittest.TestCase):
 
     def setUp(self):
         self.sampler = EpisodeSampler()
+        self.dataManager = self.sampler.getEpisodeDataManager()
 
+        self.dataManager.addDataEntry('contexts', 2)
+        self.dataManager.addDataEntry('parameters', 2)
+        self.dataManager.addDataEntry('returns', 1)
 
     def tearDown(self):
         pass
+
+    def testSampling(self):
+
+        testManipulator = SamplerTestManipulator(self.dataManager)
+
+        function = FunctionLinearInFeatures(self.dataManager, [], ['contexts'], 'dummyFunction')
+        function.setBias(np.array([1, 1]))
+        self.sampler.setContextSampler(function)
+        self.sampler.setParameterPolicy(testManipulator.sampleParameters)
+        self.sampler.setReturnFunction(testManipulator.sampleReturns)
+
+        data = self.dataManager.getDataObject(0)
+        self.sampler.numSamples = 10
+        self.sampler.createSamples(data)
+
+        self.assertTrue((data.getDataEntry('contexts') == np.ones((10,2))).all())
+        self.assertTrue((data.getDataEntry('parameters') ==  np.ones((10, 2)) * 2).all())
+        self.assertTrue((data.getDataEntry('returns') == np.ones((10, 1)) * 6).all())
+
 
 
     def test_init(self):
@@ -23,7 +70,6 @@ class Test(unittest.TestCase):
         self.assertIsNotNone(self.sampler.getSamplerPool('InitEpisode'))
         self.assertIsNotNone(self.sampler.getSamplerPool('ParameterPolicy'))
         self.assertIsNotNone(self.sampler.getSamplerPool('Episodes'))
-        self.assertIsNotNone(self.sampler.getSamplerPool('FinalReward'))
         self.assertIsNotNone(self.sampler.getSamplerPool('Return'))
         sampler2  = EpisodeSampler(DataManager('testManager'), 'testSampler2')
         self.assertIsInstance(sampler2, EpisodeSampler)
@@ -34,83 +80,25 @@ class Test(unittest.TestCase):
     def test_getEpisodeDataManager(self):
         self.assertIsInstance(self.sampler.getEpisodeDataManager(), DataManager)
 
-    def test_setFinalRewardSampler(self):
-        datamngr = DataUtil.createTestManager()
-        rs = Sampler(datamngr, 'reward')
-        self.sampler.setFinalRewardSampler(rs, 'testSampler', True)
-        self.assertTrue(self.sampler.isSamplerFunction('FinalReward'))
-        self.assertIs(self.sampler.returnSampler, rs)
-
-        datamngr = DataUtil.createTestManager2()
-        rs2 = Sampler(datamngr, 'reward')
-        self.sampler.setFinalRewardSampler(rs2, isReturnSampler=False)
-        self.assertTrue(self.sampler.isSamplerFunction('FinalReward'))
-        self.assertIs(self.sampler.returnSampler, rs)
-
-        rs3 = Sampler(DataManager('Testmngr3'), 'reward3')
-        self.sampler.setFinalRewardSampler(rs3, 'testSampler')
-        self.assertTrue(self.sampler.isSamplerFunction('FinalReward'))
-        self.assertIs(self.sampler.returnSampler, rs3)
-
     def test_setReturnFunction(self):
-        rs = Sampler(DataManager('TestmngrH'), 'rewardH')
-        self.sampler.setReturnFunction(rs)
-        self.assertTrue(self.sampler.isSamplerFunction('Return'))
-        self.assertIs(self.sampler.returnSampler, rs)
-
-        datamngr = DataUtil.createTestManager2()
-        rs2 = Sampler(datamngr, 'return')
-        self.sampler.setReturnFunction(rs2, 'noRet')
-        self.assertTrue(self.sampler.isSamplerFunction('Return'))
-        self.assertIsNot(self.sampler.returnSampler, rs2)
+        dataManager = DataManager('TestmngrH')
+        function = Function(dataManager, [], [])
+        self.sampler.setReturnFunction(function)
 
     def test_setParameterPolicy(self):
         datamngr = DataUtil.createTestManager()
-        rs = Sampler(datamngr, 'policy')
-        self.sampler.setParameterPolicy(rs)
-        self.assertTrue(self.sampler.isSamplerFunction('ParameterPolicy'))
-        self.assertIs(self.sampler.parameterPolicy, rs)
-
-        datamngr = DataUtil.createTestManager()
-        rs2 = Sampler(datamngr, 'policy')
-        self.sampler.setParameterPolicy(rs2, 'sp')
-        self.assertTrue(self.sampler.isSamplerFunction('ParameterPolicy'))
-        self.assertIs(self.sampler.parameterPolicy, rs2)
-
-        datamngr = DataUtil.createTestManager()
-        rs3 = Sampler(datamngr, 'policy')
-        self.sampler.setParameterPolicy(rs3, 'samParam', False)
-        self.assertTrue(self.sampler.isSamplerFunction('ParameterPolicy'))
-        self.assertIsNot(self.sampler.parameterPolicy, rs3)
+        function = Function(datamngr, [], [])
+        self.sampler.setParameterPolicy(function)
 
     def test_setContextSampler(self):
         datamngr = DataUtil.createTestManager()
-        rs = Sampler(datamngr, 'reward')
-        self.sampler.setContextSampler(rs)
-        self.assertTrue(self.sampler.isSamplerFunction('InitEpisode'))
-        self.assertIs(self.sampler.contextDistribution, rs)
-
-        datamngr = DataUtil.createTestManager()
-        rs2 = Sampler(datamngr, 'reward')
-        self.sampler.setContextSampler(rs2, 'cs')
-        self.assertTrue(self.sampler.isSamplerFunction('InitEpisode'))
-        self.assertIs(self.sampler.contextDistribution, rs2)
-
-        datamngr = DataUtil.createTestManager()
-        rs3 = Sampler(datamngr, 'reward')
-        self.sampler.setContextSampler(rs3, 'conSam', False)
-        self.assertTrue(self.sampler.isSamplerFunction('InitEpisode'))
-        self.assertIsNot(self.sampler.contextDistribution, rs3)
+        function = Function(datamngr, [], [])
+        self.sampler.setContextSampler(function)
 
     def test_flushReturnFunction(self):
         self.test_setReturnFunction()
         self.sampler.flushReturnFunction()
         self.assertListEqual(self.sampler.getSamplerPool("Return").samplerList, [])
-
-    def test_flushFinalRewardFunction(self):
-        self.test_setFinalRewardSampler()
-        self.sampler.flushFinalRewardFunction()
-        self.assertListEqual(self.sampler.getSamplerPool("FinalReward").samplerList, [])
 
     def test_flushParameterPolicy(self):
         self.test_setParameterPolicy()

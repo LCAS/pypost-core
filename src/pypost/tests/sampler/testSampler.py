@@ -17,20 +17,8 @@ class Test(unittest.TestCase):
         self.sampler2 = Sampler(DataManager('testDataManager2'), 'testSampler2')
         self.sampler2.addSamplerPool(SamplerPool('testPool5', 3))
 
-
     def test_init(self):
         self.assertEqual(self.sampler.getSamplerName(), 'testSampler1')
-
-    def test_setSamplerIteration(self):
-        self.sampler.setSamplerIteration(2)
-        self.assertEqual(self.sampler._iterationIndex, 2)
-
-    def test_appendNewSamples(self):
-        self.assertTrue(self.sampler.appendNewSamples())
-
-    def test_finalizeSampler(self):
-        self.sampler.finalizeSampler(False)
-        self.assertDictEqual(self.sampler._samplerMap, {self.sampler2.getSamplerName(): self.sampler2})
 
     def test_copyPoolsFromSampler(self):
         self.sampler.copyPoolsFromSampler(self.sampler2)
@@ -40,23 +28,12 @@ class Test(unittest.TestCase):
         self.sampler.copySamplerFunctionsFromPool(self.sampler2, 'testPool5')
         #self.sampler.getSamplerPool()
 
-    def test_isSamplerFunction(self):
-        self.assertTrue(self.sampler.isSamplerFunction('testSampler1'))
-        # FIXME: isSamplerFunction() always returns True
-        # self.assertFalse(self.sampler.isSamplerFunction('nonExistent'))
-
-    def test_callDataFunction(self): #TODO
-        # self.sampler.callDataFunction('testSampler1', newData, parameters)
-        pass
 
     def test_addSamplerPool(self): # TODO
         self.sampler.addSamplerPool(SamplerPool('testPool6', 7))
 
     def test_getSamplerPool(self):
         self.assertIsInstance(self.sampler.getSamplerPool('testPool3'), SamplerPool)
-
-    def test_getLowLevelSamplers(self):
-        self.assertListEqual(self.sampler.getLowLevelSamplers(), [self.sampler2])
 
     def test_addSamplerFunctionToPool(self): # TODO
         # self.sampler.addSamplerFunctionToPool('testPool1', 'newSamplerFunc1', ???)

@@ -6,7 +6,7 @@ from pypost.learner.parameterOptimization.HyperParameterObject \
     import HyperParameterObject
 
 
-class FunctionLinearInFeatures(Mapping, Function, HyperParameterObject, SettingsClient):
+class FunctionLinearInFeatures(Function, HyperParameterObject, SettingsClient):
     '''
     TODO: check documentation
     The FunctionLinearInFeatures is a subclass of mapping and implements
@@ -28,8 +28,8 @@ class FunctionLinearInFeatures(Mapping, Function, HyperParameterObject, Settings
     \f$\boldsymbol{b}\f$ by the variable bias.
     '''
 
-    def __init__(self, dataManager, outputVariable, inputVariables,
-                 functionName, featureGenerator,
+    def __init__(self, dataManager,  inputVariables, outputVariable,
+                 functionName, featureGenerator = None,
                  doInitWeights=True):
         '''
         :param dataManager: Datamanger to operate on
@@ -41,17 +41,12 @@ class FunctionLinearInFeatures(Mapping, Function, HyperParameterObject, Settings
         '''
         SettingsClient.__init__(self)
 
-        if isinstance(outputVariable, list):
-            raise ValueError('multiple outputVariables are not supported!',
-                             outputVariable)
-
-        self.dataManager = dataManager
-        self.outputVariables = [outputVariable]
-        self.inputVariables = inputVariables
-        self.functionName = functionName
         self.featureGenerator = None
-        self.doInitWeights = doInitWeights
         self.featureHasHyperParameters = False
+
+        self.doInitWeights = doInitWeights
+
+        Function.__init__(self, dataManager, inputVariables, outputVariable, functionName)
 
         if featureGenerator is not None:
             raise ValueError('Features are not implemented yet.')
@@ -63,11 +58,6 @@ class FunctionLinearInFeatures(Mapping, Function, HyperParameterObject, Settings
         self.doInitWeights = doInitWeights
         self.initMu = []
 
-
-        Mapping.__init__(self, dataManager, self.outputVariables,
-                         self.inputVariables, functionName)
-        Function.__init__(self)
-
         if isinstance(self.outputVariables[0], str):
             self.linkProperty('initSigmaMu', 'initSigmaMu' + self.outputVariables[0].capitalize())
             self.linkProperty('initMu', 'initMu' + self.outputVariables[0].capitalize())
@@ -75,37 +65,38 @@ class FunctionLinearInFeatures(Mapping, Function, HyperParameterObject, Settings
             self.linkProperty('initSigmaMu')
             self.linkProperty('initMu')
 
-        self.registerMappingInterfaceFunction()
-
         if self.doInitWeights:
-            self.bias = np.zeros((self.dimOutput, 1))
-            self.weights = np.zeros((self.dimOutput, self.dimInput))
+            self.initialize()
 
-            if len(self.initMu) == 0:
-                minRange = self.dataManager.getMinRange(
-                    self.outputVariables[0])
-                maxRange = self.dataManager.getMaxRange(
-                    self.outputVariables[0])
-                range_diff = np.subtract(maxRange, minRange)
+    def initialize(self):
+        self.bias = np.zeros((self.dimOutput, 1))
+        self.weights = np.zeros((self.dimOutput, self.dimInput))
 
-                meanRange = np.mean(np.array([minRange, maxRange]), axis=0)
+        if len(self.initMu) == 0:
+            minRange = self.dataManager.getMinRange(
+                self.outputVariables[0])
+            maxRange = self.dataManager.getMaxRange(
+                self.outputVariables[0])
+            range_diff = np.subtract(maxRange, minRange)
 
-                if len(meanRange.shape) != 1:  # pragma nocover
-                    raise ValueError('Unsupported meanRange shape')
+            meanRange = np.mean(np.array([minRange, maxRange]), axis=0)
 
-                if len(range_diff.shape) != 1:  # pragma nocover
-                    raise ValueError('Unsupported range_diff shape')
+            if len(meanRange.shape) != 1:  # pragma nocover
+                raise ValueError('Unsupported meanRange shape')
 
-                self.bias = (
-                    meanRange[np.newaxis, :].T +
-                    range_diff[np.newaxis, :].T *
-                    self.initSigmaMu * (np.random.rand(
-                        self.dimOutput, 1) - 0.5))
+            if len(range_diff.shape) != 1:  # pragma nocover
+                raise ValueError('Unsupported range_diff shape')
 
-            else:
-                raise ValueError('Unsupported initMu shape')  # pragma nocover
+            self.bias = (
+                meanRange[np.newaxis, :].T +
+                range_diff[np.newaxis, :].T *
+                self.initSigmaMu * (np.random.rand(
+                    self.dimOutput, 1) - 0.5))
 
-    def getExpectation(self, numElements, inputFeatures=None):
+        else:
+            raise ValueError('Unsupported initMu shape')  # pragma nocover
+
+    def computeOutput(self, inputFeatures):
         '''
         Returns the expectation of the Function.
 
@@ -113,10 +104,12 @@ class FunctionLinearInFeatures(Mapping, Function, HyperParameterObject, Settings
         it to be zero and only returns the bias. Otherwise this function
         will return the weighted expectation.
         '''
-        if len(self.bias.shape) >= 2:
-            biasTrans = self.bias.conj().T
-        else:
-            biasTrans = self.bias[np.newaxis, :].T
+
+        # if we do not have input variables, the inputFeatures will be set to the number of elements to return
+        numElements, inputFeatures = self.getNumElementsAndInput(inputFeatures)
+
+
+        biasTrans = self.bias.conj().T
 
         value = np.tile(biasTrans, (numElements, 1))
 
@@ -124,7 +117,7 @@ class FunctionLinearInFeatures(Mapping, Function, HyperParameterObject, Settings
             raise ValueError(
                 'weight are a vector. This is not handled by the code')
 
-        if inputFeatures.shape[1] > 0:
+        if inputFeatures is not None:
             mult = inputFeatures.dot(self.weights.conj().T)
             value = value + mult
 
@@ -139,6 +132,8 @@ class FunctionLinearInFeatures(Mapping, Function, HyperParameterObject, Settings
             raise ValueError('invalid bias shape')
 
         self.bias = bias
+        if (len(self.bias.shape) == 1):
+            self.bias.resize(self.bias.shape[0],1)
 
         if len(self.bias.shape) > 1 and self.bias.shape[1] > 1:
             self.bias = self.bias.conj().T

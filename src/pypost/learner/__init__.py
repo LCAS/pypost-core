@@ -1,2 +1,2 @@
 __all__ = ['Learner',
-           'RLLearner']
+           'InputOutputLearner']

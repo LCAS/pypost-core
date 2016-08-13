@@ -1,17 +1,12 @@
 import unittest
-import numpy as np
-import sys
-import os
 
-from numpy.core.numeric import ones
+import numpy as np
 from numpy.random import normal
 from numpy.random import uniform
 
-from pypost.tests import DataUtil
-from pypost.learner.supervisedLearner.LinearGaussianMLLearner import LinearGaussianMLLearner
-from pypost.distributions.gaussian.GaussianLinearInFeatures import GaussianLinearInFeatures
 from pypost.data.DataManager import DataManager
-from pypost.data.Data import Data
+from pypost.distributions.GaussianLinearInFeatures import GaussianLinearInFeatures
+from pypost.learner.supervisedLearner.LinearGaussianMLLearner import LinearGaussianMLLearner
 
 
 class testLinearGaussianMLLearner(unittest.TestCase):
@@ -51,7 +46,7 @@ class testLinearGaussianMLLearner(unittest.TestCase):
         data.setDataEntry('weights', [], weights)
 
         gaussianDistLearner.setWeightName('weights')
-        gaussianDistLearner.updateModel(data)
+        gaussianDistLearner.updateModel_fromData(data)
 
         meanVecLearned = gaussianDist.getMean()
         betaVecLearned = gaussianDist.getBeta()

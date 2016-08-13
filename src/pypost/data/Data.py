@@ -1,5 +1,11 @@
 import numpy as np
 import copy
+from enum import Enum
+
+class DataType(Enum):
+    continuous = 1
+    discrete  = 2
+    sparse = 3
 
 
 class DataEntryInfo():
@@ -99,30 +105,7 @@ class Data():
         while len(indices) <= depth:
             indices.append(...)
 
-        numElements = 1
-        dm = self.dataManager
-        subStructure = self.dataStructure
-        while depth > 0:
-            dm = dm.subDataManager
-            subStructureList = subStructure[dm.name]
-            if indices[0] is not Ellipsis:
-                if  isinstance(indices[0], slice):
-                    subStructureList = subStructureList[indices[0]]
-                else:
-                    subStructureList = [subStructureList[indices[0]]]
-            numElements *= len(subStructureList)
-            subStructure = subStructureList[0]
-            indices = indices[1:]
-            depth -= 1
-
-        items = subStructure.dataStructureLocalLayer.items()
-        for name, entry in items:
-            if isinstance(entry, np.ndarray) and \
-                not isinstance(indices[0], int): # pragma: no branch
-                numElements *= subStructure[name][indices[0]].shape[0]
-                break
-
-        return numElements
+        return self.dataStructure.getNumElementsForIndex(depth, indices)
 
     def _resolveEntryPath(self, name):
         path = []
@@ -134,6 +117,35 @@ class Data():
             depth -= 1
         path.append(name)
         return path
+
+    def resolveSuffixPath(self, path):
+
+        if len(path) > len('Periodic') and path[-len('Periodic'):] == 'Periodic':
+            path = path[0:-len('Periodic')]
+
+            def makePeriodic(data):
+                isPeriodic = np.array(self.dataManager.getPeriodicity(path), dtype=bool)
+                data[:, isPeriodic] = data[:, isPeriodic] % (2 * np.pi)
+                return data
+
+            return (path, makePeriodic)
+
+        if len(path) > len('Restricted') and path[-len('Restricted'):] == 'Restricted':
+            path = path[0:-len('Restricted')]
+
+            def restrictData(data):
+                minRange = self.dataManager.getMinRange(path)
+                maxRange = self.dataManager.getMaxRange(path)
+
+                data = np.clip(data, minRange, maxRange)
+
+                return data
+
+            return (path, restrictData)
+
+        else:
+            return (path, None)
+
 
     def getDataEntry(self, path, indices=[], cloneData=True):
         '''
@@ -158,16 +170,23 @@ class Data():
                           :func:`setDataEntry`.
         :returns: the requested data
         '''
+        path, procDataStructure = self.resolveSuffixPath(path)
+
         if isinstance(path, str):
             path = self._resolveEntryPath(path)
 
         if not isinstance(indices, list):
             indices = [indices]
 
+
         data = self.dataStructure.getDataEntry(path, indices)
 
         if cloneData:
-            return copy.deepcopy(data)
+            newData = copy.deepcopy(data)
+            if (procDataStructure):
+                return procDataStructure(newData)
+            else:
+                return newData
         else:
             return data
 
@@ -234,6 +253,8 @@ class Data():
                 dataEntryList.append(self.getDataEntry(entry, indices))
         return dataEntryList
 
+
+
     def setDataEntryList(self, entryPaths, indices, dataEntryList):
         '''
         Similar to setDataEntry, but works for lists of entries.
@@ -248,6 +269,11 @@ class Data():
                     if isinstance(subEntryName, list):
                         subEntryName = subEntry[-1]
                     numDimensions = self.entryInfoMap[subEntryName].numDimensions
+
+                    if len(numDimensions) > 1:
+                        raise ValueError('Data matrices can not be stacked')
+                    else:
+                        numDimensions = numDimensions[0]
                     dataMatrix = dataEntryList[i]
 
                     if len(dataMatrix.shape) == 1:
@@ -275,14 +301,17 @@ class Data():
     #            self.setDataEntry(dataEntry.name, ...,
     #                              np.zeros(numElements, 1))
 
-    def reserveStorage(self, numElements):
+    def reserveStorage(self, numElements, indices = None):
         '''Allocates memory for `numElements` elements
 
         :param numElements: The number of elements that the data structure
                             should be able to handle.
         :change No "varargin" needed anymore
         '''
-        self.dataManager.reserveStorage(self.dataStructure, numElements)
+
+        subDataStructures = self.dataStructure.getSubdataStructures(indices)
+        for subData in subDataStructures:
+            subData.reserveStorage(numElements)
 
     def mergeData(self, other, inBack=True):
         '''

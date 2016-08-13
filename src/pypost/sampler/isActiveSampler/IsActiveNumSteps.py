@@ -15,7 +15,7 @@ class IsActiveNumSteps(IsActiveStepSampler, SettingsClient):
     def toReserve(self) -> int
     '''
 
-    def __init__(self, dataManager, stepName, numTimeSteps=40):
+    def __init__(self, dataManager, stepName, numTimeSteps=10):
         '''
         Registers itself to the DataManipulator
         :param dataManager: The data manager to use
@@ -33,14 +33,9 @@ class IsActiveNumSteps(IsActiveStepSampler, SettingsClient):
         Number of timesteps to run
         '''
 
-        self.resetProb = 1 / self.numTimeSteps
-        '''
-        Probability of a time step to reset
-        '''
         if stepName is None:
             stepName = "timeSteps"
-        self.linkProperty('resetProb', 'resetProb' + stepName.capitalize())
-        self.linkProperty("numTimeSteps", "num" + stepName.capitalize())
+        self.linkProperty("numTimeSteps", "num" + stepName[0].upper() + stepName[1:])
 
     # getter & setters
 
@@ -68,7 +63,7 @@ class IsActiveNumSteps(IsActiveStepSampler, SettingsClient):
         :param timeSteps: number of time steps
         :returns: True if the timestep if still active, False otherwise
         '''
-        return (timeSteps < self.numTimeSteps)
+        return (timeSteps < self.numTimeSteps - 1)
 
     def toReserve(self):
         '''

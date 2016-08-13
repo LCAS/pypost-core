@@ -1,16 +1,11 @@
-import os
-import sys
-from pypost.common import SettingsManager
-
 import numpy as np
-from pypost.common.Settings import Settings
-from pypost.distributions.gaussian.GaussianParameterPolicy import \
+
+from pypost.common import SettingsManager
+from pypost.distributions.GaussianParameterPolicy import \
 GaussianParameterPolicy
-from pypost.environments.banditEnvironments.RosenbrockReward import RosenbrockReward
-from pypost.environments.banditEnvironments.SinDistReward import SinDistReward
-from pypost.experiments.Trial import Trial
+from pypost.envs.banditEnvironments.SinDistReward import SinDistReward
 from pypost.experiments.Trial import StoringType
-from pypost.learner.episodicRL.EpisodicPower import EpisodicPower
+from pypost.experiments.Trial import Trial
 from pypost.learner.episodicRL.NESLearner2 import NESLearner2
 from pypost.sampler.EpisodeSampler import EpisodeSampler
 

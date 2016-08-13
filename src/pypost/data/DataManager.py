@@ -3,11 +3,16 @@ import numbers
 
 from pypost.data.Data import Data
 from pypost.data.DataAlias import DataAlias
+from pypost.data.DataAlias import IndexModifier
 from pypost.data.DataEntry import DataEntry
+from pypost.data.DataEntry import DataType
+from pypost.common import SettingsManager
+from pypost.common.SettingsClient import SettingsClient
 from pypost.data.DataStructure import DataStructure
 
 
-class DataManager():
+class DataManager(SettingsClient):
+
     '''
     The data manager stores all properties of the data that we mantain for
     the different experiments. It is organized hierarchically for storing
@@ -45,11 +50,13 @@ class DataManager():
     be found in the tutorials directory.
     '''
 
-    def __init__(self, name):
+    def __init__(self, name, isTimeSeries = False):
         '''
         Constructor
         :param string name: The name of this DataManager
         '''
+        SettingsClient.__init__(self)
+
         self.name = name
         self.subDataManager = None
         self.dataEntries = dict()
@@ -58,6 +65,9 @@ class DataManager():
         self._finalized = False
         self._depthMap = {}
         self._subDataManagerList = []
+        self.isTimeSeries = isTimeSeries
+
+
 
     @property
     def finalized(self):
@@ -82,7 +92,54 @@ class DataManager():
             return self._subDataManagerList[depth]
         return None
 
-    def addDataEntry(self, name, numDimensions, minRange=-1, maxRange=1):
+    def getDepthForDataManager(self, dataManagerName):
+        if (self.name == dataManagerName):
+            return 0
+        else:
+            if (not self.subDataManager):
+                raise ValueError('Datamanager for {0} not found'.format(dataManagerName))
+            else:
+                return self.subDataManager.getDepthForDataManager(dataManagerName) + 1
+
+    def addOptionalDataEntry(self, name, defaultGuard, numDimensions, minRange = None, maxRange = None, parameterPoolName = None, level = 0, transformation = None):
+
+        if minRange is None:
+            minRange = -np.ones(numDimensions)
+
+        if maxRange is None:
+            maxRange = np.ones(numDimensions)
+
+        nameUpper = name[0].upper() + name[1:]
+        guard = 'use' + nameUpper
+
+        self.settings.registerProperty(guard, defaultGuard)
+        self.settings.registerProperty(name, (minRange + maxRange) / 2)
+        self.settings.registerProperty('min' + nameUpper, minRange)
+        self.settings.registerProperty('max' + nameUpper, maxRange)
+
+        if self.settings.getProperty(guard):
+
+            dataManagerForDepth = self.dataManager.getSubDataManagerForDepth(level)
+            dataManagerForDepth.addDataEntry(name, numDimensions, minRange, maxRange)
+
+            if parameterPoolName is not None:
+
+                if transformation is None:
+                    dataManagerForDepth.addDataAlias(parameterPoolName, [(name, ...)])
+
+                elif transformation == 'logsig':
+
+                    nameData = name + 'Sigmoid'
+                    dataManagerForDepth.addDataAlias(parameterPoolName, [(nameData, ...)])
+        else:
+            dataManagerForDepth = self.getSubDataManagerForDepth(level)
+            dataManagerForDepth.addDataEntry(name, numDimensions, minRange, maxRange, takeFromSettings=True)
+
+        self._dirty = True
+        self.settings.lockProperty(guard)
+
+
+    def addDataEntry(self, name, numDimensions, minRange=-1, maxRange=1, isPeriodic = None, dataType = DataType.continuous, takeFromSettings = False):
         '''
         Function for adding a new data entry. If the same data entry already
         exists, then the properties are overwritten.
@@ -99,6 +156,11 @@ class DataManager():
         :raises ValueError: If the DataManager has been finalized already or
                             there is a DataAlias of that name.
         '''
+
+        settings = SettingsManager.getDefaultSettings()
+
+        name = name + settings.getSuffixString()
+
         if self.finalized:
             raise RuntimeError("The data manager cannot be modified after "
                                "it has been finalized")
@@ -109,16 +171,31 @@ class DataManager():
             raise ValueError("The name of an alias conflicts with a data " +
                              "entry name: " + name)
 
+        if not isinstance(numDimensions, tuple):
+            numDimensions = (numDimensions,)
+
         if isinstance(minRange, numbers.Number):
-            minRange = minRange * np.ones((numDimensions))
+            minRange = minRange * np.ones(numDimensions)
 
         if isinstance(maxRange, numbers.Number):
-            maxRange = maxRange * np.ones((numDimensions))
+            maxRange = maxRange * np.ones(numDimensions)
 
         self.dataEntries[name] = DataEntry(name, numDimensions,
-                                           minRange, maxRange)
+                                           minRange, maxRange, isPeriodic, dataType, takeFromSettings)
         self.dataAliases[name] = DataAlias(name, [(name, ...)], numDimensions)
         self._dirty = True
+
+        if (self.isTimeSeries):
+            # add Aliases for time series
+            nameUpper = name[0].upper() + name[1:]
+            aliasName = 'next' + nameUpper
+            self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifier.next)
+
+            aliasName = 'last' + nameUpper
+            self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifier.last)
+
+            aliasName = 'all' + nameUpper
+            self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifier.all)
 
     def isDataEntry(self, entryName):
         '''
@@ -188,9 +265,23 @@ class DataManager():
                                                 .entryList)
         return False
 
-    def addDataAlias(self, aliasName, entryList):
+    def imposeSuffix(self, argumentList, suffix):
+        for i in range(0, len(argumentList)):
+            name = argumentList[i][0]
+            if len(name) > 8 and name[-8:] == 'NoSuffix':
+                name = name[0:-8]
+            else:
+                nameWithSuffix = name + suffix
+                if self.isDataEntry(nameWithSuffix):
+                    name = nameWithSuffix
+
+            argumentList[i] = (name,argumentList[i][1])
+        return argumentList
+
+    def addDataAlias(self, aliasName, entryList, indexModifier = IndexModifier.none):
         '''
         Adds a new data alias.
+
 
         :param string aliasName: The name of the alias
         :param entryList: A list containing tuples of data entries and slices.
@@ -209,6 +300,14 @@ class DataManager():
             raise RuntimeError("The data manager cannot be modified after " +
                                "it has been finalized")
 
+        if not isinstance(entryList, list):
+            entryList = [entryList]
+
+        settings = self.settings
+        aliasName = aliasName + settings.getSuffixString()
+        entryList = self.imposeSuffix(entryList, settings.getSuffixString())
+
+
         # Ensure that the name of the alias does not conflict with an
         # DataEntry name
         if aliasName in self.dataEntries:
@@ -217,7 +316,7 @@ class DataManager():
 
         # Ensure that all referenced names are in the entry list
         if all((entry[0] in self.dataAliases or
-                entry[0] in self.dataEntries) for entry in entryList):
+                entry[0] in self.dataEntries ) for entry in entryList):
 
             if self._checkForAliasCycle(aliasName, entryList):
                 raise ValueError("Alias cycle detected!")
@@ -243,21 +342,44 @@ class DataManager():
             else:
                 # add the entryList
                 self.dataAliases[aliasName] = DataAlias(aliasName, entryList,
-                                                        0)
+                                                        0, indexModifier)
+
+
 
             # Computes the total number of dimensions for the alias
             numDim = 0
             for entryName, _slice in self.dataAliases[aliasName].entryList:
                 if entryName in self.dataEntries:
-                    tmpArray = np.empty((self.dataEntries[entryName]
-                                         .numDimensions))
+                    numDimLocal = self.dataEntries[entryName].numDimensions
+                    if len(numDimLocal) > 1:
+                        raise ValueError("Only vector-valued data entries can be stacked in aliases")
+                    else:
+                        numDimLocal = numDimLocal[0]
+                    tmpArray = np.empty((numDimLocal))
+
                     numDim += len(tmpArray[_slice])
                 else:
                     numDim += self.dataAliases[entryName].numDimensions
-            self.dataAliases[aliasName].numDimensions = numDim
+
+
+            self.dataAliases[aliasName].numDimensions = (numDim,)
+
+            if (self.isTimeSeries):
+                # add Aliases for time series
+                nameUpper = aliasName[0].upper() + aliasName[1:]
+                aliasAliasName = 'next' + nameUpper
+                self.dataAliases[aliasAliasName] = DataAlias(aliasAliasName, [(aliasName, ...)], numDim,
+                                                        IndexModifier.next)
+
+                aliasAliasName = 'last' + nameUpper
+                self.dataAliases[aliasAliasName] = DataAlias(aliasAliasName, [(aliasName, ...)], numDim,
+                                                        IndexModifier.last)
+
+                aliasAliasName = 'all' + nameUpper
+                self.dataAliases[aliasAliasName] = DataAlias(aliasAliasName, [(aliasName, ...)], numDim, IndexModifier.all)
         else:
             if self.subDataManager is not None:
-                self.subDataManager.addDataAlias(aliasName, entryList)
+                self.subDataManager.addDataAlias(aliasName, entryList, indexModifier)
             else:
                 raise ValueError("One or more of the alias entry names do " +
                                  "not exist")
@@ -312,11 +434,47 @@ class DataManager():
         else:
             name = entryNames
             if name in self.dataAliases:
-                return self.dataAliases[name].numDimensions
+                if (len(self.dataAliases[name].numDimensions) == 1):
+                    return self.dataAliases[name].numDimensions[0]
+                else:
+                    return self.dataAliases[name].numDimensions
             elif self.subDataManager is not None:
                 return self.subDataManager.getNumDimensions(name)
             else:
                 raise ValueError("Entry %s is not registered!" % name)
+
+    def getPeriodicity(self, entryNames):
+        if isinstance(entryNames, list):
+            periodicity = []
+            for name in entryNames:
+                periodicity = periodicity + self.getPeriodicity(name)
+            return periodicity
+
+        name = entryNames
+        if name in self.dataAliases:
+            alias = self.dataAliases[name]
+            periodicity = [False] * alias.numDimensions[0]
+            index = 0
+            for entryName, _slice in alias.entryList:
+                tempMinRange = None
+                if entryName in self.dataEntries:
+                    if (_slice == Ellipsis):
+                        tempPeriodicity = self.dataEntries[entryName].isPeriodic
+                    else:
+                        tempPeriodicity = self.dataEntries[entryName].isPeriodic[_slice]
+                elif entryName in self.dataAliases:
+                    tempPeriodicity = self.getPeriodicity(entryName)
+                else:
+                    raise ValueError("Unknown entry.")
+
+                periodicity[index:(index + len(tempPeriodicity))] = tempPeriodicity
+                index += len(tempPeriodicity)
+            return periodicity
+
+        if self.subDataManager is not None:
+            return self.subDataManager.getPeriodicity(name)
+
+        raise ValueError("Entry %s is not registered!" % name)
 
     def getMinRange(self, entryNames):
         '''
@@ -350,6 +508,7 @@ class DataManager():
                     raise ValueError("Unknown entry.")
 
                 minRange[index:(index + len(tempMinRange))] = tempMinRange
+
                 index += len(tempMinRange)
             return minRange
 
@@ -498,6 +657,11 @@ class DataManager():
         if finalize:
             self._finalized = True
 
+    def printDataAliases(self):
+
+        object = self.getDataObject(0)
+        object.printDataAliases()
+
     def _createDataStructure(self, numElements):
         '''
         Creates the data structure (containing real data) for the data object.
@@ -515,16 +679,14 @@ class DataManager():
         else:
             numElementsCurrentLayer = numElements
 
-        dataStructure = DataStructure(numElementsCurrentLayer)
+
+        dataStructure = DataStructure(self, numElementsCurrentLayer, self.isTimeSeries)
         for dataEntryName, dataEntry in self.dataEntries.items():
-            dataStructure.createEntry(dataEntryName,
-                                      np.zeros((numElementsCurrentLayer,
-                                                dataEntry.numDimensions),
-                                               dtype=np.float64))
+            dataStructure.createEntry(dataEntryName, dataEntry)
 
         for dataAliasName, dataAlias in self.dataAliases.items():
             if dataAliasName not in self.dataEntries:
-                dataStructure.createEntry(dataAliasName, dataAlias)
+                dataStructure.createAlias(dataAliasName, dataAlias)
 
         if (self.subDataManager is not None):
             subDataStructures = []
@@ -533,57 +695,12 @@ class DataManager():
                 subDS = self.subDataManager._createDataStructure(numElements)
                 subDataStructures.append(subDS)
 
-            dataStructure.createEntry(self.subDataManager.name,
+            dataStructure.createAliasSubDataStructure(self.subDataManager.name,
                                       subDataStructures)
 
         return dataStructure
 
-    def reserveStorage(self, dataStructure, numElements):
-        '''
-        Reserves more storage for a data structure. numElements can be a vector
-        that also contains the number of data points to add to the lower levels
-        of the hierarchy. This function should only be called by the data
-        object.
 
-        :param data.DataStructure dataStructure: The DataStructure to be
-                                                 modified
-        :param numElements: A vector containing the number of elements to add
-                            for each layer
-        :type numElemenst: list of ints
-        '''
-        numElementsLocal = numElements
-        if isinstance(numElements, list):
-            numElementsLocal = numElements[0]
-            numElements = numElements[1:]
-        else:
-            numElements = [numElements]
-
-        dataStructure.numElements = numElementsLocal
-        for name, entry in self.dataEntries.items():
-            currentSize = dataStructure.dataStructureLocalLayer[name].shape[0]
-            if currentSize < numElementsLocal:
-                dataStructure.dataStructureLocalLayer[name] = np.vstack(
-                    (dataStructure.dataStructureLocalLayer[name],
-                     np.zeros((numElementsLocal - currentSize,
-                               entry.numDimensions))))
-            else:
-                dataStructure.dataStructureLocalLayer[name] = np.delete(
-                    dataStructure.dataStructureLocalLayer[name],
-                    slice(numElementsLocal, None, None), 0)
-
-        if self.subDataManager is not None and numElements:
-            subStructureList = dataStructure.dataStructureLocalLayer[self.subDataManager.name]
-            currentSize = len(subStructureList)
-            diff = numElementsLocal - currentSize
-            # adapt amount of sub structures
-            if diff >= 0:
-                for i in range(0, diff):
-                    subStructureList.append(self.subDataManager._createDataStructure(numElements[0]))
-            else:
-                for i in range(0, -diff):
-                    subStructureList.pop(-1)
-            for subStructure in subStructureList:
-                self.subDataManager.reserveStorage(subStructure, numElements)
 
     def mergeDataStructures(self, dataStructure1, dataStructure2):
         '''

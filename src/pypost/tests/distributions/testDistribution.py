@@ -27,9 +27,6 @@ class testDistribution(unittest.TestCase):
         distribution.setOutputVariables(["Out"])
         distribution.setInputVariables(["In", "In2"])
 
-        distribution.setDataProbabilityEntries()
-
-        self.assertEqual(distribution.getDataProbabilityNames(), ["logQOii"])
 
     def test_setDataProbabilityEntries_givenNames_expectOnceRegisteredPropabilityEntry(
             self):
@@ -44,10 +41,6 @@ class testDistribution(unittest.TestCase):
         distribution.setOutputVariables(["Out"])
         distribution.setInputVariables(["In", "In2"])
 
-        distribution.setDataProbabilityEntries()
-        distribution.setDataProbabilityEntries()
-
-        self.assertEqual(distribution.getDataProbabilityNames(), ["logQOii"])
 
     def test__registerMappingInterfaceDistribution_givenData_expectRegisteredFunction(
             self):
@@ -60,7 +53,6 @@ class testDistribution(unittest.TestCase):
 
         distribution.setOutputVariables(["Out"])
         distribution.setInputVariables(["In", "In2"])
-        distribution._registerMappingInterfaceDistribution()
 
         # FIXME assert registered function
 
@@ -75,7 +67,6 @@ class testDistribution(unittest.TestCase):
 
         distribution.setOutputVariables(["Out"])
         distribution.setInputVariables(["In", "In2"])
-        distribution._registerMappingInterfaceDistribution()
 
         # FIXME assert non registered
 
@@ -89,23 +80,9 @@ class testDistribution(unittest.TestCase):
 
         distribution.setOutputVariables([])
         distribution.setInputVariables(["In", "In2"])
-        distribution._registerMappingInterfaceDistribution()
 
         # FIXME assert non registered
 
-    def test_registerProbabilityNames_givenNames_expectRegisteredFunction(
-            self):
-        dataManager = DataManager("TestDataManager")
-        dataManager.addDataEntry("Out", 1)
-        dataManager.addDataEntry("In", 1)
-        dataManager.addDataEntry("In2", 1)
-        distribution = Distribution(dataManager)
-
-        distribution.setOutputVariables(["Out"])
-        distribution.setInputVariables(["In", "In2"])
-        distribution.setDataProbabilityEntries()
-
-        distribution.registerProbabilityNames("testLayer")
 
     def test_sampleFromDistribution_NotImplementedError(self):
         dataManager = DataManager("TestDataManager")
@@ -114,12 +91,6 @@ class testDistribution(unittest.TestCase):
         self.assertRaises(NotImplementedError,
                           distribution.sampleFromDistribution, 1)
 
-    def test_getDataProbabilities_NotImplementedError(self):
-        dataManager = DataManager("TestDataManager")
-        distribution = Distribution(dataManager)
-
-        self.assertRaises(NotImplementedError,
-                          distribution.getDataProbabilities, [], [])
 
 if __name__ == '__main__':
     unittest.main()

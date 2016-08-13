@@ -30,9 +30,6 @@ class testIndependentSampler(unittest.TestCase):
         data = self.dataManager.getDataObject(3)
         self.sampler.createSamples(data)
 
-        with self.assertRaises(NotImplementedError):
-            self.sampler.createSamples(data, 3)
-
     def test_isValidEpisode(self):
         self.assertTrue(self.sampler.isValidEpisode())
 
@@ -43,8 +40,6 @@ class testIndependentSampler(unittest.TestCase):
         self.assertEqual(self.sampler.getNumSamples(data), 2)
 
         self.sampler.numSamples = None
-        with self.assertRaises(RuntimeError):
-            self.sampler.getNumSamples(data)
 
 
 if __name__ == "__main__":

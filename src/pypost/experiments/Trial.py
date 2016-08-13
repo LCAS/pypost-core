@@ -1,7 +1,6 @@
 from pypost.common.Settings import Settings
 from pypost.common import SettingsManager
-import sys
-import os
+import os.path
 import random
 import traceback
 import numpy as np
@@ -11,6 +10,12 @@ from collections import namedtuple
 from pypost.common import DataPrinter
 import yaml
 import shlex, subprocess
+import datetime
+import time
+import os, sys
+from stat import *
+
+import time
 
 StoringType = Enum('StoringType', 'STORE, STORE_PER_ITERATION, ACCUMULATE, '
                    'ACCUMULATE_PER_ITERATION')
@@ -47,13 +52,15 @@ class Trial(SettingsClient):
         else:
             self.trialSettings = trialSettings.clone()
 
-        self.settings = Settings('defaultSettings')
-        SettingsManager.setRootSettings(self.settings)
+        self.settings = Settings('trialSettings')
 
         self.isFinished = False
-        self.gitRevisionNumber = -1;
+        self.isRunning = False
+        self.gitRevisionNumber = -1
         random.seed(index)
         self.rngState = random.getstate()
+
+        self.hasLock = False
 
     def store(self, name, value, mode=StoringType.STORE):
         '''
@@ -148,17 +155,23 @@ class Trial(SettingsClient):
         trialDict = dict()
 
         trialDict['isFinished'] = self.isFinished
+        trialDict['isRunning'] = self.isRunning
         trialDict['rngState'] = self.rngState
         trialDict['gitRevisionNumber'] = self.gitRevisionNumber
 
+        lockedFile = self.lockFile()
         if overwrite or not os.path.isfile(trialFile):
             with open(trialFile, 'w') as stream:
                 yaml.dump(trialDict, stream)
 
-
+            if (lockedFile):
+                self.unlockFile()
             return True
         else:
+            if (lockedFile):
+                self.unlockFile()
             return False
+
 
     def loadTrial(self):
         self.loadTrialFromFile(self.trialDir)
@@ -187,16 +200,51 @@ class Trial(SettingsClient):
 
         trialFile = os.path.join(trialDir, 'trial.yaml')
 
+        lockedFile = self.lockFile()
         with open(trialFile, 'r') as stream:
             trialDict = yaml.load(stream)
-
         self.isFinished = trialDict['isFinished']
+        self.isRunning = trialDict['isRunning']
         self.rngState = trialDict['rngState']
         self.gitRevisionNumber = trialDict['gitRevisionNumber']
 
-    def start(self, restart = False):
-        if self.isFinished and not restart:
-            print("Trial %s is already isFinished!" % self.trialDir)
+        if (lockedFile):
+            self.unlockFile()
+
+
+    def lockFile(self):
+        if (self.hasLock):
+            return False
+        lockFile = os.path.join(self.trialDir, 'trial.lock')
+
+        while True:
+            if not os.path.exists(lockFile):
+                lock = open(lockFile, 'w')
+                self.hasLock = True
+                break
+
+            else:
+                check = os.stat(lockFile)
+                if time.time() - check.st_ctime > 1:
+                    os.remove(lockFile)
+                print('waiting my turn for opening trial {0}'.format(self.trialDir))
+                time.sleep(0.5)
+        return True
+
+    def unlockFile(self):
+        lockFile = os.path.join(self.trialDir, 'trial.lock')
+        os.remove(lockFile)
+        self.hasLock = False
+
+    def start(self, restart = 0):
+        self.lockFile()
+        self.loadTrial()
+        if self.isFinished and not restart == -2:
+            print("Trial %s is already funished!" % self.trialDir)
+            self.unlockFile()
+        elif (self.isRunning and not restart <= -1):
+            print("Trial %s is already running!" % self.trialDir)
+            self.unlockFile()
         else:
             SettingsManager.setRootSettings(self.settings)
 
@@ -205,6 +253,11 @@ class Trial(SettingsClient):
             date = subprocess.getoutput('date +%Y/%m/%d_%H:%M')
 
             self.gitRevisionNumber = commitCount + ':' + revNumber + ':' + date
+            self.isRunning = True
+            self.storeTrial()
+            self.unlockFile()
+
+            self.configure()
             self.run()
 
             self.isFinished = True
@@ -214,7 +267,18 @@ class Trial(SettingsClient):
         self.settings.copyProperties(self.trialSettings)
 
     def configure(self):
+        SettingsManager.pushDefaultSettings(self.settings)
+        self._configure()
+        SettingsManager.popDefaultSettings()
+
+    def _configure(self):
         raise NotImplementedError("Must be overwritten by subclass") # pragma: no cover
 
     def run(self):
-        raise NotImplementedError("Must be overwritten by subclass") # pragma: no cover
+        SettingsManager.pushDefaultSettings(self.settings)
+        self._run()
+        SettingsManager.popDefaultSettings()
+
+
+    def _run(self):
+        raise NotImplementedError("Must be overwritten by subclass")  # pragma: no cover

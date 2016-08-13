@@ -1,13 +1,12 @@
 import numpy as np
 from pypost.common.SettingsClient import SettingsClient
-from pypost.environments.EpisodicContextualParameterLearningTask \
-import EpisodicContextualParameterLearningTask
+from pypost.envs.ContextualBlackBoxTask import ContextualBlackBoxTask
 
 
-class RosenbrockReward(EpisodicContextualParameterLearningTask, SettingsClient): #pragma nocover
-    def __init__(self, episodeSampler, dimContext, dimParameters):
-        EpisodicContextualParameterLearningTask.__init__(
-            self, episodeSampler, dimContext, dimParameters)
+class RosenbrockReward(ContextualBlackBoxTask): #pragma nocover
+    def __init__(self, dataManager, dimContext, dimParameters):
+        ContextualBlackBoxTask.__init__(
+            self, dataManager, dimContext, dimParameters)
         SettingsClient.__init__(self)
 
         self.rewardCenter = 0
@@ -63,3 +62,7 @@ class RosenbrockReward(EpisodicContextualParameterLearningTask, SettingsClient):
         #print(reward)
 
         return reward
+
+if __name__ == "__main__":
+    rosenBrock = RosenbrockReward(0,1)
+    lala = rosenBrock

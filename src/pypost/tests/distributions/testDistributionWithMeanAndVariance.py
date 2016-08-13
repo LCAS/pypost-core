@@ -25,7 +25,7 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
             def DistributionWithMeanAndVarianceTest(self, dataManager):
                 DistributionWithMeanAndVariance.__init__(self, dataManager)
 
-            def getExpectationAndSigma(self, numElements, inputData, *args):
+            def getExpectationAndSigma(self, inputData, *args):
                 return (np.array([[[5]]]), np.array([[[0.1]]]))
 
         dataManager = DataManager("TestDataManager")
@@ -43,7 +43,7 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
             def DistributionWithMeanAndVarianceTest(self, dataManager):
                 DistributionWithMeanAndVariance.__init__(self, dataManager)
 
-            def getExpectationAndSigma(self, numElements, inputData, *args):
+            def getExpectationAndSigma(self, inputData, *args):
                 return (
                     np.zeros((1, 15, 15)), np.ones((1, 15, 15)))
 
@@ -62,14 +62,14 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
             def DistributionWithMeanAndVarianceTest(self, dataManager):
                 DistributionWithMeanAndVariance.__init__(self, dataManager)
 
-            def getExpectationAndSigma(self, numElements, inputData, *args):
+            def getExpectationAndSigma(self, inputData, *args):
                 return (
-                    np.zeros((1, 5, 2)), np.ones((1, 5, 2)))
+                    np.zeros((5, 2)), np.ones((1, 2, 2)))
 
         dataManager = DataManager("TestDataManager")
         distribution = DistributionWithMeanAndVarianceTest(dataManager)
 
-        samples = distribution.sampleFromDistribution(1, [])
+        samples = distribution.sampleFromDistribution([])
         # FIXME there are random numbers involved add asserts. for now we are
         # only testing correct execution
 
@@ -81,7 +81,7 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
             def DistributionWithMeanAndVarianceTest(self, dataManager):
                 DistributionWithMeanAndVariance.__init__(self, dataManager)
 
-            def getExpectationAndSigma(self, numElements, inputData, *args):
+            def getExpectationAndSigma(self, inputData, *args):
                 return (
                     np.zeros((2, 5, 2)), np.ones((2, 5, 2)))
 
@@ -90,7 +90,7 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
 
         self.assertRaises(
             NotImplementedError,
-            distribution.sampleFromDistribution, 1, [])
+            distribution.sampleFromDistribution,[])
 
     def test_sampleFromDistribution_given2DExpAnd3DSigma_expectNotImplementedError(
             self):
@@ -100,14 +100,14 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
             def DistributionWithMeanAndVarianceTest(self, dataManager):
                 DistributionWithMeanAndVariance.__init__(self, dataManager)
 
-            def getExpectationAndSigma(self, numElements, inputData, *args):
+            def getExpectationAndSigma(self, inputData, *args):
                 return (
                     np.zeros((2, 2)), np.ones((1, 2, 2)))
 
         dataManager = DataManager("TestDataManager")
         distribution = DistributionWithMeanAndVarianceTest(dataManager)
 
-        samples = distribution.sampleFromDistribution(1, [])
+        samples = distribution.sampleFromDistribution([])
 
     def test_sampleFromDistribution_given4DExpAndMultiSigma_expectValueError(
             self):
@@ -117,7 +117,7 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
             def DistributionWithMeanAndVarianceTest(self, dataManager):
                 DistributionWithMeanAndVariance.__init__(self, dataManager)
 
-            def getExpectationAndSigma(self, numElements, inputData, *args):
+            def getExpectationAndSigma(self, inputData, *args):
                 return (
                     np.ones((2, 5, 2, 2)), np.ones((1, 5, 2)))
 
@@ -126,7 +126,7 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
 
         self.assertRaises(
             ValueError,
-            distribution.sampleFromDistribution, 1, [])
+            distribution.sampleFromDistribution, [])
 
     def test_sampleFromDistribution_givenExpAnd4DSigma_ValueError(
             self):
@@ -136,7 +136,7 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
             def DistributionWithMeanAndVarianceTest(self, dataManager):
                 DistributionWithMeanAndVariance.__init__(self, dataManager)
 
-            def getExpectationAndSigma(self, numElements, inputData, *args):
+            def getExpectationAndSigma(self, inputData, *args):
                 return (
                     np.zeros((1, 3, 3, 3)), np.zeros((1, 3, 3, 3)))
 
@@ -146,8 +146,7 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
         self.assertRaises(
             ValueError,
             distribution.sampleFromDistribution,
-            1,
-            [])
+            1)
 
     def test_getDataProbabilities_given3DExpAndDiagonalSigma_NoError(
             self):
@@ -157,7 +156,7 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
             def DistributionWithMeanAndVarianceTest(self, dataManager):
                 DistributionWithMeanAndVariance.__init__(self, dataManager)
 
-            def getExpectationAndSigma(self, numElements, inputData, *args):
+            def getExpectationAndSigma(self, inputData, *args):
                 return (np.zeros((2, 2, 1)), np.ones((2, 2, 1)))
 
         dataManager = DataManager("TestDataManager")
@@ -166,8 +165,6 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
         distribution = DistributionWithMeanAndVarianceTest(dataManager)
         distribution.setOutputVariables(["Out"])
         distribution.setInputVariables(["In"])
-        distribution.setDataProbabilityEntries()
-        distribution.registerProbabilityNames("testLayer")
 
         qData = distribution.getDataProbabilities(None, np.zeros((2, 1, 3)))
 
@@ -233,33 +230,6 @@ class testDistributionWithMeanAndVariance(unittest.TestCase):
         self.assertRaises(NotImplementedError,
                           distribution.getExpectationAndSigma, 1, [])
 
-    def test__registerMappingInterfaceDistribution_givenRegisterFlag_ExpectNoError(
-            self):
-        dataManager = DataManager("TestDataManager")
-        dataManager.addDataEntry("Out", 3)
-        dataManager.addDataEntry("In", 3)
-        distribution = DistributionWithMeanAndVariance(dataManager)
-        distribution.setOutputVariables(["Out"])
-        distribution.setInputVariables(["In"])
-        distribution.setDataProbabilityEntries()
-        distribution.registerProbabilityNames("testLayer")
-
-        distribution.registerDataFunctions = True
-        distribution._registerMappingInterfaceDistribution()
-
-    def test__registerMappingInterfaceDistribution_givenNoRegisterFlag_ExpectNoError(
-            self):
-        dataManager = DataManager("TestDataManager")
-        dataManager.addDataEntry("Out", 3)
-        dataManager.addDataEntry("In", 3)
-        distribution = DistributionWithMeanAndVariance(dataManager)
-        distribution.setOutputVariables(["Out"])
-        distribution.setInputVariables(["In"])
-        distribution.setDataProbabilityEntries()
-        distribution.registerProbabilityNames("testLayer")
-
-        distribution.registerDataFunctions = False
-        distribution._registerMappingInterfaceDistribution()
 
 if __name__ == '__main__':
     unittest.main()

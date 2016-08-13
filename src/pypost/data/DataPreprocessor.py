@@ -8,8 +8,6 @@ class DataPreprocessor(object):
         Set up the data preprocessor
         '''
 
-        self.iteration = 0
-
         self.name = 'data'
 
         if name is not None:
@@ -32,8 +30,4 @@ class DataPreprocessor(object):
         newData = self.preprocessData(dataCollection.getStandardData())
         dataCollection.setDataObject(newData, self.name)
 
-    def setIteration(self, iteration):
-        if (iteration < 0):
-            raise RuntimeError("Iteration value can not be negative")
 
-        self.iteration = iteration

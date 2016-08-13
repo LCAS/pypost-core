@@ -4,6 +4,6 @@ __all__ = ['Data',
            'DataEntry',
            'DataManager',
            'DataManipulator',
-           'DataManipulatorInterface',
            'DataPreprocessor',
            'DataStructure']
+

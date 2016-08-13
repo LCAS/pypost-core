@@ -1,11 +1,79 @@
 import numbers
 
-from pypost.functions.MappingInterface import MappingInterface
-from pypost.data.DataManipulatorInterface import CallType
+
+from pypost.data.DataManipulator import CallType
 from pypost.data.DataManipulator import DataManipulator
+from pypost.data.DataManipulator import DataManipulationStructure
+from pypost.data.DataManipulator import _DataDecorator
+from pypost.data.Data import Data
+
+from pypost.data.DataManipulator import ManipulatorMetaClass
+# class _DataMappingDecorator(_DataDecorator):
+#
+#     def __init__(self, function, inputArguments, outputArguments, **kwargs):
+#
+#         self = _DataDecorator.__init__(function, inputArguments, outputArguments, **kwargs)
+#
+#
+#     def getWrapperFunction(self):
+#         dataStruct = self.dataStruct
+#
+#         def data_function( object, data, indices=Ellipsis, registerOutput=True):
+#
+#             if not dataStruct.isInitialized:
+#                 dataStruct.isInitialized = True
+#
+#                 # If we are currently using a suffix stack for the names, impose the suffix to all data entries if we can
+#                 # find the name with the suffix. Suffix imposement can be avoided by manually putting "NoSuffix" as a suffix.
+#                 # The "NoSuffix" string will be deleted.
+#
+#                 if dataStruct.outputArguments is None:
+#                     dataStruct.outputArguments = object.getOutputVariables()
+#                 else:
+#                     for i in range(0, len(dataStruct.outputArguments)):
+#                         if (dataStruct.outputArguments[i] == '_outputDataMapping_'):
+#                             dataStruct.outputArguments[i] = object.getOutputVariables()[0]
+#
+#                 if (dataStruct.inputArguments is None):
+#                     dataStruct.inputArguments = object.getInputVariables()
+#                 else:
+#                     newInputArguments = []
+#                     for i in range(0, len(dataStruct.inputArguments)):
+#                         if (dataStruct.inputArguments[i] == '_inputDataMapping_'):
+#                             newInputArguments = newInputArguments + object.getInputVariables()
+#                         else:
+#                             newInputArguments.append(dataStruct.inputArguments[i])
+#
+#                 self.preprocessArguments(object, dataStruct)
+#
+#             output = _DataDecorator._callDataFunctionInternal(dataStruct, data, indices, registerOutput)
+#             return output
+#         return data_function
 
 
-class Mapping(DataManipulator, MappingInterface):
+
+class MappingMetaClass(ManipulatorMetaClass):
+    def __init__(cls, name, bases, dct):
+
+        super(MappingMetaClass, cls).__init__(name, bases, dct)
+        cloneDict = cls.__dict__.copy()
+        numMappingFunctions = 0
+        for (key, function) in cloneDict.items():
+
+            if hasattr(function, 'initializeAsMappingFunction') and function.initializeAsMappingFunction:
+
+                if (numMappingFunctions == 0):
+                    name = function.__name__
+                    setattr(cls, 'callFunctionName', name)
+                    function.initializeAsMappingFunction = False
+                    setattr(cls, name, function)
+                    cls.dataFunction = cls.__call__
+                    numMappingFunctions += 1
+                else:
+                    raise ValueError('A mapping can only have one mapping function')
+
+
+class Mapping(DataManipulator, metaclass=MappingMetaClass):
     '''
     The Mapping class is a DataManipulator that is able to combine a
     number of data manipulation functions.
@@ -16,8 +84,23 @@ class Mapping(DataManipulator, MappingInterface):
     and setOutputVariables(). New mapping functions have to be
     added with the addMappingFunction()
     '''
+    callFunctionName = ''
 
-    def __init__(self, dataManager, outputVariables=None, inputVariables=None,
+    @staticmethod
+    def DataMappingFunction(inputArguments = 'self.inputVariables', outputArguments = 'self.outputVariables', callType=CallType.ALL_AT_ONCE, takesNumElements=False,
+                            takesData=False):
+
+        def wrapper(function):
+            decorator = _DataDecorator(function, inputArguments, outputArguments, callType, takesNumElements,
+                                       takesData)
+            function.dataFunctionDecorator = decorator
+            function.initializeAsMappingFunction = True
+            return function
+
+        return wrapper
+
+
+    def __init__(self, dataManager, inputVariables=None, outputVariables=None,
                  name=""):
         '''
         Constructor
@@ -33,18 +116,11 @@ class Mapping(DataManipulator, MappingInterface):
         #FIXME check registerDataFunctions invariant again
         '''
         DataManipulator.__init__(self, dataManager)
-        MappingInterface.__init__(self)
-
-        self.dataManager = dataManager
-        '''
-        The data manager the mapping is operating on
-        '''
 
         self.name = name
         '''
         Name of the mapping function
         '''
-
         self.inputVariables = []
         '''
         Input variables for mapping functions
@@ -52,56 +128,45 @@ class Mapping(DataManipulator, MappingInterface):
         if inputVariables is not None:
             self.setInputVariables(inputVariables)
 
-        self.additionalInputVariables = []
-
-        self.outputVariables = []
+        self.outputVariables = None
         '''
         Output variables for mapping functions
         '''
         if outputVariables is not None:
             self.setOutputVariables(outputVariables)
 
-        self.mappingFunctions = []
+        self.callFunctionData = None
+        self.callFunctionPlain = None
 
-    def getAdditionalInputVariables(self):
-        return list(self.additionalInputVariables)
+    def getNumElementsAndInput(self, input):
+        if (len(self.inputVariables) > 0):
+            numElements = input.shape[0]
+        else:
+            numElements = input
+            input = None
+        return (numElements, input)
 
-    def setAdditionalInputVariables(self, variables):
-        self.additionalInputVariables = variables
+    def setMappingCallFunction(self, callFunctionName):
+        self.callFunctionName = callFunctionName
 
-    def addMappingFunction(self, function, outputVariables=None,
-                           functionName=None):
-        '''
-        Add a mapping function
+    @DataManipulator.DataFunction
+    def __call__(self, *args, fromData = True):
 
-        :param function: the function to add to the mapping
-        :param outputVariables: new output variables. defaults to the Mapping
-                                output variables if not set
-        :param functionName: name to register the function to
-
-        By adding a new mapping function the Mapping will register
-        a new DataManipulationFunction in the DataManager, with
-        the currently defined inputVariables and the current set of
-        outputVariables also including the new outputVariables added
-        in this function call. (see also Data.DataManipulator)
-        '''
-        if outputVariables is None:
-            outputVariables = self.outputVariables
-
-        self.mappingFunctions.append(function)
-
-        inputVars = []
-        inputVars.extend(self.inputVariables)
-        inputVars.extend(self.additionalInputVariables)
-
-        self.addDataManipulationFunction(
-            self.mappingFunctions[-1],
-            inputVars,
-            outputVariables,
-            None,
-            True,
-            functionName
-        )
+        if (fromData):
+            if (len(args) == 0 or not isinstance(args[0], Data)):
+                raise ValueError("Call function requires data as input. Call it with 'fromData = False' to access original function")
+            if (self.callFunctionData is None):
+                if (not self.callFunctionName):
+                    raise ValueError("Call Function of Mapping {0} is not set!".format(self.name))
+                self.callFunctionData = getattr(self, self.callFunctionName + '_fromData')
+            output =  self.callFunctionData(*args)
+        else:
+            if (self.callFunctionPlain is None):
+                if (not self.callFunctionName):
+                    raise ValueError("Call Function of Mapping {0} is not set!".format(self.name))
+                self.callFunctionPlain = getattr(self, self.callFunctionName)
+            output = self.callFunctionPlain(*args)
+        return output
 
     def setInputVariables(self, inputVariables, numDim=None, append=False):
         '''Sets the input variables given to each mapping function registered
@@ -144,8 +209,9 @@ class Mapping(DataManipulator, MappingInterface):
         return list(self.outputVariables)
 
     def setOutputVariables(self, outputVariables):
-        if len(outputVariables) > 1:
-            raise RuntimeError("Only single output variable supported")
+
+        if (not isinstance(outputVariables, list)):
+            outputVariables = [outputVariables]
 
         self.outputVariables = outputVariables
         self.dimOutput = self.dataManager.getNumDimensions(
@@ -157,3 +223,4 @@ class Mapping(DataManipulator, MappingInterface):
     def setOutputDimension(self, dimension):
         self.dimOutput = dimension
         self.outputVariables = []
+

@@ -1,4 +1,4 @@
 __all__ = ['Distribution',
-           'DistributionInterface',
+           'GaussianLinearInFeatures',
            'DistributionWithMeanAndVariance']
-# TODO also import gaussian subpackage?
+

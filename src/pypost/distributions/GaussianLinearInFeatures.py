@@ -6,8 +6,8 @@ from pypost.distributions.DistributionWithMeanAndVariance import \
 from pypost.common.SettingsClient import SettingsClient
 
 
-class GaussianLinearInFeatures(FunctionLinearInFeatures,
-                               DistributionWithMeanAndVariance, SettingsClient):
+class GaussianLinearInFeatures(DistributionWithMeanAndVariance, FunctionLinearInFeatures,
+                                SettingsClient):
     '''
     The  GaussianLinearInFeatures class models gaussian distributions where the
     mean can be a linear function of the feature vectors.
@@ -27,8 +27,8 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
     and inputVariables etc
     '''
 
-    def __init__(self, dataManager, outputVariables, inputVariables,
-                 functionName, featureGenerator=None, doInitWeights=True):
+    def __init__(self, dataManager, inputVariables, outputVariables,
+                 name, featureGenerator=None, doInitWeights=True):
         '''
         Constructor
 
@@ -37,10 +37,10 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         :param inputVariables: set of input Variables of the gaussian function
         :param functionName: name of the gaussian function
         '''
-        DistributionWithMeanAndVariance.__init__(self, dataManager)
-        FunctionLinearInFeatures.__init__(self, dataManager, outputVariables,
-                                          inputVariables, functionName,
+        FunctionLinearInFeatures.__init__(self, dataManager, inputVariables, outputVariables, name,
                                           featureGenerator, doInitWeights)
+        DistributionWithMeanAndVariance.__init__(self, dataManager, inputVariables, outputVariables)
+
         SettingsClient.__init__(self)
 
         self.saveCovariance = False
@@ -68,9 +68,6 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         else:
             self.linkProperty('initSigma')
 
-        self._registerMappingInterfaceDistribution()
-        self.registerMappingInterfaceFunction()
-
     def getCovariance(self):
         '''
         Return the covariance matrix
@@ -92,12 +89,13 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
     def setCovariance(self, covMat):
         if (self.saveCovariance):
             self.covMat = covMat
-        else:
 
-            # np returns L but Matlab is returning R -> transpose
-            self.cholA = np.transpose(np.linalg.cholesky(covMat))
+        if (covMat.shape[0] != self.dimOutput or covMat.shape[0] != self.dimOutput):
+            raise ValueError("The shape of the sigma matrix {0} does not match num output variables".format(covMat.shape))
+        # np returns L but Matlab is returning R -> transpose
+        self.cholA = np.transpose(np.linalg.cholesky(covMat))
 
-            assert all(np.isreal(covMat)), "pst: cholesky failed, Covariance is illposed"
+        assert np.isreal(covMat).all(), "pst: cholesky failed, Covariance is illposed"
 
 
     def setSigma(self, cholA):
@@ -106,31 +104,28 @@ class GaussianLinearInFeatures(FunctionLinearInFeatures,
         :param cholA: The squareroot of the covariance in cholesky form
         '''
 
+        if (cholA.shape[0] != self.dimOutput or cholA.shape[0] != self.dimOutput):
+            raise ValueError("The shape of the sigma matrix {0} does not match num output variables".format(cholA.shape))
+
         assert np.isreal(cholA).all(), "pst: Can not use complex values for Sigma"
 
         if self.saveCovariance:
-            self.covMat = np.dot(cholA.transpose, cholA)
-        else:
-            self.cholA = cholA
+            self.covMat = np.dot(cholA.transpose(), cholA)
+
+        self.cholA = cholA
 
 
 
 
 
     def getSigma(self):
-        if self.saveCovariance:
-            return np.transpose(np.linalg.cholesky(self.covMat))
-        else:
-            # np returns L but Matlab is returning R -> transpose
-            return self.cholA
+        return self.cholA
 
-    def getExpectationAndSigma(self, numElements, *args):
-        mean = FunctionLinearInFeatures.getExpectation(
-            self,
-            numElements,
-            *args)
+    def getExpectationAndSigma(self, *args):
+        mean = FunctionLinearInFeatures.computeOutput(
+            self, *args)
 
         sigma = np.ndarray((1,) + self.cholA.shape)
-        sigma[0, :, :] = self.cholA
+        sigma[0, :, :] = self.getSigma()
 
         return (mean, sigma)

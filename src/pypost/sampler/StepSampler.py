@@ -47,7 +47,7 @@ class StepSampler(SequentialSampler):
         :change: dataManager is no longer optional
         '''
         if dataManager is None:
-            dataManager = DataManager(samplerName)
+            dataManager = DataManager(samplerName, isTimeSeries=True)
         else:
             dataManager = dataManager.getDataManagerForName(samplerName)
 
@@ -60,71 +60,60 @@ class StepSampler(SequentialSampler):
         self.addSamplerPool(SamplerPool("TransitionSampler", 50))
         self.addSamplerPool(SamplerPool("RewardSampler", 80))
 
-        self.addElementsForTransition("nextStates", "states")
         self.dataManager.addDataEntry("timeSteps", 1)
 
-    def setInitStateFunction(self, initStateSampler, samplerName=None):
+    def setInitStateSampler(self, initStateSampler):
         '''
         Set the initState function
         :param initStateSampler: the init state function to set
-        :param samplerName: The name of the init state function (default: "sampleInitState")
         '''
 
-        if samplerName is None:
-            samplerName = "sampleInitState"
 
-        self.addSamplerFunctionToPool(
-            "InitSamples", samplerName, initStateSampler, -1)
+        self.addSamplerFunctionToPool("InitSamples", initStateSampler, -1)
 
-    def setPolicy(self, policy, samplerName=None):
+    def setPolicy(self, policy):
         '''
         Set the transition function
         :param policy: the policy function to set
         :param samplerName: The name of the sampler function (default: "sampleAction")
         '''
-        if samplerName is None:
-            samplerName = "sampleAction"
-        self.addSamplerFunctionToPool("Policy", samplerName, policy, -1)
+        self.addSamplerFunctionToPool("Policy", policy, -1)
 
-    def setTransitionFunction(self, transitionFunction, samplerName=None):
+    def setTransitionFunction(self, transitionFunction):
         '''
         Set the transition function
         :param transitionFunction: the transition function to set
         :param samplerName: The name of the sampler function (default: "samplerNextState")
         '''
-        if samplerName is None:
-            samplerName = "sampleNextState"
-        self.addSamplerFunctionToPool(
-            "TransitionSampler", samplerName, transitionFunction, -1)
 
-    def setRewardFunction(self, rewardFunction, samplerName=None):
+        self.addSamplerFunctionToPool("TransitionSampler", transitionFunction, -1)
+
+    def setRewardFunction(self, rewardFunction):
         '''
         Set the reward function
         :param rewardFunction: the reward function to set
         :param samplerName: The name of the reward function (default: "sampleReward")
         '''
-        if samplerName is None:
-            samplerName = "sampleReward"
+
         self.addSamplerFunctionToPool(
-            "RewardSampler", samplerName, rewardFunction, -1)
+            "RewardSampler", rewardFunction, -1)
 
     # change removed all flush functions. e.g. use
     # getSamplerPool("Policy").flush()
 
-    def _endTransition(self, data, *args):
+    def _endTransition(self, data, layerIndex):
         '''
         End the transition and set data for the new time step
         :param data: data to be operated on
         :param args: index of the layer
         '''
-        super()._endTransition(data, *args)
+        super()._endTransition(data, layerIndex)
 
         # ASK see parent function
-        layerIndexNew = args[0].copy()
-        layerIndexNew[-1] = layerIndexNew[-1] + 1
-        numElements = data.getNumElementsForIndex(len(args), *args)
-        data.setDataEntry("timeSteps", layerIndexNew.copy(), np.ones(
-            (numElements, 1)) * layerIndexNew[-1])
+        layerIndexNew = layerIndex.copy()
+        layerIndexNew[-1] = layerIndex[-1] + 1
+        numElements = data.getNumElementsForIndex(len(layerIndex) - 1, layerIndex)
+        data.setDataEntry("timeSteps", layerIndexNew, np.ones((numElements, 1)) * layerIndexNew[-1])
 
     def _initSamples(self, data, *args):
         '''
@@ -136,16 +125,15 @@ class StepSampler(SequentialSampler):
         # in matlab we have some lines commented out that set states &
         # timeSteps, are they still needed?
         index = args[0]
-        self.createSamplesFromPool(self.getSamplerPool("InitSamples"), data, index)
+        self.sampleFromPool(self.getSamplerPool("InitSamples"), data, index)
         numElements = data.getNumElementsForIndex(len(args), *args)
         # time steps beginning with zero instead of one, to keep consistent with python indexing
         data.setDataEntry("timeSteps", index, np.zeros((numElements, 1)))
 
-    def _createSamplesForStep(self, data, *args):
+    def _createSamplesForStep(self, data, index):
         '''
         sample policy, transition and reward
         :param data: to be operated on
         :param args: index of the layer
         '''
-        index = args[0]
-        self.createSamplesFromPoolWithPriority(10, 90, data, index)
+        self.samplePoolsWithPriority(10, 90, data, index)

@@ -1,9 +1,9 @@
 import numpy as np
 from pypost.sampler.Sampler import Sampler
 from pypost.common.SettingsClient import SettingsClient
+from pypost.data.DataManipulator import DataManipulator
 
-
-class IndependentSampler(Sampler, SettingsClient):
+class IndependentSampler(Sampler):
     '''
     Methods (annotated):
     def __init__(self, dataManager: data.DataManager, samplerName: str) -> null
@@ -22,7 +22,6 @@ class IndependentSampler(Sampler, SettingsClient):
         :
         '''
         Sampler.__init__(self, dataManager, samplerName)
-        SettingsClient.__init__(self)
 
         self._parallelSampling = True
         '''
@@ -35,6 +34,7 @@ class IndependentSampler(Sampler, SettingsClient):
         '''
 
         self._numInitialSamples = -1
+        self.iterationNumber = 0
         '''
         The number of samples to use for for the initial iteration
         '''
@@ -44,10 +44,8 @@ class IndependentSampler(Sampler, SettingsClient):
         # important? (Dont "correct" user errors!)
         self.dataManager.addDataEntry('iterationNumber', 1)
 
-        self.linkProperty('numSamples',
-                          'numSamples' + samplerName.capitalize())
-        self.linkProperty("_numInitialSamples",
-                          "numInitialSamples" + samplerName.capitalize())
+        self.linkProperty('numSamples','numSamples' + samplerName.capitalize())
+        self.linkProperty("_numInitialSamples", "numInitialSamples" + samplerName.capitalize())
 
 
     def setParallelSampling(self, parallelSampling):
@@ -62,7 +60,8 @@ class IndependentSampler(Sampler, SettingsClient):
         '''
         return self._parallelSampling
 
-    def createSamples(self, newData, numElements=None):
+    @DataManipulator.DataFunction
+    def createSamples(self, newData, indices = Ellipsis):
         '''
         Creates the samples from the given Data.
 
@@ -70,55 +69,57 @@ class IndependentSampler(Sampler, SettingsClient):
         :param numElements: Not implemented yet
         '''
         numSamples = self.getNumSamples(newData)
-
-        if numElements is not None:
-            raise NotImplementedError
-
-        numElements = []
-
         if not isinstance(numSamples, list):
             numSamples = [numSamples]
+        if not isinstance(indices, list):
+            indices = [indices]
+
+        if (len(indices) > self.samplerDepth + 1 or len(indices) < self.samplerDepth):
+            raise ValueError('Invalid Index for sampler. Hierarchical Index must not be larger than {0} and smaller than {0}'.format(self.samplerDepth + 1, self.samplerDepth))
+
+
+        if (len(indices) == self.samplerDepth):
+            indices.append(slice(0, numSamples[0]))
+        newIndices = indices.copy()
 
         if all(numSamples) > 0:
-            newData.reserveStorage(numSamples)
-            # FIXME feature tags are not supported yet
-            # newData.resetFeatureTags()
-            newData.setDataEntry('iterationNumber', 0,
-                                 np.array([self._iterationIndex]))
-            newIndex = numElements
-            if self.getParallelSampling():
-                newIndex.append(slice(0, numSamples[0]))
-                self.sampleAllPools(newData, newIndex[:])
-            else:
-                index = 0
-                while index < numSamples[0]:
-                    newIndex[len(numElements)] = index
-                    self.sampleAllPools(newData, newIndex[:])
-                    if self.isValidEpisode():
-                        index = index + 1
+            newData.reserveStorage(numSamples, indices[1:])
+            newData.setDataEntry('iterationNumber', ..., self.iterationNumber)
 
-    # TODO this seems like an interface function. refactor ...
+            if self.getParallelSampling():
+                self.sampleAllPools(newData, newIndices)
+            else:
+                if isinstance(indices[self.samplerDepth], int):
+                    self.sampleAllPools(newData, newIndices)
+                else:
+                    if isinstance(indices[self.samplerDepth], slice):
+                        listIndices = list(range(indices[self.samplerDepth].start, indices[self.samplerDepth].stop))
+                    else:
+                        # must be int list then...
+                        listIndices = indices[self.samplerDepth]
+
+                    index = 0
+                    while index < len(listIndices):
+                        newIndices[len(indices)] = listIndices[index]
+                        self.sampleAllPools(newData, newIndices)
+                        if self.isValidEpisode():
+                            index = index + 1
+
+        self.iterationNumber += 1
+
     def isValidEpisode(self):
         '''
         Returns True, if this is a valid episode (which is the case)
         '''
         return True
 
-    def getNumSamples(self, data, *args):
+    def getNumSamples(self, data):
         '''
         Returns number of samples to use for the current iteration
         '''
-        # @mw ASK: args needed?
-        if isinstance(self.numSamples, int):
-            if self._iterationIndex == 0 and self._numInitialSamples > 0:
-                numSamples = self._numInitialSamples
-            else:
-                numSamples = self.numSamples
+        if self.iterationNumber == 0 and self._numInitialSamples > 0:
+            numSamples = self._numInitialSamples
         else:
-            raise RuntimeError("Matlab code doesn't make any sense here.")
-        #    if self._iterationIndex == 0 and self._numInitialSamples > 0:
-        #        numSamples = self._numInitialSamples
-        #    else:
-        #        numSamples = self.numSamples[self._iterationIndex]
+            numSamples = self.numSamples
 
         return numSamples

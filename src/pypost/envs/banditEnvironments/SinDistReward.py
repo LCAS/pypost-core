@@ -1,12 +1,12 @@
 import math
 import numpy as np
-from pypost.environments.EpisodicContextualParameterLearningTask \
-import EpisodicContextualParameterLearningTask
+from pypost.envs.ContextualBlackBoxTask import ContextualBlackBoxTask
+from pypost.data import *
 
-class SinDistReward(EpisodicContextualParameterLearningTask):
-    def __init__(self, episodeSampler):
-        EpisodicContextualParameterLearningTask.__init__(
-            self, episodeSampler, 1, 1)
+class SinDistReward(ContextualBlackBoxTask):
+    def __init__(self, dataManager):
+        ContextualBlackBoxTask.__init__(
+            self, dataManager, 1, 1)
 
         #print(self.dimContext)
         self.dataManager.setRange('contexts',

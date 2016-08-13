@@ -1,7 +1,9 @@
 import math
 import numpy as np
 from pypost.distributions.Distribution import Distribution
-from pypost.data.DataManipulatorInterface import CallType
+from pypost.data.DataManipulator import CallType
+from pypost.functions.Mapping import Mapping
+
 
 
 class DistributionWithMeanAndVariance(Distribution):
@@ -32,10 +34,11 @@ class DistributionWithMeanAndVariance(Distribution):
     be handled as such.
     '''
 
-    def __init__(self, dataManager):
-        Distribution.__init__(self, dataManager)
+    def __init__(self, dataManager, inputVariables=None, outputVariables=None,
+                 name=""):
+        Distribution.__init__(self, dataManager, inputVariables, outputVariables, name)
 
-    def sampleFromDistribution(self, numElements, *args):
+    def sampleFromDistribution(self, *args):
         '''
         :param *args: parameter for the abstract `getExpectationAndSigma()`
                          function. The first parameter is always `numElements`,
@@ -45,8 +48,7 @@ class DistributionWithMeanAndVariance(Distribution):
         '''
         samples = None
 
-        (expectation, sigma) = self.getExpectationAndSigma(numElements,
-                                                           *args)
+        (expectation, sigma) = self.getExpectationAndSigma(*args)
 
         if sigma.shape[2] == 1:
             # If the third dimension of the sigma matrix is 1, the
@@ -132,18 +134,6 @@ class DistributionWithMeanAndVariance(Distribution):
 
         return qData
 
-    def _registerMappingInterfaceDistribution(self):
-        Distribution._registerMappingInterfaceDistribution(self)
-
-        if self.registerDataFunctions:
-            self.addDataManipulationFunction(
-                self.getExpectationAndSigma,
-                self.inputVariables,
-                # + self.additionalInputVariables, #TODO check if these are used anywhere
-                [self.outputVariables[0][0] +
-                 'Mean', self.outputVariables[0][0] +
-                 'Std'],
-                CallType.ALL_AT_ONCE, True)
-
-    def getExpectationAndSigma(self, numElements, inputData, *args):
+    @Mapping.DataManipulationMethod(inputArguments=['self.inputVariables'], outputArguments=[])
+    def getExpectationAndSigma(self, inputData, *args):
         raise NotImplementedError()

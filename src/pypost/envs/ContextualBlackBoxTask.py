@@ -1,40 +1,36 @@
 from pypost.data.DataManipulator import DataManipulator
+from pypost.functions.Mapping import Mapping
+
 import numpy as np
 from pypost.common.SettingsClient import SettingsClient
 
+class ContextualBlackBoxTask(Mapping, SettingsClient):
 
-class EpisodicContextualLearningTask(DataManipulator, SettingsClient):
-
-    def __init__(self, episodeSampler, dimContext):
+    def __init__(self, dataManager, dimContext, dimParameters):
         '''Constructor
 
         :param episodeSampler: The sampler for the lerning task
         :param dimContext: The dimensions of the context
         '''
-        DataManipulator.__init__(self, episodeSampler.dataManager)
+        dataManager.addDataEntry('contexts', dimContext)
+        dataManager.addDataEntry('parameters', dimParameters)
+        dataManager.addDataEntry('returns', 1)
+
+        Mapping.__init__(self, dataManager, inputVariables=['contexts','parameters'], outputVariables='returns')
         SettingsClient.__init__(self)
 
-        self.dataManager = episodeSampler.dataManager
-        self.sampleInitContextFunc = 0
-        self.dataManager.addDataEntry('contexts', dimContext)
-        self.minRangeContext = self.dataManager.getMinRange('contexts')
-        self.maxRangeContext = self.dataManager.getMaxRange('contexts')
+        self.sampleInitContextFunc = 'Gaussian'
 
-        # FIXME: the matlab implementation has both of the following statements
-        self.dimContext = self.dataManager.getNumDimensions('contexts')
-        self.dimContext = dimContext
 
-        self.dataManager.addDataEntry('returns', 1)
 
         self.linkProperty('sampleInitContextFunc')
-        self.addDataManipulationFunction(self.sampleContext, [], ['contexts'])
 
-
-    def sampleContext(self, numSamples, *args):
+    @DataManipulator.DataManipulationMethod([], ['contexts'])
+    def sampleFromDistribution(self, numSamples):
         if (self.dataManager.getNumDimensions('contexts') > 0):
-            if (self.sampleInitContextFunc == 0):
+            if (self.sampleInitContextFunc == 'Uniform'):
                 return self.sampleStatesUniform(numSamples)
-            elif (self.sampleInitContextFunc == 1):
+            elif (self.sampleInitContextFunc == 'Gaussian'):
                 return self.sampleStatesGaussian(numSamples)
             else:
                 raise ValueError("invalid sampleInitContextFunc")
@@ -58,3 +54,8 @@ class EpisodicContextualLearningTask(DataManipulator, SettingsClient):
                  np.tile((maxRange - minRange) / 2, (numSamples, 1))
 
         return states
+
+    @Mapping.DataMappingFunction()
+    def sampleReturn(self, *args):
+        raise NotImplementedError("This method should be implemented in a " +
+            "subclass.")

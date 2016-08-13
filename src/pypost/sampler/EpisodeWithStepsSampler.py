@@ -11,30 +11,32 @@ class EpisodeWithStepsSampler(EpisodeSampler):
         if samplerNameSteps is None:
             samplerNameSteps = 'steps'
 
+        if not dataManager:
+            dataManager = DataManager(samplerNameEpisodes)
+            dataManager.subDataManager = DataManager(samplerNameSteps, isTimeSeries=True)
+
         super().__init__(dataManager, samplerNameEpisodes)
         self.stepSampler = StepSampler(dataManager, samplerNameSteps)
         self.dataManager.subDataManager = self.stepSampler.dataManager
-        self.addSamplerFunctionToPool('Episodes', samplerNameSteps, self.stepSampler)
+        self.addSamplerFunctionToPool('Episodes', self.stepSampler.createSamples)
 
     def copyPoolsFromSampler(self, sampler):
         super().copyPoolsFromSampler(sampler)
         #self.flushSamplerPool('Episodes')
-        self.addSamplerFunctionToPool('Episodes', self.stepSampler.samperName, self.stepSampler)
+        self.addSamplerFunctionToPool('Episodes', self.stepSampler.createSamples())
         self.stepSampler.copyPoolsFromSampler(sampler.stepSampler)
 
-    def setActionPolicy(self, actionPolicy, samplerName=None):
-        self.stepSampler.setPolicy(actionPolicy, samplerName)
+    def setActionPolicy(self, actionPolicy):
+        self.stepSampler.setPolicy(actionPolicy)
 
-    def setInitialStateSampler(self, initStateSampler, samplerName=None):
-        self.stepSampler.setInitStateFunction(initStateSampler, samplerName)
+    def setInitStateSampler(self, initStateSampler):
+        self.stepSampler.setInitStateSampler(initStateSampler)
 
-    def setTransitionFunction(self, transitionFunction, samplerName=None):
-        self.stepSampler.setTransitionFunction(transitionFunction, samplerName)
+    def setTransitionFunction(self, transitionFunction):
+        self.stepSampler.setTransitionFunction(transitionFunction)
 
-    def setRewardFunction(self, rewardFunction, samplerName=None):
-        self.stepSampler.setRewardFunction(rewardFunction, samplerName)
-        if(rewardFunction.isSamplerFunction('sampleFinalReward')):
-            self.setFinalRewardSampler(rewardFunction, samplerName)
+    def setRewardFunction(self, rewardFunction):
+        self.stepSampler.setRewardFunction(rewardFunction)
 
     def getNumSamples(self, data, *args):
         numSamples = list()
