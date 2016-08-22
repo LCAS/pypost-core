@@ -67,7 +67,23 @@ class DataManager(SettingsClient):
         self._subDataManagerList = []
         self.isTimeSeries = isTimeSeries
 
+        self.dataPreprocessorsForward = {}
+        self.dataPreprocessorsInverse = {}
 
+        def makePeriodic(data, path):
+            isPeriodic = np.array(self.getPeriodicity(path), dtype=bool)
+            data[:, isPeriodic] = data[:, isPeriodic] % (2 * np.pi)
+            return data
+
+        def restrictData(data, path):
+            minRange = self.getMinRange(path)
+            maxRange = self.getMaxRange(path)
+
+            data = np.clip(data, minRange, maxRange)
+            return data
+
+        self.addDataPreprocessor('periodic', makePeriodic)
+        self.addDataPreprocessor('restricted', restrictData)
 
     @property
     def finalized(self):
@@ -76,6 +92,7 @@ class DataManager(SettingsClient):
         False otherwise.
         '''
         return self._finalized
+
 
     def getSubDataManagerForDepth(self, depth):
         '''
@@ -119,7 +136,7 @@ class DataManager(SettingsClient):
 
         if self.settings.getProperty(guard):
 
-            dataManagerForDepth = self.dataManager.getSubDataManagerForDepth(level)
+            dataManagerForDepth = self.getSubDataManagerForDepth(level)
             dataManagerForDepth.addDataEntry(name, numDimensions, minRange, maxRange)
 
             if parameterPoolName is not None:
@@ -264,6 +281,20 @@ class DataManager(SettingsClient):
                                                 self.dataAliases[entry[0]]
                                                 .entryList)
         return False
+
+    def getDataPreprocessorForward(self, processorName):
+        if not processorName in self.dataPreprocessorsForward:
+            raise ValueError('Unknown data-preprocessor %s!' % processorName)
+        return self.dataPreprocessorsForward[processorName]
+
+    def getDataPreprocessorInverse(self, processorName):
+        if not processorName in self.dataPreprocessorsInverse:
+            raise ValueError('Unknown data-preprocessor %s!' % processorName)
+        return self.dataPreprocessorsInverse[processorName]
+
+    def addDataPreprocessor(self, processorName, dataPreprocessorForward, dataPreprocessorInverse = lambda x: x):
+        self.dataPreprocessorsForward[processorName] = dataPreprocessorForward
+        self.dataPreprocessorsInverse[processorName] = dataPreprocessorInverse
 
     def imposeSuffix(self, argumentList, suffix):
         for i in range(0, len(argumentList)):

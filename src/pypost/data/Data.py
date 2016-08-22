@@ -32,7 +32,7 @@ class DataEntryInfo():
         self.isFeature = isFeature
 
 
-class Data():
+class Data(object):
     '''
     Stores meta data for each data entry to make access simple and fast.
     '''
@@ -41,11 +41,13 @@ class Data():
         '''
         Constructor
         '''
+        self.entryInfoMap = {}
         self.dataManager = dataManager
         self.dataStructure = dataStructure
 
+        self.activeIndex = Ellipsis
         # create the entryInfoMap
-        self.entryInfoMap = {}
+
         aliasNames = self.dataManager.getAliasNames()
         for name in aliasNames:
             depth = self.dataManager.getDataEntryDepth(name)
@@ -54,6 +56,68 @@ class Data():
                 DataEntryInfo(depth, alias.entryList, alias.numDimensions,
                               self.dataManager.getMinRange(name),
                               self.dataManager.getMaxRange(name))
+
+            setattr(self, name, None)
+
+    def __getitem__(self, index):
+        self.activeIndex = index
+        if isinstance(self.activeIndex, tuple):
+            self.activeIndex = list(self.activeIndex)
+        return self
+
+    def __setattr__(self, name, value):
+        indexPreprocessor = name.find('_')
+        if indexPreprocessor > 0:
+            nameEntry = name[:indexPreprocessor]
+        else:
+            nameEntry = name
+        if (value is not None and name != 'entryInfoMap' and nameEntry in self.entryInfoMap):
+            return self.setDataEntry(name, self.activeIndex, value)
+        else:
+            return super().__setattr__(name, value)
+
+    def __getattribute__(self, name):
+        indexPreprocessor = name.find('_')
+        if indexPreprocessor > 0:
+            nameEntry = name[:indexPreprocessor]
+        else:
+            nameEntry = name
+
+        if (name != 'entryInfoMap' and nameEntry in self.entryInfoMap):
+            return self.getDataEntry(name, self.activeIndex)
+        else:
+            return super().__getattribute__(name)
+
+    def __rshift__(self, function):
+        '''Operator for applying data manipulation functions'''
+
+        if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
+            function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput = True)
+            return self
+        else:
+            raise ValueError('Operator >> can only be applied to manipulation functions or tuples of manipulation functions'
+                             'and index')
+
+    def __ge__(self, function):
+        '''Operator for applying data manipulation functions'''
+
+        if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
+            return function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput = True)
+
+        else:
+            raise ValueError('Operator >> can only be applied to manipulation functions or tuples of manipulation functions'
+                             'and index')
+
+    def __gt__(self, function):
+        '''Operator for applying data manipulation functions'''
+
+        if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
+            return function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput=False)
+
+        else:
+            raise ValueError(
+                'Operator >> can only be applied to manipulation functions or tuples of manipulation functions'
+                'and index')
 
     def completeLayerIndex(self, depth, indices):
         '''This function completes the hierarchical indicing for the internal
@@ -109,7 +173,14 @@ class Data():
 
     def _resolveEntryPath(self, name):
         path = []
-        depth = self.entryInfoMap[name].depth
+
+        index = name.find('_')
+        if index > 0:
+            nameDepth = name[:index]
+        else:
+            nameDepth = name
+
+        depth = self.entryInfoMap[nameDepth].depth
         dataManager = self.dataManager.subDataManager
         while dataManager is not None and depth > 0:
             path.append(dataManager.name)
@@ -120,31 +191,11 @@ class Data():
 
     def resolveSuffixPath(self, path):
 
-        if len(path) > len('Periodic') and path[-len('Periodic'):] == 'Periodic':
-            path = path[0:-len('Periodic')]
-
-            def makePeriodic(data):
-                isPeriodic = np.array(self.dataManager.getPeriodicity(path), dtype=bool)
-                data[:, isPeriodic] = data[:, isPeriodic] % (2 * np.pi)
-                return data
-
-            return (path, makePeriodic)
-
-        if len(path) > len('Restricted') and path[-len('Restricted'):] == 'Restricted':
-            path = path[0:-len('Restricted')]
-
-            def restrictData(data):
-                minRange = self.dataManager.getMinRange(path)
-                maxRange = self.dataManager.getMaxRange(path)
-
-                data = np.clip(data, minRange, maxRange)
-
-                return data
-
-            return (path, restrictData)
-
+        index = path.find('_')
+        if index < 0:
+            return (path, '')
         else:
-            return (path, None)
+            return (path[:index], path[index + 1:])
 
 
     def getDataEntry(self, path, indices=[], cloneData=True):
@@ -170,7 +221,7 @@ class Data():
                           :func:`setDataEntry`.
         :returns: the requested data
         '''
-        path, procDataStructure = self.resolveSuffixPath(path)
+        #path, procDataStructure = self.resolveSuffixPath(path)
 
         if isinstance(path, str):
             path = self._resolveEntryPath(path)
@@ -183,10 +234,10 @@ class Data():
 
         if cloneData:
             newData = copy.deepcopy(data)
-            if (procDataStructure):
-                return procDataStructure(newData)
-            else:
-                return newData
+            #if (procDataStructure):
+            #    return procDataStructure(newData)
+            #else:
+            return newData
         else:
             return data
 
@@ -220,16 +271,6 @@ class Data():
         if not isinstance(indices, list):
             indices = [indices]
 
-        minRange = self.entryInfoMap[path[-1]].minRange
-        maxRange = self.entryInfoMap[path[-1]].maxRange
-
-        if (restrictRange and (data < minRange).any()):
-            raise ValueError("The given data does not respect the minRange " +
-                             "parameter")
-
-        if (restrictRange and (data > maxRange).any()):
-            raise ValueError("The given data does not respect the maxRange " +
-                             "parameter")
 
         return self.dataStructure.setDataEntry(path, indices, data)
 

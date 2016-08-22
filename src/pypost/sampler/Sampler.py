@@ -1,7 +1,7 @@
-from pypost.data.DataManipulator import DataManipulator
+from pypost.mappings.Mapping import Mapping
 
 
-class Sampler(DataManipulator):
+class Sampler(Mapping):
     '''
     Sampler serves as a base class for all other samplers. But you should
     consider using the subclasses SequentialSampler, IndependentSampler or for
@@ -23,7 +23,7 @@ class Sampler(DataManipulator):
         :param dataManager: DataManager this sampler operates on
         :param samplerName: name of this sampler
         '''
-        DataManipulator.__init__(self, dataManager)
+        Mapping.__init__(self, dataManager, inputVariables=[], outputVariables=[])
 
         self._samplerPools = {}
         self._samplerName = samplerName
@@ -150,10 +150,8 @@ class Sampler(DataManipulator):
         if (hasattr(dataFunction, '__self__')):
             object = dataFunction.__self__
 
-        if (hasattr(dataFunction, 'dataFunction')):
-            dataFunction = dataFunction.dataFunction
-        else:
-            raise Warning('Sampling functions are recommended to use the DataDecorators from the DataManipulation interface')
+        if (not hasattr(dataFunction, 'dataFunctionDecorator')):
+            raise Warning('Sampling functions need to use the DataDecorators from the DataManipulation interface')
 
         pool = self._samplerPools[samplerPoolName]
 
@@ -177,10 +175,7 @@ class Sampler(DataManipulator):
         :param indices: hierarchical indexing of the data structure
         '''
         for (object, dataFunction) in pool.samplerList:
-            if (object is None):
-                dataFunction(data, indices)
-            else:
-                dataFunction(object, data, indices)
+            data[indices] >> dataFunction
 
     def sampleAllPools(self, data, indices):
         '''
@@ -206,8 +201,8 @@ class Sampler(DataManipulator):
             if lowPriority <= pool.getPriority() <= highPriority:
                 self.sampleFromPool(pool, data, indices)
 
-    @DataManipulator.DataFunction
-    def createSamples(self, data, index):
+    @Mapping.MappingMethod(inputArguments=[],outputArguments=[],takesData=True)
+    def createSamples(self, data):
         pass
 
     # change _addSamplerToPoolInternal was deleted because it can be replaced by

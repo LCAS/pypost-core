@@ -113,6 +113,13 @@ class DataStructure(SettingsClient):
         else:
             index = Ellipsis
 
+        indexPreprocessor = name.find('_')
+        dataPreprocessor = None
+        if indexPreprocessor > 0:
+            dataPreprocessor = self.dataManager.getDataPreprocessorInverse(name[indexPreprocessor + 1:])
+            item = dataPreprocessor(item.copy())
+            name = name[:indexPreprocessor]
+
         if name not in self.dataStructureLocalLayer:
             raise KeyError("The specified entry name is undefined")
         elif isfunction(self.dataStructureLocalLayer[name]):
@@ -122,6 +129,9 @@ class DataStructure(SettingsClient):
             dataAlias = self.dataStructureLocalLayer[name]
             index = dataAlias.modifyIndex(index, self.numElements)
             currentIndexInItem = 0
+
+            if (len(item.shape) == 1 and dataAlias.numDimensions[0] == item.shape[0]):
+                item.resize((1, dataAlias.numDimensions[0]))
 
             for entryName, slice_ in dataAlias.entryList:
                 # calculate the dimensions (width) of the current entry
@@ -178,11 +188,18 @@ class DataStructure(SettingsClient):
         else:
             index = Ellipsis
 
+        indexPreprocessor = name.find('_')
+        dataPreprocessor = None
+        if indexPreprocessor > 0:
+            dataPreprocessor = self.dataManager.getDataPreprocessorForward(name[indexPreprocessor + 1:])
+            name = name[:indexPreprocessor]
+
+
         if name not in self.dataStructureLocalLayer:
             raise ValueError("The element '" + str(name) + "' does not exist.")
 
         if isfunction(self.dataStructureLocalLayer[name]):
-            return self.dataStructureLocalLayer[name](self, index)
+            data =  self.dataStructureLocalLayer[name](self, index)
         elif isinstance(self.dataStructureLocalLayer[name], DataAlias):
 
             # get the data from a DataAlias
@@ -197,27 +214,30 @@ class DataStructure(SettingsClient):
                 elif isinstance(entry, np.ndarray):
                     if (index == Ellipsis):
                         index = slice(0, self.numElements)
-                    entry = entry[index]
+                    entry = entry[index, :]
                 else:
                     raise ValueError("Unknown type of the data alias entry")
-
+                if len(entry.shape) == 1:
+                    entry.resize((1, entry.shape[0]))
                 if data is None:
-                    data = entry[:, slice_]
+                    data = entry[:, slice_].copy()
                 else:
                     entryData = entry[:, slice_]
                     data = np.hstack((data, entryData))
 
-            return data
+
         elif isinstance(self.dataStructureLocalLayer[name], list):
             # get the data from a subDataStructure
-            return self.dataStructureLocalLayer[name]
+            data = self.dataStructureLocalLayer[name]
         else:
             if (index == Ellipsis):
                 index = slice(0,self.numElements)
 
-            return self.dataStructureLocalLayer[name][index]
+            data = self.dataStructureLocalLayer[name][index].copy()
 
-
+        if (dataPreprocessor):
+            data = dataPreprocessor(data, name)
+        return data
 
     def getDataEntry(self, path, indices):
         '''
@@ -270,7 +290,7 @@ class DataStructure(SettingsClient):
             elif isinstance(indices[0], list):
                 subLayers = [self.dataStructureLocalLayer[path[0]][i] for i in indices[0]]
             else:
-                raise ValueError("Invalid data type: indices[0]: ", indices[0])
+                raise ValueError("Invalid data type: indices[0]: %s" % str(indices[0]))
 
             for subDataStructure in subLayers:
                 # get the data from the data structure of a lower layer

@@ -6,7 +6,7 @@ import numpy as np
 from pypost.experiments.Experiment import Experiment
 from pypost.experiments.Evaluation import Evaluation
 from pypost.experiments.Trial import Trial
-from pypost.experiments.Trial import StoringType
+from pypost.experiments.Trial import TrialStoringType
 from pypost.common.Settings import Settings
 from pypost.examples.stochasticSearch.rosenbrock.Power_Rosenbrock import PowerRosenbrock
 
@@ -110,15 +110,15 @@ class testExperiment(unittest.TestCase):
 
     def testTrialStore(self):
         trial = self.experiment.defaultTrial
-        trial.store('a', 5, StoringType.STORE_PER_ITERATION)
-        trial.store('a', 10, StoringType.STORE_PER_ITERATION)
+        trial.store('a', 5, TrialStoringType.STORE_PER_ITERATION)
+        trial.store('a', 10, TrialStoringType.STORE_PER_ITERATION)
         self.assertIn('a', trial.storePerIteration)
         self.assertEqual(trial.getProperty('a'), 10)
-        trial.store('b', 12, StoringType.ACCUMULATE_PER_ITERATION)
-        trial.store('b', [14], StoringType.ACCUMULATE_PER_ITERATION)
+        trial.store('b', 12, TrialStoringType.ACCUMULATE_PER_ITERATION)
+        trial.store('b', [14], TrialStoringType.ACCUMULATE_PER_ITERATION)
         self.assertTrue((trial.getProperty('b') == np.array([[12], [14]])).all())
-        trial.store('c', 4, StoringType.STORE)
-        trial.store('c', 9, StoringType.STORE)
+        trial.store('c', 4, TrialStoringType.STORE)
+        trial.store('c', 9, TrialStoringType.STORE)
         self.assertIn('c', trial.storePerTrial)
         self.assertEqual(trial.getProperty('c'), 9)
 

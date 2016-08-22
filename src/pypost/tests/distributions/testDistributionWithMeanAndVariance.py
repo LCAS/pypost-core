@@ -5,7 +5,7 @@ from pypost.data.DataManager import DataManager
 
 from pypost.tests import DataUtil
 
-from pypost.distributions.DistributionWithMeanAndVariance import DistributionWithMeanAndVariance
+from pypost.mappings.DistributionWithMeanAndVariance import DistributionWithMeanAndVariance
 
 
 class testDistributionWithMeanAndVariance(unittest.TestCase):

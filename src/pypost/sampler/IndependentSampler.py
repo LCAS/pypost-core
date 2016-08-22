@@ -60,14 +60,16 @@ class IndependentSampler(Sampler):
         '''
         return self._parallelSampling
 
-    @DataManipulator.DataFunction
-    def createSamples(self, newData, indices = Ellipsis):
+    def createSamples(self, newData):
         '''
         Creates the samples from the given Data.
 
         :param newData: the data structure the sampler operates on
         :param numElements: Not implemented yet
         '''
+
+        indices = newData.activeIndex
+
         numSamples = self.getNumSamples(newData)
         if not isinstance(numSamples, list):
             numSamples = [numSamples]

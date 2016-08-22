@@ -30,7 +30,7 @@ class LinearFeatureFunctionMLLearner(InputOutputLearner, HyperParameterObject):
 
         self.linkProperty('regularizationRegression')
 
-    @DataManipulator.DataManipulationMethod(inputArguments=['self.inputVariables', 'self.outputVariables', 'self.weightName'], outputArguments=[])
+    @DataManipulator.DataMethod(inputArguments=['self.inputVariables', 'self.outputVariables', 'self.weightName'], outputArguments=[])
     def updateModel(self, inputData, outputData, weighting = None):
         if weighting is None:
             weighting = np.ones((outputData.shape[0], 1))

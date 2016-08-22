@@ -50,37 +50,19 @@ class EpisodeSampler(IndependentSampler):
 
     def setReturnFunction(self, returnFunction):
 
-        if (callable(returnFunction)):
-            self.addSamplerFunctionToPool("Return", returnFunction, -1)
-        else:
-            if not hasattr(returnFunction, 'sampleReturn_fromData'):
-                raise ValueError('Return function must be function handle or point to object that implements sampleReturn')
-            self.addSamplerFunctionToPool("Return", returnFunction, -1)
+        self.addSamplerFunctionToPool("Return", returnFunction, -1)
 
     def setParameterPolicy(self, parameterPolicy):
         '''
         :param parameterSampler: sampler function to set
         '''
-        if (callable(parameterPolicy)):
-            self.addSamplerFunctionToPool("ParameterPolicy", parameterPolicy, -1)
-        else:
-            if not hasattr(parameterPolicy, 'sampleFromDistribution_fromData'):
-                raise ValueError('ParameterPolicy function must be function handle or point to object that implements sampleFromDistribution')
-
-            self.addSamplerFunctionToPool("ParameterPolicy", parameterPolicy.sampleFromDistribution, -1)
+        self.addSamplerFunctionToPool("ParameterPolicy", parameterPolicy, -1)
 
     def setContextSampler(self, contextSampler):
         '''
         :param contextSampler: sampler function to set
         '''
-        if (callable(contextSampler)):
-            self.addSamplerFunctionToPool("InitEpisode", contextSampler, -1)
-        else:
-            if not hasattr(contextSampler, 'sampleFromDistribution_fromData'):
-                raise ValueError(
-                    'Context Sampler must be function handle or point to object that implements sampleFromDistribution')
-
-            self.addSamplerFunctionToPool("InitEpisode", contextSampler.sampleFromDistribution, -1)
+        self.addSamplerFunctionToPool("InitEpisode", contextSampler, -1)
 
 
     def flushReturnFunction(self):

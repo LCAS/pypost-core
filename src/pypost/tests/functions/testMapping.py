@@ -1,15 +1,20 @@
 import unittest
+
 import numpy as np
-import math
 
-from pypost.data.DataAlias import DataAlias
-from pypost.data.DataEntry import DataEntry
 from pypost.data.DataManager import DataManager
-from pypost.tests import DataUtil
+from pypost.mappings.Mapping import Mapping
 
 
-from pypost.functions.Mapping import Mapping
+class DummyMapping(Mapping):
 
+    def __init__(self, dataManager):
+
+        Mapping.__init__(self, dataManager, inputVariables=['X'], outputVariables=['Y'])
+
+    @Mapping.MappingMethod()
+    def dummyDumm(self, X):
+        return X + 1
 
 class testMapping(unittest.TestCase):
 
@@ -173,6 +178,20 @@ class testMapping(unittest.TestCase):
 
         self.assertEqual(4324, mapping.dimOutput)
         self.assertEqual([], mapping.outputVariables)
+
+    def testMappingData(self):
+        dataManager = DataManager('values')
+        dataManager.addDataEntry('X', 1)
+        dataManager.addDataEntry('Y', 1)
+
+
+        mapping = DummyMapping(dataManager)
+        data = dataManager.getDataObject(10)
+
+        data >> mapping
+
+        self.assertTrue((data.getDataEntry('Y') == np.ones((10,1))).all())
+
 
 if __name__ == '__main__':
     unittest.main()

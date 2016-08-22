@@ -35,10 +35,10 @@ class RLByWeightedML(BatchLearner):
                 self.dataManager.addDataEntry(level, 1)
 
     def updateModel(self, data):
-        self.computeWeighting_fromData(data)
+        data >> self.computeWeighting
 
         if self.policyLearner is not None:
-            self.policyLearner.updateModel_fromData(data)
+            data >> self.policyLearner
 
 
     def getKLDivergence(self, qWeighting, pWeighting):
@@ -57,7 +57,7 @@ class RLByWeightedML(BatchLearner):
         #print(divKL)
         return divKL
 
-    @DataManipulator.DataManipulationMethod(['self.rewardName'], ['self.outputWeightName'])
+    @DataManipulator.DataMethod(['self.rewardName'], ['self.outputWeightName'])
     def computeWeighting(self, **args):
         '''
         :returns: weights

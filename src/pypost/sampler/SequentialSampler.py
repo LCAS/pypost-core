@@ -44,8 +44,7 @@ class SequentialSampler(Sampler):
     def setIsActiveSampler(self, sampler):
         self._isActiveSampler = sampler
 
-    @DataManipulator.DataFunction
-    def createSamples(self, data, activeIndex = Ellipsis):
+    def createSamples(self, data):
         '''
         The sequential sampler creates samples by first initiating the data and
         after that run the appropriate sampler pools for each step and, after checking which
@@ -60,8 +59,7 @@ class SequentialSampler(Sampler):
         :param args: hierarchical indexing of the data structure
         '''
 
-        reservedStorage = self._isActiveSampler.toReserve()
-        data.reserveStorage(reservedStorage)
+        activeIndex = data.activeIndex
 
         if not isinstance(activeIndex, list):
             activeIndex = [activeIndex]
@@ -69,6 +67,14 @@ class SequentialSampler(Sampler):
         for i in range(0, len(activeIndex)):
             if (isinstance(activeIndex[i], slice)):
                 activeIndex[i] = list(range(activeIndex[i].start, activeIndex[i].stop))
+            if (activeIndex[i] == Ellipsis):
+                if (i == 0):
+                    activeIndex[i] = list(range(0, data.getNumElementsForDepth(i)))
+                else:
+                    activeIndex[i] = list(range(0, data.getNumElementsForDepth(i) / data.getNumElementsForDepth(i - 1)))
+        reservedStorage = self._isActiveSampler.toReserve()
+        data.reserveStorage(reservedStorage, activeIndex)
+
         activeIndex.append(0)
 
         self._initSamples(data, activeIndex.copy())
@@ -106,7 +112,7 @@ class SequentialSampler(Sampler):
         '''
         assumes args is a vector
         '''
-        isActive = self._isActiveSampler.isActiveStep_fromData(data, activeIndex) # @mw ASK: *args?
+        isActive = data[activeIndex] > self._isActiveSampler.isActiveStep  # @mw ASK: *args?
         tCurrent = activeIndex[-1]
 
 
@@ -152,20 +158,6 @@ class SequentialSampler(Sampler):
         :param args: index of the layer
         '''
         raise NotImplementedError("Not implemented")
-
-    def _createSamples(self, data, *args):
-        reservedStorage = self._isActiveSampler.toReserve()
-        for data_structure in data.dataStructure.dataStructureLocalLayer[self.dataManager.name]:
-            self.dataManager.reserveStorage(data_structure, reservedStorage)
-        active_index = args[0]
-        active_index.append(0)
-        self._initSamples(data, active_index)
-        num_steps = self.getNumSamples(data, args)
-        for i in range(0, num_steps):
-            active_index[-1] = i
-            self._createSamplesForStep(data, active_index)
-            if i < (num_steps-1):
-                self._endTransition(data, active_index)
 
     def _endTransition(self, data, *args):
         pass

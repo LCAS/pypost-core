@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from pypost.data.DataManager import DataManager
-from pypost.distributions.GaussianLinearInFeatures import GaussianLinearInFeatures
+from pypost.mappings.GaussianLinearInFeatures import GaussianLinearInFeatures
 
 
 class testGaussianLinearInFeatures(unittest.TestCase):
@@ -122,7 +122,7 @@ class testGaussianLinearInFeatures(unittest.TestCase):
         glf.saveCovariance = True
         glf.setSigma(4 * np.identity(2))
 
-        samples = glf(100000, fromData = False)
+        samples = glf(100000)
         self.assertTrue(sum(sum(abs(np.cov(samples.transpose()) - glf.getCovariance()))) < 1.0 )
     '''
     def test_getExpectationAndSigma_NotImplementedError(self):

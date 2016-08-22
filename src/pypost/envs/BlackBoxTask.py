@@ -1,5 +1,4 @@
-from pypost.data.DataManipulator import DataManipulator
-from pypost.functions.Mapping import Mapping
+from pypost.mappings.Mapping import Mapping
 
 
 
@@ -14,7 +13,7 @@ class BlackBoxTask(Mapping):
 
 
 
-    @Mapping.DataMappingFunction()
+    @Mapping.MappingMethod()
     def sampleReturn(self, parameters):
         raise NotImplementedError("This method should be implemented in a " +
             "subclass.")

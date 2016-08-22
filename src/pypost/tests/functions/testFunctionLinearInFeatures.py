@@ -1,8 +1,9 @@
 import unittest
+
 import numpy as np
+
 from pypost.data.DataManager import DataManager
-from pypost.functions.Function import Function
-from pypost.functions.FunctionLinearInFeatures import FunctionLinearInFeatures
+from pypost.mappings.FunctionLinearInFeatures import FunctionLinearInFeatures
 
 
 class testFunctionLinearInFeatures(unittest.TestCase):
