@@ -7,49 +7,6 @@ from pypost.data.DataManipulator import DataManipulationFunction
 from pypost.data.Data import Data
 
 from pypost.data.DataManipulator import ManipulatorMetaClass
-# class _DataMappingDecorator(_DataDecorator):
-#
-#     def __init__(self, function, inputArguments, outputArguments, **kwargs):
-#
-#         self = _DataDecorator.__init__(function, inputArguments, outputArguments, **kwargs)
-#
-#
-#     def getWrapperFunction(self):
-#         dataStruct = self.dataStruct
-#
-#         def data_function( object, data, indices=Ellipsis, registerOutput=True):
-#
-#             if not dataStruct.isInitialized:
-#                 dataStruct.isInitialized = True
-#
-#                 # If we are currently using a suffix stack for the names, impose the suffix to all data entries if we can
-#                 # find the name with the suffix. Suffix imposement can be avoided by manually putting "NoSuffix" as a suffix.
-#                 # The "NoSuffix" string will be deleted.
-#
-#                 if dataStruct.outputArguments is None:
-#                     dataStruct.outputArguments = object.getOutputVariables()
-#                 else:
-#                     for i in range(0, len(dataStruct.outputArguments)):
-#                         if (dataStruct.outputArguments[i] == '_outputDataMapping_'):
-#                             dataStruct.outputArguments[i] = object.getOutputVariables()[0]
-#
-#                 if (dataStruct.inputArguments is None):
-#                     dataStruct.inputArguments = object.getInputVariables()
-#                 else:
-#                     newInputArguments = []
-#                     for i in range(0, len(dataStruct.inputArguments)):
-#                         if (dataStruct.inputArguments[i] == '_inputDataMapping_'):
-#                             newInputArguments = newInputArguments + object.getInputVariables()
-#                         else:
-#                             newInputArguments.append(dataStruct.inputArguments[i])
-#
-#                 self.preprocessArguments(object, dataStruct)
-#
-#             output = _DataDecorator._callDataFunctionInternal(dataStruct, data, indices, registerOutput)
-#             return output
-#         return data_function
-
-
 
 class MappingMetaClass(ManipulatorMetaClass):
     def __init__(cls, name, bases, dct):
@@ -204,6 +161,15 @@ class Mapping(DataManipulator, metaclass=MappingMetaClass):
 
     def getOutputVariables(self):
         return list(self.outputVariables)
+
+    def isTakesNumElements(self):
+        return self.dataFunctionDecorator.takesNumElements
+
+    def isTakesData(self):
+        return self.dataFunctionDecorator.takesData
+
+    def getCallType(self):
+        return self.dataFunctionDecorator.callType
 
     def setOutputVariables(self, outputVariables):
 

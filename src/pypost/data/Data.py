@@ -1,11 +1,8 @@
 import numpy as np
 import copy
-from enum import Enum
 
-class DataType(Enum):
-    continuous = 1
-    discrete  = 2
-    sparse = 3
+from pypost.data.DataStructure import DataStructure
+from pypost.data.DataEntry import DataType
 
 
 class DataEntryInfo():
@@ -14,7 +11,7 @@ class DataEntryInfo():
     '''
 
     def __init__(self, depth, entryList, numDimensions,
-                 minRange, maxRange, isFeature=False):
+                 minRange, maxRange, isFeature = False, callBackGetter = None):
         """Constructor for DataEntryInfo
 
         :param depth: The depth in which the DataEntryInfo resides within the
@@ -30,6 +27,7 @@ class DataEntryInfo():
         self.minRange = minRange
         self.maxRange = maxRange
         self.isFeature = isFeature
+        self.callBackGetter = callBackGetter
 
 
 class Data(object):
@@ -49,6 +47,7 @@ class Data(object):
         # create the entryInfoMap
 
         aliasNames = self.dataManager.getAliasNames()
+        entryNames = self.dataManager.getEntryNames()
         for name in aliasNames:
             depth = self.dataManager.getDataEntryDepth(name)
             alias = self.dataManager.getDataAlias(name)
@@ -57,7 +56,49 @@ class Data(object):
                               self.dataManager.getMinRange(name),
                               self.dataManager.getMaxRange(name))
 
+            if name in entryNames:
+                entry = self.dataManager.getDataEntry(name)
+                self.entryInfoMap[name].isFeature = entry.isFeature
+                self.entryInfoMap[name].callBackGetter = entry.callBackGetter
+
+
             setattr(self, name, None)
+
+    def _createDataStructure(self, dataManager, numElements):
+        '''
+        Creates the data structure (containing real data) for the data object.
+
+        :param numElements: A vector defining the number of elements for each
+                           layer of the hierarchy.
+                           This parameter may also be an integer, in which case
+                           all layers will have the same number of data points.
+        :return: The newly created data structure
+        :rtype: data.DataStructure
+        '''
+        if isinstance(numElements, list):
+            numElementsCurrentLayer = numElements[0]
+            numElements = numElements[1:]
+        else:
+            numElementsCurrentLayer = numElements
+
+        dataStructure = DataStructure(self, numElementsCurrentLayer, dataManager.isTimeSeries)
+        for dataEntryName, dataEntry in dataManager.dataEntries.items():
+            dataStructure.createEntry(dataEntryName, dataEntry)
+
+        for dataAliasName, dataAlias in dataManager.dataAliases.items():
+            if dataAliasName not in dataManager.dataEntries:
+                dataStructure.createAlias(dataAliasName, dataAlias)
+
+        if (dataManager.subDataManager is not None):
+            subDataStructures = []
+
+            for _ in range(0, numElementsCurrentLayer):
+                subDS = self._createDataStructure(dataManager.subDataManager, numElements)
+                subDataStructures.append(subDS)
+
+            dataStructure.createAliasSubDataStructure(dataManager.subDataManager.name, subDataStructures)
+
+        return dataStructure
 
     def __getitem__(self, index):
         self.activeIndex = index
@@ -223,6 +264,19 @@ class Data(object):
         '''
         #path, procDataStructure = self.resolveSuffixPath(path)
 
+        if isinstance(path, list):
+            entryName = path[-1]
+        else:
+            entryName = path
+
+        if entryName in self.entryInfoMap:
+            dataEntryInfo = self.entryInfoMap[entryName]
+            if (dataEntryInfo.callBackGetter):
+                callBack = dataEntryInfo.callBackGetter
+                dataEntryInfo.callBackGetter = None
+                self[indices] >> callBack
+                dataEntryInfo.callBackGetter = callBack
+
         if isinstance(path, str):
             path = self._resolveEntryPath(path)
 
@@ -230,16 +284,8 @@ class Data(object):
             indices = [indices]
 
 
-        data = self.dataStructure.getDataEntry(path, indices)
-
-        if cloneData:
-            newData = copy.deepcopy(data)
-            #if (procDataStructure):
-            #    return procDataStructure(newData)
-            #else:
-            return newData
-        else:
-            return data
+        data = self.dataStructure.getDataEntry(self, path, indices)
+        return data
 
     def setDataEntry(self, path, indices, data, restrictRange=False):
         '''
@@ -272,7 +318,7 @@ class Data(object):
             indices = [indices]
 
 
-        return self.dataStructure.setDataEntry(path, indices, data)
+        return self.dataStructure.setDataEntry(self, path, indices, data)
 
     def getDataEntryList(self, entryPaths, indices):
         '''
@@ -354,7 +400,7 @@ class Data(object):
         for subData in subDataStructures:
             subData.reserveStorage(numElements)
 
-    def mergeData(self, other, inBack=True):
+    def mergeData(self, other, inFront=False):
         '''
         Merges two data objects. The data from the second data object
         is either added in the back or in the front of the data points
@@ -363,12 +409,8 @@ class Data(object):
         :param inBack: If True, adds the data to the back
         '''
         otherStructure = other.dataStructure
-        if inBack:
-            self.dataStructure = self.dataManager.mergeDataStructures(
-                                            self.dataStructure, otherStructure)
-        else:
-            self.dataStructure = self.dataManager.mergeDataStructures(
-                                            otherStructure, self.dataStructure)
+
+        self.dataStructure.mergeDataStructures(other.dataStructure, inFront=inFront)
 
     def printDataAliases(self):
 

@@ -10,6 +10,7 @@ from pypost.common import SettingsManager
 from pypost.common.SettingsClient import SettingsClient
 from pypost.data.DataStructure import DataStructure
 
+#import pypost.mappings.FeatureGenerator
 
 class DataManager(SettingsClient):
 
@@ -70,20 +71,28 @@ class DataManager(SettingsClient):
         self.dataPreprocessorsForward = {}
         self.dataPreprocessorsInverse = {}
 
-        def makePeriodic(data, path):
-            isPeriodic = np.array(self.getPeriodicity(path), dtype=bool)
+        def makePeriodic(data, dataItem, index):
+            isPeriodic = np.array(self.getPeriodicity(dataItem.name), dtype=bool)
             data[:, isPeriodic] = data[:, isPeriodic] % (2 * np.pi)
             return data
 
-        def restrictData(data, path):
-            minRange = self.getMinRange(path)
-            maxRange = self.getMaxRange(path)
+        def restrictData(data, dataItem, index):
+            minRange = self.getMinRange(dataItem.name)
+            maxRange = self.getMaxRange(dataItem.name)
 
             data = np.clip(data, minRange, maxRange)
             return data
 
+        def setDataValidTag(data, dataItem, index):
+            dataItem.isValid[index] = data
+            return dataItem.data[index]
+
+        def getDataValidTag(data, dataItem, index):
+            return dataItem.isValid[index]
+
         self.addDataPreprocessor('periodic', makePeriodic)
         self.addDataPreprocessor('restricted', restrictData)
+        self.addDataPreprocessor('validFlag', getDataValidTag, setDataValidTag)
 
     @property
     def finalized(self):
@@ -213,6 +222,16 @@ class DataManager(SettingsClient):
 
             aliasName = 'all' + nameUpper
             self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifier.all)
+
+    def addFeatureMapping(self, mapping):
+        outputVariable = mapping.getOutputVariables()[0]
+        if (not outputVariable in self.dataEntries):
+            raise ValueError('Can only add Feature Mapping for existing data entries. Current Entry %s does not exist' % outputVariable)
+
+        self.dataEntries[outputVariable].isFeature = True
+        self.dataEntries[outputVariable].callBackGetter = mapping
+
+
 
     def isDataEntry(self, entryName):
         '''
@@ -431,6 +450,21 @@ class DataManager(SettingsClient):
             return self.subDataManager.getDataAlias(aliasName)
         raise ValueError("Alias of name %s is not defined" % aliasName)
 
+    def getDataEntry(self, entryName):
+        '''
+        Retuns the data alias associated with the given name.
+
+        :param string entryName: The alias name
+        :return: The data alias
+        :rtype: data.DataAlias
+        :raises ValueError: If the alias is not defined
+        '''
+        if entryName in self.dataEntries:
+            return self.dataEntries[entryName]
+        if self.subDataManager is not None:
+            return self.subDataManager.getDataEntry(entryName)
+        raise ValueError("Alias of name %s is not defined" % entryName)
+
     def getDataEntryDepth(self, entryName):
         '''
         Returns the depth of the given entry.
@@ -602,7 +636,8 @@ class DataManager(SettingsClient):
             names.extend(self.subDataManager.getAliasNames())
         return names
 
-    def getElementNames(self):
+
+    def getEntryNames(self):
         '''
         Returns the names of all data entries (including subdatamanagers)
 
@@ -613,7 +648,7 @@ class DataManager(SettingsClient):
         for name in self.dataEntries.keys():
             names.append(name)
         if (self.subDataManager is not None):
-            names.extend(self.subDataManager.getElementNames())
+            names.extend(self.subDataManager.getEntryNames())
         return names
 
     def getAliasNamesLocal(self):
@@ -625,7 +660,7 @@ class DataManager(SettingsClient):
         '''
         return self.dataAliases.keys()
 
-    def getElementNamesLocal(self):
+    def getEntryNamesLocal(self):
         '''
         Returns the names of all data entries (only of this data manager)
 
@@ -742,7 +777,7 @@ class DataManager(SettingsClient):
         :return: The result of the merge operation
         '''
         for entry in self.dataEntries:
-            dataStructure1.dataStructureLocalLayer[entry] = \
+            dataStructure1.dataStructureLocalLayer[entry].data = \
                 np.vstack((dataStructure1[entry], dataStructure2[entry]))
         dataStructure1.numElements = dataStructure1.numElements + \
             dataStructure2.numElements

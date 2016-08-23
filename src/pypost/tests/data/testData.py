@@ -4,7 +4,6 @@ import sys
 import os
 
 from numpy.core.numeric import ones
-from pypost.data.DataEntry import DataEntry
 from pypost.data.DataManager import DataManager
 from pypost.tests import DataUtil
 from scipy.sparse import csr_matrix
@@ -630,7 +629,7 @@ class testDataManager(unittest.TestCase):
         data2.setDataEntry("entry1", ..., np.zeros((5, 2)))
         data2.setDataEntry("entry2", ..., np.zeros((25, 3)))
 
-        data1.mergeData(data2, True)
+        data1.mergeData(data2, False)
 
         self.assertEqual(data1.getNumElements("entry1"), 15)
         self.assertEqual(len(data1.dataStructure["subDataManager"]), 15)
@@ -652,7 +651,7 @@ class testDataManager(unittest.TestCase):
         data2.setDataEntry("entry1", ..., np.zeros((5, 2)))
         data2.setDataEntry("entry2", ..., np.zeros((25, 3)))
 
-        data1.mergeData(data2, False)
+        data1.mergeData(data2, True)
 
         self.assertEqual(data1.getNumElements("entry1"), 15)
         self.assertEqual(len(data1.dataStructure["subDataManager"]), 15)
@@ -669,7 +668,7 @@ class testDataManager(unittest.TestCase):
         data2 = dataManager.getDataObject([5, 5])
         data2.setDataEntry("entry1", ..., np.zeros((5, 2)))
 
-        data1.mergeData(data2, False)
+        data1.mergeData(data2, True)
 
         self.assertEqual(data1.getNumElements("entry1"), 15)
         self.assertTrue((data1.getDataEntry("entry1", ...) ==
