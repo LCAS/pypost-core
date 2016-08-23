@@ -1,35 +1,32 @@
 import unittest
-from pypost.tests import DataUtil
-from pypost.sampler.StepSampler import StepSampler
-from pypost.sampler.EpisodeWithStepsSampler import EpisodeWithStepsSampler
-from pypost.sampler.Sampler import Sampler
-from pypost.functions.Mapping import Mapping
-from pypost.data.DataManipulator import DataManipulator
-from pypost.common.SettingsManager import *
 
 import numpy as np
-import cProfile
 
-import pypost.envs
+from pypost.common.SettingsManager import *
+from pypost.data.DataManipulator import DataManipulator
+from pypost.mappings.Mapping import Mapping
+from pypost.sampler.EpisodeWithStepsSampler import EpisodeWithStepsSampler
+from pypost.tests import DataUtil
+
 
 class TestEnvironment(Mapping):
 
     def __init__(self, dataManager, inputVariables = ['states', 'actions'], outputVariables = ['nextStates']):
         Mapping.__init__(self, dataManager, inputVariables, outputVariables)
 
-    @Mapping.DataMappingFunction()
+    @Mapping.MappingMethod()
     def transitionFunction(self, states, actions):
         return states + 1
 
-    @DataManipulator.DataManipulationMethod(inputArguments=[], outputArguments=['states'])
+    @DataManipulator.DataMethod(inputArguments=[], outputArguments=['states'])
     def initState(self, numElements):
         return np.ones((numElements,1))
 
-    @DataManipulator.DataManipulationMethod(inputArguments=['contexts'], outputArguments=['states'])
+    @DataManipulator.DataMethod(inputArguments=['contexts'], outputArguments=['states'])
     def initStateFromContext(self, contexts):
         return np.sum(contexts, axis=1)
 
-    @DataManipulator.DataManipulationMethod(inputArguments=[], outputArguments=['contexts'])
+    @DataManipulator.DataMethod(inputArguments=[], outputArguments=['contexts'])
     def initContexts(self, numElements):
         return np.ones((numElements, 1)) * 0.5
 
@@ -39,7 +36,7 @@ class TestPolicy(Mapping):
     def __init__(self, dataManager):
         Mapping.__init__(self, dataManager, ['states'], ['actions'])
 
-    @Mapping.DataMappingFunction()
+    @Mapping.MappingMethod()
     def getAction(self, states):
         return states * 2
 
@@ -49,7 +46,7 @@ class TestReward(Mapping):
     def __init__(self, dataManager):
         Mapping.__init__(self, dataManager, ['states', 'actions'], ['rewards'])
 
-    @Mapping.DataMappingFunction()
+    @Mapping.MappingMethod()
     def getReward(self, states, actions):
         return states * 2
 
@@ -78,7 +75,7 @@ class testStepSampler(unittest.TestCase):
         self.stepSamplerEpisodes.setRewardFunction(reward)
 
         data = self.dataManager.getDataObject([10, 100])
-        self.stepSamplerEpisodes.createSamples(data, [slice(0, 10)])
+        data[Ellipsis] >> self.stepSamplerEpisodes
 
         states = data.getDataEntry('states', 1)
         actions = data.getDataEntry('actions', 2)

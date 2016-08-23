@@ -1,21 +1,23 @@
-from pypost.sampler.StepSampler import StepSampler
-from pypost.functions.Mapping import Mapping
-from pypost.data.DataManipulator import DataManipulator
+import cProfile
+
+import numpy as np
 
 import pypost.tests.DataUtil as DataUtil
-import numpy as np
-import cProfile
+from pypost.data.DataManipulator import DataManipulator
+from pypost.mappings.Mapping import Mapping
+from pypost.sampler.StepSampler import StepSampler
+
 
 class TestEnvironment(Mapping):
 
     def __init__(self, dataManager, inputVariables = ['states', 'actions'], outputVariables = ['nextStates']):
         Mapping.__init__(self, dataManager, inputVariables, outputVariables)
 
-    @Mapping.DataMappingFunction()
+    @Mapping.MappingMethod()
     def transitionFunction(self, states, actions):
         return states + 1
 
-    @DataManipulator.DataManipulationMethod(inputArguments=[], outputArguments=['states'])
+    @DataManipulator.DataMethod(inputArguments=[], outputArguments=['states'])
     def initState(self, numElements):
         return np.ones((numElements,1))
 
@@ -25,7 +27,7 @@ class TestPolicy(Mapping):
     def __init__(self, dataManager):
         Mapping.__init__(self, dataManager, ['states'], ['actions'])
 
-    @Mapping.DataMappingFunction()
+    @Mapping.MappingMethod()
     def getAction(self, states):
         return states * 2
 
@@ -35,7 +37,7 @@ class TestReward(Mapping):
     def __init__(self, dataManager):
         Mapping.__init__(self, dataManager, ['states', 'actions'], ['rewards'])
 
-    @Mapping.DataMappingFunction()
+    @Mapping.MappingMethod()
     def getReward(self, states, actions):
         return states * 2
 

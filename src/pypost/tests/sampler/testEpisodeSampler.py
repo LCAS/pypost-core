@@ -1,28 +1,29 @@
 import unittest
-from pypost.tests import DataUtil
-from pypost.sampler.EpisodeSampler import EpisodeSampler
-from pypost.data.DataManager import DataManager
-from pypost.data.DataManipulator import DataManipulator
-from pypost.sampler.Sampler import Sampler
-from pypost.functions.Function import Function
+
 import numpy as np
 
-from pypost.functions.FunctionLinearInFeatures import FunctionLinearInFeatures
+import pypost.tests.DataUtil as DataUtil
+from pypost.data.DataManager import DataManager
+from pypost.data.DataManipulator import DataManipulator
+from pypost.mappings.Function import Function
+from pypost.mappings.FunctionLinearInFeatures import FunctionLinearInFeatures
+from pypost.sampler.EpisodeSampler import EpisodeSampler
+
 
 class SamplerTestManipulator(DataManipulator):
     def __init__(self, dataManager):
         DataManipulator.__init__(self, dataManager)
 
-    @DataManipulator.DataManipulationMethod([], ['contexts'])
+    @DataManipulator.DataMethod([], ['contexts'])
     def sampleContexts(self, numElements):
         return np.ones((numElements, self.dataManager.getNumDimensions('contexts')))
 
-    @DataManipulator.DataManipulationMethod(['contexts'], ['parameters'])
+    @DataManipulator.DataMethod(['contexts'], ['parameters'])
     def sampleParameters(self, contexts):
         return np.ones((contexts.shape[0], self.dataManager.getNumDimensions('contexts'))) + contexts
 
 
-    @DataManipulator.DataManipulationMethod(['contexts', 'parameters'], ['returns'])
+    @DataManipulator.DataMethod(['contexts', 'parameters'], ['returns'])
     def sampleReturns(self, contexts, parameters):
         temp = np.sum(contexts + parameters, 1)
         temp.resize(contexts.shape[0], 1)
@@ -53,9 +54,9 @@ class Test(unittest.TestCase):
         self.sampler.setParameterPolicy(testManipulator.sampleParameters)
         self.sampler.setReturnFunction(testManipulator.sampleReturns)
 
-        data = self.dataManager.getDataObject(0)
+        data = self.dataManager.getDataObject(10)
         self.sampler.numSamples = 10
-        self.sampler.createSamples(data)
+        data >> self.sampler
 
         self.assertTrue((data.getDataEntry('contexts') == np.ones((10,2))).all())
         self.assertTrue((data.getDataEntry('parameters') ==  np.ones((10, 2)) * 2).all())

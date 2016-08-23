@@ -5,7 +5,7 @@ from pypost.data.DataManager import DataManager
 
 from pypost.tests import DataUtil
 
-from pypost.distributions.Distribution import Distribution
+from pypost.mappings.Distribution import Distribution
 
 
 class testDistribution(unittest.TestCase):

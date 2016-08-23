@@ -17,8 +17,11 @@ from stat import *
 
 import time
 
-StoringType = Enum('StoringType', 'STORE, STORE_PER_ITERATION, ACCUMULATE, '
-                   'ACCUMULATE_PER_ITERATION')
+class TrialStoringType(Enum):
+    STORE = 1
+    STORE_PER_ITERATION = 2
+    ACCUMULATE = 3
+    ACCUMULATE_PER_ITERATION = 4
 
 
 class Trial(SettingsClient):
@@ -62,7 +65,7 @@ class Trial(SettingsClient):
 
         self.hasLock = False
 
-    def store(self, name, value, mode=StoringType.STORE):
+    def store(self, name, value, mode=TrialStoringType.STORE):
         '''
         Stores a piece of data. Multiple storage options are available.
         :param name: The name under which the data is stored
@@ -70,11 +73,11 @@ class Trial(SettingsClient):
         :param mode: Can be either one of STORE_PER_ITERATION,
                      ACCUMULATE_PER_ITERATION, STORE, ACCUMULATE
         '''
-        if mode is StoringType.STORE_PER_ITERATION:
+        if mode is TrialStoringType.STORE_PER_ITERATION:
             self.setProperty(name, value)
             if name not in self.storePerIteration:
                 self.storePerIteration.append(name)
-        elif mode is StoringType.ACCUMULATE_PER_ITERATION:
+        elif mode is TrialStoringType.ACCUMULATE_PER_ITERATION:
             if not isinstance(value, np.ndarray):
                 value = np.array(value)
             if self.isProperty(name):
@@ -84,7 +87,7 @@ class Trial(SettingsClient):
                 self.setProperty(name, value)
             if name not in self.storePerIteration:
                 self.storePerIteration.append(name)
-        elif mode is StoringType.ACCUMULATE:
+        elif mode is TrialStoringType.ACCUMULATE:
             if not isinstance(value, np.ndarray):
                 value = np.array(value)
             if self.isProperty(name):
@@ -95,7 +98,7 @@ class Trial(SettingsClient):
                 self.setProperty(name, value)
             if name not in self.storePerTrial:
                 self.storePerTrial.append(name)
-        elif mode is StoringType.STORE:
+        elif mode is TrialStoringType.STORE:
             self.setProperty(name, value)
             if name not in self.storePerTrial:
                 self.storePerTrial.append(name)
@@ -240,7 +243,7 @@ class Trial(SettingsClient):
         self.lockFile()
         self.loadTrial()
         if self.isFinished and not restart == -2:
-            print("Trial %s is already funished!" % self.trialDir)
+            print("Trial %s is already finished!" % self.trialDir)
             self.unlockFile()
         elif (self.isRunning and not restart <= -1):
             print("Trial %s is already running!" % self.trialDir)

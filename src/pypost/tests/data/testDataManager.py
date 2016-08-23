@@ -207,8 +207,8 @@ class testDataManager(unittest.TestCase):
 
         myData = dataManager.getDataObject([10, 5, 1])
 
-        myData.dataStructure['parameters'][:] = np.ones(5)
-        myData.dataStructure['contexts'][:] = np.ones(5) * 2
+        myData.dataStructure['parameters'] = np.ones((10,5))
+        myData.dataStructure['contexts'] = np.ones((10,5)) * 2
 
         paramAlias = myData.dataStructure['parameterAlias']
         paramAlias[:] = np.ones(2) * 3
@@ -356,19 +356,19 @@ class testDataManager(unittest.TestCase):
 
     def test_getElementNames(self):
         dataManager = DataUtil.createTestManager()
-        self.assertEqual(sorted(dataManager.getElementNames()),
+        self.assertEqual(sorted(dataManager.getEntryNames()),
                          ['actions', 'contexts', 'parameters', 'states',
                           'subActions', 'subStates'])
 
         dataManager = DataManager('testDM')
         dataManager.addDataEntry('a', 5)
         dataManager.addDataEntry('b', 10)
-        self.assertEqual(sorted(dataManager.getElementNames()),
+        self.assertEqual(sorted(dataManager.getEntryNames()),
                          sorted(['a', 'b']))
 
     def test_getElementNamesLocal(self):
         dataManager = DataUtil.createTestManager()
-        self.assertEqual(sorted(dataManager.getElementNamesLocal()),
+        self.assertEqual(sorted(dataManager.getEntryNamesLocal()),
                          ['contexts', 'parameters'])
 
     def test_reserveStorage(self):

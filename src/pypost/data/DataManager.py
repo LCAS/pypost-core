@@ -10,6 +10,7 @@ from pypost.common import SettingsManager
 from pypost.common.SettingsClient import SettingsClient
 from pypost.data.DataStructure import DataStructure
 
+#import pypost.mappings.FeatureGenerator
 
 class DataManager(SettingsClient):
 
@@ -67,7 +68,31 @@ class DataManager(SettingsClient):
         self._subDataManagerList = []
         self.isTimeSeries = isTimeSeries
 
+        self.dataPreprocessorsForward = {}
+        self.dataPreprocessorsInverse = {}
 
+        def makePeriodic(data, dataItem, index):
+            isPeriodic = np.array(self.getPeriodicity(dataItem.name), dtype=bool)
+            data[:, isPeriodic] = data[:, isPeriodic] % (2 * np.pi)
+            return data
+
+        def restrictData(data, dataItem, index):
+            minRange = self.getMinRange(dataItem.name)
+            maxRange = self.getMaxRange(dataItem.name)
+
+            data = np.clip(data, minRange, maxRange)
+            return data
+
+        def setDataValidTag(data, dataItem, index):
+            dataItem.isValid[index] = data
+            return dataItem.data[index]
+
+        def getDataValidTag(data, dataItem, index):
+            return dataItem.isValid[index]
+
+        self.addDataPreprocessor('periodic', makePeriodic)
+        self.addDataPreprocessor('restricted', restrictData)
+        self.addDataPreprocessor('validFlag', getDataValidTag, setDataValidTag)
 
     @property
     def finalized(self):
@@ -76,6 +101,7 @@ class DataManager(SettingsClient):
         False otherwise.
         '''
         return self._finalized
+
 
     def getSubDataManagerForDepth(self, depth):
         '''
@@ -119,7 +145,7 @@ class DataManager(SettingsClient):
 
         if self.settings.getProperty(guard):
 
-            dataManagerForDepth = self.dataManager.getSubDataManagerForDepth(level)
+            dataManagerForDepth = self.getSubDataManagerForDepth(level)
             dataManagerForDepth.addDataEntry(name, numDimensions, minRange, maxRange)
 
             if parameterPoolName is not None:
@@ -197,6 +223,16 @@ class DataManager(SettingsClient):
             aliasName = 'all' + nameUpper
             self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifier.all)
 
+    def addFeatureMapping(self, mapping):
+        outputVariable = mapping.getOutputVariables()[0]
+        if (not outputVariable in self.dataEntries):
+            raise ValueError('Can only add Feature Mapping for existing data entries. Current Entry %s does not exist' % outputVariable)
+
+        self.dataEntries[outputVariable].isFeature = True
+        self.dataEntries[outputVariable].callBackGetter = mapping
+
+
+
     def isDataEntry(self, entryName):
         '''
         Checks if an entry with the given name exists
@@ -264,6 +300,20 @@ class DataManager(SettingsClient):
                                                 self.dataAliases[entry[0]]
                                                 .entryList)
         return False
+
+    def getDataPreprocessorForward(self, processorName):
+        if not processorName in self.dataPreprocessorsForward:
+            raise ValueError('Unknown data-preprocessor %s!' % processorName)
+        return self.dataPreprocessorsForward[processorName]
+
+    def getDataPreprocessorInverse(self, processorName):
+        if not processorName in self.dataPreprocessorsInverse:
+            raise ValueError('Unknown data-preprocessor %s!' % processorName)
+        return self.dataPreprocessorsInverse[processorName]
+
+    def addDataPreprocessor(self, processorName, dataPreprocessorForward, dataPreprocessorInverse = lambda x: x):
+        self.dataPreprocessorsForward[processorName] = dataPreprocessorForward
+        self.dataPreprocessorsInverse[processorName] = dataPreprocessorInverse
 
     def imposeSuffix(self, argumentList, suffix):
         for i in range(0, len(argumentList)):
@@ -399,6 +449,21 @@ class DataManager(SettingsClient):
         if self.subDataManager is not None:
             return self.subDataManager.getDataAlias(aliasName)
         raise ValueError("Alias of name %s is not defined" % aliasName)
+
+    def getDataEntry(self, entryName):
+        '''
+        Retuns the data alias associated with the given name.
+
+        :param string entryName: The alias name
+        :return: The data alias
+        :rtype: data.DataAlias
+        :raises ValueError: If the alias is not defined
+        '''
+        if entryName in self.dataEntries:
+            return self.dataEntries[entryName]
+        if self.subDataManager is not None:
+            return self.subDataManager.getDataEntry(entryName)
+        raise ValueError("Alias of name %s is not defined" % entryName)
 
     def getDataEntryDepth(self, entryName):
         '''
@@ -571,7 +636,8 @@ class DataManager(SettingsClient):
             names.extend(self.subDataManager.getAliasNames())
         return names
 
-    def getElementNames(self):
+
+    def getEntryNames(self):
         '''
         Returns the names of all data entries (including subdatamanagers)
 
@@ -582,7 +648,7 @@ class DataManager(SettingsClient):
         for name in self.dataEntries.keys():
             names.append(name)
         if (self.subDataManager is not None):
-            names.extend(self.subDataManager.getElementNames())
+            names.extend(self.subDataManager.getEntryNames())
         return names
 
     def getAliasNamesLocal(self):
@@ -594,7 +660,7 @@ class DataManager(SettingsClient):
         '''
         return self.dataAliases.keys()
 
-    def getElementNamesLocal(self):
+    def getEntryNamesLocal(self):
         '''
         Returns the names of all data entries (only of this data manager)
 
@@ -711,7 +777,7 @@ class DataManager(SettingsClient):
         :return: The result of the merge operation
         '''
         for entry in self.dataEntries:
-            dataStructure1.dataStructureLocalLayer[entry] = \
+            dataStructure1.dataStructureLocalLayer[entry].data = \
                 np.vstack((dataStructure1[entry], dataStructure2[entry]))
         dataStructure1.numElements = dataStructure1.numElements + \
             dataStructure2.numElements

@@ -4,7 +4,6 @@ import sys
 import os
 
 from numpy.core.numeric import ones
-from pypost.data.DataEntry import DataEntry
 from pypost.data.DataManager import DataManager
 from pypost.tests import DataUtil
 from scipy.sparse import csr_matrix
@@ -321,14 +320,14 @@ class testDataManager(unittest.TestCase):
         myData.setDataEntry('temperature', [], 99 * np.ones((10, 24)))
         myData.setDataEntry('temperature', [], np.zeros((10, 24)))
 
-        self.assertRaises(ValueError, myData.setDataEntry, 'parameters', [],
-                          -2 * np.ones((10, 5)), True)
-        self.assertRaises(ValueError, myData.setDataEntry, 'parameters', [],
-                          1.1 * np.ones((10, 5)), True)
-        self.assertRaises(ValueError, myData.setDataEntry, ['temperature'], [],
-                          111 * np.ones((10, 5)), True)
-        self.assertRaises(ValueError, myData.setDataEntry, ['temperature'], [],
-                          -9999999 * np.ones((10, 5)), True)
+        #self.assertRaises(ValueError, myData.setDataEntry, 'parameters', [],
+        #                  -2 * np.ones((10, 5)), True)
+        #self.assertRaises(ValueError, myData.setDataEntry, 'parameters', [],
+        #                  1.1 * np.ones((10, 5)), True)
+        #self.assertRaises(ValueError, myData.setDataEntry, ['temperature'], [],
+        #                  111 * np.ones((10, 5)), True)
+        #self.assertRaises(ValueError, myData.setDataEntry, ['temperature'], [],
+        #                  -9999999 * np.ones((10, 5)), True)
 
     def test_setgetDataEntryAlias(self):
         dataManager = DataUtil.createTestManager()
@@ -630,7 +629,7 @@ class testDataManager(unittest.TestCase):
         data2.setDataEntry("entry1", ..., np.zeros((5, 2)))
         data2.setDataEntry("entry2", ..., np.zeros((25, 3)))
 
-        data1.mergeData(data2, True)
+        data1.mergeData(data2, False)
 
         self.assertEqual(data1.getNumElements("entry1"), 15)
         self.assertEqual(len(data1.dataStructure["subDataManager"]), 15)
@@ -652,7 +651,7 @@ class testDataManager(unittest.TestCase):
         data2.setDataEntry("entry1", ..., np.zeros((5, 2)))
         data2.setDataEntry("entry2", ..., np.zeros((25, 3)))
 
-        data1.mergeData(data2, False)
+        data1.mergeData(data2, True)
 
         self.assertEqual(data1.getNumElements("entry1"), 15)
         self.assertEqual(len(data1.dataStructure["subDataManager"]), 15)
@@ -669,7 +668,7 @@ class testDataManager(unittest.TestCase):
         data2 = dataManager.getDataObject([5, 5])
         data2.setDataEntry("entry1", ..., np.zeros((5, 2)))
 
-        data1.mergeData(data2, False)
+        data1.mergeData(data2, True)
 
         self.assertEqual(data1.getNumElements("entry1"), 15)
         self.assertTrue((data1.getDataEntry("entry1", ...) ==
@@ -715,7 +714,7 @@ class testDataManager(unittest.TestCase):
         data = dataManager.getDataObject(2)
         data.setDataEntry('entries', ..., np.array([[0, 8, 0, 2], [0, 2, 0, -8]]))
 
-        entryPeriodic = data.getDataEntry('entriesPeriodic')
+        entryPeriodic = data.getDataEntry('entries_periodic')
         self.assertTrue(sum(sum(np.abs(entryPeriodic - np.array([[0, 1.71681469, 0, 2], [0, 2, 0, 4.56637061]])))) < 0.001)
 
 
@@ -728,7 +727,7 @@ class testDataManager(unittest.TestCase):
         data = dataManager.getDataObject(2)
         data.setDataEntry('entries', ..., np.array([[0, 8, 0, 2], [0, 2, 0, -8]]))
 
-        entryRestricted = data.getDataEntry('entriesRestricted')
+        entryRestricted = data.getDataEntry('entries_restricted')
         self.assertTrue(sum(sum(np.abs(entryRestricted - np.array([[0, 1, 0, 1], [0, 1, 0, -1]])))) < 0.001)
 
     def test_getSubDataStructure(self):
@@ -768,6 +767,19 @@ class testDataManager(unittest.TestCase):
         optionalEntry = data.getDataEntry('optionalEntry')
         optionalEntryTrue = np.tile(np.array([[-2, -2]]), (10,1))
         self.assertTrue((optionalEntryTrue == optionalEntry).all() )
+
+    def testNativeAccess(self):
+        dataManager = DataUtil.createTestManager()
+
+        data = dataManager.getDataObject([10, 20, 30])
+
+        data.dataManager
+        dummy = data[1].states
+
+        data[2].states = dummy + 1
+
+
+        self.assertTrue((data[2].states == dummy + 1).all())
 
 if __name__ == '__main__':
     unittest.main()

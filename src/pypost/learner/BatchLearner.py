@@ -1,7 +1,8 @@
-from pypost.data.DataManipulator import DataManipulator
 from pypost.common.SettingsClient import SettingsClient
+from pypost.mappings.Mapping import Mapping
 
-class BatchLearner(DataManipulator, SettingsClient):
+
+class BatchLearner(Mapping, SettingsClient):
     '''
     The Learner class serves as a base class for all learners and predefines
     all necessary methods.
@@ -12,10 +13,10 @@ class BatchLearner(DataManipulator, SettingsClient):
         Constructor
         '''
 
-        DataManipulator.__init__(self,dataManager)
+        Mapping.__init__(self,dataManager, inputVariables=[], outputVariables=[])
         SettingsClient.__init__(self)
 
-    @DataManipulator.DataManipulationMethod(inputArguments=[], outputArguments=[], takesData=True)
+    @Mapping.MappingMethod(inputArguments=[], outputArguments=[], takesData=True)
     def updateModel(self, data):
         raise NotImplementedError("Not implemented")
 

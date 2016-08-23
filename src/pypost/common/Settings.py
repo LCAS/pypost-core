@@ -91,7 +91,7 @@ class Settings():
         for p in self._properties.values():
             del p.clients[:]
 
-    def registerProperty(self, propName, value, setValueIfAlreadyRegistered = True):
+    def registerProperty(self, propName, value, setValueIfAlreadyRegistered = False):
         '''Registers a the specified property.
 
         :param propName: Name of the property in the settings

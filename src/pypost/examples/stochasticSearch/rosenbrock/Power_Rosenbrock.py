@@ -2,12 +2,12 @@ import numpy as np
 
 import pypost.envs.banditEnvironments
 
-from pypost.experiments.Trial import StoringType
+from pypost.experiments.Trial import TrialStoringType
 from pypost.experiments.Trial import Trial
 from pypost.learner.episodicRL.EpisodicPower import EpisodicPower
 from pypost.learner.supervisedLearner.LinearGaussianMLLearner import LinearGaussianMLLearner
 from pypost.sampler.EpisodeSampler import EpisodeSampler
-from pypost.distributions.GaussianLinearInFeatures import GaussianLinearInFeatures
+from pypost.mappings.GaussianLinearInFeatures import GaussianLinearInFeatures
 from pypost.envs.banditEnvironments.RosenbrockReward import RosenbrockReward
 
 
@@ -81,10 +81,10 @@ class PowerRosenbrock(Trial):
             #importanceWeighting.preprocessData(data);
 
             # update the model in order to actually learn something
-            self.policyLearner.updateModel_fromData(fullData)
+            fullData >> self.policyLearner
 
             # store some basic values
-            self.store('avgReturns', np.mean(newData.getDataEntry('returns')), StoringType.ACCUMULATE)
+            self.store('avgReturns', np.mean(newData.getDataEntry('returns')), TrialStoringType.ACCUMULATE)
             '''
             % log the results...
             %self.store('entropy', policyLearner.entropyAfter, Experiments.StoringType.ACCUMULATE);

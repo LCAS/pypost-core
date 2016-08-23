@@ -177,6 +177,8 @@ class testSettings(unittest.TestCase):
         settings.registerProperty('dummyValue', 1)
         self.assertEqual(settings.dummyValue, 1)
 
+        test = settings.dummyValue
+        test = settings.getProperty('dummyValue')
         settings.dummyValue = 2
         self.assertEqual(settings.getProperty('dummyValue'), 2)
 

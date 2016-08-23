@@ -1,8 +1,9 @@
-from pypost.data.DataManipulator import DataManipulator
-from pypost.functions.Mapping import Mapping
-
 import numpy as np
+
 from pypost.common.SettingsClient import SettingsClient
+from pypost.data.DataManipulator import DataManipulator
+from pypost.mappings.Mapping import Mapping
+
 
 class ContextualBlackBoxTask(Mapping, SettingsClient):
 
@@ -25,7 +26,7 @@ class ContextualBlackBoxTask(Mapping, SettingsClient):
 
         self.linkProperty('sampleInitContextFunc')
 
-    @DataManipulator.DataManipulationMethod([], ['contexts'])
+    @DataManipulator.DataMethod([], ['contexts'])
     def sampleFromDistribution(self, numSamples):
         if (self.dataManager.getNumDimensions('contexts') > 0):
             if (self.sampleInitContextFunc == 'Uniform'):
@@ -55,7 +56,7 @@ class ContextualBlackBoxTask(Mapping, SettingsClient):
 
         return states
 
-    @Mapping.DataMappingFunction()
+    @Mapping.MappingMethod()
     def sampleReturn(self, *args):
         raise NotImplementedError("This method should be implemented in a " +
             "subclass.")

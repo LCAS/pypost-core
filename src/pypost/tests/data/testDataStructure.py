@@ -76,25 +76,28 @@ class testDataStructure(unittest.TestCase):
         self.assertRaises(ValueError, dataStructure.getDataEntry, [], [])
 
     def test_getDataEntry_broken_path(self):
+        data = None
         dataStructure = DataStructure(self.dataManager, 5)
-        self.assertRaises(ValueError, dataStructure.getDataEntry,
+        self.assertRaises(ValueError, dataStructure.getDataEntry, data,
                           ['a', 'b'], [Exception(), ...])
 
     def test_getDataEntry_invalid_indices_type(self):
         dataStructure = DataStructure(self.dataManager, 5)
         dataStructure.createEntry('parameters', DataEntry('parameters',3))
-
-        self.assertRaises(ValueError, dataStructure.getDataEntry,
+        data = None
+        self.assertRaises(ValueError, dataStructure.getDataEntry,data,
             ['parameters'], 'x')
 
     def test_setDataEntry_empty_path(self):
         dataStructure = DataStructure(self.dataManager, 5)
-        self.assertRaises(ValueError, dataStructure.setDataEntry, [], [],
+        data = None
+        self.assertRaises(ValueError, dataStructure.setDataEntry, data, [], [],
                           np.ndarray((1, 2)))
 
     def test_setDataEntry_invalid_data_shape(self):
         dataStructure = DataStructure(self.dataManager, 5)
-        self.assertRaises(ValueError, dataStructure.setDataEntry, ['a'],
+        data = None
+        self.assertRaises(ValueError, dataStructure.setDataEntry, data, ['a'],
                           [slice(0, 5)], np.ndarray((1, 2)))
 
         self.assertRaises(ValueError, dataStructure.setDataEntry, ['a'],
@@ -102,7 +105,8 @@ class testDataStructure(unittest.TestCase):
 
     def test_setDataEntry_invalid_indice_type(self):
         dataStructure = DataStructure(self.dataManager, 5)
-        self.assertRaises(ValueError, dataStructure.setDataEntry, ['a'],
+        data = None
+        self.assertRaises(ValueError, dataStructure.setDataEntry, data, ['a'],
                           [Exception()], np.ndarray((2, 1)))
 
 

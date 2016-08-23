@@ -17,7 +17,7 @@ class TestSuffixManipulator(DataManipulator):
         super().__init__(dataManager)
 
 
-    @DataManipulator.DataManipulationMethod('parameters1', 'parameters2')
+    @DataManipulator.DataMethod('parameters1', 'parameters2')
     def dummyFunction(self, parameters):
         return parameters + 10
 

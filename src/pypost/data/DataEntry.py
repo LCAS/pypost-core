@@ -1,9 +1,15 @@
 import numpy as np
-from pypost.data.Data import DataType
+from pypost.common.SettingsClient import SettingsClient
 from scipy.sparse import csr_matrix
+from enum import Enum
+
+class DataType(Enum):
+    continuous = 1
+    discrete  = 2
+    sparse = 3
 
 
-class DataEntry():
+class DataEntry(SettingsClient):
     '''
     DataEntry stores the properties of a data entry.
     '''
@@ -12,6 +18,9 @@ class DataEntry():
         '''
         Constructor
         '''
+
+        SettingsClient.__init__(self)
+
         self.name = name
         self.numDimensions = numDimensions
         if (isinstance(self.numDimensions,int)):
@@ -44,14 +53,62 @@ class DataEntry():
                 self.isPeriodic = None
 
         self.takeFromSettings = takeFromSettings
+        self.data = None
+
+        self.callBackGetter = None
+        self.callBackSetter = None
+        self.isFeature = None
+
+        self.isValid = False
+
+
+    def getEntryFromSettings(self, indices, numElements):
+        if indices is Ellipsis:
+            numElementsFunc = numElements
+        if isinstance(indices, int):
+            numElementsFunc = 1
+        elif isinstance(indices, list):
+            numElementsFunc = len(indices)
+        elif isinstance(indices, slice):
+            numElementsFunc = indices.stop - indices.start
+        singleEntry = self.settings.getProperty(self.name)
+        entry = np.tile(singleEntry, (numElementsFunc, 1))
+        return entry
 
     def createDataMatrix(self, numElements):
         if (self.dataType == DataType.continuous):
-            return np.zeros((numElements,) + self.numDimensions, dtype=np.float_)
+            self.data = np.zeros((numElements,) + self.numDimensions, dtype=np.float_)
         if (self.dataType == DataType.discrete):
-            return np.zeros((numElements,) + self.numDimensions, dtype=np.int_)
+            self.data = np.zeros((numElements,) + self.numDimensions, dtype=np.int_)
         if (self.dataType == DataType.sparse):
-            return csr_matrix((numElements, self.numDimensions[0]))
+            self.data = csr_matrix((numElements, self.numDimensions[0]))
+
+        if self.isFeature:
+            self.isValid = np.zeros((numElements, 1), dtype=bool)
+        else:
+            self.isValid = np.ones((numElements, 1), dtype=bool)
+
+    def reserveStorage(self, numElementsEntry):
+        currentSize = self.data.shape[0]
+        if currentSize < numElementsEntry:
+            self.data = np.vstack((self.data, np.zeros((numElementsEntry - currentSize, self.numDimensions[0]))))
+            if (self.isFeature):
+                self.isValid = np.vstack((self.isValid, np.ones((numElementsEntry - currentSize, 1), dtype=bool)))
+            else:
+                self.isValid = np.vstack((self.isValid, np.zeros((numElementsEntry - currentSize, 1), dtype=bool)))
+        else:
+            self.data = np.delete(self.data, slice(numElementsEntry, None, None), 0)
+            self.isValid = np.delete(self.isValid, slice(numElementsEntry, None, None), 0)
+
+    def mergeDataEntry(self, dataEntry, inFront):
+
+        if inFront:
+            self.data = np.vstack((dataEntry.data, self.data))
+            self.isValid = np.vstack((dataEntry.isValid, self.isValid))
+
+        else:
+            self.data = np.vstack((self.data, dataEntry.data))
+            self.isValid = np.vstack((self.isValid, dataEntry.isValid))
 
     def isCorrectDataType(self, data):
 

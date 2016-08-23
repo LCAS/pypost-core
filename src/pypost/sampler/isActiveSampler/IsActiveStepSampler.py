@@ -22,7 +22,7 @@ class IsActiveStepSampler(DataManipulator):
         if self.stepName is None:
             self.stepName = "timeSteps"
 
-    @DataManipulator.DataManipulationMethod(inputArguments=['nextStates', 'self.stepName'], outputArguments=[])
+    @DataManipulator.DataMethod(inputArguments=['nextStates', 'self.stepName'], outputArguments=[])
     def isActiveStep(self, nextStates, timeSteps):
         '''
         Returns if the time step is still active

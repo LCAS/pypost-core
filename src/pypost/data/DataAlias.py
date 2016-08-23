@@ -18,7 +18,7 @@ class DataAlias():
                          the alias should point to, e.g.
                          [('param', slice(1, 5, 2)), ('param2': ...)]
         '''
-        self.aliasName = aliasName
+        self.name = aliasName
         self.entryList = entryList
         self.numDimensions = numDimensions
         self.indexModifier = indexModifier
