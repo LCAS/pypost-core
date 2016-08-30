@@ -11,6 +11,7 @@ class IsActiveStepSampler(DataManipulator):
     def isActiveStep(self, nextStates, timeSteps: int) -> None
     '''
 
+
     def __init__(self, dataManager, stepName):
         '''
         Registers itself to the DataManipulator
@@ -22,7 +23,9 @@ class IsActiveStepSampler(DataManipulator):
         if self.stepName is None:
             self.stepName = "timeSteps"
 
-    @DataManipulator.DataMethod(inputArguments=['nextStates', 'self.stepName'], outputArguments=[])
+    #Todo Step name just for settings? cant use for sampling since "timeSteps" entry is added by step sampler and name
+    # is fixed!
+    @DataManipulator.DataMethod(inputArguments=['nextStates', 'timeSteps'], outputArguments=[])
     def isActiveStep(self, nextStates, timeSteps):
         '''
         Returns if the time step is still active

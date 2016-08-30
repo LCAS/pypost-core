@@ -1,5 +1,6 @@
 from pypost.sampler.initialSampler.InitialStateSampler import InitialStateSampler
 import numpy as np
+import warnings
 
 class InitialStateSamplerStandard(InitialStateSampler):
 
@@ -38,12 +39,13 @@ class InitialStateSamplerStandard(InitialStateSampler):
         if self.initialStateDistributionType == 'Uniform':
             randValues = np.random.uniform(size=[numElements, dimState - numDimTaken])
             offset = minRange
+            width = maxRange - minRange
 
         else:
-            #Todo proper warning
             if self.initialStateDistributionType != 'Gaussian':
-                raise UserWarning("Unknown distribution type: " + self.initialStateDistributionType)
+                warnings.warn("Unknown distribution type: " + self.initialStateDistributionType)
             randValues = np.random.normal(size=[numElements, dimState - numDimTaken])
-            offset = (maxRange + minRange)
-        width = (maxRange - minRange)
-        return randValues * width + offset
+            offset = (maxRange + minRange) / 2
+            width = (maxRange - minRange) / 2
+        res = randValues * width + offset
+        return res

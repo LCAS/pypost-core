@@ -14,7 +14,7 @@ class IsActiveNumSteps(IsActiveStepSampler, SettingsClient):
     def isActiveStep(self, nextStates, timeSteps: int) -> Boolean
     def toReserve(self) -> int
     '''
-
+    # Todo make numTimeSteps settable via settings or constructor, but both?
     def __init__(self, dataManager, stepName, numTimeSteps=10):
         '''
         Registers itself to the DataManipulator

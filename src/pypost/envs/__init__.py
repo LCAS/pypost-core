@@ -1,2 +1,5 @@
-__all__ = ['BlackBoxTask',
-           'ContextualBlackBoxTask']
+__all__=['BlackBoxTask',
+         'ContextualBlackBoxTask',
+         'MountainCar',
+         'TransitionFunction',
+         'TransitionFunctionGaussianNoise']
