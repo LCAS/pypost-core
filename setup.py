@@ -45,7 +45,6 @@ setup(
               'pypost.examples.stochasticSearch',
               'pypost.examples.stochasticSearch.rosenbrock',
               'pypost.experiments',
-              'pypost.functions',
               'pypost.learner',
               'pypost.learner.episodicRL',
               'pypost.learner.parameterOptimization',

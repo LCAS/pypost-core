@@ -52,9 +52,14 @@ class DataStructure(SettingsClient):
         else:
             if indices[0] == Ellipsis:
                 return self.numElements
-            elif (self.nextLayer):
-                nextLayer = self.dataStructureLocalLayer[self.nextLayer]
-                return len(nextLayer[indices[0]])
+            # single index!
+            elif isinstance(indices[0], int):
+                return 1
+            # Fixme: what is this supposed to do?
+            # nextLayer is string -> nextLayer[indices[0]] is (list of) char -> len in bits?
+            #elif (self.nextLayer):
+                #nextLayer = self.dataStructureLocalLayer[self.nextLayer]
+                #return len(nextLayer[indices[0]])
             else:
                 standardEntry = next(iter(self.dataEntries))
                 return self.dataStructureLocalLayer[standardEntry].data[indices[0]].shape[0]
@@ -214,7 +219,7 @@ class DataStructure(SettingsClient):
                 else:
                     raise ValueError("Unknown type of the data alias entry")
                 if len(entryData.shape) == 1:
-                    entryData.resize((1, entry.shape[0]))
+                    entryData.resize((1, entryData.shape[0]))
                 if data is None:
                     data = entryData[:, slice_].copy()
                 else:
@@ -436,23 +441,23 @@ class DataStructure(SettingsClient):
         if not isinstance(indices, list):
             indices = [indices]
 
-        if (indices[0] == Ellipsis):
+        if indices[0] == Ellipsis:
             indices[0] = slice(0, self.numElements)
         elif isinstance(indices[0], int):
             indices[0] = slice(indices[0], indices[0] + 1)
 
-        if (not self.nextLayer):
+        if not self.nextLayer:
             raise ValueError('Can not find given hierarchical index')
 
         nextLayer = self.dataStructureLocalLayer[self.nextLayer]
         if len(indices) == 1:
-            if (isinstance(indices[0], (slice, int))):
+            if isinstance(indices[0], (slice, int)):
                 return nextLayer[indices[0]]
             else:
                 return [nextLayer[i] for i in indices[0]]
         else:
 
-            if (isinstance(indices[0], (slice, int))):
+            if isinstance(indices[0], (slice, int)):
                 subData = nextLayer[indices[0]]
             else:
                 subData = [nextLayer[i] for i in indices[0]]

@@ -3,10 +3,11 @@ from pypost.data.DataManipulator import DataManipulator
 
 class InitialStateSampler(DataManipulator):
 
-    def __init__(self, dataSampler):
-        super().__init__(dataSampler.dataManager)
-        self.addDataManipulationFunction(self.sampleInitState, [], ['states'], True, True)
+    def __init__(self, dataManager):
+        super().__init__(dataManager)
+        #self.addDataManipulationFunction(self.sampleInitState, [], ['states'], True, True)
 
+    @DataManipulator.DataMethod(inputArguments=[], outputArguments=['states'], takesNumElements=True)
     @abc.abstractmethod
     def sampleInitState(self, numElements, *args):
         return

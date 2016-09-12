@@ -96,13 +96,14 @@ class IndependentSampler(Sampler):
                 else:
                     if isinstance(indices[self.samplerDepth], slice):
                         listIndices = list(range(indices[self.samplerDepth].start, indices[self.samplerDepth].stop))
+                    elif indices[self.samplerDepth] == Ellipsis:
+                        listIndices = list(range(numSamples[self.samplerDepth]))
                     else:
                         # must be int list then...
                         listIndices = indices[self.samplerDepth]
-
                     index = 0
                     while index < len(listIndices):
-                        newIndices[len(indices)] = listIndices[index]
+                        newIndices[self.samplerDepth] = listIndices[index]
                         self.sampleAllPools(newData, newIndices)
                         if self.isValidEpisode():
                             index = index + 1
