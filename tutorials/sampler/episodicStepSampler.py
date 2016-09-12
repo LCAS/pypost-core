@@ -14,8 +14,8 @@ class TestEnvironment(Mapping):
         subDataManager = dataManager.subDataManager
 
         dataManager.addDataEntry('contexts', 3)
-        subDataManager.addDataEntry('states', 1)
-        subDataManager.addDataEntry('actions', 1)
+        subDataManager.addDataEntry('states', 2)
+        subDataManager.addDataEntry('actions', 2)
         subDataManager.addDataEntry('rewards', 1)
 
         Mapping.__init__(self, dataManager, inputVariables, outputVariables)
@@ -26,11 +26,11 @@ class TestEnvironment(Mapping):
 
     @DataManipulator.DataMethod(inputArguments=[], outputArguments=['states'])
     def initState(self, numElements):
-        return np.ones((numElements,1))
+        return np.ones((numElements,2))
 
     @DataManipulator.DataMethod(inputArguments=['contexts'], outputArguments=['states'])
     def initStateFromContext(self, contexts):
-        return np.sum(contexts, axis=1)
+        return np.sum(contexts, axis=1) * np.ones(2)
 
     @DataManipulator.DataMethod(inputArguments=[], outputArguments=['contexts'])
     def initContexts(self, numElements):
@@ -44,7 +44,7 @@ class TestPolicy(Mapping):
 
     @Mapping.MappingMethod()
     def getAction(self, states):
-        return states * 2
+        return states * 2 * np.ones(2)
 
 class TestReward(Mapping):
     mappingFunctionName = 'getReward'
@@ -54,7 +54,7 @@ class TestReward(Mapping):
 
     @Mapping.MappingMethod()
     def getReward(self, states, actions):
-        return states * 2
+        return states[:,0:1] * 2
 
 
 sampler = EpisodeWithStepsSampler()

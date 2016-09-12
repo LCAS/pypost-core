@@ -1,9 +1,6 @@
 import unittest
 import numpy as np
-import sys
-import os
 
-from numpy.core.numeric import ones
 from pypost.data.DataManager import DataManager
 from pypost.tests import DataUtil
 from scipy.sparse import csr_matrix

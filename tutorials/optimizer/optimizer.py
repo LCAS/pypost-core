@@ -1,15 +1,14 @@
-import numpy as np
-from pypost.common import SettingsManager
-from pypost.optimizer.cma_es.CMA_ES import  CMA_ES
-from pypost.optimizer.scipyOptimizers.SciPyBoxConstrained import SciPyBoxConstrained
-from pypost.optimizer.scipyOptimizers.SciPyBoxConstrained import SciPyBoxConstrainedAlgorithms
-
-#from pypost.optimizer.nloptOptimizers.NLoptOptimizer import NLoptBoxConstrained
-from scipy.io import loadmat
-from tutorials.optimizer.dualFunctionREPS import dualFunction
 from time import perf_counter as pc
+
+import numpy as np
+from scipy.io import loadmat
+
+from pypost.common import SettingsManager
+from pypost.optimizer.SciPyBoxConstrained import SciPyBoxConstrained
+from pypost.optimizer.SciPyBoxConstrained import SciPyBoxConstrainedAlgorithms
+from tutorials.optimizer.dualFunctionREPS import dualFunction
+
 #import nlopt
-from scipy.optimize import minimize
 
 # load and prepare data
 data = loadmat('data/reps_data.mat')
@@ -34,7 +33,7 @@ settings.setProperty(optimizerName + 'maxNumIterations', 10000)
 settings.setProperty(optimizerName + 'OptiMaxEval',10000)
 settings.setProperty(optimizerName + 'OptiAbsfTol', 1e-8)
 settings.setProperty(optimizerName + 'OptiAbsxTol', 1e-8)
-settings.setProperty(optimizerName + 'method', SciPyBoxConstrainedAlgorithms.TNC)
+settings.setProperty(optimizerName + 'method', SciPyBoxConstrainedAlgorithms.L_BFGS_B)
 
 
 #settings.setProperty(optimizerName + 'method', nlopt.LD_TNEWTON)

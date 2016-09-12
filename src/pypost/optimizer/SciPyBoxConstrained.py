@@ -1,8 +1,10 @@
-import pypost.optimizer.scipyOptimizers.SciPyOptUtil as u
-from pypost.optimizer.BoxConstrained import BoxConstrained
+from enum import Enum
+
 from scipy.optimize import minimize
 
-from enum import Enum
+import pypost.optimizer.SciPyOptUtil as u
+from pypost.optimizer.BoxConstrained import BoxConstrained
+
 
 class SciPyBoxConstrainedAlgorithms(Enum):
     L_BFGS_B = 'L-BFGS-B'
@@ -12,22 +14,15 @@ class SciPyBoxConstrainedAlgorithms(Enum):
 
 class SciPyBoxConstrained(BoxConstrained):
 
-
-
     def __init__(self, numParams, optimizationName=''):
         super().__init__(numParams, optimizationName)
 
         self.method = SciPyBoxConstrainedAlgorithms.L_BFGS_B
         self.linkProperty('method', optimizationName + 'method')
 
-        if not self.verbose:
-            u.suppress_warnings()
-
     def _optimize_internal(self, **kwargs):
         if self.verbose:
             print('Starting Optimization with', self.method)
-
-
 
         self._adaptX0()
         bounds = self._build_bounds()

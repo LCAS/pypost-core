@@ -336,16 +336,16 @@ class testDataManager(unittest.TestCase):
             (dataManager.getMinRange('parameters') == -1337*np.ones(5)).all())
 
         self.assertRaises(ValueError, dataManager.setRange, 'parameters',
-        -1337*np.ones(3), 1337*np.ones(5))
+                          -1337*np.ones(3), 1337*np.ones(5))
 
         self.assertRaises(ValueError, dataManager.setRange, 'parameters',
-        -1337*np.ones(5), 1337*np.ones(3))
+                          -1337*np.ones(5), 1337*np.ones(3))
 
         self.assertRaises(ValueError, dataManager.setRange, 'parameters',
-        -1337*np.ones(3), 1337*np.ones(3))
+                          -1337*np.ones(3), 1337*np.ones(3))
 
         self.assertRaises(ValueError, dataManager.setRange, 'notaparameter',
-        -1337*np.ones(5), 1337*np.ones(5))
+                          -1337*np.ones(5), 1337*np.ones(5))
 
         dataManager.finalize()
 
@@ -421,7 +421,7 @@ class testDataManager(unittest.TestCase):
 
         self.assertEqual(data.dataStructure['contexts'].shape[0], 50)
         self.assertEqual(data.dataStructure['parameters'].shape[0], 50)
-        # wont work due to reserveStorage(15) in line 420...
+
         for i in range(0, 50):
             self.assertEqual(
                 data.dataStructure['steps'][i]['states'].shape[0], 15)

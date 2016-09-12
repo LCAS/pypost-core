@@ -1,7 +1,10 @@
-from scipy.optimize import minimize
-from pypost.optimizer.Unconstrained import Unconstrained
-import src.pypost.optimizer.scipyOptimizers.SciPyOptUtil as u
 from enum import Enum
+
+from scipy.optimize import minimize
+
+import pypost.optimizer.SciPyOptUtil as u
+from pypost.optimizer.Unconstrained import Unconstrained
+
 
 # Possible Methods (subset - only those for unconstrained optimization):
 #   NAME         | TYPE
@@ -19,7 +22,7 @@ from enum import Enum
 class SciPyUnconstrainedAlgorithms(Enum):
     Nelder_Mead = 'Nelder-Mead'
     Powell = 'Powell'
-    GC = 'GC'
+    CG = 'CG'
     BFGS = 'BFGS'
     Newton_GC = 'Newton-GC'
     LBFGSB = 'L-BFGS-B'
@@ -37,10 +40,6 @@ class SciPyUnconstrained(Unconstrained):
 
         self.method = SciPyUnconstrainedAlgorithms.Nelder_Mead
         self.linkProperty('method', optimizationName + 'method')
-
-        # Suppress warnings of optimizer about unknown (and hence ignored) options
-        if not self.verbose:
-            u.suppress_warnings()
 
     def _optimize_internal(self, **kwargs):
         if self.verbose:

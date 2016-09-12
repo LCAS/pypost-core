@@ -1,8 +1,6 @@
 from pypost.sampler.Sampler import Sampler
 from pypost.data.DataManipulator import DataManipulator
-from pypost.sampler.isActiveSampler.IsActiveNumSteps import IsActiveNumSteps
-import numpy as np
-
+from pypost.sampler.StepBasedEpisodeTerminationSampler import StepBasedEpisodeTerminationSampler
 class SequentialSampler(Sampler):
     '''
     Stages:
@@ -35,7 +33,7 @@ class SequentialSampler(Sampler):
             self._isActiveSampler = None
 
             # TODO pass an other IsActiveStepSampler by parameters
-            #self.setIsActiveSampler(IsActiveNumSteps(dataManager, stepName))
+            self.setIsActiveSampler(StepBasedEpisodeTerminationSampler(dataManager, stepName))
         else:
             self._isActiveSampler = isActiveSampler
 

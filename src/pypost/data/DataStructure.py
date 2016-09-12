@@ -53,14 +53,19 @@ class DataStructure(SettingsClient):
             if indices[0] == Ellipsis:
                 return self.numElements
 
-            elif (self.nextLayer):
+            elif self.nextLayer:
                 nextLayer = self.dataStructureLocalLayer[self.nextLayer]
                 return len(nextLayer[indices[0]])
+            # Todo Check this:
+            elif isinstance(indices[0], slice):
+                step_size = 1 if indices[0].step is None else indices[0].step
+                return indices[0].stop - indices[0].start // step_size
             else:
-                # self.dataEntries is not ordered,  - returns random element
-                return 1  # fixme, right now: dummy fix...
-              #  standardEntry = next(iter(self.dataEntries))
-              #  return self.dataStructureLocalLayer[standardEntry].data[indices[0]].shape[0]
+                return 1
+            # This is problematic since self.dataEntries (a dict) is unordered and hence standardEntry (and its shape)
+            # are 'non deterministically' chosen and do not always (but sometimes) match the desired value...
+            # standardEntry = next(iter(self.dataEntries))
+            # return self.dataStructureLocalLayer[standardEntry].data[indices[0]].shape[0]
 
 
     def createEntry(self, name, dataEntry):

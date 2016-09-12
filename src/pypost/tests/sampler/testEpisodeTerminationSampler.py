@@ -1,5 +1,5 @@
 import unittest
-from pypost.sampler.isActiveSampler.IsActiveStepSampler import IsActiveStepSampler
+from pypost.sampler.EpisodeTerminationSampler import EpisodeTerminationSampler
 from pypost.data.DataManager import DataManager
 
 
@@ -8,7 +8,7 @@ class Test(unittest.TestCase):
 
     def setUp(self):
         self.dataManager = DataManager('testmngr')
-        self.ia2s = IsActiveStepSampler(self.dataManager, None)
+        self.ia2s = EpisodeTerminationSampler(self.dataManager, None)
 
 
     def tearDown(self):
@@ -16,7 +16,7 @@ class Test(unittest.TestCase):
 
 
     def test_init(self):
-        self.assertIsInstance(self.ia2s, IsActiveStepSampler)
+        self.assertIsInstance(self.ia2s, EpisodeTerminationSampler)
 
     def test_isActiveStep(self):
         with self.assertRaises(NotImplementedError):

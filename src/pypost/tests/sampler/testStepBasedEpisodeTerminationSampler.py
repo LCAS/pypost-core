@@ -1,22 +1,20 @@
 import unittest
 from pypost.tests import DataUtil
-from pypost.sampler.isActiveSampler.IsActiveNumSteps import IsActiveNumSteps
-from pypost.common import SettingsManager
-
+from pypost.sampler.StepBasedEpisodeTerminationSampler import StepBasedEpisodeTerminationSampler
 
 class Test(unittest.TestCase):
 
 
     def setUp(self):
         dataManager = DataUtil.createTestManager()
-        self.ians = IsActiveNumSteps(dataManager, None, 40)
+        self.ians = StepBasedEpisodeTerminationSampler(dataManager, None, 40)
 
     def tearDown(self):
         pass
 
 
     def test_init(self):
-        self.assertIsInstance(self.ians, IsActiveNumSteps)
+        self.assertIsInstance(self.ians, StepBasedEpisodeTerminationSampler)
         # TODO: check linkProperty
         self.assertEqual(self.ians.numTimeSteps, 40)
         datamngr = DataUtil.createTestManager()

@@ -1,6 +1,7 @@
 from pypost.common.SettingsClient import SettingsClient
 import numpy as np
 import abc
+from pypost.common import SettingsManager
 
 class Unconstrained(SettingsClient):
 
@@ -11,18 +12,22 @@ class Unconstrained(SettingsClient):
         self.numParams = numParams
 
         self.maxNumOptiIterations = 100
+        self.maxNumOptiEvaluations = 100
         self.verbose = False
         self.optiStopVal = []
         self.optiAbsfTol = 1e-12
         self.optiAbsxTol = 1e-12
+        self.optiAbsgTol = 1e-12
         self.optiMaxTime = 5 * 60 * 60  # in seconds!
         # for gradient approximation
         self.epsilon = 1e-6
 
         self.linkProperty('maxNumOptiIterations', optimizationName + 'maxNumIterations')
+        self.linkProperty('maxNumOptiEvaluations', optimizationName + 'maxNumEvaluations')
         self.linkProperty('optiStopVal', optimizationName + 'OptiStopVal')
         self.linkProperty('optiAbsfTol', optimizationName + 'OptiAbsfTol')
         self.linkProperty('optiAbsxTol', optimizationName + 'OptiAbsxTol')
+        self.linkProperty('optiAbsgTol', optimizationName + 'OptiAbsgTol')
         self.linkProperty('optiMaxTime', optimizationName + 'OptiMaxTime')
         self.linkProperty('epsilon', optimizationName + 'epsilon')
 
@@ -86,11 +91,12 @@ class Unconstrained(SettingsClient):
         transform_parameters = any(self.expParameterTransform)
         if transform_parameters:
             self._transformObjectiveFunction()
-
         if x0 is None:
             self.x0 = np.zeros(self.numParams)
         else:
             self.x0 = x0
+        if self.verbose:
+            self.printProperties()
         
         optimal_params, optimal_value, iterations = self._optimize_internal(**kwargs)
         if transform_parameters:

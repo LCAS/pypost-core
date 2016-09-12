@@ -9,7 +9,7 @@ class HyperParameterObject(object):
         params = self.getHyperParameters()
         expParameterTransformMap = self.getExpParameterTransformMap()
         params[expParameterTransformMap] =\
-            params[expParameterTransformMap].dot(math.pow(10, -10))
+            params[expParameterTransformMap].dot(1e-10)
         # TODO: check this ('not')
         params[not expParameterTransformMap] = \
             params[not expParameterTransformMap].dot(0.1)
@@ -19,13 +19,13 @@ class HyperParameterObject(object):
         params = self.getHyperParameters()
         expParameterTransformMap = self.getExpParameterTransformMap()
         params[expParameterTransformMap] =\
-            params[expParameterTransformMap].dot(math.pow(10, 10))
+            params[expParameterTransformMap].dot(1e10)
         params[not expParameterTransformMap] =\
             params[not expParameterTransformMap] * 10
         return params
 
     def getExpParameterTransformMap(self):
-        return np.ones((1, self.getNumHyperParameters()))
+        return np.ones(self.getNumHyperParameters(), dtype=np.bool)
 
     @abstractmethod
     def getNumHyperParameters(self):
