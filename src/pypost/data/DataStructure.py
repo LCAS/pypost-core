@@ -52,17 +52,15 @@ class DataStructure(SettingsClient):
         else:
             if indices[0] == Ellipsis:
                 return self.numElements
-            # single index!
-            elif isinstance(indices[0], int):
-                return 1
-            # Fixme: what is this supposed to do?
-            # nextLayer is string -> nextLayer[indices[0]] is (list of) char -> len in bits?
-            #elif (self.nextLayer):
-                #nextLayer = self.dataStructureLocalLayer[self.nextLayer]
-                #return len(nextLayer[indices[0]])
+
+            elif (self.nextLayer):
+                nextLayer = self.dataStructureLocalLayer[self.nextLayer]
+                return len(nextLayer[indices[0]])
             else:
-                standardEntry = next(iter(self.dataEntries))
-                return self.dataStructureLocalLayer[standardEntry].data[indices[0]].shape[0]
+                # self.dataEntries is not ordered,  - returns random element
+                return 1  # fixme, right now: dummy fix...
+              #  standardEntry = next(iter(self.dataEntries))
+              #  return self.dataStructureLocalLayer[standardEntry].data[indices[0]].shape[0]
 
 
     def createEntry(self, name, dataEntry):

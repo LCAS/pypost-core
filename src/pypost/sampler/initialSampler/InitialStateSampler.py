@@ -7,7 +7,7 @@ class InitialStateSampler(DataManipulator):
         super().__init__(dataManager)
         #self.addDataManipulationFunction(self.sampleInitState, [], ['states'], True, True)
 
-    @DataManipulator.DataMethod(inputArguments=[], outputArguments=['states'], takesNumElements=True)
+    @DataManipulator.DataMethod(inputArguments=[], outputArguments=['states'])
     @abc.abstractmethod
     def sampleInitState(self, numElements, *args):
         return
