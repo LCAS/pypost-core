@@ -1,4 +1,4 @@
-from pypost.sampler.initialSampler.InitialStateSampler import InitialStateSampler
+from pypost.initialSampler.InitialStateSampler import InitialStateSampler
 import numpy as np
 import warnings
 

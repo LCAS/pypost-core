@@ -5,7 +5,7 @@ from numpy.random import normal, uniform
 
 from pypost.data import DataManager
 from pypost.mappings import GaussianLinearInFeatures
-from pypost.learner.supervisedLearner import LinearGaussianMLLearner
+from pypost.supervisedLearner import LinearGaussianMLLearner
 
 
 class testLinearGaussianMLLearner(unittest.TestCase):

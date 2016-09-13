@@ -6,7 +6,7 @@ Created on 22.01.2016
 
 import numpy as np
 
-from pypost.learner.episodicRL import EpisodicPower
+from pypost.episodicRL import EpisodicPower
 
 
 class EpisodicPowerTutorial(object):

@@ -1,5 +1,5 @@
 from pypost.learner.InputOutputLearner import InputOutputLearner
-from pypost.learner.parameterOptimization.HyperParameterObject import HyperParameterObject
+from pypost.parameterOptimization.HyperParameterObject import HyperParameterObject
 import numpy as np
 from pypost.data.DataManipulator import DataManipulator
 

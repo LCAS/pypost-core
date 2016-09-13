@@ -1,5 +1,5 @@
-from pypost.learner.supervisedLearner.LinearFeatureFunctionMLLearner import LinearFeatureFunctionMLLearner
-from pypost.learner.supervisedLearner.utils import boundCovariance, regularizeCovariance
+from pypost.supervisedLearner.LinearFeatureFunctionMLLearner import LinearFeatureFunctionMLLearner
+from pypost.supervisedLearner.utils import boundCovariance, regularizeCovariance
 
 import numpy as np
 

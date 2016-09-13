@@ -1,7 +1,7 @@
 import numpy as np
 
 from pypost.common.SettingsClient import SettingsClient
-from pypost.learner.episodicRL.RLByWeightedML import RLByWeightedML
+from pypost.episodicRL.RLByWeightedML import RLByWeightedML
 
 
 class EpisodicPower(RLByWeightedML, SettingsClient):
