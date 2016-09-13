@@ -1,6 +1,6 @@
 import unittest
-from pypost.sampler.EpisodeTerminationSampler import EpisodeTerminationSampler
-from pypost.data.DataManager import DataManager
+from pypost.sampler import EpisodeTerminationSampler
+from pypost.data import DataManager
 
 
 class Test(unittest.TestCase):

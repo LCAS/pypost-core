@@ -1,10 +1,8 @@
 from pypost.data.DataManipulator import DataManipulator
-from pypost.common.SettingsClient import SettingsClient
-from pypost.common import SettingsManager
 from pypost.learner.BatchLearner import BatchLearner
 import numpy as np
 import scipy.linalg
-import math
+
 
 class NaturalEvolutionStrategy(BatchLearner):
     '''

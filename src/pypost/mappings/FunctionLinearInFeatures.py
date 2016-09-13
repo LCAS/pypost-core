@@ -1,8 +1,7 @@
 import numpy as np
 
 from pypost.common.SettingsClient import SettingsClient
-from pypost.learner.parameterOptimization.HyperParameterObject \
-    import HyperParameterObject
+from pypost.learner.parameterOptimization.HyperParameterObject import HyperParameterObject
 from pypost.mappings.Function import Function
 
 

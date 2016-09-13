@@ -1,11 +1,9 @@
 import unittest
 import numpy as np
 
-from pypost.data.DataManager import DataManager
+from pypost.data import DataManager, DataType
 from pypost.tests import DataUtil
 from scipy.sparse import csr_matrix
-
-from pypost.data.Data import DataType
 
 class testDataManager(unittest.TestCase):
 

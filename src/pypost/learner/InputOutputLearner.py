@@ -1,5 +1,4 @@
 from pypost.learner.BatchLearner import BatchLearner
-from pypost.data.DataManipulator import DataManipulator
 
 class InputOutputLearner(BatchLearner):
 

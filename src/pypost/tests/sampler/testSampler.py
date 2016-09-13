@@ -1,7 +1,6 @@
 import unittest
-from pypost.sampler.Sampler import Sampler
+from pypost.sampler import Sampler, SamplerPool
 from pypost.tests import DataUtil
-from pypost.sampler.SamplerPool import SamplerPool
 
 class Test(unittest.TestCase):
 

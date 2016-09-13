@@ -1,8 +1,5 @@
-import numpy as np
-import os
 import unittest
-from pypost.experiments.Experiment import Experiment
-from pypost.experiments.ExperimentFromScript import ExperimentFromScript
+from pypost.experiments import Experiment
 from pypost.examples.stochasticSearch.rosenbrock.Power_Rosenbrock import PowerRosenbrock
 
 

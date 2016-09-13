@@ -1,6 +1,6 @@
 import unittest
 from pypost.tests import DataUtil
-from pypost.sampler.StepBasedEpisodeTerminationSampler import StepBasedEpisodeTerminationSampler
+from pypost.sampler import StepBasedEpisodeTerminationSampler
 
 class Test(unittest.TestCase):
 

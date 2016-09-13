@@ -4,7 +4,6 @@ from pypost.data.DataAlias import DataAlias
 from pypost.data.DataEntry import DataEntry
 from scipy.sparse import csr_matrix
 from pypost.common.SettingsClient import SettingsClient
-from inspect import isfunction
 import copy
 
 class DataStructure(SettingsClient):

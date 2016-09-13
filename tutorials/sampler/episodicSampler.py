@@ -1,9 +1,8 @@
 import numpy as np
-import pprint as pp
 
-from pypost.sampler.EpisodeSampler import EpisodeSampler
-from pypost.data.DataManipulator import DataManipulator
-from pypost.mappings.Mapping import Mapping
+from pypost.sampler import EpisodeSampler
+from pypost.data import DataManipulator
+from pypost.mappings import Mapping
 '''
 In this tutorial, we will learn how to create samples
 '''

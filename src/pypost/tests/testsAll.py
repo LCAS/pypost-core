@@ -1,7 +1,5 @@
 #!/bin/python
-import unittest
-import os
-import sys
+import unittest, os
 
 if __name__ == '__main__':
     for root, _, _ in os.walk(os.path.dirname(os.path.realpath(__file__))):

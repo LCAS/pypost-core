@@ -1,6 +1,6 @@
 import numpy as np
 
-from pypost.data.DataManager import DataManager
+from pypost.data import DataManager
 
 '''
 In this example we are going to see how data managers work. We will

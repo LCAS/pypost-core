@@ -2,10 +2,10 @@ import unittest
 
 import numpy as np
 
-from pypost.common.SettingsManager import *
-from pypost.data.DataManipulator import DataManipulator
-from pypost.mappings.Mapping import Mapping
-from pypost.sampler.EpisodeWithStepsSampler import EpisodeWithStepsSampler
+from pypost.common import SettingsManager
+from pypost.data import DataManipulator
+from pypost.mappings import Mapping
+from pypost.sampler import EpisodeWithStepsSampler
 from pypost.tests import DataUtil
 
 
@@ -54,7 +54,7 @@ class testStepSampler(unittest.TestCase):
 
 
     def setUp(self):
-        settings = getDefaultSettings()
+        settings = SettingsManager.getDefaultSettings()
         settings.setProperty('numTimeSteps', 40)
         self.dataManager = DataUtil.createTestManagerSteps()
         self.stepSamplerEpisodes = EpisodeWithStepsSampler(self.dataManager, 'episodes', 'steps')

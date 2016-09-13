@@ -4,8 +4,8 @@ import numpy as np
 from scipy.io import loadmat
 
 from pypost.common import SettingsManager
-from pypost.optimizer.SciPyBoxConstrained import SciPyBoxConstrained
-from pypost.optimizer.SciPyBoxConstrained import SciPyBoxConstrainedAlgorithms
+from pypost.optimizer import SciPyBoxConstrained
+from pypost.optimizer import SciPyBoxConstrainedAlgorithms
 from tutorials.optimizer.dualFunctionREPS import dualFunction
 
 #import nlopt

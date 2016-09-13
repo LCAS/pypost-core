@@ -2,7 +2,7 @@ from enum import Enum
 
 from scipy.optimize import minimize
 
-import pypost.optimizer.SciPyOptUtil as u
+from pypost.optimizer import SciPyOptUtil as u
 from pypost.optimizer.Unconstrained import Unconstrained
 
 

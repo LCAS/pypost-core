@@ -1,11 +1,6 @@
 import unittest
-import numpy as np
-import math
-from pypost.data.DataManager import DataManager
-
-from pypost.tests import DataUtil
-
-from pypost.mappings.Distribution import Distribution
+from pypost.data import DataManager
+from pypost.mappings import Distribution
 
 
 class testDistribution(unittest.TestCase):

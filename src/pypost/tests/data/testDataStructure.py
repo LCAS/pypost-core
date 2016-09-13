@@ -1,9 +1,6 @@
 import unittest
 import numpy as np
-from pypost.data.DataStructure import DataStructure
-from pypost.data.DataAlias import DataAlias
-from pypost.data.DataEntry import DataEntry
-from pypost.data.DataManager import DataManager
+from pypost.data import DataStructure, DataAlias, DataEntry, DataManager
 
 
 class testDataStructure(unittest.TestCase):

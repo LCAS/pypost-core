@@ -1,7 +1,6 @@
 import numpy as np
 
 from pypost.common.SettingsClient import SettingsClient
-from pypost.data import *
 from pypost.learner.episodicRL.RLByWeightedML import RLByWeightedML
 
 

@@ -1,5 +1,5 @@
 from scipy.optimize import rosen, rosen_der
-from pypost.optimizer.GradientEstimation import GradientEstimator
+from pypost.optimizer import GradientEstimator
 import unittest
 import numpy as np
 

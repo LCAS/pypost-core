@@ -1,7 +1,6 @@
 from pypost.common.SettingsClient import SettingsClient
 import numpy as np
 import abc
-from pypost.common import SettingsManager
 
 class Unconstrained(SettingsClient):
 

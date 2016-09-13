@@ -1,15 +1,7 @@
 import unittest
 import numpy as np
-import sys
-import os
-
-from numpy.core.numeric import ones
-from pypost.data.DataEntry import DataEntry
-from pypost.data.DataManager import DataManager
-from pypost.data.DataManipulator import DataManipulator
+from pypost.data import DataManager, DataManipulator
 from pypost.common import SettingsManager
-
-from pypost.tests import DataUtil
 
 class TestSuffixManipulator(DataManipulator):
 

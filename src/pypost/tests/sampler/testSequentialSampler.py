@@ -1,11 +1,6 @@
 import unittest
 from pypost.tests import DataUtil
-from pypost.sampler.SequentialSampler import SequentialSampler
-from pypost.data.Data import Data
-from pypost.data.DataStructure import DataStructure
-from pypost.sampler.SamplerPool import SamplerPool
-from pypost.data.DataManager import DataManager
-
+from pypost.sampler import SequentialSampler, SamplerPool
 
 class testSequentialSampler(unittest.TestCase):
 

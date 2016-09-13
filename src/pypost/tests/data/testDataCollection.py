@@ -1,5 +1,5 @@
 import unittest
-from pypost.data.DataCollection import DataCollection
+from pypost.data import DataCollection
 
 class testDataCollection(unittest.TestCase):
 

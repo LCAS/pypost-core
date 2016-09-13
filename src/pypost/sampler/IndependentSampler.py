@@ -1,7 +1,5 @@
-import numpy as np
 from pypost.sampler.Sampler import Sampler
-from pypost.common.SettingsClient import SettingsClient
-from pypost.data.DataManipulator import DataManipulator
+
 
 class IndependentSampler(Sampler):
     '''

@@ -1,7 +1,5 @@
 import unittest
-from pypost.common.Settings import Settings
-from pypost.common import SettingsManager
-from pypost.common.SettingsClient import SettingsClient
+from pypost.common import Settings, SettingsManager, SettingsClient
 
 class testSettings(unittest.TestCase):
     '''Tests Settings, SettingsManager, SettingsClient from common

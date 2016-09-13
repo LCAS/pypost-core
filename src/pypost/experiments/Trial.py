@@ -1,21 +1,10 @@
 from pypost.common.Settings import Settings
 from pypost.common import SettingsManager
-import os.path
-import random
-import traceback
 import numpy as np
 from enum import Enum
 from pypost.common.SettingsClient import SettingsClient
-from collections import namedtuple
-from pypost.common import DataPrinter
-import yaml
-import shlex, subprocess
-import datetime
-import time
-import os, sys
-from stat import *
+import yaml, subprocess, os, time, random, os.path
 
-import time
 
 class TrialStoringType(Enum):
     STORE = 1

@@ -1,5 +1,5 @@
 import unittest
-from pypost.optimizer.SciPyBoxConstrained import SciPyBoxConstrained, SciPyBoxConstrainedAlgorithms
+from pypost.optimizer import SciPyBoxConstrained, SciPyBoxConstrainedAlgorithms
 from scipy.optimize import rosen, rosen_der
 import pypost.common.SettingsManager as SettingsManager
 import numpy as np

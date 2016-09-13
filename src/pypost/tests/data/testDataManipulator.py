@@ -1,7 +1,6 @@
 import unittest
 import numpy as np
-from pypost.data.DataManipulator import DataManipulator
-from pypost.data.DataManipulator import DataFunction
+from pypost.data import DataManipulator, DataFunction
 
 from pypost.tests import DataUtil
 

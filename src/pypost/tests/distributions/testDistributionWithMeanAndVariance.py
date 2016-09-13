@@ -1,11 +1,7 @@
 import unittest
 import numpy as np
-import math
-from pypost.data.DataManager import DataManager
-
-from pypost.tests import DataUtil
-
-from pypost.mappings.DistributionWithMeanAndVariance import DistributionWithMeanAndVariance
+from pypost.data import DataManager
+from pypost.mappings import DistributionWithMeanAndVariance
 
 
 class testDistributionWithMeanAndVariance(unittest.TestCase):

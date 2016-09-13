@@ -1,8 +1,5 @@
 import numpy as np
-import copy
-
 from pypost.data.DataStructure import DataStructure
-from pypost.data.DataEntry import DataType
 
 
 class DataEntryInfo():

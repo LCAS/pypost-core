@@ -1,6 +1,7 @@
 from pypost.sampler.Sampler import Sampler
-from pypost.data.DataManipulator import DataManipulator
 from pypost.sampler.StepBasedEpisodeTerminationSampler import StepBasedEpisodeTerminationSampler
+
+
 class SequentialSampler(Sampler):
     '''
     Stages:

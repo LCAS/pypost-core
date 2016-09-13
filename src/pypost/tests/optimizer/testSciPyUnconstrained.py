@@ -1,6 +1,6 @@
 import unittest
-from src.pypost.optimizer.SciPyUnconstrained import SciPyUnconstrained, SciPyUnconstrainedAlgorithms
-from scipy.optimize import rosen, rosen_der, rosen_hess
+from src.pypost.optimizer import SciPyUnconstrained, SciPyUnconstrainedAlgorithms
+from scipy.optimize import rosen, rosen_der
 import pypost.common.SettingsManager as SettingsManager
 import numpy as np
 

@@ -1,4 +1,3 @@
-from pypost.optimizer.Unconstrained import Unconstrained
 import warnings
 
 def build_dict(unconstrained, opt_dict=None):

@@ -4,7 +4,6 @@ This module maintains the individual Settings objects.
 :change: The notation 'id' has been replaced with 'name' due to name conflicts
 '''
 from pypost.common.Settings import Settings
-from pipes import SOURCE
 
 collection = {}
 '''

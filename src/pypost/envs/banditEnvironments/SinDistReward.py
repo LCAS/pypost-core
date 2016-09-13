@@ -1,7 +1,6 @@
 import math
 import numpy as np
 from pypost.envs.ContextualBlackBoxTask import ContextualBlackBoxTask
-from pypost.data import *
 
 class SinDistReward(ContextualBlackBoxTask):
     def __init__(self, dataManager):

@@ -1,6 +1,6 @@
 import unittest
-from pypost.envs.TransitionFunction import TransitionFunction
-from pypost.sampler.EpisodeWithStepsSampler import EpisodeWithStepsSampler
+from pypost.envs import TransitionFunction
+from pypost.sampler import EpisodeWithStepsSampler
 
 class Test(unittest.TestCase):
 

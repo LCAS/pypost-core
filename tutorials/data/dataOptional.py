@@ -1,6 +1,6 @@
 import numpy as np
 
-from pypost.data.DataManager import DataManager
+from pypost.data import DataManager
 from pypost.common.SettingsManager import *
 
 

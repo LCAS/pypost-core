@@ -1,12 +1,11 @@
 import unittest
-
 import numpy as np
-from numpy.random import normal
-from numpy.random import uniform
+from numpy.random import normal, uniform
 
-from pypost.data.DataManager import DataManager
-from pypost.mappings.GaussianLinearInFeatures import GaussianLinearInFeatures
-from pypost.learner.supervisedLearner.LinearGaussianMLLearner import LinearGaussianMLLearner
+
+from pypost.data import DataManager
+from pypost.mappings import GaussianLinearInFeatures
+from pypost.learner.supervisedLearner import LinearGaussianMLLearner
 
 
 class testLinearGaussianMLLearner(unittest.TestCase):

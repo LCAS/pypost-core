@@ -2,7 +2,6 @@ from pypost.sampler.EpisodeTerminationSampler import EpisodeTerminationSampler
 from pypost.common.SettingsClient import SettingsClient
 
 
-
 class StepBasedEpisodeTerminationSampler(EpisodeTerminationSampler, SettingsClient):
     '''
     The sampler is active until to number of steps is reached
