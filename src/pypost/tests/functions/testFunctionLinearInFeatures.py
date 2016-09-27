@@ -34,12 +34,14 @@ class testFunctionLinearInFeatures(unittest.TestCase):
 
         self.assertTrue((Y == f.computeOutput(inputFeatures=X)).all())
 
-        self.assertTrue((Y == f(X, fromData = False)).all())
+        # Todo implement fromData?
+        self.assertTrue((Y == f(X)).all())
 
         data = dataManager.getDataObject(2)
         data.setDataEntry('X',..., X)
 
-        self.assertTrue((Y == f(data)).all())
+        data[...] >> f
+        self.assertTrue((Y == data.Y).all())
 
     def test_setWeightsAndBias(self):
         dataManager = DataManager('values')

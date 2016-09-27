@@ -55,7 +55,9 @@ class testSettings(unittest.TestCase):
         SettingsManager.delSettings('testSettings01')
         self.assertIsNone(SettingsManager.getSettings('testSettings01'))
 
-        settings.registerProperty('A', 84.42)
+        settings.registerProperty('A', 84.42, setValueIfAlreadyRegistered=False)
+        self.assertEqual(settings.getProperty('A'), 42.21)
+        settings.registerProperty('A', 84.42, setValueIfAlreadyRegistered=True)
         self.assertEqual(settings.getProperty('A'), 84.42)
         settings.setToClients()
         self.assertEqual(cli.getVar('prop_a'), 84.42)
