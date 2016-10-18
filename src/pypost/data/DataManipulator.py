@@ -20,7 +20,7 @@ class DataManipulationFunction():
     Represents a data manipulation function used in the DataManipulator class.
     '''
 
-    def __init__(self, name, inputArguments, outputArguments, callType = CallType.ALL_AT_ONCE, takesNumElements = False, takesData = False):
+    def __init__(self, name, inputArguments, outputArguments, callType = CallType.ALL_AT_ONCE, takesNumElements = False, takesData = False, lazyEvaluation = False):
         '''
         Constructor
         '''
@@ -34,6 +34,7 @@ class DataManipulationFunction():
         self.isInitialized = False
         self.depthEntry = None
         self.dataFunctionObject = None
+        self.lazyEvaluation = lazyEvaluation
 
         if not isinstance(self.inputArguments, list):
             self.inputArguments = [self.inputArguments]
@@ -94,22 +95,42 @@ class DataManipulationFunction():
                                                                 tempOut[i]))
 
         if callData:
-            inputArgs = data.getDataEntryList(dataStruct.inputArguments, indices)
 
-
-            numElements = None
-            if dataStruct.takesNumElements and dataStruct.depthEntry:
+            if dataStruct.depthEntry:
                 outputDepth = data.dataManager.getDataEntryDepth(dataStruct.depthEntry)
                 numElements = data.getNumElementsForIndex(outputDepth, indices)
             else:
-                numElements = 0
+                numElements = 1
 
-            outArgs = self._callDataFuntionInternalMatrices(function, data, numElements, inputArgs)
+            inputArgs = data.getDataEntryList(dataStruct.inputArguments, indices)
+            if (self.lazyEvaluation):
+                validFlag = data.getDataEntry(self.outputArguments[0] + '_validFlag', indices)
+                notValidFlag = np.where(~validFlag)[0]
 
-            if not isinstance(outArgs, list):  # pragma: no branch
-                outArgList = [outArgs]
-            else:
-                outArgList = outArgs
+                for i in range(0, len(inputArgs)):
+                    if isinstance(inputArgs[i], np.ndarray):
+                        inputArgs[i] = inputArgs[i][notValidFlag]
+                numElements = len(notValidFlag)
+
+
+            if (numElements > 0):
+                outArgs = self._callDataFuntionInternalMatrices(function, data, numElements, inputArgs)
+
+                if not isinstance(outArgs, list):  # pragma: no branch
+                    outArgList = [outArgs]
+                else:
+                    outArgList = outArgs
+
+            if self.lazyEvaluation:
+                outArgsAll = data.getDataEntryList(dataStruct.outputArguments, indices)
+
+                if (numElements > 0):
+                    for i in range(0, len(outArgsAll)):
+                        outArgsAll[i][notValidFlag] = outArgList[i]
+
+                outArgList = outArgsAll
+                validFlag[:] = True
+                data.setDataEntry(self.outputArguments[0] + '_validFlag', indices, validFlag)
 
             if registerOutput:
                 if (len(outArgList) < len(dataStruct.outputArguments) or not all(x is not None for x in outArgList[:len(dataStruct.outputArguments)]) ):
@@ -119,6 +140,7 @@ class DataManipulationFunction():
                 except ValueError as error:
                     raise ValueError('Error when registering output arguments of function ' + function.__name__ +
                                      ': ' + error.args[0] + '. Please check your output arguments!')
+            outArgs = outArgList
         return outArgs
 
     def _callDataFuntionInternalMatrices(self, function, data, numElements, inputArgs):
@@ -320,11 +342,11 @@ class DataManipulator(SettingsClient, metaclass=ManipulatorMetaClass):
     '''
 
     @staticmethod
-    def DataMethod( inputArguments, outputArguments, callType=CallType.ALL_AT_ONCE, takesNumElements=False, takesData = False):
+    def DataMethod( inputArguments, outputArguments, callType=CallType.ALL_AT_ONCE, takesNumElements=False, takesData = False, lazyEvaluation = False):
 
             def wrapper(function):
 
-                function.dataFunctionDecorator = DataManipulationFunction(function.__name__, inputArguments, outputArguments, callType, takesNumElements, takesData)
+                function.dataFunctionDecorator = DataManipulationFunction(function.__name__, inputArguments, outputArguments, callType, takesNumElements, takesData, lazyEvaluation)
                 return function
 
             return wrapper

@@ -83,19 +83,13 @@ class DataEntry(SettingsClient):
         if (self.dataType == DataType.sparse):
             self.data = csr_matrix((numElements, self.numDimensions[0]))
 
-        if self.isFeature:
-            self.isValid = np.zeros((numElements, 1), dtype=bool)
-        else:
-            self.isValid = np.ones((numElements, 1), dtype=bool)
+        self.isValid = np.zeros((numElements, 1), dtype=bool)
 
     def reserveStorage(self, numElementsEntry):
         currentSize = self.data.shape[0]
         if currentSize < numElementsEntry:
             self.data = np.vstack((self.data, np.zeros((numElementsEntry - currentSize, self.numDimensions[0]))))
-            if (self.isFeature):
-                self.isValid = np.vstack((self.isValid, np.ones((numElementsEntry - currentSize, 1), dtype=bool)))
-            else:
-                self.isValid = np.vstack((self.isValid, np.zeros((numElementsEntry - currentSize, 1), dtype=bool)))
+            self.isValid = np.vstack((self.isValid, np.zeros((numElementsEntry - currentSize, 1), dtype=bool)))
         else:
             self.data = np.delete(self.data, slice(numElementsEntry, None, None), 0)
             self.isValid = np.delete(self.isValid, slice(numElementsEntry, None, None), 0)

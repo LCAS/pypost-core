@@ -70,6 +70,7 @@ sampler.setActionPolicy(policy)
 sampler.setRewardFunction(reward)
 
 data = dataManager.getDataObject([1, 20])
+
 data[...] >> sampler
 
 states = data.getDataEntry('states', 1)

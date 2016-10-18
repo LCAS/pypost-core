@@ -44,11 +44,11 @@ class Mapping(DataManipulator, metaclass=MappingMetaClass):
 
     @classmethod
     def MappingMethod(cls, inputArguments ='self.inputVariables', outputArguments ='self.outputVariables', callType=CallType.ALL_AT_ONCE, takesNumElements=False,
-                      takesData=False):
+                      takesData=False, lazyEvaluation = False):
 
         def wrapper(function):
             function.dataFunctionDecorator = DataManipulationFunction(function.__name__, inputArguments, outputArguments,
-                                                             callType, takesNumElements, takesData)
+                                                             callType, takesNumElements, takesData, lazyEvaluation)
             function.isMappingFunction = True
             return function
 
@@ -170,6 +170,9 @@ class Mapping(DataManipulator, metaclass=MappingMetaClass):
 
     def getCallType(self):
         return self.dataFunctionDecorator.callType
+
+    def setLazyEvaluation(self, lazyEval):
+        self.dataFunctionDecorator.lazyEvaluation = lazyEval
 
     def setOutputVariables(self, outputVariables):
 

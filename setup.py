@@ -45,7 +45,6 @@ setup(
               'pypost.examples.stochasticSearch',
               'pypost.examples.stochasticSearch.rosenbrock',
               'pypost.experiments',
-              'pypost.functions',
               'pypost.learner',
               'pypost.learner.episodicRL',
               'pypost.learner.parameterOptimization',
@@ -55,8 +54,7 @@ setup(
               'pypost.optimizer.scipyOptimizers',
               'pypost.sampler',
               'pypost.sampler.isActiveSampler',
-              'pypost.sampler.initialSampler',
-              'pypost.tests',
+              'pypost.sampler.initialSampler'
               ],
     # TODO Fix error concerning pyyaml directory and uncomment
     # install_requires=['pyyaml', 'scipy']

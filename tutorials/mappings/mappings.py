@@ -27,12 +27,25 @@ mapping = DummyMapping(dataManager)
 
 print(data[...].X)
 
+# apply mapping
 data[...] >> mapping
 print(data[...].X)
 
-data[...] >> mapping
+# apply mapping 2 times (>> operator always returns data object)
+
+data[...] >> mapping >> mapping
 print(data[...].X)
 
+# apply mapping for first 5 elements
 data[slice(0,5)] >> mapping
 print(data[...].X)
+
+# >= operator is similar to >> but returns the result of the mapping function instead of data
+temp = data[...] >= mapping
+print(data[...].X, temp)
+
+# > operator executes the mapping, but does not store the result in data. Result is returned
+
+temp = data[...] > mapping
+print(data[...].X, temp)
 

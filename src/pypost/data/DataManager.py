@@ -226,7 +226,7 @@ class DataManager(SettingsClient):
     def addFeatureMapping(self, mapping):
         outputVariable = mapping.getOutputVariables()[0]
         if (not outputVariable in self.dataEntries):
-            raise ValueError('Can only add Feature Mapping for existing data entries. Current Entry %s does not exist' % outputVariable)
+            raise ValueError('Can only add Feature Mapping for existing data entries (aliases are not supported). Current Entry %s does not exist' % outputVariable)
 
         self.dataEntries[outputVariable].isFeature = True
         self.dataEntries[outputVariable].callBackGetter = mapping
