@@ -1,7 +1,6 @@
 from pypost.sampler.IndependentSampler import IndependentSampler
 from pypost.data.DataManager import DataManager
 from pypost.sampler.SamplerPool import SamplerPool
-import types
 
 class EpisodeSampler(IndependentSampler):
     '''

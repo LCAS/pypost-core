@@ -1,7 +1,6 @@
 from pypost.sampler.Sampler import Sampler
-from pypost.data.DataManipulator import DataManipulator
-from pypost.sampler.isActiveSampler.IsActiveNumSteps import IsActiveNumSteps
-import numpy as np
+from pypost.sampler.StepBasedEpisodeTerminationSampler import StepBasedEpisodeTerminationSampler
+
 
 class SequentialSampler(Sampler):
     '''
@@ -35,7 +34,7 @@ class SequentialSampler(Sampler):
             self._isActiveSampler = None
 
             # TODO pass an other IsActiveStepSampler by parameters
-            self.setIsActiveSampler(IsActiveNumSteps(dataManager, stepName))
+            self.setIsActiveSampler(StepBasedEpisodeTerminationSampler(dataManager, stepName))
         else:
             self._isActiveSampler = isActiveSampler
 
@@ -112,6 +111,9 @@ class SequentialSampler(Sampler):
         '''
         assumes args is a vector
         '''
+        if isinstance(activeIndex[0], slice):
+            activeIndex[0] = list(range(activeIndex[0].start, activeIndex[0].stop))
+
         isActive = data[activeIndex] > self._isActiveSampler.isActiveStep  # @mw ASK: *args?
         tCurrent = activeIndex[-1]
 
@@ -132,6 +134,17 @@ class SequentialSampler(Sampler):
                 activeIdxs = [activeIndex[0], activeIndexTmp]
                 stoppedIdxs = [activeIndex[0], stoppedIdxsTmp]
         else:
+            # Todo: What with ellipsis?
+
+            #activeIdxs = list()
+            #stoppedIdxs = list()
+            #for i, active in enumerate(isActive):
+            #    if active:
+            #        activeIdxs.append(activeIndex[0][i])
+            #    else:
+            #        stoppedIdxs.append(activeIndex[0][i])
+
+
             activeIdxs = [[activeIndex[0][i] for i, x in enumerate(isActive) if x]]
             stoppedIdxs = [[activeIndex[0][i] for i, x in enumerate(isActive) if not x]]
 

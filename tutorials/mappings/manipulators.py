@@ -1,6 +1,6 @@
-from pypost.data.DataManager import DataManager
-from pypost.data.DataManipulator import DataManipulator
-from pypost.data.DataManipulator import CallType
+from pypost.data import DataManager
+from pypost.data import DataManipulator
+from pypost.data import CallType
 
 
 #define our manipulator. A manipulator can define several data manipulation methods with the DataMethod decoration interface

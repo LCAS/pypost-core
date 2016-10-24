@@ -1,9 +1,5 @@
 #!/usr/bin/python
 
-import os
-import sys
-import shutil
-
 from pypost.experiments.Experiment import Experiment
 from pypost.examples.stochasticSearch.rosenbrock.Power_Rosenbrock import PowerRosenbrock
 

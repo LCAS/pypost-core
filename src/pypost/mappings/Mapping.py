@@ -1,6 +1,5 @@
 import numbers
 
-
 from pypost.data.DataManipulator import CallType
 from pypost.data.DataManipulator import DataManipulator
 from pypost.data.DataManipulator import DataManipulationFunction

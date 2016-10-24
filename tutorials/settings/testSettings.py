@@ -1,6 +1,5 @@
-from pypost.common.Settings import Settings
 from pypost.common import SettingsManager
-from pypost.common.SettingsClient import SettingsClient
+from pypost.common import SettingsClient
 
 
 settings = SettingsManager.getDefaultSettings()

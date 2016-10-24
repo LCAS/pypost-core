@@ -1,9 +1,6 @@
 import unittest
 import numpy as np
-from pypost.data.DataStructure import DataStructure
-from pypost.data.DataAlias import DataAlias
-from pypost.data.DataEntry import DataEntry
-from pypost.data.DataManager import DataManager
+from pypost.data import DataStructure, DataAlias, DataEntry, DataManager
 
 
 class testDataStructure(unittest.TestCase):
@@ -73,7 +70,7 @@ class testDataStructure(unittest.TestCase):
 
     def test_getDataEntry_empty_path(self):
         dataStructure = DataStructure(self.dataManager, 5)
-        self.assertRaises(ValueError, dataStructure.getDataEntry, [], [])
+        self.assertRaises(ValueError, dataStructure.getDataEntry, [], [], [])
 
     def test_getDataEntry_broken_path(self):
         data = None
@@ -100,7 +97,7 @@ class testDataStructure(unittest.TestCase):
         self.assertRaises(ValueError, dataStructure.setDataEntry, data, ['a'],
                           [slice(0, 5)], np.ndarray((1, 2)))
 
-        self.assertRaises(ValueError, dataStructure.setDataEntry, ['a'],
+        self.assertRaises(ValueError, dataStructure.setDataEntry, data, ['a'],
                           [3], np.ndarray((2, 1)))
 
     def test_setDataEntry_invalid_indice_type(self):

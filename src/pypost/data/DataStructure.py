@@ -4,7 +4,6 @@ from pypost.data.DataAlias import DataAlias
 from pypost.data.DataEntry import DataEntry
 from scipy.sparse import csr_matrix
 from pypost.common.SettingsClient import SettingsClient
-from inspect import isfunction
 import copy
 
 class DataStructure(SettingsClient):
@@ -52,12 +51,20 @@ class DataStructure(SettingsClient):
         else:
             if indices[0] == Ellipsis:
                 return self.numElements
-            elif (self.nextLayer):
+
+            elif self.nextLayer:
                 nextLayer = self.dataStructureLocalLayer[self.nextLayer]
                 return len(nextLayer[indices[0]])
+            # Todo Check this:
+            elif isinstance(indices[0], slice):
+                step_size = 1 if indices[0].step is None else indices[0].step
+                return indices[0].stop - indices[0].start // step_size
             else:
-                standardEntry = next(iter(self.dataEntries))
-                return self.dataStructureLocalLayer[standardEntry].data[indices[0]].shape[0]
+                return 1
+            # This is problematic since self.dataEntries (a dict) is unordered and hence standardEntry (and its shape)
+            # are 'non deterministically' chosen and do not always (but sometimes) match the desired value...
+            # standardEntry = next(iter(self.dataEntries))
+            # return self.dataStructureLocalLayer[standardEntry].data[indices[0]].shape[0]
 
 
     def createEntry(self, name, dataEntry):
@@ -214,7 +221,7 @@ class DataStructure(SettingsClient):
                 else:
                     raise ValueError("Unknown type of the data alias entry")
                 if len(entryData.shape) == 1:
-                    entryData.resize((1, entry.shape[0]))
+                    entryData.resize((1, entryData.shape[0]))
                 if data is None:
                     data = entryData[:, slice_].copy()
                 else:
@@ -436,23 +443,23 @@ class DataStructure(SettingsClient):
         if not isinstance(indices, list):
             indices = [indices]
 
-        if (indices[0] == Ellipsis):
+        if indices[0] == Ellipsis:
             indices[0] = slice(0, self.numElements)
         elif isinstance(indices[0], int):
             indices[0] = slice(indices[0], indices[0] + 1)
 
-        if (not self.nextLayer):
+        if not self.nextLayer:
             raise ValueError('Can not find given hierarchical index')
 
         nextLayer = self.dataStructureLocalLayer[self.nextLayer]
         if len(indices) == 1:
-            if (isinstance(indices[0], (slice, int))):
+            if isinstance(indices[0], (slice, int)):
                 return nextLayer[indices[0]]
             else:
                 return [nextLayer[i] for i in indices[0]]
         else:
 
-            if (isinstance(indices[0], (slice, int))):
+            if isinstance(indices[0], (slice, int)):
                 subData = nextLayer[indices[0]]
             else:
                 subData = [nextLayer[i] for i in indices[0]]

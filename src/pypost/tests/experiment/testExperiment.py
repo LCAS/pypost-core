@@ -1,12 +1,8 @@
 import unittest
 import os
-import sys
 import shutil
 import numpy as np
-from pypost.experiments.Experiment import Experiment
-from pypost.experiments.Evaluation import Evaluation
-from pypost.experiments.Trial import Trial
-from pypost.experiments.Trial import TrialStoringType
+from pypost.experiments import Experiment ,Evaluation, Trial, TrialStoringType
 from pypost.common.Settings import Settings
 from pypost.examples.stochasticSearch.rosenbrock.Power_Rosenbrock import PowerRosenbrock
 

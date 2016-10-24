@@ -4,9 +4,7 @@ Created on Dec 4, 2015
 @author: Sebastian Kreutzer
 '''
 
-from pypost.data.DataManager import DataManager
-from pypost.data.Data import Data
-
+from pypost.data import DataManager
 
 def createTestManager():
     dataManager = DataManager('episodes')
