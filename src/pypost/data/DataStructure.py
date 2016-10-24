@@ -379,6 +379,11 @@ class DataStructure(SettingsClient):
                 # devide the data into len(subLayers) parts and pass each of
                 # these subData's to the corresponding subLayer
                 subLayers = self.dataStructureLocalLayer[path[0]]
+
+                if (path[0] != self.nextLayer):
+                    raise ValueError("Path %s does not match hierarchy %s"
+                                     % (path[0], self.nextLayer))
+
                 subDataLen = int(data.shape[0] / len(subLayers))
 
                 subDataShape = subLayers[0].getDataEntry(dataObject, path[1:],

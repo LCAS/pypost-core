@@ -373,20 +373,20 @@ class Data(object):
             else:
                 self.setDataEntry(entry, indices, dataEntryList[i])
 
-    #def resetFeatureTags(self):
-    #    '''
-    #    Resets the feature tags of all features in the data object.
-    #    This NEEDS to be done whenever we write new data into the
-    #    data structure, for example, when we sample new episodes.
-    #    Otherwise the feature generators would not realize that the
-    #    features need to be recomputed
-    #    '''
-    #    for dataEntry in self.entryInfoMap:
-    #        if self.entryInfoMap[dataEntry].isFeature:
-    #            numElements = self.getNumElements(dataEntry)
-    #
-    #            self.setDataEntry(dataEntry.name, ...,
-    #                              np.zeros(numElements, 1))
+    def resetFeatureTags(self):
+        '''
+        Resets the feature tags of all features in the data object.
+        This NEEDS to be done whenever we write new data into the
+        data structure, for example, when we sample new episodes.
+        Otherwise the feature generators would not realize that the
+        features need to be recomputed
+        '''
+        for dataEntry in self.entryInfoMap:
+            if self.entryInfoMap[dataEntry].isFeature:
+                numElements = self.getNumElements(dataEntry)
+
+                self.setDataEntry(dataEntry + '_validFlag', ...,
+                                  np.zeros((numElements,1),dtype=bool))
 
     def reserveStorage(self, numElements, indices = None):
         '''Allocates memory for `numElements` elements

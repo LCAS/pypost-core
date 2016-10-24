@@ -34,6 +34,7 @@ print('Features: ', data[...].Y)
 print('Features: ', data[...].Y)
 print('Features: ', data[...].Y)
 
+data.resetFeatureTags()
 # reset valid Tags
 data[...].Y_validFlag = np.vstack((np.ones((5,1), dtype=bool), np.zeros((5,1), dtype=bool)))
 #Now mapping is only called for the last 5 elements
