@@ -1,9 +1,7 @@
 import unittest
 from pypost.tests import DataUtil
-from pypost.sampler.IndependentSampler import IndependentSampler
-from pypost.data.DataManager import DataManager
-from pypost.data.Data import Data
-from pypost.data.DataStructure import DataStructure
+from pypost.sampler import IndependentSampler
+
 
 
 class testIndependentSampler(unittest.TestCase):

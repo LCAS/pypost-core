@@ -2,15 +2,11 @@ import numpy as np
 import numbers
 
 from pypost.data.Data import Data
-from pypost.data.DataAlias import DataAlias
-from pypost.data.DataAlias import IndexModifier
-from pypost.data.DataEntry import DataEntry
-from pypost.data.DataEntry import DataType
+from pypost.data.DataAlias import DataAlias, IndexModifier
+from pypost.data.DataEntry import DataEntry, DataType
 from pypost.common import SettingsManager
 from pypost.common.SettingsClient import SettingsClient
 from pypost.data.DataStructure import DataStructure
-
-#import pypost.mappings.FeatureGenerator
 
 class DataManager(SettingsClient):
 

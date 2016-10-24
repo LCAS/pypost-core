@@ -1,5 +1,4 @@
 from pypost.data.DataManager import DataManager
-from pypost.data.Data import Data
 from pypost.common.SettingsClient import SettingsClient
 
 import numpy as np

@@ -1,8 +1,5 @@
-import sys
-import numpy as np
-
-from pypost.data.DataManager import DataManager
-from pypost.mappings.Mapping import Mapping
+from pypost.data import DataManager
+from pypost.mappings import Mapping
 
 #define our mapping class. A mapping is a callable object, where the call function is implemented by the MappingMethod decorator
 

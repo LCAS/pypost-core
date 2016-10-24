@@ -1,8 +1,7 @@
 import numpy as np
 
 from pypost.common.SettingsClient import SettingsClient
-from pypost.mappings.DistributionWithMeanAndVariance import \
-    DistributionWithMeanAndVariance
+from pypost.mappings.DistributionWithMeanAndVariance import DistributionWithMeanAndVariance
 from pypost.mappings.FunctionLinearInFeatures import FunctionLinearInFeatures
 
 

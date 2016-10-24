@@ -1,13 +1,11 @@
 import numpy as np
 
-import pypost.envs.banditEnvironments
-
 from pypost.experiments.Trial import TrialStoringType
 from pypost.experiments.Trial import Trial
-from pypost.learner.episodicRL.NES import NaturalEvolutionStrategy
+from pypost.episodicRL.NES import NaturalEvolutionStrategy
 from pypost.sampler.EpisodeSampler import EpisodeSampler
 from pypost.mappings.GaussianLinearInFeatures import GaussianLinearInFeatures
-from pypost.envs.banditEnvironments.RosenbrockReward import RosenbrockReward
+from pypost.banditEnvironments.RosenbrockReward import RosenbrockReward
 
 
 

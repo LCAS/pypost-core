@@ -3,11 +3,10 @@ import unittest
 import numpy as np
 
 import pypost.tests.DataUtil as DataUtil
-from pypost.data.DataManager import DataManager
-from pypost.data.DataManipulator import DataManipulator
-from pypost.mappings.Function import Function
-from pypost.mappings.FunctionLinearInFeatures import FunctionLinearInFeatures
-from pypost.sampler.EpisodeSampler import EpisodeSampler
+from pypost.data import DataManager
+from pypost.data import DataManipulator
+from pypost.mappings import Function, FunctionLinearInFeatures
+from pypost.sampler import EpisodeSampler
 
 
 class SamplerTestManipulator(DataManipulator):

@@ -1,15 +1,7 @@
 import unittest
 import numpy as np
-import sys
-import os
-
-from numpy.core.numeric import ones
-from pypost.data.DataEntry import DataEntry
-from pypost.data.DataManager import DataManager
-from pypost.data.DataManipulator import DataManipulator
+from pypost.data import DataManager, DataManipulator
 from pypost.common import SettingsManager
-
-from pypost.tests import DataUtil
 
 class TestSuffixManipulator(DataManipulator):
 
@@ -43,7 +35,7 @@ class testDataSuffix(unittest.TestCase):
         data.setDataEntry('parameters1Agent1', ..., np.ones((10,1)) * 5)
 
         dummyManipulator = TestSuffixManipulator(dataManager)
-        dummyManipulator.dummyFunction_fromData(data)
+        data >> dummyManipulator.dummyFunction
 
         self.assertTrue(np.all(data.getDataEntry("parameters2Agent1") == data.getDataEntry("parameters1Agent1") + 10))
         self.assertTrue(np.all(data.getDataEntry("parametersAgent1") == np.hstack((data.getDataEntry("parameters1Agent1"), data.getDataEntry("parameters2Agent1")))))

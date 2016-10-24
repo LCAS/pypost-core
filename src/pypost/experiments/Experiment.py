@@ -1,15 +1,10 @@
 import os
 import getpass
 import shutil
-import re
 
-import numpy as np
-
-from pypost.common.Settings import Settings
 from pypost.common.SettingsManager import setRootSettings
-
 from pypost.experiments.Evaluation import Evaluation
-from pypost.experiments.Trial import Trial
+
 
 
 

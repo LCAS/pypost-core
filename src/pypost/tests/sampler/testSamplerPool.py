@@ -4,9 +4,8 @@ Created on 14 Feb 2016
 @author: daniele
 '''
 import unittest
-from pypost.sampler.SamplerPool import SamplerPool
-from pypost.sampler.Sampler import Sampler
-from pypost.data.DataManager import DataManager
+from pypost.sampler import SamplerPool, Sampler
+from pypost.data import DataManager
 
 
 class Test(unittest.TestCase):

@@ -1,10 +1,7 @@
 #!/usr/bin/python
 
 import os
-import sys
-import shutil
 
-from pypost.experiments.Experiment import Experiment
 from pypost.experiments.ExperimentFromScript import ExperimentFromScript
 from pypost.examples.stochasticSearch.rosenbrock.NES_rosenbrock import NESRosenbrock
 
