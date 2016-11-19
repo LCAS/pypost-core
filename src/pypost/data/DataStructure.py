@@ -52,13 +52,12 @@ class DataStructure(SettingsClient):
             if indices[0] == Ellipsis:
                 return self.numElements
 
-            elif self.nextLayer:
-                nextLayer = self.dataStructureLocalLayer[self.nextLayer]
-                return len(nextLayer[indices[0]])
+            elif isinstance(indices[0], list):
+                return len(indices[0])
             # Todo Check this:
             elif isinstance(indices[0], slice):
                 step_size = 1 if indices[0].step is None else indices[0].step
-                return indices[0].stop - indices[0].start // step_size
+                return (indices[0].stop - indices[0].start) // step_size
             else:
                 return 1
             # This is problematic since self.dataEntries (a dict) is unordered and hence standardEntry (and its shape)

@@ -98,8 +98,18 @@ class DataManager(SettingsClient):
         '''
         return self._finalized
 
+    def getDataManagerForAlias(self, aliasName):
+        aliasNames = self.getAliasNamesLocal()
+        if aliasName in aliasNames:
+            return self
+        else:
+            if self.subDataManager:
+                return self.subDataManager.getDataManagerForAlias(aliasName)
+            else:
+                return None
 
-    def getSubDataManagerForDepth(self, depth):
+
+    def getDataManagerForLevel(self, depth):
         '''
         Returns the DataManager for the given depth.
         Returns None if depth is out of range.
@@ -114,14 +124,14 @@ class DataManager(SettingsClient):
             return self._subDataManagerList[depth]
         return None
 
-    def getDepthForDataManager(self, dataManagerName):
+    def getLevelForDataManager(self, dataManagerName):
         if (self.name == dataManagerName):
             return 0
         else:
             if (not self.subDataManager):
                 raise ValueError('Datamanager for {0} not found'.format(dataManagerName))
             else:
-                return self.subDataManager.getDepthForDataManager(dataManagerName) + 1
+                return self.subDataManager.getLevelForDataManager(dataManagerName) + 1
 
     def addOptionalDataEntry(self, name, defaultGuard, numDimensions, minRange = None, maxRange = None, parameterPoolName = None, level = 0, transformation = None):
 
@@ -141,7 +151,7 @@ class DataManager(SettingsClient):
 
         if self.settings.getProperty(guard):
 
-            dataManagerForDepth = self.getSubDataManagerForDepth(level)
+            dataManagerForDepth = self.getDataManagerForLevel(level)
             dataManagerForDepth.addDataEntry(name, numDimensions, minRange, maxRange)
 
             if parameterPoolName is not None:
@@ -154,14 +164,14 @@ class DataManager(SettingsClient):
                     nameData = name + 'Sigmoid'
                     dataManagerForDepth.addDataAlias(parameterPoolName, [(nameData, ...)])
         else:
-            dataManagerForDepth = self.getSubDataManagerForDepth(level)
+            dataManagerForDepth = self.getDataManagerForLevel(level)
             dataManagerForDepth.addDataEntry(name, numDimensions, minRange, maxRange, takeFromSettings=True)
 
         self._dirty = True
         self.settings.lockProperty(guard)
 
 
-    def addDataEntry(self, name, numDimensions, minRange=-1, maxRange=1, isPeriodic = None, dataType = DataType.continuous, takeFromSettings = False):
+    def addDataEntry(self, name, numDimensions, minRange=-1, maxRange=1, isPeriodic = None, dataType = DataType.continuous, takeFromSettings = False, level = 0):
         '''
         Function for adding a new data entry. If the same data entry already
         exists, then the properties are overwritten.
@@ -179,45 +189,50 @@ class DataManager(SettingsClient):
                             there is a DataAlias of that name.
         '''
 
-        settings = SettingsManager.getDefaultSettings()
+        if (level > 0):
+            subManager = self.getDataManagerForLevel(level)
+            subManager.addDataEntry(name = name, numDimensions=numDimensions, minRange=minRange, maxRange = maxRange, isPeriodic = isPeriodic, dataType=dataType, takeFromSettings=takeFromSettings)
 
-        name = name + settings.getSuffixString()
+        else:
+            settings = SettingsManager.getDefaultSettings()
 
-        if self.finalized:
-            raise RuntimeError("The data manager cannot be modified after "
-                               "it has been finalized")
+            name = name + settings.getSuffixString()
 
-        # Ensure that the name of the data entry does not conflict with an
-        # alias name
-        if name in self.dataAliases:
-            raise ValueError("The name of an alias conflicts with a data " +
-                             "entry name: " + name)
+            if self.finalized:
+                raise RuntimeError("The data manager cannot be modified after "
+                                   "it has been finalized")
 
-        if not isinstance(numDimensions, tuple):
-            numDimensions = (numDimensions,)
+            # Ensure that the name of the data entry does not conflict with an
+            # alias name
+            if name in self.dataAliases:
+                raise ValueError("The name of an alias conflicts with a data " +
+                                 "entry name: " + name)
 
-        if isinstance(minRange, numbers.Number):
-            minRange = minRange * np.ones(numDimensions)
+            if not isinstance(numDimensions, tuple):
+                numDimensions = (numDimensions,)
 
-        if isinstance(maxRange, numbers.Number):
-            maxRange = maxRange * np.ones(numDimensions)
+            if isinstance(minRange, numbers.Number):
+                minRange = minRange * np.ones(numDimensions)
 
-        self.dataEntries[name] = DataEntry(name, numDimensions,
-                                           minRange, maxRange, isPeriodic, dataType, takeFromSettings)
-        self.dataAliases[name] = DataAlias(name, [(name, ...)], numDimensions)
-        self._dirty = True
+            if isinstance(maxRange, numbers.Number):
+                maxRange = maxRange * np.ones(numDimensions)
 
-        if (self.isTimeSeries):
-            # add Aliases for time series
-            nameUpper = name[0].upper() + name[1:]
-            aliasName = 'next' + nameUpper
-            self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifier.next)
+            self.dataEntries[name] = DataEntry(name, numDimensions,
+                                               minRange, maxRange, isPeriodic, dataType, takeFromSettings)
+            self.dataAliases[name] = DataAlias(name, [(name, ...)], numDimensions)
+            self._dirty = True
 
-            aliasName = 'last' + nameUpper
-            self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifier.last)
+            if (self.isTimeSeries):
+                # add Aliases for time series
+                nameUpper = name[0].upper() + name[1:]
+                aliasName = 'next' + nameUpper
+                self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifier.next)
 
-            aliasName = 'all' + nameUpper
-            self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifier.all)
+                aliasName = 'last' + nameUpper
+                self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifier.last)
+
+                aliasName = 'all' + nameUpper
+                self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifier.all)
 
     def addFeatureMapping(self, mapping):
         outputVariable = mapping.getOutputVariables()[0]
@@ -461,7 +476,7 @@ class DataManager(SettingsClient):
             return self.subDataManager.getDataEntry(entryName)
         raise ValueError("Alias of name %s is not defined" % entryName)
 
-    def getDataEntryDepth(self, entryName):
+    def getDataEntryLevel(self, entryName):
         '''
         Returns the depth of the given entry.
 

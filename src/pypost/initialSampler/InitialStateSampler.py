@@ -1,13 +1,13 @@
 import abc
-from pypost.data.DataManipulator import DataManipulator
+from pypost.mappings import Mapping
 
-class InitialStateSampler(DataManipulator):
+class InitialStateSampler(Mapping):
 
     def __init__(self, dataManager):
-        super().__init__(dataManager)
+        super().__init__(dataManager, inputVariables=None, outputVariables=['states'])
         #self.addDataManipulationFunction(self.sampleInitState, [], ['states'], True, True)
 
-    @DataManipulator.DataMethod(inputArguments=[], outputArguments=['states'])
+    @Mapping.MappingMethod()
     @abc.abstractmethod
     def sampleInitState(self, numElements, *args):
         return

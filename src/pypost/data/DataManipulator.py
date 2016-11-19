@@ -60,7 +60,7 @@ class DataManipulationFunction():
             indices = data.completeLayerIndex(1, indices)
         elif dataStruct.callType is CallType.SINGLE_SAMPLE:
             indices = data.completeLayerIndex(
-                data.dataManager.getDataEntryDepth(
+                data.dataManager.getDataEntryLevel(
                     dataStruct.depthEntry), indices)
 
         if dataStruct.callType is CallType.SINGLE_SAMPLE or \
@@ -96,7 +96,7 @@ class DataManipulationFunction():
         if callData:
 
             if dataStruct.depthEntry:
-                outputDepth = data.dataManager.getDataEntryDepth(dataStruct.depthEntry)
+                outputDepth = data.dataManager.getDataEntryLevel(dataStruct.depthEntry)
                 numElements = data.getNumElementsForIndex(outputDepth, indices)
             else:
                 numElements = 1
@@ -133,14 +133,18 @@ class DataManipulationFunction():
 
             if registerOutput:
                 if (len(outArgList) < len(dataStruct.outputArguments) or not all(x is not None for x in outArgList[:len(dataStruct.outputArguments)]) ):
-                    raise ValueError("Function {0} must return {1} values which are not None".format(function.__name__, len(dataStruct.outputArguments)))
+                    raise ValueError("Function {0} returns {1} values but must return {2} values which are not None".format(function.__name__, len(outArgList), len(dataStruct.outputArguments)))
                 try:
                     data.setDataEntryList(dataStruct.outputArguments, indices, outArgList)
                 except ValueError as error:
                     raise ValueError('Error when registering output arguments of function ' + function.__name__ +
                                      ': ' + error.args[0] + '. Please check your output arguments!')
             outArgs = outArgList
-        return outArgs
+
+        if (outArgs and len(outArgs) == 1):
+            return outArgs[0]
+        else:
+            return outArgs
 
     def _callDataFuntionInternalMatrices(self, function, data, numElements, inputArgs):
         '''
@@ -215,7 +219,11 @@ class DataManipulationFunction():
 
         if hasattr(function, '__self__') and not self.dataFunctionObject:
 
-            return function.__self__.dataManipulationMethodsInstance[function.__name__].dataFunction(function, data, indices, registerOutput)
+            function.__self__.callData = data
+            outArgs = function.__self__.dataManipulationMethodsInstance[function.__name__].dataFunction(function, data, indices, registerOutput)
+            function.__self__.callData = None
+
+            return outArgs
         else:
             if (not self.isInitialized):
                 self.inialized = True
@@ -362,6 +370,7 @@ class DataManipulator(SettingsClient, metaclass=ManipulatorMetaClass):
         super().__init__()
         self.dataManager = dataManager
         self.dataManipulationMethodsInstance = {}
+        self.callData = None
 
         cloneDict = self.__dir__()
         for key in cloneDict:

@@ -46,7 +46,7 @@ class Data(object):
         aliasNames = self.dataManager.getAliasNames()
         entryNames = self.dataManager.getEntryNames()
         for name in aliasNames:
-            depth = self.dataManager.getDataEntryDepth(name)
+            depth = self.dataManager.getDataEntryLevel(name)
             alias = self.dataManager.getDataAlias(name)
             self.entryInfoMap[name] = \
                 DataEntryInfo(depth, alias.entryList, alias.numDimensions,

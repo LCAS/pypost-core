@@ -27,8 +27,8 @@ class RLByWeightedML(BatchLearner):
 
         if not self.dataManager.isDataEntry(self.outputWeightName):
             if level is None:
-                depth = dataManager.getDataEntryDepth(self.rewardName)
-                subDataManager = dataManager.getSubDataManagerForDepth(depth)
+                depth = dataManager.getDataEntryLevel(self.rewardName)
+                subDataManager = dataManager.getDataManagerForLevel(depth)
                 subDataManager.addDataEntry(self.outputWeightName, 1)
             else:
                 level = level + '.' + self.outputWeightName

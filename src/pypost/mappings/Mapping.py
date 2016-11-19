@@ -91,6 +91,7 @@ class Mapping(DataManipulator, metaclass=MappingMetaClass):
 
         if (self.callFunctionName):
             self.dataFunctionDecorator = self.dataManipulationMethodsInstance[self.callFunctionName]
+            self.__name__ = self.callFunctionName
 
     def getNumElementsAndInput(self, input):
         if (len(self.inputVariables) > 0):

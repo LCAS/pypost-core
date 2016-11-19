@@ -30,14 +30,14 @@ class testDataManager(unittest.TestCase):
         dataManager.subDataManager = subDataManager
         subDataManager.subDataManager = subSubDataManager
 
-        self.assertEqual(dataManager.getSubDataManagerForDepth(0), dataManager)
-        self.assertEqual(dataManager.getSubDataManagerForDepth(0), dataManager)
-        self.assertEqual(dataManager.getSubDataManagerForDepth(0), dataManager)
-        self.assertEqual(dataManager.getSubDataManagerForDepth(1),
+        self.assertEqual(dataManager.getDataManagerForLevel(0), dataManager)
+        self.assertEqual(dataManager.getDataManagerForLevel(0), dataManager)
+        self.assertEqual(dataManager.getDataManagerForLevel(0), dataManager)
+        self.assertEqual(dataManager.getDataManagerForLevel(1),
                          subDataManager)
-        self.assertEqual(dataManager.getSubDataManagerForDepth(2),
+        self.assertEqual(dataManager.getDataManagerForLevel(2),
                          subSubDataManager)
-        self.assertEqual(dataManager.getSubDataManagerForDepth(3), None)
+        self.assertEqual(dataManager.getDataManagerForLevel(3), None)
 
     def test_addDataEntry_after_finalize(self):
         dataManager = DataManager('episodes')
@@ -129,10 +129,10 @@ class testDataManager(unittest.TestCase):
 
     def test_getDataEntryDepth(self):
         dataManager = DataUtil.createTestManager()
-        self.assertEqual(dataManager.getDataEntryDepth('contexts'), 0)
-        self.assertEqual(dataManager.getDataEntryDepth('states'), 1)
-        self.assertEqual(dataManager.getDataEntryDepth('subActions'), 2)
-        self.assertRaises(ValueError, dataManager.getDataEntryDepth, 'none')
+        self.assertEqual(dataManager.getDataEntryLevel('contexts'), 0)
+        self.assertEqual(dataManager.getDataEntryLevel('states'), 1)
+        self.assertEqual(dataManager.getDataEntryLevel('subActions'), 2)
+        self.assertRaises(ValueError, dataManager.getDataEntryLevel, 'none')
 
     def test_addDataAlias(self):
         dataManager = DataManager('episodes')

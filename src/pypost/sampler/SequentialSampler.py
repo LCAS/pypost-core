@@ -58,7 +58,7 @@ class SequentialSampler(Sampler):
         :param args: hierarchical indexing of the data structure
         '''
 
-        activeIndex = data.activeIndex
+        activeIndex = data.activeIndex.copy()
 
         if not isinstance(activeIndex, list):
             activeIndex = [activeIndex]
