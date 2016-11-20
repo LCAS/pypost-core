@@ -6,6 +6,7 @@ class testSettings(unittest.TestCase):
     '''
 
     def test_setProperty(self):
+        SettingsManager.cleanup()
         self.assertEqual(SettingsManager.inDebugMode(), False)
         SettingsManager.activateDebugMode()
         self.assertEqual(SettingsManager.inDebugMode(), True)
@@ -20,7 +21,7 @@ class testSettings(unittest.TestCase):
         cli.linkProperty('prop_a', 'A')
         self.assertIs(SettingsManager.getSettings('testSettings01'), settings)
         self.assertEqual(SettingsManager.getSettings('testSettings01').getProperty('A'), 42.21)
-        self.assertEqual(cli.settingsClientName[:-3], 'client_')
+        self.assertEqual(cli.settingsClientName[:7], 'client_')
 
         self.assertEqual(SettingsManager.getDefaultName(), 'testSettings01')
         self.assertEqual(SettingsManager.getDefaultSettings().name, 'testSettings01')

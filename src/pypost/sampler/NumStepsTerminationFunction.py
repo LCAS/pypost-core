@@ -1,8 +1,8 @@
-from pypost.sampler.EpisodeTerminationSampler import EpisodeTerminationSampler
+from pypost.sampler.TerminationFunction import TerminationFunction
 from pypost.common.SettingsClient import SettingsClient
 
 
-class StepBasedEpisodeTerminationSampler(EpisodeTerminationSampler, SettingsClient):
+class NumStepsTerminationFunction(TerminationFunction, SettingsClient):
     '''
     The sampler is active until to number of steps is reached
 
@@ -24,7 +24,7 @@ class StepBasedEpisodeTerminationSampler(EpisodeTerminationSampler, SettingsClie
         :change: new parameter for timesteps, since 40 is a magic number
         #FIXME default numTimeSteps value is still a magic number
         '''
-        EpisodeTerminationSampler.__init__(self, dataManager, stepName)
+        TerminationFunction.__init__(self, dataManager, stepName)
         SettingsClient.__init__(self)
 
         self.numTimeSteps = numTimeSteps

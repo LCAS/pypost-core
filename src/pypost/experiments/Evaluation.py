@@ -69,7 +69,6 @@ class Evaluation(SettingsClient):
             if not os.path.isfile(os.path.join(trialPath, 'data.npy')):
                 trial = self.experiment.createTrial(self.path, i, self.settings)
                 trial.storeTrial(overwrite)
-                trial.storeTrialInFile('initialTrial')
             else:
                 print("Found existing trial %03d, not recreating" % i)
             trialId = self.experiment.registerTrial(self, trialPath)

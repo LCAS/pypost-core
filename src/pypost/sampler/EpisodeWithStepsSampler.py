@@ -41,5 +41,9 @@ class EpisodeWithStepsSampler(EpisodeSampler):
     def getNumSamples(self, data, *args):
         numSamples = list()
         numSamples.append(super().getNumSamples(data, *args))
-        numSamples.append(self.stepSampler._isActiveSampler.toReserve())
+        numSamples.append(self.stepSampler.terminationFunction.toReserve())
         return numSamples
+
+    def setTerminationFunction(self, sampler):
+        self.stepSampler.setTerminationFunction(sampler)
+

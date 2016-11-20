@@ -36,7 +36,6 @@ class TestEnvironment(Mapping):
         return np.ones((numElements, 1)) * 0.5
 
 class TestPolicy(Mapping):
-    mappingFunctionName = 'getAction'
 
     def __init__(self, dataManager):
         Mapping.__init__(self, dataManager, ['states'], ['actions'])
@@ -46,7 +45,6 @@ class TestPolicy(Mapping):
         return states * 2 * np.ones(2)
 
 class TestReward(Mapping):
-    mappingFunctionName = 'getReward'
 
     def __init__(self, dataManager):
         Mapping.__init__(self, dataManager, ['states', 'actions'], ['rewards'])

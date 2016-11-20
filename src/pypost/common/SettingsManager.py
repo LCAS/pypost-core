@@ -165,3 +165,12 @@ def getNextClientName():
     global lastClientId
     lastClientId += 1
     return 'client_%03d' % lastClientId
+
+def cleanup():
+    global lastClientId
+    global collection
+    global defaultNames
+
+    collection = {}
+    defaultNames = ['default']
+    lastClientId = 0

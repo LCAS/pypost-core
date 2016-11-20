@@ -1,7 +1,7 @@
 from pypost.data.DataManipulator import DataManipulator
 
 
-class EpisodeTerminationSampler(DataManipulator):
+class TerminationFunction(DataManipulator):
     '''
     IsActiveStepSampler determines whether a sequence is still active
     e.g. whether it is not reset

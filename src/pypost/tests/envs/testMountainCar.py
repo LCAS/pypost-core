@@ -1,5 +1,5 @@
 import unittest
-from pypost.sampler import EpisodeWithStepsSampler, StepBasedEpisodeTerminationSampler
+from pypost.sampler import EpisodeWithStepsSampler, NumStepsTerminationFunction
 from pypost.envs import MountainCar
 from pypost.common import SettingsManager
 
@@ -14,7 +14,7 @@ class Test(unittest.TestCase):
         self.sampler = EpisodeWithStepsSampler(samplerNameSteps='steps')
         self.sampler.numSamples = 3
         self.dataManager = self.sampler.getEpisodeDataManager()
-        self.sampler.stepSampler.setIsActiveSampler(StepBasedEpisodeTerminationSampler(
+        self.sampler.stepSampler.setTerminationFunction(NumStepsTerminationFunction(
             self.dataManager, None, numTimeSteps=20))
         environment = MountainCar(self.dataManager)
 

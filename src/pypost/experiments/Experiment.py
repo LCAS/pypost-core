@@ -57,6 +57,7 @@ class Experiment(object):
         self.TrialClass = TrialClass
         self.defaultTrial = self.createTrial(self.path, 0)
         self.defaultTrial.configure()
+        self.defaultTrial.storeTrial(True)
         self.defaultSettings = self.defaultTrial.settings
 
     def create(self, experimentId = 'last'):

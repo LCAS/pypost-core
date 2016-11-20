@@ -1,5 +1,5 @@
 from pypost.sampler.Sampler import Sampler
-from pypost.sampler.StepBasedEpisodeTerminationSampler import StepBasedEpisodeTerminationSampler
+from pypost.sampler.NumStepsTerminationFunction import NumStepsTerminationFunction
 
 
 class SequentialSampler(Sampler):
@@ -31,17 +31,17 @@ class SequentialSampler(Sampler):
         super().__init__(dataManager, samplerName)
 
         if (isActiveSampler == None):
-            self._isActiveSampler = None
+            self.terminationFunction = None
 
             # TODO pass an other IsActiveStepSampler by parameters
-            self.setIsActiveSampler(StepBasedEpisodeTerminationSampler(dataManager, stepName))
+            self.setTerminationFunction(NumStepsTerminationFunction(dataManager, stepName))
         else:
-            self._isActiveSampler = isActiveSampler
+            self.terminationFunction = isActiveSampler
 
     #getter & setter
 
-    def setIsActiveSampler(self, sampler):
-        self._isActiveSampler = sampler
+    def setTerminationFunction(self, sampler):
+        self.terminationFunction = sampler
 
     def createSamples(self, data):
         '''
@@ -71,7 +71,7 @@ class SequentialSampler(Sampler):
                     activeIndex[i] = list(range(0, data.getNumElementsForDepth(i)))
                 else:
                     activeIndex[i] = list(range(0, data.getNumElementsForDepth(i) / data.getNumElementsForDepth(i - 1)))
-        reservedStorage = self._isActiveSampler.toReserve()
+        reservedStorage = self.terminationFunction.toReserve()
         data.reserveStorage(reservedStorage, activeIndex)
 
         activeIndex.append(0)
@@ -105,7 +105,7 @@ class SequentialSampler(Sampler):
 
     def getNumSamples(self, data, *args):
         # @mw ASK: Mistake in Matlab code? Parameters not used.
-        return self._isActiveSampler.toReserve()
+        return self.terminationFunction.toReserve()
 
     def selectActiveIdxs(self, data, activeIndex):
         '''
@@ -114,7 +114,7 @@ class SequentialSampler(Sampler):
         if isinstance(activeIndex[0], slice):
             activeIndex[0] = list(range(activeIndex[0].start, activeIndex[0].stop))
 
-        isActive = data[activeIndex] > self._isActiveSampler.isActiveStep  # @mw ASK: *args?
+        isActive = data[activeIndex] > self.terminationFunction.isActiveStep  # @mw ASK: *args?
         tCurrent = activeIndex[-1]
 
 

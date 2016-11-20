@@ -73,7 +73,7 @@ class testDataManipulator(unittest.TestCase):
         def dummyFunction(contexts):
             return np.ones((contexts.shape[0], 5)) * 4 + contexts
 
-        data[:] >> dummyFunction
+        data[...] >> dummyFunction
         self.assertTrue((data.getDataEntry('parameters', slice(0, 5)) == testArray + 1).all())
 
 

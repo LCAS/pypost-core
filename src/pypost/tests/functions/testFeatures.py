@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from pypost.data import DataManager
-from pypost.mappings import Mapping, FeatureGenerator
+from pypost.mappings import Mapping
 
 class DummyMapping(Mapping):
 

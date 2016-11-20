@@ -40,7 +40,7 @@ class Data(object):
         self.dataManager = dataManager
         self.dataStructure = dataStructure
 
-        self.activeIndex = Ellipsis
+        self.activeIndex = [Ellipsis]
         # create the entryInfoMap
 
         aliasNames = self.dataManager.getAliasNames()
@@ -99,6 +99,10 @@ class Data(object):
 
     def __getitem__(self, index):
         self.activeIndex = index
+
+        if not isinstance(self.activeIndex, list):
+            self.activeIndex = [self.activeIndex]
+
         if isinstance(self.activeIndex, tuple):
             self.activeIndex = list(self.activeIndex)
         return self
