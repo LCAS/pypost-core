@@ -100,11 +100,12 @@ class Data(object):
     def __getitem__(self, index):
         self.activeIndex = index
 
+        if isinstance(self.activeIndex, tuple):
+            self.activeIndex = list(self.activeIndex)
+
         if not isinstance(self.activeIndex, list):
             self.activeIndex = [self.activeIndex]
 
-        if isinstance(self.activeIndex, tuple):
-            self.activeIndex = list(self.activeIndex)
         return self
 
     def __setattr__(self, name, value):

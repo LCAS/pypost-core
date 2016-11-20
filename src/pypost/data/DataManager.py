@@ -192,7 +192,7 @@ class DataManager(SettingsClient):
         if (level > 0):
             subManager = self.getDataManagerForLevel(level)
             subManager.addDataEntry(name = name, numDimensions=numDimensions, minRange=minRange, maxRange = maxRange, isPeriodic = isPeriodic, dataType=dataType, takeFromSettings=takeFromSettings)
-
+            self._dirty = True
         else:
             settings = SettingsManager.getDefaultSettings()
 
