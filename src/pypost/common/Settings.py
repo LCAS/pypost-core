@@ -124,7 +124,6 @@ class Settings():
         super().__setattr__( name, value)
 
     def __getattr__(self, name):
-        print('called')
         if (name != '_properties' and hasattr(self, '_properties') and self.hasProperty(name)):
             return self.getProperty(name)
         else:
