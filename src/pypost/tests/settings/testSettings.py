@@ -183,8 +183,8 @@ class testSettings(unittest.TestCase):
         settings.dummyValue = 2
         self.assertEqual(settings.getProperty('dummyValue'), 2)
 
-        settings.setProperty('dummyValue', 1)
-        self.assertEqual(settings.dummyValue, 1)
+        settings.setProperty('dummyValue', 3)
+        self.assertEqual(settings.dummyValue, 3)
 
     def test_settings_lock(self):
         settings = Settings('settings')

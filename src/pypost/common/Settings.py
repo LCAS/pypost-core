@@ -120,14 +120,15 @@ class Settings():
     def __setattr__(self, name, value):
         if (hasattr(self, '_properties') and self.hasProperty(name)):
             self.setProperty(name, value)
-        else:
-            super().__setattr__( name, value)
+
+        super().__setattr__( name, value)
 
     def __getattr__(self, name):
-            if (name != '_properties' and hasattr(self, '_properties') and self.hasProperty(name)):
-                return self.getProperty(name)
-            else:
-                super().__getattr__(name)
+        print('called')
+        if (name != '_properties' and hasattr(self, '_properties') and self.hasProperty(name)):
+            return self.getProperty(name)
+        else:
+            super().__getattr__(name)
 
     def unregisterProperty(self, propName):
         '''Unregisters the property with the given name.
@@ -177,6 +178,7 @@ class Settings():
         '''
         isRegistered = propName in self._properties
         self.registerProperty(propName, value, setValueIfAlreadyRegistered=True)
+        super().__setattr__(propName, value)
 
         if isRegistered:
             self.informClients(propName)
