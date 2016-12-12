@@ -266,7 +266,8 @@ class Settings():
     def printProperties(self):
         '''Prints the properties
         '''
-        DataPrinter.printData(self.getProperties())
+        for p, v in self._properties.items():
+            print('{}: {}'.format(p, v.value))
 
     def store(self, fileName):
         '''Store properties in file using yaml
