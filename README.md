@@ -8,7 +8,7 @@ Coarsely what you need to install:
 - install additional packages:
 
 sudo apt-get install python3 python3-pip python3-virtualenv 
-sudo apt-get install libpng-dev libjpeg8-dev libfreetype6-dev python-dev
+sudo apt-get install libpng-dev libjpeg8-dev libfreetype6-dev python-dev python3-tk
 
 - upgrade pip 
 
@@ -36,7 +36,7 @@ source /usr/local/bin/virtualenvwrapper.sh
 * If the environment has to be activated.
 * Install the following packages with pip install
 
-pip install numpy scipy bpython pudb yaml matlplotlib
+pip install numpy scipy bpython pudb pyyaml matplotlib
 
 === Documentation ===
 

@@ -14,7 +14,7 @@ class NumStepsTerminationFunction(TerminationFunction, SettingsClient):
     def toReserve(self) -> int
     '''
     # Todo make numTimeSteps settable via settings or constructor, but both?
-    def __init__(self, dataManager, stepName, numTimeSteps=10):
+    def __init__(self, dataManager, stepName = 'timeSteps', numTimeSteps = None):
         '''
         Registers itself to the DataManipulator
         :param dataManager: The data manager to use
@@ -27,14 +27,21 @@ class NumStepsTerminationFunction(TerminationFunction, SettingsClient):
         TerminationFunction.__init__(self, dataManager, stepName)
         SettingsClient.__init__(self)
 
-        self.numTimeSteps = numTimeSteps
+        self.numTimeSteps = 10
+
+
         '''
         Number of timesteps to run
         '''
 
         if stepName is None:
             stepName = "timeSteps"
-        self.linkProperty("numTimeSteps", "num" + stepName[0].upper() + stepName[1:])
+
+        if (numTimeSteps):
+            self.numTimeSteps = numTimeSteps
+            self.linkProperty("numTimeSteps", "num" + stepName[0].upper() + stepName[1:], True)
+        else:
+            self.linkProperty("numTimeSteps", "num" + stepName[0].upper() + stepName[1:])
 
     # getter & setters
 

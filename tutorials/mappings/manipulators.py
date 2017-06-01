@@ -37,10 +37,17 @@ mapping = DummyManipulator(dataManager)
 
 print(data[...].X)
 
+# The >> operator calls the data manipulator, stores the result in the data structure and returns the new data structure
 data[...] >> mapping.computeSomething
 print('data.Y:', data[...].Y)
 
 data[...] >> mapping.computeSomethingSequential
 print('data.Z:', data[...].Z)
 
+# The >= operator calls the data manipulator, stores the result in the data structure and returns the result of evaluating the data manipulator
 
+Y = data[...] >= mapping.computeSomething
+
+# The >= operator calls the data manipulator, returns the result of evaluating the data manipulator but does not store the result in the data structure
+
+Y = data[...] > mapping.computeSomething

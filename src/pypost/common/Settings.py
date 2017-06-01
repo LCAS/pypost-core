@@ -137,14 +137,14 @@ class Settings():
         if propName in self._properties:
             del self._properties[propName]
 
-    def linkProperty(self, client, clientPropName, settingsPropName):
+    def linkProperty(self, client, clientPropName, settingsPropName, takeValueFromClient = False):
         '''Links a property in the settings with the specified property of the given client. If the property isn't already present in the settings, it will be registered.
 
         :param client: The client owning the property to be linked.
         :param clientPropName: The property's name as defined in the client
         :param settingsPropName: The property's name as (it should be) defined in the settings
         '''
-        if settingsPropName in self._properties:
+        if settingsPropName in self._properties and not takeValueFromClient:
             client.setVar(clientPropName,
                           self._properties[settingsPropName].value)
         else:

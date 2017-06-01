@@ -18,7 +18,7 @@ class SettingsClient():
         '''
         self._localPropertyMap = {}
 
-    def linkProperty(self, clientPropName, settingsPropName = None):
+    def linkProperty(self, clientPropName, settingsPropName = None, takeValueFromClient = False):
         '''Registers the property 'clientPropName' of the object into the parameter pool.
 
         The parameter 'settingsPropName' sets the global name of the
@@ -44,7 +44,7 @@ class SettingsClient():
             settingsPropName = clientPropName
 
 
-        self.settings.linkProperty(self, clientPropName, self.getNameWithSuffix(settingsPropName))
+        self.settings.linkProperty(self, clientPropName, self.getNameWithSuffix(settingsPropName), takeValueFromClient = takeValueFromClient)
         self._localPropertyMap[clientPropName] = settingsPropName
 
     def getNameWithSuffix(self, name):
