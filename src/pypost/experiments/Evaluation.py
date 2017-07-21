@@ -85,4 +85,4 @@ class Evaluation(SettingsClient):
         return self.experiment.loadTrialFromID(globalID)
 
     def getNumTrials(self):
-        return self.globalTrialIDs.count()
+        return len(self.globalTrialIDs)
