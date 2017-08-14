@@ -27,7 +27,7 @@ class testSequentialSampler(unittest.TestCase):
 
 
     def test_createSamples(self): #TODO
-        data = DataUtil.createTestManager().getDataObject(1)
+        data = DataUtil.createTestManager().createDataObject(1)
         self.assertRaises(NotImplementedError, self.sampler.createSamples, data)
 
     def test_getNumSamples(self):

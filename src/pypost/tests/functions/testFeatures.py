@@ -23,7 +23,7 @@ class testFeatures(unittest.TestCase):
 
         dataManager.addFeatureMapping(f)
 
-        data = dataManager.getDataObject(10)
+        data = dataManager.createDataObject(10)
 
         # features mapping gets called every time now when we access data.Y
         data[...].X = np.random.normal(0,1,(10,2))

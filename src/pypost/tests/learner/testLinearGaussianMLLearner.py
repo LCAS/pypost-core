@@ -20,7 +20,7 @@ class testLinearGaussianMLLearner(unittest.TestCase):
         dataManager.addDataEntry('weights', 1)
 
         numSamples = 1000000
-        data = dataManager.getDataObject([numSamples])
+        data = dataManager.createDataObject([numSamples])
 
         gaussianDist = GaussianLinearInFeatures(dataManager, ['inputs'], 'outputs', 'testFunction')
         gaussianDistLearner = LinearGaussianMLLearner(dataManager, gaussianDist)

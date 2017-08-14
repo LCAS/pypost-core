@@ -76,7 +76,7 @@ class testStepSampler(unittest.TestCase):
         self.sampler.setPolicy(policy)
         self.sampler.setRewardFunction(reward)
 
-        data = self.dataManager.getDataObject([10, 100])
+        data = self.dataManager.createDataObject([10, 100])
 
         data[slice(0,10)] >> self.sampler
 

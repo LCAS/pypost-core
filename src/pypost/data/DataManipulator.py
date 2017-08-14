@@ -92,6 +92,28 @@ class DataManipulationFunction():
                                     for i in range(0, len(outArgs)):
                                         outArgs[i] = np.vstack((outArgs[i],
                                                                 tempOut[i]))
+                if isinstance(indices[i], list):
+                    # This is somewhat hacky, but it works!
+                    # Maybe clone data and get shape directly?
+
+                    if len(indices[i]) > 1:
+                        callData = False
+                        for j in range(0, len(indices[i])):
+                            indicesSingle = list(indices)
+                            indicesSingle[i] = indices[i][j]
+                            if registerOutput:
+                                self._callDataFunctionInternal(function, data, indicesSingle, registerOutput)
+                            else:
+                                tempOut = self._callDataFunctionInternal(function, data,
+                                    registerOutput,
+                                    indicesSingle)
+                                if outArgs is None:
+                                    outArgs = tempOut
+                                else:
+                                    for i in range(0, len(outArgs)):
+                                        outArgs[i] = np.vstack((outArgs[i],
+                                                                tempOut[i]))
+
 
         if callData:
 
@@ -172,13 +194,34 @@ class DataManipulationFunction():
             if (dataStruct.inputArguments[i] is not None):
                 if (dataStruct.inputArguments[i][0:5] == 'self.'):
                     objString = dataStruct.inputArguments[i].replace('self.', 'object.')
+
+                    preprocessorString = ''
+                    if ('_' in objString):
+                        indexUnderScore = objString.index('_')
+                        if (indexUnderScore > 0):
+                            preprocessorString = objString[indexUnderScore+1:]
+
+                            objString = objString[:indexUnderScore]
+
+
                     if not object:
                         raise ValueError('self reference can only be used for data manipulation methods, not functions')
-                    temp = eval(objString)
-                    if isinstance(temp, list):
-                        inputArgs = inputArgs + temp
-                    elif temp is not None:
-                        inputArgs.append(temp)
+
+                    objStringTmp = objString.replace('object.', '')
+
+                    if hasattr(object, objStringTmp):
+                        temp = eval(objString)
+
+                        if len(preprocessorString) > 0:
+                            temp = temp + '_' + preprocessorString
+
+                        if isinstance(temp, list):
+                            inputArgs = inputArgs + temp
+                        elif temp is not None:
+                            inputArgs.append(temp)
+                    else:
+                        raise ValueError('self reference {} not found'.format(objStringTmp))
+
                 else:
                     inputArgs.append(dataStruct.inputArguments[i])
 
@@ -201,6 +244,12 @@ class DataManipulationFunction():
         if (object):
             dataStruct.outputArguments = object.imposeSuffix(outputArgs)
             dataStruct.inputArguments = object.imposeSuffix(inputArgs)
+            # check data
+            manager = object.dataManager
+
+            manager.checkDataEntries(dataStruct.inputArguments, 'Function {} input arguments'.format(self.name))
+            manager.checkDataEntries(dataStruct.outputArguments, 'Function {} input arguments'.format(self.name))
+
         else:
             dataStruct.outputArguments = outputArgs
             dataStruct.inputArguments = inputArgs
@@ -214,6 +263,10 @@ class DataManipulationFunction():
             dataStruct.depthEntry = dataStruct.outputArguments[0]
         elif len(dataStruct.inputArguments) != 0:
             dataStruct.depthEntry = dataStruct.inputArguments[0]
+
+        if dataStruct.depthEntry and '_' in dataStruct.depthEntry:
+            index = dataStruct.depthEntry.find('_')
+            dataStruct.depthEntry = dataStruct.depthEntry[0:index]
 
     def dataFunction(self, function, data, indices=Ellipsis, registerOutput=True):
 

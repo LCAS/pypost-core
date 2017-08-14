@@ -53,7 +53,7 @@ class Test(unittest.TestCase):
         self.sampler.setParameterPolicy(testManipulator.sampleParameters)
         self.sampler.setReturnFunction(testManipulator.sampleReturns)
 
-        data = self.dataManager.getDataObject(10)
+        data = self.dataManager.createDataObject(10)
         self.sampler.numSamples = 10
         data >> self.sampler
 

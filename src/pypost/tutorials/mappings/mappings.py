@@ -18,7 +18,7 @@ class DummyMapping(Mapping):
 dataManager = DataManager('values')
 dataManager.addDataEntry('X', 2)
 
-data = dataManager.getDataObject([10])
+data = dataManager.createDataObject([10])
 
 mapping = DummyMapping(dataManager)
 

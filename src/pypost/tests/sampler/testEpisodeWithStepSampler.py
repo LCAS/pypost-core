@@ -74,7 +74,7 @@ class testStepSampler(unittest.TestCase):
         self.stepSamplerEpisodes.setActionPolicy(policy)
         self.stepSamplerEpisodes.setRewardFunction(reward)
 
-        data = self.dataManager.getDataObject([10, 100])
+        data = self.dataManager.createDataObject([10, 100])
         data[Ellipsis] >> self.stepSamplerEpisodes
 
         states = data.getDataEntry('states', 1)

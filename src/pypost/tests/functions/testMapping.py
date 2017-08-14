@@ -186,7 +186,7 @@ class testMapping(unittest.TestCase):
 
 
         mapping = DummyMapping(dataManager)
-        data = dataManager.getDataObject(10)
+        data = dataManager.createDataObject(10)
 
         data >> mapping
 

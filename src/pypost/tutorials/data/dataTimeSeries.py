@@ -11,8 +11,7 @@ to retrieve it.
 # Initialization of the manager
 # create data managers with 3 hierarchical layers (episodes, steps, subSteps)
 dataManager = DataManager('episodes')
-subDataManager = DataManager('steps')
-subSubDataManager = DataManager('subSteps')
+subDataManager = DataManager('steps', isTimeSeries=True)
 
 # add data entries to each of the layers
 # here we add an entry named 'parameters' with 5 elements in range [-2,2]
@@ -35,26 +34,16 @@ dataManager.subDataManager = subDataManager
 
 # here we create new data object with 100 episodes, 10 steps
 # this method will also finalize the dataManager
-myData = dataManager.getDataObject([100, 10])
+myData = dataManager.createDataObject([1, 10])
 
-# show all states (1000)
+# for time series, we have special aliases for accesing the next element, previous element and all elements
 
-temp = myData[...].states
-
-assert(temp.shape == (1000,1))
-
-myData[...].states = np.random.normal(0, 1, temp.shape)
-
-# show states of first episode (10)
-
-temp = myData[0].states
-assert(temp.shape == (10,1))
-
-
-# show states of first time step (100)
-temp = myData[..., 0].states
-assert(temp.shape == (100,1))
-
-
-
+# Fill all states with series
+series = np.array(range(0,11))
+series.resize(11,1)
+myData[...].allStates = series
+print('Current states:', myData[...].states)
+print('Next states:', myData[...].nextStates)
+print('Previous states:', myData[..., slice(0,10)].lastStates)
+print('All states:', myData[...].allStates)
 

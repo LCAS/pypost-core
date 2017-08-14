@@ -38,6 +38,11 @@ source /usr/local/bin/virtualenvwrapper.sh
 
 pip install numpy scipy bpython pudb pyyaml matplotlib
 
+* Install jupyter with virtualenv
+pip install jupyter
+python -m ipykernel install --user --name=pyposEnv
+
+
 === Documentation ===
 
 For documentation, have a look at the `docs` directory.

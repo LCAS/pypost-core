@@ -9,6 +9,7 @@ dataManager = DataManager('episodes')
 
 # add data entries
 dataManager.addDataEntry('parameters', 5)
+
 dataManager.addDataEntry('contexts', 5)
 
 # add an alias
@@ -19,9 +20,11 @@ dataManager.addDataAlias('parameterAlias', [('parameters',  slice(0, 2))])
 # 'aliasAlias' will now be the aquivalent to 'parameters'
 dataManager.addDataAlias('aliasAlias', [('parameterAlias', ...), ('contexts', slice(2, 5))])
 
+dataManager.addDataAlias('parametersAliasVertical', [('parameters',  slice(0, 2)), ('parameters',  slice(2, 4))], useConcatVertical=True)
+
 
 # create the data object
-myData = dataManager.getDataObject([3])
+myData = dataManager.createDataObject([3])
 
 # set the entries of the 'parameters' entry. This will also affect the alias
 # that points to 'parameters'
@@ -51,3 +54,11 @@ print('updated context\n', myData[...].contexts, '\n\n')
 # print all parameters again (using the alias)
 print('updated aliasAlias\n', myData[...].aliasAlias, '\n\n')
 
+# test vertical alignment for alias
+print('vertical Alias\n', myData[...].parametersAliasVertical, '\n\n')
+
+# test vertical alignment for alias
+myData[...].parametersAliasVertical = myData[...].parametersAliasVertical * 2
+
+print('vertical Alias after resetting values\n', myData[...].parametersAliasVertical, '\n\n')
+print('Original Parameters after resetting values\n', myData[...].parameters, '\n\n')

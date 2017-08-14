@@ -43,7 +43,7 @@ class testDataManipulator(unittest.TestCase):
         testDecorator = TestDecorator2(dataManager, 'contexts')
         testDecorator2 = TestDecorator2(dataManager, 'parameters')
 
-        data = dataManager.getDataObject(10)
+        data = dataManager.createDataObject(10)
         context = np.array(range(0,10))
         context.resize(10,1)
         data.setDataEntry('contexts', ..., context)

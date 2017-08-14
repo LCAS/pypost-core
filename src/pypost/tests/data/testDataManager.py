@@ -41,7 +41,7 @@ class testDataManager(unittest.TestCase):
 
     def test_addDataEntry_after_finalize(self):
         dataManager = DataManager('episodes')
-        myData = dataManager.getDataObject(10)
+        myData = dataManager.createDataObject(10)
         self.assertRaises(RuntimeError,
                           dataManager.addDataEntry, 'parameters', 5)
 
@@ -67,7 +67,7 @@ class testDataManager(unittest.TestCase):
         subSubDataManager.addDataEntry('subStates', 1)
         subSubDataManager.addDataEntry('subActions', 2)
 
-        myData = dataManager.getDataObject([10, 5, 1])
+        myData = dataManager.createDataObject([10, 5, 1])
 
         self.assertTrue(dataManager.finalized)
         self.assertEqual(len(myData.dataStructure['parameters']), 10)
@@ -102,8 +102,8 @@ class testDataManager(unittest.TestCase):
 
     def test_getDataObject_twice(self):
         dataManager = DataUtil.createTestManager()
-        myData = dataManager.getDataObject([10, 5, 1])
-        myData = dataManager.getDataObject([3, 1, 2])
+        myData = dataManager.createDataObject([10, 5, 1])
+        myData = dataManager.createDataObject([3, 1, 2])
 
     def test_addDataEntry(self):
         dataManager = DataManager('episodes')
@@ -185,7 +185,7 @@ class testDataManager(unittest.TestCase):
 
     def test_addDataAlias_after_finalize(self):
         dataManager = DataManager('episodes')
-        myData = dataManager.getDataObject([10])
+        myData = dataManager.createDataObject([10])
         self.assertRaises(RuntimeError, dataManager.addDataAlias, 'alias', [])
 
     def test_getDataAlias_non_existing(self):
@@ -203,7 +203,7 @@ class testDataManager(unittest.TestCase):
                                  [('parameters', slice(0, 2)),
                                   ('contexts', slice(2, 5))])
 
-        myData = dataManager.getDataObject([10, 5, 1])
+        myData = dataManager.createDataObject([10, 5, 1])
 
         myData.dataStructure['parameters'] = np.ones((10,5))
         myData.dataStructure['contexts'] = np.ones((10,5)) * 2
@@ -253,7 +253,7 @@ class testDataManager(unittest.TestCase):
                                  [('parameters', slice(0, 2)),
                                   ('alias1', ...)])
 
-        myData = dataManager.getDataObject([3, 5, 10])
+        myData = dataManager.createDataObject([3, 5, 10])
 
         alias1 = myData.getDataEntry('alias1')
         alias1[0] = [2, 3, 4]
@@ -380,7 +380,7 @@ class testDataManager(unittest.TestCase):
 
         dataManager.subDataManager = subDataManager
 
-        data = dataManager.getDataObject([100, 20])
+        data = dataManager.createDataObject([100, 20])
 
         data.reserveStorage([20, 20])
 

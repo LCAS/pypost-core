@@ -36,11 +36,10 @@ class Trial(SettingsClient):
             self.trialDir = None
 
         self.index = index
-        self.storePerIteration = []
-        self.storePerTrial = []
+        self.data = {}
 
         if trialSettings is None:
-            self.trialSettings = Settings('trialsettings')
+            self.trialSettings = Settings('trialSettings')
         else:
             self.trialSettings = trialSettings.clone()
 
@@ -53,8 +52,12 @@ class Trial(SettingsClient):
         self.rngState = random.getstate()
 
         self.hasLock = False
+        self.numIterations = 0
 
-    def store(self, name, value, mode=TrialStoringType.STORE):
+    def nextIteration(self):
+        self.numIterations = self.numIterations + 1
+
+    def store(self, name, value):
         '''
         Stores a piece of data. Multiple storage options are available.
         :param name: The name under which the data is stored
@@ -62,51 +65,11 @@ class Trial(SettingsClient):
         :param mode: Can be either one of STORE_PER_ITERATION,
                      ACCUMULATE_PER_ITERATION, STORE, ACCUMULATE
         '''
-        if mode is TrialStoringType.STORE_PER_ITERATION:
-            self.setProperty(name, value)
-            if name not in self.storePerIteration:
-                self.storePerIteration.append(name)
-        elif mode is TrialStoringType.ACCUMULATE_PER_ITERATION:
-            if not isinstance(value, np.ndarray):
-                value = np.array(value)
-            if self.isProperty(name):
-                    self.setProperty(name, np.vstack((self.getProperty(name),
-                                                      value)))
-            else:
-                self.setProperty(name, value)
-            if name not in self.storePerIteration:
-                self.storePerIteration.append(name)
-        elif mode is TrialStoringType.ACCUMULATE:
-            if not isinstance(value, np.ndarray):
-                value = np.array(value)
-            if self.isProperty(name):
-                if isinstance(value, np.ndarray):
-                    self.setProperty(name, np.vstack((self.getProperty(name),
-                                                      value)))
-            else:
-                self.setProperty(name, value)
-            if name not in self.storePerTrial:
-                self.storePerTrial.append(name)
-        elif mode is TrialStoringType.STORE:
-            self.setProperty(name, value)
-            if name not in self.storePerTrial:
-                self.storePerTrial.append(name)
-        else: # pragma: no cover
-            RuntimeError("Unknown StoringType")
 
-    def isProperty(self, name):
-        return hasattr(self, name)
-
-    def setProperty(self, name, value):
-        if not hasattr(self, name):
-            setattr(self, name, value)
-            self.linkProperty(name)
+        if (name in self.data):
+            self.data[name] = np.vstack((self.data[name], value))
         else:
-            self.setVar(name, value)
-            # TODO: update the property in the settings?
-
-    def getProperty(self, name):
-        return getattr(self, name)
+            self.data[name] = value
 
     def storeTrial(self, overwrite=True):
         return self.storeTrialInFile(self.trialDir, overwrite)
@@ -124,13 +87,10 @@ class Trial(SettingsClient):
         if trialDir is None or not os.path.isdir(trialDir):
             return False
 
-        data = {}
-        for name in self.storePerTrial:
-            data[name] = self.getProperty(name)
         dataFile = os.path.join(trialDir, 'data.npy')
 
         if overwrite or not os.path.isfile(dataFile):
-            np.save(dataFile, data)
+            np.save(dataFile, self.data)
         else:
             return False
 
@@ -150,6 +110,7 @@ class Trial(SettingsClient):
         trialDict['isRunning'] = self.isRunning
         trialDict['rngState'] = self.rngState
         trialDict['gitRevisionNumber'] = self.gitRevisionNumber
+        trialDict['numIterations'] = self.numIterations
 
         lockedFile = self.lockFile()
         if overwrite or not os.path.isfile(trialFile):
@@ -183,12 +144,10 @@ class Trial(SettingsClient):
         if not os.path.isfile(dataFile):
             raise FileNotFoundError("Data file not found")
         self.trialSettings.load(settingsFile)
-
+        self.settings.copyProperties(self.trialSettings)
         # resolve numpy crazyness with storing dictionary (wraps around and array)
         temp = np.load(dataFile)
         self.data = temp[()]
-        for name,value in self.data.items():
-            self.setProperty(name, value)
 
         trialFile = os.path.join(trialDir, 'trial.yaml')
 
@@ -199,6 +158,7 @@ class Trial(SettingsClient):
         self.isRunning = trialDict['isRunning']
         self.rngState = trialDict['rngState']
         self.gitRevisionNumber = trialDict['gitRevisionNumber']
+        self.numIterations = trialDict['numIterations']
 
         if (lockedFile):
             self.unlockFile()
@@ -248,6 +208,8 @@ class Trial(SettingsClient):
             self.isRunning = True
             self.storeTrial()
             self.unlockFile()
+
+            random.setstate(self.rngState)
 
             self.configure()
             self.run()

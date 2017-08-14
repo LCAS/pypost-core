@@ -9,14 +9,14 @@ class testDataManager(unittest.TestCase):
 
     def test_assert(self):
         dataManager = DataUtil.createTestManager()
-        data = dataManager.getDataObject([10, 20, 30])
+        data = dataManager.createDataObject([10, 20, 30])
 
         self.assertRaises(ValueError, data.setDataEntry, 'parameters', ...,
                           None)
 
     def test_completeLayerIndex(self):
         dataManager = DataUtil.createTestManager()
-        data = dataManager.getDataObject([10, 20, 30])
+        data = dataManager.createDataObject([10, 20, 30])
 
         self.assertEqual(data.completeLayerIndex(0, ...),
                          [slice(0, 10, None)])
@@ -45,7 +45,7 @@ class testDataManager(unittest.TestCase):
         subSubDataManager.addDataEntry('subStates', 1)
         subSubDataManager.addDataEntry('subActions', 2)
 
-        myData = dataManager.getDataObject([10, 5, 3])
+        myData = dataManager.createDataObject([10, 5, 3])
 
         self.assertEqual(myData.getDataEntry(['parameters']).shape[0], 10)
 
@@ -124,7 +124,7 @@ class testDataManager(unittest.TestCase):
         dataManager = DataManager('episodes')
         dataManager.addDataEntry('parameters', 5, -5, 5)
 
-        myData = dataManager.getDataObject([10])
+        myData = dataManager.createDataObject([10])
 
         # set the data for the parameters of all episodes
         myData.setDataEntry(['parameters'], [], np.ones((10, 5)))
@@ -174,7 +174,7 @@ class testDataManager(unittest.TestCase):
 
         subSubDataManager.addDataEntry('subActions', 2, -10, 10)
 
-        myData = dataManager.getDataObject([10, 5, 3])
+        myData = dataManager.createDataObject([10, 5, 3])
 
         # set the data for all subActions of all episodes, steps and subSteps
         myData.setDataEntry(['steps', 'subSteps', 'subActions'],
@@ -301,7 +301,7 @@ class testDataManager(unittest.TestCase):
         dataManager.addDataEntry('parameters', 5)  # implicit ranges ([-1 1])
         dataManager.addDataEntry('temperature', 24, -20, 100)
 
-        myData = dataManager.getDataObject([10, 5, 3])
+        myData = dataManager.createDataObject([10, 5, 3])
 
         # this should not raise any exception
         myData.setDataEntry(['parameters'], [], np.ones((10, 5)))
@@ -330,7 +330,7 @@ class testDataManager(unittest.TestCase):
         dataManager.addDataAlias('pcAlias', [('parameters', ...),
                                              ('contexts', ...)])
 
-        data = dataManager.getDataObject([10, 20, 30])
+        data = dataManager.createDataObject([10, 20, 30])
 
         self.assertTrue('statesAlias' in dataManager.getAliasNames() and
                         'pcAlias' in dataManager.getAliasNames())
@@ -370,7 +370,7 @@ class testDataManager(unittest.TestCase):
         subDataManager.addDataEntry('states', 1)
         subSubDataManager.addDataEntry('subActions', 2, -10, 10)
 
-        myData = dataManager.getDataObject([1, 1, 1])
+        myData = dataManager.createDataObject([1, 1, 1])
 
         # set the data for all subActions of all episodes, steps and subSteps
         myData.setDataEntry('subActions', [], np.ones((1, 2)))
@@ -414,7 +414,7 @@ class testDataManager(unittest.TestCase):
         dataManager = DataManager('episodes')
         dataManager.addDataEntry('parameters', 5)
         dataManager.addDataEntry('contexts', 3)
-        myData = dataManager.getDataObject([10])
+        myData = dataManager.createDataObject([10])
 
         # set the data for the parameters and context of all episodes
         myData.setDataEntry(['parameters'], [...], np.ones((10, 5)))
@@ -433,14 +433,14 @@ class testDataManager(unittest.TestCase):
 
     def test_set_data_entry_int(self):
         manager = DataUtil.createTestManager()
-        data = manager.getDataObject([10, 20, 30])
+        data = manager.createDataObject([10, 20, 30])
         data.setDataEntry('parameters', 1, np.ndarray((5)))
 
     def testMatrixEntries(self):
         manager = DataManager('episodes')
         manager.addDataEntry('matrixEntry', (10,10))
 
-        data = manager.getDataObject(5)
+        data = manager.createDataObject(5)
 
         data.setDataEntry('matrixEntry', slice(0,2), np.ones((2, 10, 10)))
         testMatrix = np.zeros((5,10,10))
@@ -453,7 +453,7 @@ class testDataManager(unittest.TestCase):
         manager = DataManager('episodes')
         manager.addDataEntry('matrixEntry', 10, dataType=DataType.discrete)
 
-        data = manager.getDataObject(5)
+        data = manager.createDataObject(5)
 
         data.setDataEntry('matrixEntry', slice(0,2), np.ones((2, 10), dtype=np.int_))
         testMatrix = np.zeros((5,10))
@@ -468,7 +468,7 @@ class testDataManager(unittest.TestCase):
         manager = DataManager('episodes')
         manager.addDataEntry('matrixEntry', 10, dataType=DataType.sparse)
 
-        data = manager.getDataObject(5)
+        data = manager.createDataObject(5)
 
         sparseMatrix = csr_matrix((2,10))
         sparseMatrix[0,4] = 4
@@ -485,7 +485,7 @@ class testDataManager(unittest.TestCase):
         dataManager = DataManager('episodes')
         dataManager.addDataEntry('parameters', 5, -10, 10)
         dataManager.addDataEntry('contexts', 3, -10, 10)
-        myData = dataManager.getDataObject([10])
+        myData = dataManager.createDataObject([10])
 
         # set the data for the parameters and context of all episodes
         myData.setDataEntry(['parameters'], [...], np.ones((10, 5)))
@@ -525,7 +525,7 @@ class testDataManager(unittest.TestCase):
 
     def test_resolveEntryPath(self):
         manager = DataUtil.createTestManager()
-        data = manager.getDataObject([10, 20, 30])
+        data = manager.createDataObject([10, 20, 30])
 
         self.assertTrue(['parameters'] == data._resolveEntryPath('parameters'))
         self.assertTrue(['contexts'] == data._resolveEntryPath('contexts'))
@@ -558,7 +558,7 @@ class testDataManager(unittest.TestCase):
 
     def test_getNumElements(self):
         manager = DataUtil.createTestManager()
-        data = manager.getDataObject([3, 4, 5])
+        data = manager.createDataObject([3, 4, 5])
 
         self.assertEqual(data.getNumElements(), 3)
         self.assertEqual(data.getNumElements('states'), 12)
@@ -567,7 +567,7 @@ class testDataManager(unittest.TestCase):
 
     def test_getNumElementsForIndex(self):
         manager = DataUtil.createTestManager()
-        data = manager.getDataObject([3, 4, 5])
+        data = manager.createDataObject([3, 4, 5])
 
         self.assertEqual(data.getNumElementsForIndex(0), 3)
         self.assertEqual(data.getNumElementsForIndex(0, [...]), 3)
@@ -600,7 +600,7 @@ class testDataManager(unittest.TestCase):
         dataManager.addDataEntry('parameters', 5)
         dataManager.addDataAlias('pAlias', [('parameters', ...)])
         dataManager.addDataEntry('contexts', 2)
-        data = dataManager.getDataObject([3, 4, 5])
+        data = dataManager.createDataObject([3, 4, 5])
 
         self.assertEqual(data.getNumElementsForIndex(0), 3)
         self.assertEqual(data.getNumElementsForIndex(0, [...]), 3)
@@ -616,11 +616,11 @@ class testDataManager(unittest.TestCase):
         dataManager.addDataEntry("entry1", 2)
         subDataManager.addDataEntry("entry2", 3)
 
-        data1 = dataManager.getDataObject([10, 10])
+        data1 = dataManager.createDataObject([10, 10])
         data1.setDataEntry("entry1", ..., np.ones((10, 2)))
         data1.setDataEntry("entry2", ..., np.ones((100, 3)))
 
-        data2 = dataManager.getDataObject([5, 5])
+        data2 = dataManager.createDataObject([5, 5])
         data2.setDataEntry("entry1", ..., np.zeros((5, 2)))
         data2.setDataEntry("entry2", ..., np.zeros((25, 3)))
 
@@ -638,11 +638,11 @@ class testDataManager(unittest.TestCase):
         dataManager.addDataEntry("entry1", 2)
         subDataManager.addDataEntry("entry2", 3)
 
-        data1 = dataManager.getDataObject([10, 10])
+        data1 = dataManager.createDataObject([10, 10])
         data1.setDataEntry("entry1", ..., np.ones((10, 2)))
         data1.setDataEntry("entry2", ..., np.ones((100, 3)))
 
-        data2 = dataManager.getDataObject([5, 5])
+        data2 = dataManager.createDataObject([5, 5])
         data2.setDataEntry("entry1", ..., np.zeros((5, 2)))
         data2.setDataEntry("entry2", ..., np.zeros((25, 3)))
 
@@ -657,10 +657,10 @@ class testDataManager(unittest.TestCase):
         dataManager = DataManager("manager")
         dataManager.addDataEntry("entry1", 2)
 
-        data1 = dataManager.getDataObject([10, 10])
+        data1 = dataManager.createDataObject([10, 10])
         data1.setDataEntry("entry1", ..., np.ones((10, 2)))
 
-        data2 = dataManager.getDataObject([5, 5])
+        data2 = dataManager.createDataObject([5, 5])
         data2.setDataEntry("entry1", ..., np.zeros((5, 2)))
 
         data1.mergeData(data2, True)
@@ -675,7 +675,7 @@ class testDataManager(unittest.TestCase):
         dataManager.addDataEntry("entry2", 3)
         dataManager.addDataAlias("entries", [('entry1', ...), ('entry2', ...)])
 
-        data1 = dataManager.getDataObject([10])
+        data1 = dataManager.createDataObject([10])
         dataMat = np.array(range(0,11))
         dataMat.resize(11,1)
 
@@ -706,7 +706,7 @@ class testDataManager(unittest.TestCase):
 
         periodTest = dataManager.getPeriodicity('entries')
         self.assertTrue( periodTest == [False, True, False, True])
-        data = dataManager.getDataObject(2)
+        data = dataManager.createDataObject(2)
         data.setDataEntry('entries', ..., np.array([[0, 8, 0, 2], [0, 2, 0, -8]]))
 
         entryPeriodic = data.getDataEntry('entries_periodic')
@@ -719,7 +719,7 @@ class testDataManager(unittest.TestCase):
         dataManager.addDataEntry("entry2", 3, isPeriodic=[True, False, True])
         dataManager.addDataAlias("entries", [('entry1', ...), ('entry2', ...)])
 
-        data = dataManager.getDataObject(2)
+        data = dataManager.createDataObject(2)
         data.setDataEntry('entries', ..., np.array([[0, 8, 0, 2], [0, 2, 0, -8]]))
 
         entryRestricted = data.getDataEntry('entries_restricted')
@@ -727,7 +727,7 @@ class testDataManager(unittest.TestCase):
 
     def test_getSubDataStructure(self):
         dataManager = DataUtil.createTestManager()
-        data = dataManager.getDataObject([10, 20, 30])
+        data = dataManager.createDataObject([10, 20, 30])
 
         subData1 = data.dataStructure.getSubdataStructures(...)
         subData2 = data.dataStructure.getSubdataStructures([slice(0,5),...])
@@ -739,7 +739,7 @@ class testDataManager(unittest.TestCase):
 
     def test_getReserveStorage(self):
         dataManager = DataUtil.createTestManager()
-        data = dataManager.getDataObject([10, 20, 30])
+        data = dataManager.createDataObject([10, 20, 30])
 
         self.assertEqual(data.getNumElementsForDepth(2), 6000)
 
@@ -757,7 +757,7 @@ class testDataManager(unittest.TestCase):
         dataManager = DataUtil.createTestManager()
         dataManager.addOptionalDataEntry('optionalEntry', False, 2, np.array([[-1, -1]]), np.array([[5, 5]]))
 
-        data = dataManager.getDataObject([10, 20, 30])
+        data = dataManager.createDataObject([10, 20, 30])
         dataManager.settings.setProperty('optionalEntry', np.array([[-2, -2]]))
         optionalEntry = data.getDataEntry('optionalEntry')
         optionalEntryTrue = np.tile(np.array([[-2, -2]]), (10,1))
@@ -766,7 +766,7 @@ class testDataManager(unittest.TestCase):
     def testNativeAccess(self):
         dataManager = DataUtil.createTestManager()
 
-        data = dataManager.getDataObject([10, 20, 30])
+        data = dataManager.createDataObject([10, 20, 30])
 
         data.dataManager
         dummy = data[1].states

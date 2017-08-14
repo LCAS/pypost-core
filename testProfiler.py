@@ -61,7 +61,7 @@ if __name__ == "__main__" or True:
     sampler.setPolicy(policy)
     sampler.setRewardFunction(reward)
 
-    data = dataManager.getDataObject([10, 100])
+    data = dataManager.createDataObject([10, 100])
 
     statesTarget = np.array(range(1, 41))
 

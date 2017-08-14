@@ -37,7 +37,7 @@ class testFunctionLinearInFeatures(unittest.TestCase):
         # Todo implement fromData?
         self.assertTrue((Y == f(X)).all())
 
-        data = dataManager.getDataObject(2)
+        data = dataManager.createDataObject(2)
         data.setDataEntry('X',..., X)
 
         data[...] >> f

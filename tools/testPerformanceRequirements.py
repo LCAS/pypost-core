@@ -87,7 +87,7 @@ class testPerformanceRequirements(unittest.TestCase):
         subDataManager.subDataManager = subSubDataManager
 
         self.start()
-        myData = dataManager.getDataObject([100, 10, 5])
+        myData = dataManager.createDataObject([100, 10, 5])
         self.stop()
         self.registerTime('getDataObject')
 
@@ -139,7 +139,7 @@ class testPerformanceRequirements(unittest.TestCase):
 
         dataManager.subDataManager = subDataManager
 
-        data = dataManager.getDataObject([10, 10])
+        data = dataManager.createDataObject([10, 10])
 
         manipulator = TestManipulator(dataManager)
 

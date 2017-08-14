@@ -11,7 +11,7 @@ class DataAlias():
     DataAliases are subsets or concatinations of DataEntries.
     '''
 
-    def __init__(self, aliasName, entryList, numDimensions, indexModifier = IndexModifier.none):
+    def __init__(self, aliasName, entryList, numDimensions, indexModifier = IndexModifier.none, useConcatVertical = False):
         '''
         :param aliasName The name of the alias
         :param entryList A list of entry names and the corresponding slices
@@ -20,11 +20,18 @@ class DataAlias():
         '''
         self.name = aliasName
         self.entryList = entryList
-        self.numDimensions = numDimensions
+
+        if isinstance(numDimensions, int):
+            self.numDimensions = (numDimensions,)
+        else:
+            self.numDimensions = numDimensions
+
         self.indexModifier = indexModifier
 
         self.minRange = None
         self.maxRange = None
+
+        self.useConcatVertical = useConcatVertical
 
     def modifyIndex(self, index, numElements):
         if self.indexModifier == IndexModifier.none:

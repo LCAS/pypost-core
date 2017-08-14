@@ -133,6 +133,12 @@ class DataManager(SettingsClient):
             else:
                 return self.subDataManager.getLevelForDataManager(dataManagerName) + 1
 
+    def getMaxDepth(self):
+        if (self.subDataManager):
+            return self.subDataManager.getMaxDepth() + 1
+        else:
+            return 0
+
     def addOptionalDataEntry(self, name, defaultGuard, numDimensions, minRange = None, maxRange = None, parameterPoolName = None, level = 0, transformation = None):
 
         if minRange is None:
@@ -242,6 +248,11 @@ class DataManager(SettingsClient):
         self.dataEntries[outputVariable].isFeature = True
         self.dataEntries[outputVariable].callBackGetter = mapping
 
+    def checkDataEntries(self, entryList, errorMessage):
+
+        for i in range(0, len(entryList)):
+            if not self.isDataEntry(entryList[i]):
+                raise ValueError('Checking entries {}: Entry {} does not exist in data manager'.format(errorMessage, entryList[i]))
 
 
     def isDataEntry(self, entryName):
@@ -250,6 +261,11 @@ class DataManager(SettingsClient):
 
         :param entryName: the entry name to query
         '''
+
+        if '_' in entryName:
+            index = entryName.find('_')
+            entryName =  entryName[:index]
+
         if entryName in self.dataEntries:
             return True
 
@@ -339,7 +355,7 @@ class DataManager(SettingsClient):
             argumentList[i] = (name,argumentList[i][1])
         return argumentList
 
-    def addDataAlias(self, aliasName, entryList, indexModifier = IndexModifier.none):
+    def addDataAlias(self, aliasName, entryList, indexModifier = IndexModifier.none, useConcatVertical = False):
         '''
         Adds a new data alias.
 
@@ -382,8 +398,12 @@ class DataManager(SettingsClient):
             if self._checkForAliasCycle(aliasName, entryList):
                 raise ValueError("Alias cycle detected!")
 
+
+
             # Test if the alias has already been defined
             if aliasName in self.dataAliases:
+                if (useConcatVertical != self.dataAliases[aliasName].useConcatVertical):
+                    raise ValueError("Cannot change alignment of data alias (vertical or horizontal)!")
                 # the alias exists. Check all entries of the new alias
                 for entry in entryList:
                     i = 0
@@ -400,27 +420,50 @@ class DataManager(SettingsClient):
                     if not entryFound:
                         # add new entry to existing entries
                         self.dataAliases[aliasName].entryList.append(entry)
+
+
+
             else:
                 # add the entryList
                 self.dataAliases[aliasName] = DataAlias(aliasName, entryList,
-                                                        0, indexModifier)
-
-
+                                                        0, indexModifier, useConcatVertical=useConcatVertical)
 
             # Computes the total number of dimensions for the alias
             numDim = 0
-            for entryName, _slice in self.dataAliases[aliasName].entryList:
-                if entryName in self.dataEntries:
-                    numDimLocal = self.dataEntries[entryName].numDimensions
-                    if len(numDimLocal) > 1:
-                        raise ValueError("Only vector-valued data entries can be stacked in aliases")
-                    else:
-                        numDimLocal = numDimLocal[0]
-                    tmpArray = np.empty((numDimLocal))
+            # check if all entries of alias have same number of dimensions for vertical alignment!
+            if self.dataAliases[aliasName].useConcatVertical and len(self.dataAliases[aliasName].entryList) > 0:
+                numDim = -1
+                for entryName, _slice in self.dataAliases[aliasName].entryList:
+                    if entryName in self.dataEntries:
+                        numDimLocal = self.dataEntries[entryName].numDimensions
+                        if len(numDimLocal) > 1:
+                            raise ValueError("Only vector-valued data entries can be stacked in aliases")
+                        else:
+                            numDimLocal = numDimLocal[0]
+                        tmpArray = np.empty((numDimLocal))
 
-                    numDim += len(tmpArray[_slice])
-                else:
-                    numDim += self.dataAliases[entryName].numDimensions[0]
+                        numDimLocal = len(tmpArray[_slice])
+                    else:
+                        numDimLocal = self.dataAliases[entryName].numDimensions[0]
+
+                    if (numDim >= 0):
+                        if (numDim != numDimLocal):
+                            raise ValueError('Can not create data alias with vertical alignment: {} has wrong number of dimensions ! ({} instead of {})'.format(entryName, numDimLocal, numDim))
+                    else:
+                        numDim = numDimLocal
+            else:
+                for entryName, _slice in self.dataAliases[aliasName].entryList:
+                    if entryName in self.dataEntries:
+                        numDimLocal = self.dataEntries[entryName].numDimensions
+                        if len(numDimLocal) > 1:
+                            raise ValueError("Only vector-valued data entries can be stacked in aliases")
+                        else:
+                            numDimLocal = numDimLocal[0]
+                        tmpArray = np.empty((numDimLocal))
+
+                        numDim += len(tmpArray[_slice])
+                    else:
+                        numDim += self.dataAliases[entryName].numDimensions[0]
 
 
             self.dataAliases[aliasName].numDimensions = (numDim,)
@@ -428,16 +471,17 @@ class DataManager(SettingsClient):
             if (self.isTimeSeries):
                 # add Aliases for time series
                 nameUpper = aliasName[0].upper() + aliasName[1:]
+                concatVert = self.dataAliases[aliasName].useConcatVertical
                 aliasAliasName = 'next' + nameUpper
                 self.dataAliases[aliasAliasName] = DataAlias(aliasAliasName, [(aliasName, ...)], numDim,
-                                                        IndexModifier.next)
+                                                        IndexModifier.next, concatVert)
 
                 aliasAliasName = 'last' + nameUpper
                 self.dataAliases[aliasAliasName] = DataAlias(aliasAliasName, [(aliasName, ...)], numDim,
-                                                        IndexModifier.last)
+                                                        IndexModifier.last, concatVert)
 
                 aliasAliasName = 'all' + nameUpper
-                self.dataAliases[aliasAliasName] = DataAlias(aliasAliasName, [(aliasName, ...)], numDim, IndexModifier.all)
+                self.dataAliases[aliasAliasName] = DataAlias(aliasAliasName, [(aliasName, ...)], numDim, IndexModifier.all, concatVert)
         else:
             if self.subDataManager is not None:
                 self.subDataManager.addDataAlias(aliasName, entryList, indexModifier)
@@ -544,6 +588,8 @@ class DataManager(SettingsClient):
                     raise ValueError("Unknown entry.")
 
                 periodicity[index:(index + len(tempPeriodicity))] = tempPeriodicity
+                if (self.dataAliases[name].useConcatVertical):
+                    break
                 index += len(tempPeriodicity)
             return periodicity
 
@@ -585,6 +631,9 @@ class DataManager(SettingsClient):
 
                 minRange[index:(index + len(tempMinRange))] = tempMinRange
 
+                if (self.dataAliases[name].useConcatVertical):
+                    break
+
                 index += len(tempMinRange)
             return minRange
 
@@ -625,6 +674,8 @@ class DataManager(SettingsClient):
                     raise ValueError("Unknown entry.")
 
                 maxRange[index:(index + len(tempMaxRange))] = tempMaxRange
+                if (self.dataAliases[name].useConcatVertical):
+                    break
                 index += len(tempMaxRange)
             return maxRange
 
@@ -680,7 +731,7 @@ class DataManager(SettingsClient):
         '''
         return self.dataEntries.keys()
 
-    def getDataObject(self, numElements):
+    def createDataObject(self, numElements):
         '''
         Creates a new data object with numElements data points.
 
@@ -736,7 +787,7 @@ class DataManager(SettingsClient):
 
     def printDataAliases(self):
 
-        object = self.getDataObject(0)
+        object = self.createDataObject(0)
         object.printDataAliases()
 
     def _createDataStructure(self, numElements):

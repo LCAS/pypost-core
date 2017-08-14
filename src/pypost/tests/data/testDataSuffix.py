@@ -31,7 +31,7 @@ class testDataSuffix(unittest.TestCase):
         self.assertTrue(dataManager.isDataEntry("parameters1Agent1"))
         self.assertFalse(dataManager.isDataEntry("parameters1"))
 
-        data = dataManager.getDataObject(10)
+        data = dataManager.createDataObject(10)
         data.setDataEntry('parameters1Agent1', ..., np.ones((10,1)) * 5)
 
         dummyManipulator = TestSuffixManipulator(dataManager)

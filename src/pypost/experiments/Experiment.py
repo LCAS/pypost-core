@@ -1,10 +1,11 @@
 import os
 import getpass
 import shutil
+import numpy as np
 
 from pypost.common.SettingsManager import setRootSettings
 from pypost.experiments.Evaluation import Evaluation
-
+from pypost.data.DataManager import DataManager
 
 
 
@@ -333,3 +334,73 @@ class Experiment(object):
 
     def getNumTrials(self):
         return len(self.trialIndexToDirectorymap)
+
+    def getEvaluationData(self, evaluationCollection):
+        if not isinstance(evaluationCollection,list):
+            evaluationCollection = [evaluationCollection ]
+
+        evaluationManager = DataManager('evaluations')
+        trialManager = DataManager('trials')
+        iterationManager = DataManager('iterations')
+
+        evaluationManager.subDataManager = trialManager
+        trialManager.subDataManager = iterationManager
+
+        trialTest = self.loadTrialFromID(0)
+
+        propertyList = trialTest.settings.getProperties()
+        for prop in propertyList.keys():
+            settingsVal = trialTest.settings.getProperty(prop)
+            if (isinstance(settingsVal, (list, tuple, np.ndarray))):
+                numDim = len(settingsVal)
+            else:
+                numDim = 1
+            evaluationManager.addDataEntry(prop, numDim)
+
+        trialManager.addDataEntry('isFinished', 1)
+        trialManager.addDataEntry('isRunning', 1)
+        trialManager.addDataEntry('rngState', 1)
+        trialManager.addDataEntry('trialID', 1)
+
+        for dataKey in trialTest.data.keys():
+            dataVal = trialTest.data[dataKey]
+
+            numIter = 0
+
+            if (isinstance(dataVal, (np.ndarray))):
+                numDim = dataVal.shape[1]
+                numIter = dataVal.shape[0]
+            else:
+                numDim = 1
+
+            if (numIter > 1):
+                iterationManager.addDataEntry(dataKey, numDim)
+            else:
+                trialManager.addDataEntry(dataKey, numDim)
+
+        data = evaluationManager.createDataObject([len(evaluationCollection), 4, 4])
+
+        for i in range(0,len(evaluationCollection)):
+            data.reserveStorage(evaluationCollection[i].getNumTrials(), i)
+
+            propertyList = evaluationCollection[i].settings.getProperties()
+            for prop in propertyList.keys():
+                value = evaluationCollection[i].settings.getProperty(prop)
+                if isinstance(value, (bool, int, float, np.ndarray)):
+                    data.setDataEntry(prop, i, evaluationCollection[i].settings.getProperty(prop))
+
+            for j in range(0, evaluationCollection[i].getNumTrials()):
+                trial = evaluationCollection[i].loadTrialFromID(j)
+                numIterations = trial.numIterations
+
+                data[i, j].isFinished = trial.isFinished
+                data[i, j].isRunning = trial.isRunning
+                data[i, j].rngState = trial.rngState[0]
+                data[i, j].trialID = trial.index
+
+                data.reserveStorage(numIterations, [i, j])
+                for dataKey in trial.data.keys():
+                    data.setDataEntry(dataKey, [i,j], trial.data[dataKey])
+
+        data.avgReturns_T
+        return data

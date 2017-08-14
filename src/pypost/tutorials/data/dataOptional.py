@@ -16,7 +16,7 @@ dataManager.addOptionalDataEntry('optionalEntry', False, 2, np.array([[-1, -1]])
 settings.setProperty('useOptionalEntry2', True)
 dataManager.addOptionalDataEntry('optionalEntry2', False, 1, np.array([[-1]]), np.array([[5]]))
 
-data = dataManager.getDataObject(3)
+data = dataManager.createDataObject(3)
 
 
 # Optional entry is now [-2 -2]

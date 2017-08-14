@@ -25,14 +25,14 @@ class testIndependentSampler(unittest.TestCase):
         self.assertFalse(self.sampler.getParallelSampling())
 
     def test_createSamples(self):
-        data = self.dataManager.getDataObject(3)
+        data = self.dataManager.createDataObject(3)
         self.sampler.createSamples(data)
 
     def test_isValidEpisode(self):
         self.assertTrue(self.sampler.isValidEpisode())
 
     def test_getNumSamples(self):
-        data = self.dataManager.getDataObject(2)
+        data = self.dataManager.createDataObject(2)
         self.assertEqual(self.sampler.getNumSamples(data), 10)
         self.sampler._numInitialSamples = 2
         self.assertEqual(self.sampler.getNumSamples(data), 2)

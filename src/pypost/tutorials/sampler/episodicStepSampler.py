@@ -66,7 +66,7 @@ sampler.setTransitionFunction(environment)
 sampler.setActionPolicy(policy)
 sampler.setRewardFunction(reward)
 
-data = dataManager.getDataObject([1, 20])
+data = dataManager.createDataObject([1, 20])
 
 data[...] >> sampler
 

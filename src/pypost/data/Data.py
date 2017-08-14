@@ -61,6 +61,7 @@ class Data(object):
 
             setattr(self, name, None)
 
+
     def _createDataStructure(self, dataManager, numElements):
         '''
         Creates the data structure (containing real data) for the data object.
@@ -101,7 +102,10 @@ class Data(object):
         self.activeIndex = index
 
         if isinstance(self.activeIndex, tuple):
-            self.activeIndex = list(self.activeIndex)
+            if (self.activeIndex[0] == Ellipsis):
+                self.activeIndex = [self.activeIndex]
+            else:
+                self.activeIndex = list(self.activeIndex)
 
         if not isinstance(self.activeIndex, list):
             self.activeIndex = [self.activeIndex]
@@ -241,7 +245,7 @@ class Data(object):
             return (path[:index], path[index + 1:])
 
 
-    def getDataEntry(self, path, indices=[], cloneData=True):
+    def getDataEntry(self, path, indices=[], cloneData=True, hStack = False):
         '''
         Returns the data points from the required data entry (or alias).
 
@@ -286,14 +290,14 @@ class Data(object):
             indices = [indices]
 
 
-        data = self.dataStructure.getDataEntry(self, path, indices)
+        data = self.dataStructure.getDataEntry(self, path, indices, hStack)
         return data
 
-    def setDataEntry(self, path, indices, data, restrictRange=False):
+    def setDataEntry(self, entryName, indices, data, restrictRange=False):
         '''
         Sets the data points for the required data entry (or alias).
 
-        :param path: the path to the requested entry as an array.
+        :param entryName: the path to the requested entry as an array.
                      e.g. ['steps', 'subSteps', 'subActions']
                      path may also be a string which is equivalent to an array
                      containing only one element
@@ -313,14 +317,14 @@ class Data(object):
         if data is None:
             raise ValueError('The data attribute is None.')
 
-        if isinstance(path, str):
-            path = self._resolveEntryPath(path)
+        if isinstance(entryName, str):
+            entryName = self._resolveEntryPath(entryName)
 
         if not isinstance(indices, list):
             indices = [indices]
 
 
-        return self.dataStructure.setDataEntry(self, path, indices, data)
+        return self.dataStructure.setDataEntry(self, entryName, indices, data)
 
     def getDataEntryList(self, entryPaths, indices):
         '''

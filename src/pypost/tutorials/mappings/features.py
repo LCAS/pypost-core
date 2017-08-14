@@ -8,6 +8,9 @@ class DummyMapping(Mapping):
     def __init__(self, dataManager):
         Mapping.__init__(self, dataManager, ['X'], ['Y'])
 
+        # features mapping gets called every time now when we access data.Y (as Y is the output of the mapping!)
+        dataManager.addFeatureMapping(f)
+
     @Mapping.MappingMethod()
     def dummyFunction(self, X):
         print('Features were called!', X)
@@ -18,10 +21,8 @@ dataManager.addDataEntry('X', 2)
 dataManager.addDataEntry('Y', 2)
 f = DummyMapping(dataManager)
 
-# features mapping gets called every time now when we access data.Y (as Y is the output of the mapping!)
-dataManager.addFeatureMapping(f)
 
-data = dataManager.getDataObject(10)
+data = dataManager.createDataObject(10)
 
 
 data[...].X = np.random.normal(0,1,(10,2))
