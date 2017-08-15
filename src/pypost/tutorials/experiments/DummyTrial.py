@@ -67,8 +67,10 @@ class DummyTrial(Trial):
             # get return vector
             returns = newData[...].returns
 
-            returns = returns - np.mean(returns)
-            returns = returns / np.std(returns)
+            maxR = np.max(returns)
+            minR = np.min(returns)
+            returns = returns - maxR
+            returns = returns / (maxR - minR)
 
             #compute weights
             weights = np.exp(returns / self.settings.temperature)

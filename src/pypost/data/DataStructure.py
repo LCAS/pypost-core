@@ -348,7 +348,7 @@ class DataStructure(SettingsClient):
                             data = np.vstack((data, subData))
                         else:
                             if subData.shape[0] < data.shape[0]:
-                                subData = np.vstack((subData, np.zeros(data.shape[0] - subData.shape[0], subData.shape[1]) * np.nan))
+                                subData = np.vstack((subData, np.zeros((data.shape[0] - subData.shape[0], subData.shape[1])) * np.nan))
                             elif subData.shape[0] > data.shape[0]:
                                 data = np.vstack((data, np.zeros((subData.shape[0] - data.shape[0], data.shape[1])) * np.nan))
 

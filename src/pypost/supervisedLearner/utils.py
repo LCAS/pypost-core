@@ -2,7 +2,7 @@ import numpy as np
 
 def boundCovariance(Sigma, minCov, minCorr):
 
-    if (minCov.shape[0] > 0):
+    if (False and minCov.shape[0] > 0):
         for d in range(0, Sigma.shape[0]):
 
             if  np.isnan(Sigma[d, d]):
@@ -31,7 +31,11 @@ def boundCovariance(Sigma, minCov, minCorr):
     Sigma = (Sigma + Sigma.transpose()) / 2
 
     D, V = np.linalg.eig(Sigma)
-    D[D < 0] = 0
+    if (any(np.iscomplex(D))):
+        raise ValueError('Getting complex matrix')
+
+    maxD = np.max(D)
+    D[D < maxD * minCov] = minCov[D < maxD * minCov]
 
     Sigma = np.dot(V, np.dot( np.diag(D), V.transpose()))
 
