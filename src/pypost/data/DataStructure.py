@@ -116,10 +116,10 @@ class DataStructure(SettingsClient):
         else:
             index = Ellipsis
 
-        indexPreprocessor = name.find('_')
+        indexPreprocessor = name.find('__')
         dataPreprocessor = None
         if indexPreprocessor > 0:
-            dataPreprocessor = self.dataManager.getDataPreprocessorInverse(name[indexPreprocessor + 1:])
+            dataPreprocessor = self.dataManager.getDataPreprocessorInverse(name[indexPreprocessor + 2:])
 #            item = dataPreprocessor(item.copy())
             name = name[:indexPreprocessor]
 
@@ -132,7 +132,7 @@ class DataStructure(SettingsClient):
             index = dataAlias.modifyIndex(index, self.numElements)
             currentIndexInItem = 0
 
-            if (len(item.shape) == 1 and dataAlias.numDimensions[0] == item.shape[0]):
+            if (isinstance( item, (np.ndarray, csr_matrix))  and len(item.shape) == 1 and dataAlias.numDimensions[0] == item.shape[0]):
                 item.resize((1, dataAlias.numDimensions[0]))
 
             for entryName, slice_ in dataAlias.entryList:
@@ -147,15 +147,24 @@ class DataStructure(SettingsClient):
                         # we have to update it manually (explicit read and
                         # write)
 
-                        self[(entryName, index)] = item[currentIndexInItem:currentIndexInItem + l, :]
+                        if isinstance(item, (csr_matrix, np.ndarray)):
+                            # the entry is an ndarray
+                            # writing directly to the ndarray...
+
+                            self[(entryName, index)] = item[currentIndexInItem:currentIndexInItem + l, :]
+                        else:
+                            self[(entryName, index)] = item
                     else:
                         if (index == Ellipsis):
                             index = slice(0, self.numElements)
 
-                        # the entry is an ndarray
-                        # writing directly to the ndarray...
-                        entry.data[index, slice_] = item[currentIndexInItem:currentIndexInItem + l, :]
+                        if isinstance(item, (csr_matrix, np.ndarray)):
+                            # the entry is an ndarray
+                            # writing directly to the ndarray...
 
+                            entry.data[index, slice_] = item[currentIndexInItem:currentIndexInItem + l, :]
+                        else:
+                            entry.data[index, slice_] = item
                         currentIndexInItem += l
                 else:
                     l = self[entryName][:, slice_].shape[1]
@@ -164,16 +173,29 @@ class DataStructure(SettingsClient):
                         # we have to update it manually (explicit read and
                         # write)
 
-                        self[(entryName, index)] = item[:, currentIndexInItem:currentIndexInItem + l]
+                        if isinstance(item, (csr_matrix, np.ndarray)):
+                            # the entry is an ndarray
+                            # writing directly to the ndarray...
+                            self[(entryName, index)] = item[:, currentIndexInItem:currentIndexInItem + l]
+
+                            currentIndexInItem += l
+                        else:
+                            # item is numerical (float, int, bool)
+                            self[(entryName, index)] = item
                     else:
                         if (index == Ellipsis):
                             index = slice(0, self.numElements)
 
-                        # the entry is an ndarray
-                        # writing directly to the ndarray...
-                        entry.data[index, slice_] = item[:, currentIndexInItem:currentIndexInItem + l]
+                        if isinstance(item, (csr_matrix, np.ndarray)):
+                            # the entry is an ndarray
+                            # writing directly to the ndarray...
+                            entry.data[index, slice_] = item[:, currentIndexInItem:currentIndexInItem + l]
 
-                        currentIndexInItem += l
+                            currentIndexInItem += l
+                        else:
+                            # item is numerical (float, int, bool)
+                            entry.data[index, slice_] = item
+
 
         elif isinstance(dataItem, DataEntry):
             dataEntry = dataItem
@@ -198,10 +220,19 @@ class DataStructure(SettingsClient):
                     if (len(dataShape) > 1 and dataShape[0] == 1):
                         dataShape = (dataShape[1],)
                     # assigning to a 'real' data entry (a matrix)
-                    if dataShape != newDataShape:
+                    if (len(newDataShape) == 1 and len(dataShape) > 1):
+                        if (newDataShape[0] != dataShape[1] and dataShape[1] > 1):
+                            raise ValueError("The shape of the specified vector (%s) for data entry %s "
+                                         " doesn't match the existing entry (%s)"
+                                         % (newDataShape[0], name, dataShape[1]))
+                        elif (newDataShape[0] != dataShape[0] and dataShape[1] == 1):
+                            raise ValueError("The shape of the specified vector (%s) for data entry %s "
+                                         " doesn't match the existing entry (%s)"
+                                         % (newDataShape[0], name, dataShape[0]))
+                    elif dataShape != newDataShape:
                         raise ValueError("The shape of the specified matrix (%s) for data entry %s "
                                          " doesn't match the existing entry (%s)"
-                                         % (newDataShape, name, dataShape))
+                                        % (newDataShape, name, dataShape))
                 dataEntry.data[index, :] = item
 
 
@@ -213,23 +244,42 @@ class DataStructure(SettingsClient):
         else:
             index = Ellipsis
 
-        indexPreprocessor = name.find('_')
+
+        # Check for preProcessors
+        indexPreprocessor = name.find('__')
+
         dataPreprocessor = None
         if indexPreprocessor > 0:
-            dataPreprocessor = self.dataManager.getDataPreprocessorForward(name[indexPreprocessor + 1:])
+            dataPreprocessor = self.dataManager.getDataPreprocessorForward(name[indexPreprocessor + 2:])
             name = name[:indexPreprocessor]
-
 
         if name not in self.dataStructureLocalLayer:
             raise ValueError("The element '" + str(name) + "' does not exist.")
 
         dataItem = self.dataStructureLocalLayer[name]
-        if isinstance(dataItem, DataAlias):
 
+        if isinstance(dataItem, DataAlias):
             # get the data from a DataAlias
-            data = None
             dataAlias = dataItem
             index = dataAlias.modifyIndex(index, self.numElements)
+
+        if isinstance(index, tuple):
+            data = self.getDataFromEntryOrAlias(dataItem, index[0])
+
+            for i in range(1, len(index)):
+                data = np.hstack([data, self.getDataFromEntryOrAlias(dataItem, index[i])])
+        else:
+            data = self.getDataFromEntryOrAlias(dataItem, index)
+
+        if (dataPreprocessor):
+            data = dataPreprocessor(data, dataItem, index)
+        return data
+
+    def getDataFromEntryOrAlias(self, dataItem, index):
+        if isinstance(dataItem, DataAlias):
+            dataAlias = dataItem
+            # get the data from a DataAlias
+            data = None
             for entryName, slice_ in dataAlias.entryList:
                 entry = self.dataStructureLocalLayer[entryName]
                 if isinstance(entry, DataAlias):
@@ -255,19 +305,20 @@ class DataStructure(SettingsClient):
 
         elif isinstance(dataItem, list):
             # get the data from a subDataStructure
-            data = self.dataStructureLocalLayer[name]
+            data = self.dataStructureLocalLayer[dataItem.name]
         else:
             # needs to be DataEntry
             if dataItem.takeFromSettings:
                 data = dataItem.getEntryFromSettings(index, self.numElements)
             else:
                 if (index == Ellipsis):
-                    index = slice(0,self.numElements)
-
+                    index = slice(0, self.numElements)
+                elif (isinstance(index, int)):
+                    index = [index]
                 data = dataItem.data[index].copy()
 
-        if (dataPreprocessor):
-            data = dataPreprocessor(data, dataItem, index)
+
+
         return data
 
     def getDataEntry(self, dataObject, path, indices, hStack = False):
@@ -293,12 +344,12 @@ class DataStructure(SettingsClient):
         if len(indices) > len(path):
             indices = indices[0:len(path)]
 
-        if isinstance(indices[0], tuple):
-            hStack = True
-            if (indices[0][0] == Ellipsis):
-                indices[0] = Ellipsis
-            else:
-                indices[0] = list(indices[0])
+        # if isinstance(indices[0], tuple):
+        #     hStack = True
+        #     if (indices[0][0] == Ellipsis):
+        #         indices[0] = Ellipsis
+        #     else:
+        #         indices[0] = list(indices[0])
 
         if len(path) == 0:
             raise ValueError("Empty paths are not allowed")
@@ -306,13 +357,13 @@ class DataStructure(SettingsClient):
             # get the data from the current layer
             if indices[0] == Ellipsis:
                 return self[path[0]]
-            elif isinstance(indices[0], (slice, list)):
-                return self[path[0]][indices]
-            elif isinstance(indices[0], int):
-                if (indices[0] >= self[path[0]].shape[0]):
-                    raise ValueError("Invalid index: index ouy of bounds: {} >= {}".format(indices[0],self[path[0]].shape[0]))
-                return np.array(
-                    [self[path[0]][indices[0]]])
+            elif isinstance(indices[0], (slice, list, int, tuple)):
+                return self[(path[0],indices[0])]
+#            elif isinstance(indices[0], int):
+#                dataTemp = self[path[0]]
+#                if (indices[0] >= dataTemp.shape[0]):
+#                    raise ValueError("Invalid index: index ouy of bounds: {} >= {}".format(indices[0],self[path[0]].shape[0]))
+#                return np.array(dataTemp[indices[0]])
             else:
                 raise ValueError("Invalid data type: indices[0]: ", indices[0])
         else:
@@ -320,8 +371,8 @@ class DataStructure(SettingsClient):
             data = None
             subLayers = None
 
-            indexPreprocessor = path[-1].find('_')
-            if indexPreprocessor > 0 and path[-1][indexPreprocessor + 1:] == 'T':
+            indexPreprocessor = path[-1].find('__')
+            if indexPreprocessor > 0 and path[-1][indexPreprocessor + 2:] == 'T':
                 path[-1] = path[-1][:indexPreprocessor]
                 hStack = True
 
@@ -338,8 +389,27 @@ class DataStructure(SettingsClient):
 
             for subDataStructure in subLayers:
                 # get the data from the data structure of a lower layer
-                try:
-                    subData = subDataStructure.getDataEntry(data, path[1:], indices[1:], hStack)
+                numElements = subDataStructure.numElements
+
+
+                if (isinstance(indices[1], list)):
+                    indexLocalSingle = [index for index in indices[1] if index < numElements]
+                    numElementsLocal = len(indexLocalSingle)
+                    indexLocalSingle =[indexLocalSingle]
+                    indexLocal = indexLocalSingle + indices[2:]
+                elif isinstance(indices[1], int):
+                    numElementsLocal = int(indices[1] < numElements)
+                    indexLocal = indices[1:]
+                else:
+                    indexLocal = indices[1:]
+                    if (isinstance(indices[1], slice)):
+                        numElementsLocal = indices[1].stop - indices[1].start
+                    else:
+                        # has to be Ellipsis
+                        numElementsLocal = numElements
+
+                if (numElementsLocal > 0):
+                    subData = subDataStructure.getDataEntry(data, path[1:], indexLocal, hStack)
 
                     if data is None:
                         data = subData
@@ -353,9 +423,6 @@ class DataStructure(SettingsClient):
                                 data = np.vstack((data, np.zeros((subData.shape[0] - data.shape[0], data.shape[1])) * np.nan))
 
                             data = np.hstack((data, subData))
-                except ValueError:
-                    # subData does not have this index... ignore it
-                    continue
 
             return data
 
@@ -376,6 +443,7 @@ class DataStructure(SettingsClient):
         :param data: the data to be set
         '''
         self.currentData = dataObject
+
 
         while len(indices) < len(path):
             indices.append(...)
@@ -403,7 +471,7 @@ class DataStructure(SettingsClient):
                 if (len(newDataShape) > 1 and newDataShape[0] == 1):
                     newDataShape = (newDataShape[1],)
                 if (len(dataShape) > 1 and dataShape[0] == 1):
-                    dataShape = (dataShape[1],)
+                    dataShape = dataShape[1:]
 
                 if newDataShape != dataShape:
                     raise ValueError("The shape of the specified matrix (%s)"
@@ -432,64 +500,45 @@ class DataStructure(SettingsClient):
                 raise ValueError("Invalid data type: indices[0]")
 
         else:
+            # depth of entry is 2 or more
             # set the data in lower layers
             subLayers = None
 
-            if indices[0] == Ellipsis:
-                # devide the data into len(subLayers) parts and pass each of
-                # these subData's to the corresponding subLayer
-                subLayers = self.dataStructureLocalLayer[path[0]]
-
-                if (path[0] != self.nextLayer):
-                    raise ValueError("Path %s does not match hierarchy %s"
-                                     % (path[0], self.nextLayer))
-
-                subDataLen = int(data.shape[0] / len(subLayers))
-
-                subDataShape = subLayers[0].getDataEntry(dataObject, path[1:],
-                                                         indices[1:]).shape
-
-                if (data.shape[0] != subDataShape[0] * len(subLayers) or
-                    data.shape[1] != subDataShape[1]):
-                    raise ValueError("The shape of the specified matrix (%s)"
-                                     " doesn't match the expected shape (%s)"
-                                     % (data.shape,
-                                        (subDataShape[0] * len(subLayers),
-                                         subDataShape[1])))
-
-                i = 0
-                for subLayer in subLayers:
-                    subData = data[i * subDataLen:(i + 1) * subDataLen]
-                    subLayer.setDataEntry(dataObject, path[1:], indices[1:], subData)
-                    i += 1
-
-            elif isinstance(indices[0], (slice, list)):
+            if indices[0] == Ellipsis or isinstance(indices[0], (slice, list)):
                 # devide the data into several parts (depending on the given
                 # slice) and pass each of these to the corresponding subLayer.
                 if isinstance(indices[0], slice):
                     subLayers = self.dataStructureLocalLayer[path[0]][indices[0]]
-                else:
+                elif isinstance(indices[0], list):
                     subLayers = [self.dataStructureLocalLayer[path[0]][i] for i in indices[0]]
-                subDataLen = int(data.shape[0] / len(subLayers))
+                else:
+                    # index is Ellipsis... take all sublayers
+                    subLayers = self.dataStructureLocalLayer[path[0]]
 
-                subDataShape = subLayers[0].getDataEntry(dataObject, path[1:],
-                                                         indices[1:]).shape
+                numElementsList = [layer.getNumElementsForIndex(len(path) - 2, indices[1:]) for layer in subLayers]
+                numElemetsSum = np.sum(numElementsList)
 
-                if (data.shape[0] != subDataShape[0] * len(subLayers) or
-                    data.shape[1] != subDataShape[1]):
-                    raise ValueError("The shape of the specified matrix (%s)"
-                                     " doesn't match the expected shape (%s)"
-                                     % (data.shape,
-                                        (subDataShape[0] * len(subLayers),
-                                         subDataShape[1])))
+                if isinstance(data, np.ndarray) and len(data.shape) > 1:
+                    if data.shape[0] != numElemetsSum:
+                        raise ValueError("Number of rows of the specified matrix (%s)"
+                                     " doesn't match the expected number of rows (%s)"
+                                     % (data.shape[0], numElemetsSum))
+                    indexStart = 0
 
-                i = 0
-                for subLayer in subLayers:
-                    subData = data[i:i + subDataLen]
-                    subLayer.setDataEntry(dataObject, path[1:], indices[1:], subData)
-                    i += subDataLen
+                    i = 0
+                    for subLayer in subLayers:
+                        subData = data[indexStart:indexStart + numElementsList[i]]
+                        subLayer.setDataEntry(dataObject, path[1:], indices[1:], subData)
+                        indexStart += numElementsList[i]
+                        i += 1
+                else:
+                    # we are having a numeric type or a vector... all elements should be set to this value
+                    for subLayer in subLayers:
+                        subLayer.setDataEntry(dataObject, path[1:], indices[1:], data)
+
             else:
-                # pass the data to excaltly one lower layer
+                # pass the data to exactly one lower layer
+                # index is only an int
                 subLayer = self.dataStructureLocalLayer[path[0]][indices[0]]
                 subLayer.setDataEntry(dataObject, path[1:], indices[1:], data)
 

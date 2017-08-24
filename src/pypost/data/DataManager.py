@@ -2,11 +2,45 @@ import numpy as np
 import numbers
 
 from pypost.data.Data import Data
-from pypost.data.DataAlias import DataAlias, IndexModifier
+from pypost.data.DataAlias import DataAlias
+from pypost.data.DataAlias import IndexModifierBase
+from pypost.data.DataAlias import IndexModifierAll
+from pypost.data.DataAlias import IndexModifierNext
+from pypost.data.DataAlias import IndexModifierLast
+from pypost.data.DataAlias import IndexModifierTimeWindow
+
+
+
 from pypost.data.DataEntry import DataEntry, DataType
 from pypost.common import SettingsManager
 from pypost.common.SettingsClient import SettingsClient
 from pypost.data.DataStructure import DataStructure
+
+
+def createDataManagers(names, isTimeSeries):
+    if not isinstance(names, list):
+        if (isTimeSeries):
+            dataManager = DataManagerTimeSeries(names)
+        else:
+            dataManager = DataManager(names)
+    else:
+
+        if (isTimeSeries[0]):
+            dataManager = DataManagerTimeSeries(names[0])
+        else:
+            dataManager = DataManager(names[0])
+
+        currentManager = dataManager
+        for i in range(1, len(names)):
+            if (isTimeSeries[i]):
+                currentManager.subDataManager = DataManagerTimeSeries(names[i])
+            else:
+                currentManager.subDataManager = DataManager(names[i])
+
+            currentManager = currentManager.subDataManager
+
+    return dataManager
+
 
 class DataManager(SettingsClient):
 
@@ -47,14 +81,19 @@ class DataManager(SettingsClient):
     be found in the tutorials directory.
     '''
 
-    def __init__(self, name, isTimeSeries = False):
+    def __init__(self, nameManagers):
         '''
         Constructor
         :param string name: The name of this DataManager
         '''
         SettingsClient.__init__(self)
 
-        self.name = name
+        if isinstance(nameManagers, list):
+            self.name = nameManagers[0]
+            nameManagers = nameManagers[1:]
+        else:
+            self.name = nameManagers
+
         self.subDataManager = None
         self.dataEntries = dict()
         self.dataAliases = dict()
@@ -62,7 +101,6 @@ class DataManager(SettingsClient):
         self._finalized = False
         self._depthMap = {}
         self._subDataManagerList = []
-        self.isTimeSeries = isTimeSeries
 
         self.dataPreprocessorsForward = {}
         self.dataPreprocessorsInverse = {}
@@ -89,6 +127,8 @@ class DataManager(SettingsClient):
         self.addDataPreprocessor('periodic', makePeriodic)
         self.addDataPreprocessor('restricted', restrictData)
         self.addDataPreprocessor('validFlag', getDataValidTag, setDataValidTag)
+
+
 
     @property
     def finalized(self):
@@ -195,6 +235,9 @@ class DataManager(SettingsClient):
                             there is a DataAlias of that name.
         '''
 
+        if (not isinstance(dataType, DataType)):
+            raise ValueError('Given dataType needs to be instance of enum Data.DataType!')
+
         if (level > 0):
             subManager = self.getDataManagerForLevel(level)
             subManager.addDataEntry(name = name, numDimensions=numDimensions, minRange=minRange, maxRange = maxRange, isPeriodic = isPeriodic, dataType=dataType, takeFromSettings=takeFromSettings)
@@ -228,17 +271,10 @@ class DataManager(SettingsClient):
             self.dataAliases[name] = DataAlias(name, [(name, ...)], numDimensions)
             self._dirty = True
 
-            if (self.isTimeSeries):
-                # add Aliases for time series
-                nameUpper = name[0].upper() + name[1:]
-                aliasName = 'next' + nameUpper
-                self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifier.next)
+            self.addIndexModifiers(name, numDimensions)
 
-                aliasName = 'last' + nameUpper
-                self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifier.last)
-
-                aliasName = 'all' + nameUpper
-                self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifier.all)
+    def addIndexModifiers(self, name, numDimensions):
+        return
 
     def addFeatureMapping(self, mapping):
         outputVariable = mapping.getOutputVariables()[0]
@@ -251,7 +287,7 @@ class DataManager(SettingsClient):
     def checkDataEntries(self, entryList, errorMessage):
 
         for i in range(0, len(entryList)):
-            if not self.isDataEntry(entryList[i]):
+            if not self.isDataAlias(entryList[i]):
                 raise ValueError('Checking entries {}: Entry {} does not exist in data manager'.format(errorMessage, entryList[i]))
 
 
@@ -262,8 +298,8 @@ class DataManager(SettingsClient):
         :param entryName: the entry name to query
         '''
 
-        if '_' in entryName:
-            index = entryName.find('_')
+        if '__' in entryName:
+            index = entryName.find('__')
             entryName =  entryName[:index]
 
         if entryName in self.dataEntries:
@@ -273,6 +309,26 @@ class DataManager(SettingsClient):
             return self.subDataManager.isDataEntry(entryName)
 
         return False
+
+    def isDataAlias(self, entryName):
+        '''
+        Checks if an entry with the given name exists
+
+        :param entryName: the entry name to query
+        '''
+
+        if '__' in entryName:
+            index = entryName.find('__')
+            entryName =  entryName[:index]
+
+        if entryName in self.dataAliases:
+            return True
+
+        if self.subDataManager is not None:
+            return self.subDataManager.isDataAlias(entryName)
+
+        return False
+
 
     def setRange(self, entryName, minRange, maxRange):
         '''Sets the min and max range for existing data entries
@@ -355,7 +411,7 @@ class DataManager(SettingsClient):
             argumentList[i] = (name,argumentList[i][1])
         return argumentList
 
-    def addDataAlias(self, aliasName, entryList, indexModifier = IndexModifier.none, useConcatVertical = False):
+    def addDataAlias(self, aliasName, entryList, indexModifier = IndexModifierBase(), useConcatVertical = False, addStandardModifiers = True):
         '''
         Adds a new data alias.
 
@@ -465,23 +521,11 @@ class DataManager(SettingsClient):
                     else:
                         numDim += self.dataAliases[entryName].numDimensions[0]
 
-
+            numDim = numDim * indexModifier.dimensionMultiplier
             self.dataAliases[aliasName].numDimensions = (numDim,)
 
-            if (self.isTimeSeries):
-                # add Aliases for time series
-                nameUpper = aliasName[0].upper() + aliasName[1:]
-                concatVert = self.dataAliases[aliasName].useConcatVertical
-                aliasAliasName = 'next' + nameUpper
-                self.dataAliases[aliasAliasName] = DataAlias(aliasAliasName, [(aliasName, ...)], numDim,
-                                                        IndexModifier.next, concatVert)
-
-                aliasAliasName = 'last' + nameUpper
-                self.dataAliases[aliasAliasName] = DataAlias(aliasAliasName, [(aliasName, ...)], numDim,
-                                                        IndexModifier.last, concatVert)
-
-                aliasAliasName = 'all' + nameUpper
-                self.dataAliases[aliasAliasName] = DataAlias(aliasAliasName, [(aliasName, ...)], numDim, IndexModifier.all, concatVert)
+            if (addStandardModifiers):
+                self.addIndexModifiers(aliasName, numDim)
         else:
             if self.subDataManager is not None:
                 self.subDataManager.addDataAlias(aliasName, entryList, indexModifier)
@@ -489,6 +533,9 @@ class DataManager(SettingsClient):
                 raise ValueError("One or more of the alias entry names do " +
                                  "not exist")
         self._dirty = True
+
+    def getDataAliases(self):
+        return self.dataAliases
 
     def getDataAlias(self, aliasName):
         '''
@@ -504,6 +551,30 @@ class DataManager(SettingsClient):
         if self.subDataManager is not None:
             return self.subDataManager.getDataAlias(aliasName)
         raise ValueError("Alias of name %s is not defined" % aliasName)
+
+    def getDataEntries(self):
+        return self.dataEntries
+
+    def getDataType(self, entryName):
+
+        if self.isDataEntry(entryName):
+            entry = self.getDataEntry(entryName)
+            return entry.dataType
+
+        elif self.isDataAlias(entryName):
+            alias = self.getDataAlias(entryName)
+
+            dataType = self.getDataType(alias.entryList[0])
+
+            for i in range(1, len(alias.entryList)):
+                dataType_ = self.getDataType(alias.entryList[i])
+
+                if (dataType_ != dataType):
+                    dataType = DataType.continuous
+
+            return dataType
+        else:
+            raise ValueError('Getting entry type: {} entry is unknown!'.format(entryName))
 
     def getDataEntry(self, entryName):
         '''
@@ -743,6 +814,12 @@ class DataManager(SettingsClient):
         :return: The newly created data object
         :rtype: data.Data
         '''
+        if (not isinstance(numElements, list)):
+            numElements = [numElements]
+
+        if len(numElements) < self.getMaxDepth() + 1:
+            numElements = numElements + [0]* (self.getMaxDepth() + 1 - len(numElements))
+
         if not self.finalized:
             self.finalize()
         return Data(self, self._createDataStructure(numElements))
@@ -785,10 +862,14 @@ class DataManager(SettingsClient):
         if finalize:
             self._finalized = True
 
+
     def printDataAliases(self):
 
         object = self.createDataObject(0)
         object.printDataAliases()
+
+    def isTimeSeries(self):
+        return False
 
     def _createDataStructure(self, numElements):
         '''
@@ -808,7 +889,7 @@ class DataManager(SettingsClient):
             numElementsCurrentLayer = numElements
 
 
-        dataStructure = DataStructure(self, numElementsCurrentLayer, self.isTimeSeries)
+        dataStructure = DataStructure(self, numElementsCurrentLayer, self.isTimeSeries())
         for dataEntryName, dataEntry in self.dataEntries.items():
             dataStructure.createEntry(dataEntryName, dataEntry)
 
@@ -859,3 +940,47 @@ class DataManager(SettingsClient):
                 return None
             else:
                 return self.subDataManager.getDataManagerForName(managerName)
+
+
+class DataManagerTimeSeries(DataManager):
+
+    def __init__(self, name):
+
+        DataManager.__init__(self, name)
+
+    def addIndexModifiers(self, name, numDimensions):
+        # add Aliases for time series
+        nameUpper = name[0].upper() + name[1:]
+        aliasName = 'next' + nameUpper
+        self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifierNext())
+
+        aliasName = 'last' + nameUpper
+        self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifierLast())
+
+        aliasName = 'all' + nameUpper
+        self.dataAliases[aliasName] = DataAlias(aliasName, [(name, ...)], numDimensions, IndexModifierAll())
+
+    def isTimeSeries(self):
+        return True
+
+    def addDataWindowAlias(self, aliasName, entryList, indexTimeBegin, indexTimeEnd, dropBoundarySamples = False):
+
+        '''
+        Adds a new data alias.
+
+
+        :param string aliasName: The name of the alias
+        :param entryList: A list containing tuples of data entries and slices.
+                        If the whole data entry should be used, use
+                        "..." instead of a slice. This means the alias should
+                        point to all dimensions of the data entry.
+                        See :mod:`~data.DataAlias` for more information about
+                        the format of this parameter
+        :type entryList: list of tuples
+        :raises RuntimeError: If the DataManager has been finalized already.
+        :raises ValueError: If the alias name is already used as data entry
+                            or an entry in the entryList doesn't exist.
+        '''
+
+        indexModifier = IndexModifierTimeWindow(indexTimeBegin, indexTimeEnd, dropOutSamples=dropBoundarySamples)
+        self.addDataAlias(aliasName, entryList, indexModifier=indexModifier, addStandardModifiers = False)

@@ -1,6 +1,7 @@
 import numpy as np
 from pypost.common.SettingsClient import SettingsClient
 from scipy.sparse import csr_matrix
+import scipy
 from enum import Enum
 
 class DataType(Enum):
@@ -77,9 +78,9 @@ class DataEntry(SettingsClient):
 
     def createDataMatrix(self, numElements):
         if (self.dataType == DataType.continuous):
-            self.data = np.zeros((numElements,) + self.numDimensions, dtype=np.float_)
+            self.data = np.zeros((numElements,) + self.numDimensions, dtype=np.float_) + (self.minRange + self.minRange) / 2
         if (self.dataType == DataType.discrete):
-            self.data = np.zeros((numElements,) + self.numDimensions, dtype=np.int_)
+            self.data = np.zeros((numElements,) + self.numDimensions, dtype=np.int_) + self.minRange
         if (self.dataType == DataType.sparse):
             self.data = csr_matrix((numElements, self.numDimensions[0]))
 
@@ -87,11 +88,20 @@ class DataEntry(SettingsClient):
 
     def reserveStorage(self, numElementsEntry):
         currentSize = self.data.shape[0]
+
         if currentSize < numElementsEntry:
-            self.data = np.vstack((self.data, np.zeros((numElementsEntry - currentSize, self.numDimensions[0]))))
+            if (self.dataType == DataType.continuous):
+                newData = np.zeros((numElementsEntry - currentSize,) + self.numDimensions, dtype=np.float_) + (self.minRange + self.minRange) / 2
+                self.data = np.vstack((self.data, newData))
+            if (self.dataType == DataType.discrete):
+                newData = np.zeros((numElementsEntry - currentSize,) + self.numDimensions, dtype=np.int_) + self.minRange
+                self.data = np.vstack((self.data, newData))
+            if (self.dataType == DataType.sparse):
+                newData = csr_matrix((numElementsEntry - currentSize, self.numDimensions[0]))
+                self.data = scipy.sparse.vstack((self.data, newData))
             self.isValid = np.vstack((self.isValid, np.zeros((numElementsEntry - currentSize, 1), dtype=bool)))
         else:
-            self.data = np.delete(self.data, slice(numElementsEntry, None, None), 0)
+            self.data = self.data[:numElementsEntry]
             self.isValid = np.delete(self.isValid, slice(numElementsEntry, None, None), 0)
 
     def mergeDataEntry(self, dataEntry, inFront):
@@ -113,7 +123,7 @@ class DataEntry(SettingsClient):
             return True
 
         if self.dataType == DataType.discrete:
-            if data.dtype == np.int_:
+            if isinstance(data, bool) or data.dtype == np.int_:
                 return True
             else:
                 raise ValueError('DataEntry ' + self.name + ' is discrete, please only use integers')

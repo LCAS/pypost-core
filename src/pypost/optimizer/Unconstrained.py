@@ -21,14 +21,14 @@ class Unconstrained(SettingsClient):
         # for gradient approximation
         self.epsilon = 1e-6
 
-        self.linkProperty('maxNumOptiIterations', optimizationName + 'maxNumIterations')
-        self.linkProperty('maxNumOptiEvaluations', optimizationName + 'maxNumEvaluations')
-        self.linkProperty('optiStopVal', optimizationName + 'OptiStopVal')
-        self.linkProperty('optiAbsfTol', optimizationName + 'OptiAbsfTol')
-        self.linkProperty('optiAbsxTol', optimizationName + 'OptiAbsxTol')
-        self.linkProperty('optiAbsgTol', optimizationName + 'OptiAbsgTol')
-        self.linkProperty('optiMaxTime', optimizationName + 'OptiMaxTime')
-        self.linkProperty('epsilon', optimizationName + 'epsilon')
+        self.linkPropertyToSettings('maxNumOptiIterations', optimizationName + 'maxNumIterations')
+        self.linkPropertyToSettings('maxNumOptiEvaluations', optimizationName + 'maxNumEvaluations')
+        self.linkPropertyToSettings('optiStopVal', optimizationName + 'OptiStopVal')
+        self.linkPropertyToSettings('optiAbsfTol', optimizationName + 'OptiAbsfTol')
+        self.linkPropertyToSettings('optiAbsxTol', optimizationName + 'OptiAbsxTol')
+        self.linkPropertyToSettings('optiAbsgTol', optimizationName + 'OptiAbsgTol')
+        self.linkPropertyToSettings('optiMaxTime', optimizationName + 'OptiMaxTime')
+        self.linkPropertyToSettings('epsilon', optimizationName + 'epsilon')
 
         self.isMaximize = False
         self.expParameterTransform = np.zeros((numParams,), dtype=bool)

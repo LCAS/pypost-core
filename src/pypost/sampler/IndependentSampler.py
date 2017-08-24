@@ -42,8 +42,8 @@ class IndependentSampler(Sampler):
         # important? (Dont "correct" user errors!)
         self.dataManager.addDataEntry('iterationNumber', 1)
 
-        self.linkProperty('numSamples','numSamples' + samplerName.capitalize())
-        self.linkProperty("_numInitialSamples", "numInitialSamples" + samplerName.capitalize())
+        self.linkPropertyToSettings('numSamples', 'numSamples' + samplerName.capitalize())
+        self.linkPropertyToSettings("_numInitialSamples", "numInitialSamples" + samplerName.capitalize())
 
 
     def setParallelSampling(self, parallelSampling):

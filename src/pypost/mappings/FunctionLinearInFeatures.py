@@ -58,11 +58,11 @@ class FunctionLinearInFeatures(Function, HyperParameterObject, SettingsClient):
         self.initMu = []
 
         if isinstance(self.outputVariables[0], str):
-            self.linkProperty('initSigmaMu', 'initSigmaMu' + self.outputVariables[0].capitalize())
-            self.linkProperty('initMu', 'initMu' + self.outputVariables[0].capitalize())
+            self.linkPropertyToSettings('initSigmaMu', 'initSigmaMu' + self.outputVariables[0].capitalize())
+            self.linkPropertyToSettings('initMu', 'initMu' + self.outputVariables[0].capitalize())
         else:
-            self.linkProperty('initSigmaMu')
-            self.linkProperty('initMu')
+            self.linkPropertyToSettings('initSigmaMu')
+            self.linkPropertyToSettings('initMu')
 
         if self.doInitWeights:
             self.initialize()

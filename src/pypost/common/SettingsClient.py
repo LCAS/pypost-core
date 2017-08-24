@@ -18,7 +18,8 @@ class SettingsClient():
         '''
         self._localPropertyMap = {}
 
-    def linkProperty(self, clientPropName, settingsPropName = None, takeValueFromClient = False):
+
+    def linkPropertyToSettings(self, clientPropName, settingsPropName = None, takeValueFromClient = False):
         '''Registers the property 'clientPropName' of the object into the parameter pool.
 
         The parameter 'settingsPropName' sets the global name of the

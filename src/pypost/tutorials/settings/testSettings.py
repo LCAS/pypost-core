@@ -16,7 +16,7 @@ class DummyClass(SettingsClient):
 
         # link to settings in parameter pool. Global name is dummy value
         # If the parameter does not exist, it is registered with the current property value
-        self.linkProperty('myDummyVariable', 'dummyValue')
+        self.linkPropertyToSettings('myDummyVariable', 'dummyValue')
 
     def printDummy(self):
         print('Dummy:', self.myDummyVariable)

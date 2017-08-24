@@ -24,7 +24,6 @@ class LinearGaussianMLLearner(LinearFeatureFunctionMLLearner):
 
         LinearFeatureFunctionMLLearner.__init__(self, dataManager, functionApproximator,  weightName, inputVariables, outputVariable)
 
-        self.maxCorr = 1.0
         self.minCov = 10 ** -12
         self.priorCov = 1.0
         self.priorCovWeight = 10 ** -16
@@ -33,10 +32,10 @@ class LinearGaussianMLLearner(LinearFeatureFunctionMLLearner):
         mapName = functionApproximator.outputVariables[0]
         mapName = mapName[0].upper() + mapName[1:]
 
-        self.linkProperty('maxCorr', 'maxCorr' + mapName)
-        self.linkProperty('minCov', 'minCov' + mapName)
-        self.linkProperty('priorCov', 'priorCov' + mapName)
-        self.linkProperty('priorCovWeight', 'priorCovWeight' + mapName)
+        #self.linkProperty('maxCorr', 'maxCorr' + mapName)
+        self.linkPropertyToSettings('minCov', 'minCov' + mapName)
+        self.linkPropertyToSettings('priorCov', 'priorCov' + mapName)
+        self.linkPropertyToSettings('priorCovWeight', 'priorCovWeight' + mapName)
 
 
     def updateModel(self, inputData, outputData, weighting = None):
@@ -68,12 +67,11 @@ class LinearGaussianMLLearner(LinearFeatureFunctionMLLearner):
 
             SigmaA = 1 / Z * SigmaA
 
-            maxCorr = self.maxCorr
             minCov = self.minCov * rangeOutput
 
             numEffectiveSamples = 1.0 / weighting.max()
 
-            SigmaA = boundCovariance(SigmaA, minCov, maxCorr)
+            SigmaA = boundCovariance(SigmaA, minCov)
             SigmaA, cholA = regularizeCovariance(SigmaA, np.diag(rangeOutput) * priorCov, numEffectiveSamples, priorCovWeight)
 
             self.functionApproximator.setSigma(cholA)

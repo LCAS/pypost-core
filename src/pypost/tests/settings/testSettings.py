@@ -18,7 +18,7 @@ class testSettings(unittest.TestCase):
 
         cli = SettingsClient()
         cli.setVar('prop_a', 42.21)
-        cli.linkProperty('prop_a', 'A')
+        cli.linkPropertyToSettings('prop_a', 'A')
         self.assertIs(SettingsManager.getSettings('testSettings01'), settings)
         self.assertEqual(SettingsManager.getSettings('testSettings01').getProperty('A'), 42.21)
         self.assertEqual(cli.settingsClientName[:7], 'client_')
@@ -34,11 +34,11 @@ class testSettings(unittest.TestCase):
         self.assertEqual(SettingsManager.getDefaultName(), 'default')
 
         cli.setVar('prop_b', False)
-        cli.linkProperty('prop_b', 'B')
+        cli.linkPropertyToSettings('prop_b', 'B')
         self.assertEqual(settings.getProperty('B'), False)
 
         cli.setVar('prop_c', 'testStr')
-        cli.linkProperty('prop_c')
+        cli.linkPropertyToSettings('prop_c')
         self.assertEqual(settings.getProperty('prop_c'), 'testStr')
 
         clonedSettings = SettingsManager.cloneSettings(settings, 'clonedSettings')
@@ -141,7 +141,7 @@ class testSettings(unittest.TestCase):
         SettingsManager.pushDefaultSettings(settings)
         cli = SettingsClient()
         cli.test2 = 42
-        cli.linkProperty('test2', 'testProp2')
+        cli.linkPropertyToSettings('test2', 'testProp2')
 
         settings.store('/tmp/pypost.test.settings')
         settings.setProperty('testProp2', 8)
@@ -165,7 +165,7 @@ class testSettings(unittest.TestCase):
 
         self.assertEqual(cli.getNameWithSuffix('testProp1'), 'testProp1Agent1')
         cli.setVar('parameter1', 42)
-        cli.linkProperty('parameter1')
+        cli.linkPropertyToSettings('parameter1')
 
         self.assertEqual(settings.getProperty('parameter1Agent1'), 42)
 

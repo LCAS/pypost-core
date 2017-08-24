@@ -20,7 +20,7 @@ class Test(unittest.TestCase):
 
     def test_isActiveStep(self):
         with self.assertRaises(NotImplementedError):
-            self.ia2s.isActiveStep(None, None)
+            self.ia2s.isNonTerminalState(None, None)
 
     def test_toReserve(self):
         with self.assertRaises(NotImplementedError):

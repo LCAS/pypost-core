@@ -28,7 +28,7 @@ class LinearFeatureFunctionMLLearner(InputOutputLearner, HyperParameterObject):
 
         InputOutputLearner.__init__(self, dataManager, functionApproximator, weightName, inputVariables, outputVariable);
 
-        self.linkProperty('regularizationRegression')
+        self.linkPropertyToSettings('regularizationRegression')
 
     @DataManipulator.DataMethod(inputArguments=['self.inputVariables', 'self.outputVariables', 'self.weightName'], outputArguments=[])
     def updateModel(self, inputData, outputData, weighting = None):

@@ -1,6 +1,7 @@
 from pypost.sampler.Sampler import Sampler
 from pypost.sampler.NumStepsTerminationFunction import NumStepsTerminationFunction
 
+import numpy as np
 
 class SequentialSampler(Sampler):
     '''
@@ -81,6 +82,9 @@ class SequentialSampler(Sampler):
         step = 0
         finished = False
         numSteps = self.getNumSamples(data, activeIndex)
+        if (not isinstance(numSteps, list)):
+            numSteps = [numSteps]
+
         while(not finished):
 
             activeIndex[-1] = step
@@ -92,7 +96,7 @@ class SequentialSampler(Sampler):
             activeIndexNew, finished = self.selectActiveIdxs(data, activeIndex)
 
             # TODO speed up by merging all&map
-            if (step > reservedStorage and not finished):
+            if (step >= reservedStorage and not finished):
                 reservedStorage = reservedStorage * 2
                 numSteps[0] = reservedStorage
 
@@ -114,9 +118,11 @@ class SequentialSampler(Sampler):
         if isinstance(activeIndex[0], slice):
             activeIndex[0] = list(range(activeIndex[0].start, activeIndex[0].stop))
 
-        isActive = data[activeIndex] > self.terminationFunction.isActiveStep  # @mw ASK: *args?
+        isActive = data[activeIndex] > self.terminationFunction.isNonTerminalState  # @mw ASK: *args?
         tCurrent = activeIndex[-1]
 
+        if not isinstance(isActive, np.ndarray):
+            isActive = np.array([isActive], dtype=bool)
 
         finished = not any(isActive)
         # resolve active indices if we have multple layers...

@@ -12,9 +12,9 @@ class InitialStateSamplerStandard(InitialStateSampler):
         self.initialStateDistributionMaxRange =  1
         self.initialStateDistributionType = 'Gaussian'
 
-        self.linkProperty('initialStateDistributionMinRange')
-        self.linkProperty('initialStateDistributionMaxRange')
-        self.linkProperty('initialStateDistributionType')
+        self.linkPropertyToSettings('initialStateDistributionMinRange')
+        self.linkPropertyToSettings('initialStateDistributionMaxRange')
+        self.linkPropertyToSettings('initialStateDistributionType')
 
     def sampleInitState(self, numElements, *args):
         numDimTaken = 0

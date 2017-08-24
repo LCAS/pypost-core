@@ -32,7 +32,7 @@ class Test(unittest.TestCase):
             self.ians.setNumTimeSteps(-1)
 
     def test_isActiveStep(self):
-        self.assertTrue(self.ians.isActiveStep(None, 19))
+        self.assertTrue(self.ians.isNonTerminalState(None, 19))
 
     def test_toReserve(self):
         # TODO: check linkProperty

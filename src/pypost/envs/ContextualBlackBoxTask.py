@@ -24,7 +24,7 @@ class ContextualBlackBoxTask(Mapping, SettingsClient):
 
 
 
-        self.linkProperty('sampleInitContextFunc')
+        self.linkPropertyToSettings('sampleInitContextFunc')
 
     @DataManipulator.DataMethod([], ['contexts'])
     def sampleFromDistribution(self, numSamples):

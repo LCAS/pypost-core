@@ -61,6 +61,8 @@ class Data(object):
 
             setattr(self, name, None)
 
+    def getDataManager(self):
+        return self.dataManager
 
     def _createDataStructure(self, dataManager, numElements):
         '''
@@ -102,10 +104,10 @@ class Data(object):
         self.activeIndex = index
 
         if isinstance(self.activeIndex, tuple):
-            if (self.activeIndex[0] == Ellipsis):
-                self.activeIndex = [self.activeIndex]
-            else:
-                self.activeIndex = list(self.activeIndex)
+            #if (self.activeIndex[0] == Ellipsis):
+            #    self.activeIndex = [self.activeIndex]
+            #else:
+            self.activeIndex = list(self.activeIndex)
 
         if not isinstance(self.activeIndex, list):
             self.activeIndex = [self.activeIndex]
@@ -113,7 +115,7 @@ class Data(object):
         return self
 
     def __setattr__(self, name, value):
-        indexPreprocessor = name.find('_')
+        indexPreprocessor = name.find('__')
         if indexPreprocessor > 0:
             nameEntry = name[:indexPreprocessor]
         else:
@@ -124,7 +126,7 @@ class Data(object):
             return super().__setattr__(name, value)
 
     def __getattribute__(self, name):
-        indexPreprocessor = name.find('_')
+        indexPreprocessor = name.find('__')
         if indexPreprocessor > 0:
             nameEntry = name[:indexPreprocessor]
         else:
@@ -221,7 +223,7 @@ class Data(object):
     def _resolveEntryPath(self, name):
         path = []
 
-        index = name.find('_')
+        index = name.find('__')
         if index > 0:
             nameDepth = name[:index]
         else:
@@ -238,7 +240,7 @@ class Data(object):
 
     def resolveSuffixPath(self, path):
 
-        index = path.find('_')
+        index = path.find('__')
         if index < 0:
             return (path, '')
         else:
@@ -317,12 +319,19 @@ class Data(object):
         if data is None:
             raise ValueError('The data attribute is None.')
 
+        numDimensions = self.dataManager.getNumDimensions(entryName)
+
         if isinstance(entryName, str):
             entryName = self._resolveEntryPath(entryName)
 
         if not isinstance(indices, list):
             indices = [indices]
 
+        if (isinstance(data, np.ndarray) and len(data.shape) == 1):
+            if numDimensions > 1:
+                data = np.expand_dims(data, axis=0)
+            else:
+                data = np.expand_dims(data, axis=1)
 
         return self.dataStructure.setDataEntry(self, entryName, indices, data)
 

@@ -1,8 +1,9 @@
 import numpy as np
 
-def boundCovariance(Sigma, minCov, minCorr):
+def boundCovariance(Sigma, minCov):
 
     if (False and minCov.shape[0] > 0):
+        # this code is numerically unstable and not used any more.
         for d in range(0, Sigma.shape[0]):
 
             if  np.isnan(Sigma[d, d]):

@@ -1,4 +1,8 @@
 from pypost.data import DataManager
+from pypost.data import DataManagerTimeSeries
+from pypost.data import DataType
+
+
 import numpy as np
 '''
 In this example we are going to see how to use aliases.
@@ -6,10 +10,11 @@ In this example we are going to see how to use aliases.
 
 # create data manager
 dataManager = DataManager('episodes')
-subDataManager = DataManager('steps')
+subDataManager = DataManagerTimeSeries('steps')
 
 subDataManager.addDataEntry('states', 2)
-subDataManager.addDataEntry('actions', 1)
+subDataManager.addDataEntry('actions', 3, dataType=DataType.discrete)
+
 
 dataManager.subDataManager = subDataManager
 
@@ -25,8 +30,11 @@ for i in range(0,10):
     print('Size of states matrix: ', data[i].states.shape)
 
     #fill in some dummy actions
-    data[i].states = np.ones((numTimeSteps, 2)) * i
-    data[i].actions = np.ones((numTimeSteps, 1)) * i * 2
+    data[i].allStates = np.array(np.vstack((range(0,numTimeSteps + 1), range(0,numTimeSteps + 1)))).transpose()
+    data[i].actions = np.ones((numTimeSteps, 3), dtype=int) * i * 2
+
+# we can also use vectors and numericals (in case of scalar values) in the setting functions
+data[i].actions = np.ones((3,), dtype=int) * - 5
 
 
 # we can now access single trajectories
@@ -36,9 +44,9 @@ print(data[2].states)
 print(data[...].states)
 
 # all trajectories concatenaded horizontally. We get nan values for timesteps in episodes that do not exist
-print(data[...].states_T)
+print(data[...].states__T)
 # This matrix is 14 (max timeSteps) x (10 episodes * 2 dimensions)
-print(data[...].states_T.shape)
+print(data[...].states__T.shape)
 
 # access all states of a single time step. Episodes that are shorter then the specified time-step are ignored
 print(data[:, 10].states)

@@ -26,7 +26,7 @@ class TerminationFunction(DataManipulator):
     #Todo Step name just for settings? cant use for sampling since "timeSteps" entry is added by step sampler and name
     # is fixed!
     @DataManipulator.DataMethod(inputArguments=['nextStates', 'timeSteps'], outputArguments=[])
-    def isActiveStep(self, nextStates, timeSteps):
+    def isNonTerminalState(self, nextStates, timeSteps):
         '''
         Returns if the time step is still active
         :param nextStates: data of the nextStates

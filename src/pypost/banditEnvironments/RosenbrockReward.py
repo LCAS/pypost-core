@@ -26,7 +26,7 @@ class RosenbrockReward(ContextualBlackBoxTask): #pragma nocover
         self.A = np.random.randn(numContexts, numParameters) +\
                  3 * np.ones((numContexts, numParameters))
 
-        self.linkProperty('rewardNoise')
+        self.linkPropertyToSettings('rewardNoise')
 
     def sampleReturn(self, contexts, parameters):
         for i in range(0, parameters.shape[0]):

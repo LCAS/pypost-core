@@ -1,5 +1,5 @@
 from pypost.data import DataManager
-
+import time
 '''
 In this example we are going to see how to use aliases.
 '''
@@ -62,3 +62,5 @@ myData[...].parametersAliasVertical = myData[...].parametersAliasVertical * 2
 
 print('vertical Alias after resetting values\n', myData[...].parametersAliasVertical, '\n\n')
 print('Original Parameters after resetting values\n', myData[...].parameters, '\n\n')
+
+print('Num Dim Vertical Parameters\n', dataManager.getNumDimensions('parametersAliasVertical'), '\n\n')

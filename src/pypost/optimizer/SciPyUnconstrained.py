@@ -39,7 +39,7 @@ class SciPyUnconstrained(Unconstrained):
         super().__init__(numParams, optimizationName)
 
         self.method = SciPyUnconstrainedAlgorithms.Nelder_Mead
-        self.linkProperty('method', optimizationName + 'method')
+        self.linkPropertyToSettings('method', optimizationName + 'method')
 
     def _optimize_internal(self, **kwargs):
         if self.verbose:

@@ -50,7 +50,7 @@ class PlotterEvaluationsBase(Mapping):
         plt.autoscale(enable=True, axis='x', tight=True)
         plt.show()
 
-    @DataManipulator.DataMethod(inputArguments=['self.plottingVariable' + '_T', 'numEpisodes', 'self.legendParameter'], outputArguments=[], callType=CallType.PER_EPISODE)
+    @DataManipulator.DataMethod(inputArguments=['self.plottingVariable' + '__T', 'numEpisodes', 'self.legendParameter'], outputArguments=[], callType=CallType.PER_EPISODE)
     def plotFunctionSingle(self, plotData, numEpisodes, legendParameterVal = []):
         raise ValueError('This is an abstract base class')
 
@@ -67,7 +67,7 @@ class PlotterErrorBars(PlotterEvaluationsBase):
 
         self.useMedian = useMedian
 
-    @DataManipulator.DataMethod(inputArguments=['self.plottingVariable' + '_T', 'numEpisodes', 'self.legendParameter'], outputArguments=[], callType=CallType.PER_EPISODE)
+    @DataManipulator.DataMethod(inputArguments=['self.plottingVariable' + '__T', 'numEpisodes', 'self.legendParameter'], outputArguments=[], callType=CallType.PER_EPISODE)
     def plotFunctionSingle(self, plotData, numEpisodes, legendParameterVal = []):
 
         (curve, lowerBound, upperBound) = self.getPlotWithErrorBars(plotData)
@@ -124,7 +124,7 @@ class PlotterTrials(PlotterEvaluationsBase):
         PlotterEvaluationsBase.__init__(self, dataManager, plottingVariable, legendParameter, logSpaceY = logSpaceY, useEpisodesXLabel = useEpisodesXLabel)
         self.legendPerTrial = legendPerTrial
 
-    @DataManipulator.DataMethod(inputArguments=['self.plottingVariable' + '_T', 'numEpisodes', 'self.legendParameter'], outputArguments=[], callType=CallType.PER_EPISODE)
+    @DataManipulator.DataMethod(inputArguments=['self.plottingVariable' + '__T', 'numEpisodes', 'self.legendParameter'], outputArguments=[], callType=CallType.PER_EPISODE)
     def plotFunctionSingle(self, plotData, numEpisodes, legendParameterVal = []):
 
         if (self.logSpaceY):

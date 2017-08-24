@@ -39,9 +39,9 @@ class NumStepsTerminationFunction(TerminationFunction, SettingsClient):
 
         if (numTimeSteps):
             self.numTimeSteps = numTimeSteps
-            self.linkProperty("numTimeSteps", "num" + stepName[0].upper() + stepName[1:], True)
+            self.linkPropertyToSettings("numTimeSteps", "num" + stepName[0].upper() + stepName[1:], True)
         else:
-            self.linkProperty("numTimeSteps", "num" + stepName[0].upper() + stepName[1:])
+            self.linkPropertyToSettings("numTimeSteps", "num" + stepName[0].upper() + stepName[1:])
 
     # getter & setters
 
@@ -62,7 +62,7 @@ class NumStepsTerminationFunction(TerminationFunction, SettingsClient):
             raise RuntimeError("The number has to be equal or greater to 0")
         self.numTimeSteps = numTimeSteps
 
-    def isActiveStep(self, nextStates, timeSteps):
+    def isNonTerminalState(self, nextStates, timeSteps):
         '''
         Returns if the time step is still active
         :param nextStates: data of the nextStates

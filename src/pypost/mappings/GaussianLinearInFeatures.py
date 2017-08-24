@@ -62,10 +62,10 @@ class GaussianLinearInFeatures(DistributionWithMeanAndVariance, FunctionLinearIn
         #    index = index + self.dimOutput
 
         if isinstance(outputVariables[0], str):
-            self.linkProperty('initSigma', 'initSigma' +
-                              self.outputVariables[0].capitalize())
+            self.linkPropertyToSettings('initSigma', 'initSigma' +
+                                        self.outputVariables[0].capitalize())
         else:
-            self.linkProperty('initSigma')
+            self.linkPropertyToSettings('initSigma')
 
     def getCovariance(self):
         '''

@@ -196,8 +196,8 @@ class DataManipulationFunction():
                     objString = dataStruct.inputArguments[i].replace('self.', 'object.')
 
                     preprocessorString = ''
-                    if ('_' in objString):
-                        indexUnderScore = objString.index('_')
+                    if ('__' in objString):
+                        indexUnderScore = objString.index('__')
                         if (indexUnderScore > 0):
                             preprocessorString = objString[indexUnderScore+1:]
 
@@ -213,7 +213,7 @@ class DataManipulationFunction():
                         temp = eval(objString)
 
                         if len(preprocessorString) > 0:
-                            temp = temp + '_' + preprocessorString
+                            temp = temp + '__' + preprocessorString
 
                         if isinstance(temp, list):
                             inputArgs = inputArgs + temp
@@ -256,16 +256,16 @@ class DataManipulationFunction():
 
 
 
-        if not dataStruct.inputArguments and not dataStruct.takesData:
-            dataStruct.takesNumElements = True
+        #if not dataStruct.inputArguments and not dataStruct.takesData:
+        #    dataStruct.takesNumElements = True
 
         if dataStruct.outputArguments:
             dataStruct.depthEntry = dataStruct.outputArguments[0]
         elif len(dataStruct.inputArguments) != 0:
             dataStruct.depthEntry = dataStruct.inputArguments[0]
 
-        if dataStruct.depthEntry and '_' in dataStruct.depthEntry:
-            index = dataStruct.depthEntry.find('_')
+        if dataStruct.depthEntry and '__' in dataStruct.depthEntry:
+            index = dataStruct.depthEntry.find('__')
             dataStruct.depthEntry = dataStruct.depthEntry[0:index]
 
     def dataFunction(self, function, data, indices=Ellipsis, registerOutput=True):
@@ -325,7 +325,7 @@ class ManipulatorMetaClass(type):
 
                 #if hasattr(cls, name + '_fromData'):
                 #    dataFunction =  getattr(cls, name + '_fromData')
-                #    newClass = createDataFunction(cls.__name__ + '_' + name, function, dataFunction)
+                #    newClass = createDataFunction(cls.__name__ + '__' + name, function, dataFunction)
                 #    functionInstance = newClass()
                 #    setattr(cls, name, functionInstance)
 
