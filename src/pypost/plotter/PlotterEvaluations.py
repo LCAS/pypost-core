@@ -23,7 +23,7 @@ class PlotterEvaluationsBase(Mapping):
         self.legendParameter = legendParameter
         self.legendHandles= []
         self.colorCycle = cycle(np.linspace(0,1,10))
-        self.colorMap = cm.get_cmap('tab10')
+        self.colorMap = cm.get_cmap('rainbow')
 
         if (not useEpisodesXLabel):
             self.xAxisLabel = 'iterations'
