@@ -78,7 +78,7 @@ class DataEntry(SettingsClient):
 
     def createDataMatrix(self, numElements):
         if (self.dataType == DataType.continuous):
-            self.data = np.zeros((numElements,) + self.numDimensions, dtype=np.float_) + (self.minRange + self.minRange) / 2
+            self.data = np.zeros((numElements,) + self.numDimensions, dtype=np.float_) + (self.minRange + self.maxRange) / 2
         if (self.dataType == DataType.discrete):
             self.data = np.zeros((numElements,) + self.numDimensions, dtype=np.int_) + self.minRange
         if (self.dataType == DataType.sparse):
@@ -91,7 +91,7 @@ class DataEntry(SettingsClient):
 
         if currentSize < numElementsEntry:
             if (self.dataType == DataType.continuous):
-                newData = np.zeros((numElementsEntry - currentSize,) + self.numDimensions, dtype=np.float_) + (self.minRange + self.minRange) / 2
+                newData = np.zeros((numElementsEntry - currentSize,) + self.numDimensions, dtype=np.float_) + (self.minRange + self.maxRange) / 2
                 self.data = np.vstack((self.data, newData))
             if (self.dataType == DataType.discrete):
                 newData = np.zeros((numElementsEntry - currentSize,) + self.numDimensions, dtype=np.int_) + self.minRange

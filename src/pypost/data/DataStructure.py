@@ -291,17 +291,18 @@ class DataStructure(SettingsClient):
                     entryData = entry.data[index, :]
                 else:
                     raise ValueError("Unknown type of the data alias entry")
-                if len(entryData.shape) == 1:
-                    entryData.resize((1, entryData.shape[0]))
-                if data is None:
-                    data = entryData[:, slice_].copy()
-                else:
-                    entryData = entryData[:, slice_]
-
-                    if not dataItem.useConcatVertical:
-                        data = np.hstack((data, entryData))
+                if (entryData.shape[0] > 0):
+                    if len(entryData.shape) == 1:
+                        entryData.resize((1, entryData.shape[0]))
+                    if data is None:
+                        data = entryData[:, slice_].copy()
                     else:
-                        data = np.vstack((data, entryData))
+                        entryData = entryData[:, slice_]
+
+                        if not dataItem.useConcatVertical:
+                            data = np.hstack((data, entryData))
+                        else:
+                            data = np.vstack((data, entryData))
 
         elif isinstance(dataItem, list):
             # get the data from a subDataStructure

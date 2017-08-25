@@ -156,11 +156,12 @@ class DataManipulationFunction():
             if registerOutput:
                 if (len(outArgList) < len(dataStruct.outputArguments) or not all(x is not None for x in outArgList[:len(dataStruct.outputArguments)]) ):
                     raise ValueError("Function {0} returns {1} values but must return {2} values which are not None".format(function.__name__, len(outArgList), len(dataStruct.outputArguments)))
-                try:
-                    data.setDataEntryList(dataStruct.outputArguments, indices, outArgList)
-                except ValueError as error:
-                    raise ValueError('Error when registering output arguments of function ' + function.__name__ +
-                                     ': ' + error.args[0] + '. Please check your output arguments!')
+                data.setDataEntryList(dataStruct.outputArguments, indices, outArgList)
+                # try:
+                #     data.setDataEntryList(dataStruct.outputArguments, indices, outArgList)
+                # except ValueError as error:
+                #     raise ValueError('Error when registering output arguments of function ' + function.__name__ +
+                #                      ': ' + error.args[0] + '. Please check your output arguments!')
             outArgs = outArgList
 
         if (outArgs and len(outArgs) == 1):

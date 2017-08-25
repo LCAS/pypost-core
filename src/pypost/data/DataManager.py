@@ -81,18 +81,18 @@ class DataManager(SettingsClient):
     be found in the tutorials directory.
     '''
 
-    def __init__(self, nameManagers):
+    def __init__(self, name):
         '''
         Constructor
         :param string name: The name of this DataManager
         '''
         SettingsClient.__init__(self)
 
-        if isinstance(nameManagers, list):
-            self.name = nameManagers[0]
-            nameManagers = nameManagers[1:]
+        if isinstance(name, list):
+            self.name = name[0]
+            nameManagers = name[1:]
         else:
-            self.name = nameManagers
+            self.name = name
 
         self.subDataManager = None
         self.dataEntries = dict()
@@ -528,7 +528,7 @@ class DataManager(SettingsClient):
                 self.addIndexModifiers(aliasName, numDim)
         else:
             if self.subDataManager is not None:
-                self.subDataManager.addDataAlias(aliasName, entryList, indexModifier)
+                self.subDataManager.addDataAlias(aliasName, entryList, indexModifier, useConcatVertical=useConcatVertical)
             else:
                 raise ValueError("One or more of the alias entry names do " +
                                  "not exist")
