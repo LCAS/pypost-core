@@ -21,4 +21,4 @@
 cd ~/policysearchtoolbox
 module load matlab
 module load gurobi
-srun matlab -nosplash -nojvm -nodesktop -nodisplay -r "experiment = Experiments.Experiment.getByPath('§§experimentPath§§'); experiment.startCluster(§§clusterJobID§§,$SLURM_ARRAY_TASK_ID); exit;"
+srun matlab -nosplash -nojvm -nodesktop -nodisplay -r "§§experimentCode§§; experiment.startCluster(§§clusterJobID§§,$SLURM_ARRAY_TASK_ID); exit;"

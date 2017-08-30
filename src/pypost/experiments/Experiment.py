@@ -351,6 +351,7 @@ class Experiment(object):
         while tline:
             tline = tline.replace('§§experimentName§§', experimentId)
             tline = tline.replace('§§computationTime§§', '%d:%d:00'%(computationTime // 60 ,computationTime % 60))
+            tline = tline.replace('§§experimentPath§§', self.experimentPath)
             tline = tline.replace('§§experimentCode§§', experimentCode)
             tline = tline.replace('§§numJobs§§', '%d' % numJobsLSF)
             tline = tline.replace('§§numParallelJobs§§', '%d' % numParallelJobs)
