@@ -145,7 +145,9 @@ class Experiment(object):
     '''
 
     def load(self):
-        for file in os.listdir(self.experimentPath):
+        dirList = os.listdir(self.experimentPath)
+        dirList.sort()
+        for file in dirList:
             filePath = os.path.join(self.experimentPath, file)
             if os.path.isdir(filePath) \
                     and os.path.basename(file).startswith('eval'):
