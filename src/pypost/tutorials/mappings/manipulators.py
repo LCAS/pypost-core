@@ -17,7 +17,7 @@ class DummyManipulator(DataManipulator):
         print('computeSomething got called with!', X)
         return X + 1
 
-    @DataManipulator.DataMethod(inputArguments=['X'], outputArguments=['Z'], callType = CallType.SINGLE_SAMPLE)
+    @DataManipulator.DataMethod(inputArguments=['self.input1'], outputArguments=['Z'], callType = CallType.SINGLE_SAMPLE)
     def computeSomethingSequential(self, X):
         print('computeSomethingSequential got called with!', X)
         return X + 2
@@ -51,3 +51,5 @@ Y = data[...] >= manipulator.computeSomething
 # The >= operator calls the data manipulator, returns the result of evaluating the data manipulator but does not store the result in the data structure
 
 Y = data[...] > manipulator.computeSomething
+
+manipulator.listManipulationFunctions()

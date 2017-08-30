@@ -1,4 +1,5 @@
 from .Mapping import Mapping
+from .TFMapping import TFMapping
 from .Distribution import Distribution
 from .DistributionWithMeanAndVariance import DistributionWithMeanAndVariance
 from .Function import Function
@@ -12,5 +13,6 @@ __all__ = ['Distribution',
            'Function',
            'FunctionLinearInFeatures'
            'GaussianLinearInFeatures',
-           'Mapping']
+           'Mapping'
+           'TFMapping']
 
