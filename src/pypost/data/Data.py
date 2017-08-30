@@ -1,6 +1,6 @@
 import numpy as np
+import tensorflow as tf
 from pypost.data.DataStructure import DataStructure
-
 
 class DataEntryInfo():
     '''
@@ -45,6 +45,8 @@ class Data(object):
 
         aliasNames = self.dataManager.getAliasNames()
         entryNames = self.dataManager.getEntryNames()
+
+        self.tensorDictionary = {}
         for name in aliasNames:
             depth = self.dataManager.getDataEntryLevel(name)
             alias = self.dataManager.getDataAlias(name)
@@ -63,6 +65,20 @@ class Data(object):
 
     def getDataManager(self):
         return self.dataManager
+
+    def _addTensorToDictionary(self, tensor):
+        from pypost.mappings import TFMapping
+        tensorMapping = TFMapping(self.dataManager, tensor)
+        self.tensorDictionary[tensor] = tensorMapping
+        return tensorMapping
+
+    def _getTensorMappingForTensor(self, tensor):
+
+        if tensor in self.tensorDictionary:
+            return self.tensorDictionary[tensor]
+        else:
+            return self._addTensorToDictionary(tensor)
+
 
     def _createDataStructure(self, dataManager, numElements):
         '''
@@ -101,7 +117,10 @@ class Data(object):
         return dataStructure
 
     def __getitem__(self, index):
-        self.activeIndex = index
+        if isinstance(index, list):
+            self.activeIndex = index.copy()
+        else:
+            self.activeIndex = index
 
         if isinstance(self.activeIndex, tuple):
             #if (self.activeIndex[0] == Ellipsis):
@@ -140,6 +159,9 @@ class Data(object):
     def __rshift__(self, function):
         '''Operator for applying data manipulation functions'''
 
+        if (isinstance(function, tf.Tensor) or (isinstance(function, tuple) and all(isinstance(x, tf.Tensor) for x in function))):
+            function = self._getTensorMappingForTensor(function)
+
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
             function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput = True)
             return self
@@ -149,6 +171,8 @@ class Data(object):
 
     def __ge__(self, function):
         '''Operator for applying data manipulation functions'''
+        if (isinstance(function, tf.Tensor) or (isinstance(function, tuple) and all(isinstance(x, tf.Tensor) for x in function))):
+            function = self._getTensorMappingForTensor(function)
 
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
             return function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput = True)
@@ -159,6 +183,9 @@ class Data(object):
 
     def __gt__(self, function):
         '''Operator for applying data manipulation functions'''
+        if (isinstance(function, tf.Tensor) or (isinstance(function, tuple) and all(isinstance(x, tf.Tensor) for x in function))):
+            function = self._getTensorMappingForTensor(function)
+
 
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
             return function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput=False)

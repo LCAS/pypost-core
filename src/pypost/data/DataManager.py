@@ -1,5 +1,6 @@
 import numpy as np
 import numbers
+import tensorflow as tf
 
 from pypost.data.Data import Data
 from pypost.data.DataAlias import DataAlias
@@ -8,8 +9,6 @@ from pypost.data.DataAlias import IndexModifierAll
 from pypost.data.DataAlias import IndexModifierNext
 from pypost.data.DataAlias import IndexModifierLast
 from pypost.data.DataAlias import IndexModifierTimeWindow
-
-
 
 from pypost.data.DataEntry import DataEntry, DataType
 from pypost.common import SettingsManager
@@ -104,6 +103,9 @@ class DataManager(SettingsClient):
 
         self.dataPreprocessorsForward = {}
         self.dataPreprocessorsInverse = {}
+
+        self.tensorDict = {}
+        self.tensorToEntryMap = {}
 
         def makePeriodic(data, dataItem, index):
             isPeriodic = np.array(self.getPeriodicity(dataItem.name), dtype=bool)
@@ -329,6 +331,35 @@ class DataManager(SettingsClient):
 
         return False
 
+    def createTensorForEntry(self, entryName, suffix = None):
+
+        if suffix:
+            dictEntry = entryName + '_' + suffix
+        else:
+            dictEntry = entryName
+
+        if dictEntry in self.tensorDict:
+            return self.tensorDict[dictEntry]
+        else:
+            dim = self.getNumDimensions(entryName)
+            if (isinstance(dim, tuple)):
+                tensor = tf.placeholder(tf.float32, shape=(None,) + dim, name = dictEntry)
+            else:
+                tensor = tf.placeholder(tf.float32, shape=(None, dim), name=dictEntry)
+            self.tensorToEntryMap[tensor] = entryName
+            return tensor
+
+    def isEntryTensor(self, tensor):
+        return tensor in self.tensorToEntryMap
+
+    def getEntryForTensor(self, tensor):
+        if tensor not in self.tensorToEntryMap:
+            raise ValueError('Tensor is not registred as entry tensor!')
+
+        return self.tensorToEntryMap[tensor]
+
+    def connectTensorToEntry(self, tensor, entryName):
+        self.tensorToEntryMap[tensor] = entryName
 
     def setRange(self, entryName, minRange, maxRange):
         '''Sets the min and max range for existing data entries

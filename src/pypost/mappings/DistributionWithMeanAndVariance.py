@@ -88,7 +88,7 @@ class DistributionWithMeanAndVariance(Distribution):
 
         return samples
 
-    def getDataProbabilities(self, inputData, outputData, *args):
+    def getDataLogLikelihood(self, inputData, outputData, *args):
         '''
         :param inputData: vector of input data
         :param outputData: vector of output data

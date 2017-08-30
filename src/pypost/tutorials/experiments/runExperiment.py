@@ -17,7 +17,9 @@ def runExperiment(numTrials):
 
     evaluation1 = experiment.addEvaluationCollection(['temperature'], [0.1, 1, 2, 3], numTrials = 3)
 
-    experiment.startLocal()
+    #experiment.startLocal()
+    experiment.startSLURM()
+    experiment.startJobFromClusterID(6, 2)
 
     data = experiment.getEvaluationData(evaluation1)
 

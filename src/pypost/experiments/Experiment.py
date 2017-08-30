@@ -7,7 +7,7 @@ from pypost.common.SettingsManager import setRootSettings
 from pypost.experiments.Evaluation import Evaluation
 from pypost.data.DataManager import DataManager
 
-
+import yaml, subprocess, os, time, random, os.path
 
 class Experiment(object):
     '''
@@ -25,7 +25,6 @@ class Experiment(object):
         '''
         Constructor
         '''
-
 
 
         self.category = category
@@ -60,6 +59,7 @@ class Experiment(object):
         self.defaultTrial.configure()
         self.defaultTrial.storeTrial(True)
         self.defaultSettings = self.defaultTrial.settings
+        self.rootDir = rootDir
 
     def create(self, experimentId = 'last'):
         '''
@@ -293,7 +293,7 @@ class Experiment(object):
         '''
         return len(self.trialIndexToDirectorymap)
 
-    def startLocal(self, trialIndices=None, restart = 0):
+    def startLocal(self, trialIndices=None, restart = False):
         '''
         Executes the experiment on the local machine.
         :param trialIndices: A list containg the indices of the trials to run.
@@ -305,9 +305,76 @@ class Experiment(object):
         for key in trialIndices:
             print('Starting Trial {0} locally\n'.format(key))
 
+
             trial = Experiment.loadTrialFromID(self, key)
 
-            trial.start()
+            trial.start(restart = restart)
+
+    def startSLURM(self, trialIndices = None, restart = False, numParallelJobs=20, memory = 5000, computationTime= 23 * 60 + 59):
+
+        if not trialIndices:
+            trialIndices = list(self.trialIndexToDirectorymap.keys())
+
+        maxId = 0
+        for file in os.listdir(self.experimentPath):
+            if os.path.basename(file).startswith('clusterJob'):
+                currentId = int(file[10:13])
+                maxId = max(currentId, maxId)
+
+        clusterJobID = maxId + 1
+        #Create clusterJob file containing the trial indices
+        clusterJobFile = os.path.join(self.experimentPath, 'clusterJob%03d' % (clusterJobID) + '.yaml')
+
+        clusterJobDict = {'trialIDs' : trialIndices}
+        with open(clusterJobFile, 'w') as stream:
+            yaml.dump(clusterJobDict , stream)
+
+        self._createSLURMFile(clusterJobID, len(trialIndices), numParallelJobs = numParallelJobs, memory = memory, computationTime = computationTime)
+
+    def _createSLURMFile(self, clusterJobID, numJobs, numParallelJobs, memory, computationTime):
+
+        LSF = '%s/jobs.slurm' % self.experimentPath
+        experimentId = 'IAS_%s_%s_%s' % (self.category, self.experimentId, clusterJobID)
+
+        import pypost.experiments
+        pathTemplate = os.path.dirname(pypost.experiments.__file__)
+
+        fidIn = open(os.path.join(pathTemplate, 'template.slurm'), 'r')
+        fidOut = open(LSF, 'w')
+
+        tline = fidIn.readline()
+        numJobsLSF = numJobs
+
+        experimentCode = 'from pypost.experiments import Experiment;'
+        experimentCode = experimentCode + 'from %s import %s;' % (self.TrialClass.__module__, self.taskName)
+        experimentCode = experimentCode + 'experiment = Experiment(\'%s\',\'%s\', %s);experiment.create(%d)'%(self.rootDir,self.category, self.taskName, self.experimentId)
+        while tline:
+            tline = tline.replace('§§experimentName§§', experimentId)
+            tline = tline.replace('§§computationTime§§', '%d:%d:00'%(computationTime // 60 ,computationTime % 60))
+            tline = tline.replace('§§experimentCode§§', experimentCode)
+            tline = tline.replace('§§numJobs§§', '%d' % numJobsLSF)
+            tline = tline.replace('§§numParallelJobs§§', '%d' % numParallelJobs)
+            tline = tline.replace('§§clusterJobID§§', '%d' % clusterJobID)
+            tline = tline.replace('§§memory§§', '%d' % memory)
+
+            fidOut.write(tline)
+
+            tline = fidIn.readline()
+
+        fidIn.close()
+        fidOut.close()
+
+    def startJobFromClusterID(self, clusterJobID, jobID):
+        clusterJobFile = os.path.join(self.experimentPath, 'clusterJob%03d' % (clusterJobID,) + '.yaml')
+        with open(clusterJobFile, 'r') as stream:
+            jobDict = yaml.load(stream)
+
+        trialIDs = jobDict['trialIDs']
+        trialID = trialIDs[jobID]
+
+        trial = self.loadTrialFromID(trialID)
+        trial.start()
+
 
     def getTrialIDs(self):
         '''
@@ -402,5 +469,4 @@ class Experiment(object):
                 for dataKey in trial.data.keys():
                     data.setDataEntry(dataKey, [i,j], trial.data[dataKey])
 
-        data.avgReturns_T
         return data

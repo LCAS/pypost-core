@@ -45,6 +45,8 @@ class DataManipulationFunction():
         return "%s: %s -> %s" % (self.name, self.inputArguments,
                                  self.outputArguments)
 
+    def listArguments(self):
+        print(self.__str__())
 
     def _callDataFunctionInternal(self, function, data, indices, registerOutput):
 
@@ -449,4 +451,8 @@ class DataManipulator(SettingsClient, metaclass=ManipulatorMetaClass):
 
             argumentList[i] = name
         return argumentList
+
+    def listManipulationFunctions(self):
+        for (functionName, decorator) in self.dataManipulationMethodsInstance.items():
+            print('{} : {} -> {}'.format(functionName, decorator.inputArguments, decorator.outputArguments))
 
