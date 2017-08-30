@@ -4,6 +4,7 @@ from pypost.data.DataManipulator import CallType
 from pypost.data.DataManipulator import DataManipulator
 from pypost.data.DataManipulator import DataManipulationFunction
 from pypost.data.Data import Data
+import tensorflow as tf
 
 from pypost.data.DataManipulator import ManipulatorMetaClass
 

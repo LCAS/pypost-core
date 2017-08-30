@@ -80,6 +80,22 @@ class Evaluation(SettingsClient):
             for f in files:
                 os.chmod(os.path.join(root, f), 0o775)
 
+    def startLocal(self, trialIds = None):
+        if trialIds:
+            trialIds = self.globalTrialIDs[trialIds]
+        else:
+            trialIds = self.globalTrialIDs
+
+        self.experiment.startLocal(trialIds)
+
+    def startSLURM(self, trialIds=None):
+        if trialIds:
+            trialIds = self.globalTrialIDs[trialIds]
+        else:
+            trialIds = self.globalTrialIDs
+
+        self.experiment.startSLURM(trialIds)
+
     def loadTrialFromID(self, trialID):
         globalID = self.globalTrialIDs[trialID]
         return self.experiment.loadTrialFromID(globalID)

@@ -258,22 +258,27 @@ class DataStructure(SettingsClient):
 
         dataItem = self.dataStructureLocalLayer[name]
 
-        if isinstance(dataItem, DataAlias):
-            # get the data from a DataAlias
-            dataAlias = dataItem
-            index = dataAlias.modifyIndex(index, self.numElements)
-
-        if isinstance(index, tuple):
-            data = self.getDataFromEntryOrAlias(dataItem, index[0])
-
-            for i in range(1, len(index)):
-                data = np.hstack([data, self.getDataFromEntryOrAlias(dataItem, index[i])])
+        if isinstance(dataItem, list):
+            return dataItem
         else:
-            data = self.getDataFromEntryOrAlias(dataItem, index)
+            if isinstance(dataItem, DataAlias):
+                # get the data from a DataAlias
+                dataAlias = dataItem
+                index = dataAlias.modifyIndex(index, self.numElements)
 
-        if (dataPreprocessor):
-            data = dataPreprocessor(data, dataItem, index)
-        return data
+            if isinstance(index, tuple):
+                data = self.getDataFromEntryOrAlias(dataItem, index[0])
+
+                for i in range(1, len(index)):
+                    data = np.hstack([data, self.getDataFromEntryOrAlias(dataItem, index[i])])
+            else:
+                # needs to be DataEntry or DataAlias
+                assert isinstance(dataItem, (DataEntry, DataAlias)), 'We should only have Entries or Aliases at this point!'
+                data = self.getDataFromEntryOrAlias(dataItem, index)
+
+            if (dataPreprocessor):
+                data = dataPreprocessor(data, dataItem, index)
+            return data
 
     def getDataFromEntryOrAlias(self, dataItem, index):
         if isinstance(dataItem, DataAlias):
