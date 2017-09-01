@@ -21,7 +21,7 @@ class Experiment(object):
     epsilon for REPS.
     '''
 
-    def __init__(self, rootDir, category, TrialClass):
+    def __init__(self, rootDir, category, TrialClass, create = True):
         '''
         Constructor
         '''
@@ -57,11 +57,13 @@ class Experiment(object):
         self.TrialClass = TrialClass
         self.defaultTrial = self.createTrial(self.path, 0)
         self.defaultTrial.configure()
-        self.defaultTrial.storeTrial(True)
+        if (create):
+            self.defaultTrial.storeTrial(True)
         self.defaultSettings = self.defaultTrial.settings
         self.rootDir = rootDir
+        self.maxId = -1
 
-    def create(self, experimentId = 'last'):
+    def load(self, experimentId = 'last'):
         '''
 
         :param experimentId: desired ID of the experiment (for loading old experiments). If ID equals -1, new experiment
@@ -74,29 +76,44 @@ class Experiment(object):
                 path = os.path.abspath(os.path.join(path, os.pardir))
             os.mkdir(path)
 
-        maxId = -1
+        self.maxId = -1
         for file in os.listdir(self.path):
             filePath = os.path.join(self.path, file)
             if os.path.isdir(filePath) \
                and os.path.basename(file).startswith('experiment'):
                 currentId = int(file[10:13])
-                maxId = max(currentId, maxId)
+                self.maxId = max(currentId, self.maxId)
 
                 if currentId == experimentId:
                     print("Experiment with same settings found")
                     self.experimentId = currentId
                     self.experimentPath = filePath
-                    self.load()
-                    return
+                    self._load()
+                    return True
 
-        if (experimentId == 'last' and maxId >= 0):
-            print('Reusing last experiment...(%03d)' % maxId)
-            self.experimentId = maxId
-            self.experimentPath = os.path.join(self.path, ('experiment%03d' % maxId))
-            self.load()
+        if (experimentId == 'last' and self.maxId >= 0):
+            print('Reusing last experiment...(%03d)' % self.maxId)
+            self.experimentId = self.maxId
+            self.experimentPath = os.path.join(self.path, ('experiment%03d' % self.maxId))
+            self._load()
+            return True
         else:
+            return False
+
+
+
+    def create(self, experimentId = 'last'):
+        '''
+
+        :param experimentId: desired ID of the experiment (for loading old experiments). If ID equals -1, new experiment
+        is autmatically created
+        :return:
+        '''
+        result = self.load(experimentId)
+
+        if not result:
             print("Create new experiment...")
-            self.experimentId = maxId+1
+            self.experimentId = self.maxId+1
             self.experimentPath = os.path.join(
                 self.path, ('experiment%03d' % self.experimentId))
             if not os.path.exists(self.experimentPath): #pragma: no cover
@@ -144,7 +161,7 @@ class Experiment(object):
         return newExperiment
     '''
 
-    def load(self):
+    def _load(self):
         dirList = os.listdir(self.experimentPath)
         dirList.sort()
         for file in dirList:
@@ -333,6 +350,10 @@ class Experiment(object):
 
         self._createSLURMFile(clusterJobID, len(trialIndices), numParallelJobs = numParallelJobs, memory = memory, computationTime = computationTime)
 
+        cmd = "sbatch " + self.experimentPath + "/jobs.slurm"
+
+        subprocess.check_output(cmd, shell=True)
+
     def _createSLURMFile(self, clusterJobID, numJobs, numParallelJobs, memory, computationTime):
 
         LSF = '%s/jobs.slurm' % self.experimentPath
@@ -349,7 +370,7 @@ class Experiment(object):
 
         experimentCode = 'from pypost.experiments import Experiment;'
         experimentCode = experimentCode + 'from %s import %s;' % (self.TrialClass.__module__, self.taskName)
-        experimentCode = experimentCode + 'experiment = Experiment(\'%s\',\'%s\', %s);experiment.create(%d)'%(self.rootDir,self.category, self.taskName, self.experimentId)
+        experimentCode = experimentCode + 'experiment = Experiment(\'%s\',\'%s\', %s, create = False);experiment.load(%d)'%(self.rootDir,self.category, self.taskName, self.experimentId)
         while tline:
             tline = tline.replace('§§experimentName§§', experimentId)
             tline = tline.replace('§§computationTime§§', '%d:%d:00'%(computationTime // 60 ,computationTime % 60))

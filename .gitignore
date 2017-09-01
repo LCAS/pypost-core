@@ -70,3 +70,5 @@ target/
 # Ignore IntelliJ project folder
 .idea
 
+# Ignore personal slurm template
+template.slurm

@@ -141,7 +141,12 @@ class DataStructure(SettingsClient):
                 entry = self.dataStructureLocalLayer[entryName]
 
                 if (dataAlias.useConcatVertical):
-                    l = self[entryName][:, slice_].shape[0]
+                    shape = self[entryName][index, slice_].shape
+                    if (len(shape) == 1):
+                        l = 1
+                    else:
+                        l = shape[0]
+
                     if isinstance(entry, DataAlias):
                         # dataAlias contains another DataAlias (entry)
                         # we have to update it manually (explicit read and
@@ -378,7 +383,7 @@ class DataStructure(SettingsClient):
             subLayers = None
 
             indexPreprocessor = path[-1].find('__')
-            if indexPreprocessor > 0 and path[-1][indexPreprocessor + 2:] == 'T':
+            if indexPreprocessor > 0 and path[-1][indexPreprocessor + 2:] == '_T':
                 path[-1] = path[-1][:indexPreprocessor]
                 hStack = True
 
