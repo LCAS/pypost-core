@@ -383,7 +383,7 @@ class DataStructure(SettingsClient):
             subLayers = None
 
             indexPreprocessor = path[-1].find('__')
-            if indexPreprocessor > 0 and path[-1][indexPreprocessor + 2:] == 'T':
+            if indexPreprocessor > 0 and path[-1][indexPreprocessor + 2:] == '_T':
                 path[-1] = path[-1][:indexPreprocessor]
                 hStack = True
 
