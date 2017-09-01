@@ -202,7 +202,7 @@ class DataManipulationFunction():
                     if ('__' in objString):
                         indexUnderScore = objString.index('__')
                         if (indexUnderScore > 0):
-                            preprocessorString = objString[indexUnderScore+1:]
+                            preprocessorString = objString[indexUnderScore+2:]
 
                             objString = objString[:indexUnderScore]
 

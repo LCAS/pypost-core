@@ -1,12 +1,70 @@
 import tensorflow as tf
 import numpy as np
 
+def sum(x, axis=None, keepdims=False):
+    axis = None if axis is None else [axis]
+    return tf.reduce_sum(x, axis=axis, keep_dims=keepdims)
+
+
+def mean(x, axis=None, keepdims=False):
+    axis = None if axis is None else [axis]
+    return tf.reduce_mean(x, axis=axis, keep_dims=keepdims)
+
+
+def var(x, axis=None, keepdims=False):
+    meanx = mean(x, axis=axis, keepdims=keepdims)
+    return mean(tf.square(x - meanx), axis=axis, keepdims=keepdims)
+
+
+def std(x, axis=None, keepdims=False):
+    return tf.sqrt(var(x, axis=axis, keepdims=keepdims))
+
+
+def max(x, axis=None, keepdims=False):
+    axis = None if axis is None else [axis]
+    return tf.reduce_max(x, axis=axis, keep_dims=keepdims)
+
+
+def min(x, axis=None, keepdims=False):
+    axis = None if axis is None else [axis]
+    return tf.reduce_min(x, axis=axis, keep_dims=keepdims)
+
+
+def concatenate(arrs, axis=0):
+    return tf.concat(axis=axis, values=arrs)
+
+
+def argmax(x, axis=None):
+    return tf.argmax(x, axis=axis)
+
+
+def switch(condition, then_expression, else_expression):
+    """Switches between two operations depending on a scalar value (int or bool).
+    Note that both `then_expression` and `else_expression`
+    should be symbolic tensors of the *same shape*.
+
+    # Arguments
+        condition: scalar tensor.
+        then_expression: TensorFlow operation.
+        else_expression: TensorFlow operation.
+    """
+    x_shape = then_expression.get_shape().copy()
+    x = tf.cond(tf.cast(condition, 'bool'),
+                lambda: then_expression,
+                lambda: else_expression)
+    x.set_shape(x_shape)
+    return x
+
+### Utilities for parsing tensors
+
 def _list_trainable_variables(tensor_node):
     if (isinstance(tensor_node, list)):
         place_set = set()
         for tfNode in tensor_node:
             place_set = place_set.union(_list_trainable_variables(tfNode))
         return place_set
+    elif tensor_node.op.type.startswith('Variable'):
+        return set([tensor_node])
     else:
         place_set = set()
         for tfNode in tensor_node.op.inputs:
@@ -32,6 +90,8 @@ def list_data_placeholders(dataManager, tensor_node):
         else:
             place_set = place_set.union(list_data_placeholders(dataManager, tfNode))
     return place_set
+
+### create layer functions
 
 def normc_initializer(std=1.0):
     def _initializer(shape, dtype=None, partition_info=None):  # pylint: disable=W0613

@@ -4,7 +4,7 @@ import numpy as np
 
 from pypost.mappings.Distribution import Distribution
 from pypost.mappings.Mapping import Mapping
-
+from pypost.data import DataManipulator
 
 class DistributionWithMeanAndVariance(Distribution):
     '''
@@ -38,7 +38,8 @@ class DistributionWithMeanAndVariance(Distribution):
                  name=""):
         Distribution.__init__(self, dataManager, inputVariables, outputVariables, name)
 
-    def sampleFromDistribution(self, *args):
+
+    def sampleFromDistribution(self, data, *args):
         '''
         :param *args: parameter for the abstract `getExpectationAndSigma()`
                          function. The first parameter is always `numElements`,
@@ -48,7 +49,7 @@ class DistributionWithMeanAndVariance(Distribution):
         '''
         samples = None
 
-        (expectation, sigma) = self.getExpectationAndSigma(*args)
+        (expectation, sigma) = data > self.getExpectationAndSigma
 
         if sigma.shape[2] == 1:
             # If the third dimension of the sigma matrix is 1, the
@@ -88,7 +89,8 @@ class DistributionWithMeanAndVariance(Distribution):
 
         return samples
 
-    def getDataLogLikelihood(self, inputData, outputData, *args):
+    @DataManipulator.DataMethod(takesData=True, inputArguments = ['self.inputVariables', 'self.outputVariables'], outputArguments=[])
+    def getDataLogLikelihood(self, data, inputData, outputData, *args):
         '''
         :param inputData: vector of input data
         :param outputData: vector of output data
@@ -96,9 +98,7 @@ class DistributionWithMeanAndVariance(Distribution):
                          of the probability of inputData resulting in
                          outputData.
         '''
-        (expectation, sigma) = self.getExpectationAndSigma(outputData.shape[0],
-                                                           inputData,
-                                                           *args)
+        (expectation, sigma) = data > self.getExpectationAndSigma
 
         samples = None
         qData = None

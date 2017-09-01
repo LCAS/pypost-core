@@ -145,7 +145,9 @@ class Experiment(object):
     '''
 
     def load(self):
-        for file in os.listdir(self.experimentPath):
+        dirList = os.listdir(self.experimentPath)
+        dirList.sort()
+        for file in dirList:
             filePath = os.path.join(self.experimentPath, file)
             if os.path.isdir(filePath) \
                     and os.path.basename(file).startswith('eval'):
@@ -351,6 +353,7 @@ class Experiment(object):
         while tline:
             tline = tline.replace('§§experimentName§§', experimentId)
             tline = tline.replace('§§computationTime§§', '%d:%d:00'%(computationTime // 60 ,computationTime % 60))
+            tline = tline.replace('§§experimentPath§§', self.experimentPath)
             tline = tline.replace('§§experimentCode§§', experimentCode)
             tline = tline.replace('§§numJobs§§', '%d' % numJobsLSF)
             tline = tline.replace('§§numParallelJobs§§', '%d' % numParallelJobs)
@@ -440,10 +443,7 @@ class Experiment(object):
             else:
                 numDim = 1
 
-            if (numIter > 1):
-                iterationManager.addDataEntry(dataKey, numDim)
-            else:
-                trialManager.addDataEntry(dataKey, numDim)
+            iterationManager.addDataEntry(dataKey, numDim)
 
         data = evaluationManager.createDataObject([len(evaluationCollection), 4, 4])
 

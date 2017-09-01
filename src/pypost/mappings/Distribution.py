@@ -16,8 +16,8 @@ class Distribution(Mapping):
         Mapping.__init__(self, dataManager, inputVariables, outputVariable, name)
 
 
-    @Mapping.MappingMethod()
-    def sampleFromDistribution(self, *args):
+    @Mapping.MappingMethod(takesData=True)
+    def sampleFromDistribution(self, data, *args):
         '''
         get a matrix of with numElements many samples from this distribution
         :param numElements

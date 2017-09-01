@@ -159,7 +159,7 @@ class Data(object):
     def __rshift__(self, function):
         '''Operator for applying data manipulation functions'''
 
-        if (isinstance(function, tf.Tensor) or (isinstance(function, tuple) and all(isinstance(x, tf.Tensor) for x in function))):
+        if (isinstance(function, (tf.Tensor, tf.Variable)) or (isinstance(function, tuple) and all(isinstance(x, (tf.Tensor, tf.Variable)) for x in function))):
             function = self._getTensorMappingForTensor(function)
 
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
@@ -171,7 +171,9 @@ class Data(object):
 
     def __ge__(self, function):
         '''Operator for applying data manipulation functions'''
-        if (isinstance(function, tf.Tensor) or (isinstance(function, tuple) and all(isinstance(x, tf.Tensor) for x in function))):
+        if (isinstance(function, (tf.Tensor, tf.Variable)) or (
+            isinstance(function, tuple) and all(isinstance(x, (tf.Tensor, tf.Variable)) for x in function))):
+
             function = self._getTensorMappingForTensor(function)
 
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
@@ -183,9 +185,8 @@ class Data(object):
 
     def __gt__(self, function):
         '''Operator for applying data manipulation functions'''
-        if (isinstance(function, tf.Tensor) or (isinstance(function, tuple) and all(isinstance(x, tf.Tensor) for x in function))):
+        if (isinstance(function, (tf.Tensor, tf.Variable)) or (isinstance(function, tuple) and all(isinstance(x, (tf.Tensor, tf.Variable)) for x in function))):
             function = self._getTensorMappingForTensor(function)
-
 
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
             return function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput=False)

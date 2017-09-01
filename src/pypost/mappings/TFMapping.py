@@ -10,10 +10,10 @@ class TFMapping(Mapping):
         if isinstance(tensorNode, (list, tuple)):
             placeHolderList = set()
             for tensor in tensorNode:
-                if not isinstance(tensor, tf.Tensor):
+                if not isinstance(tensor, (tf.Tensor, tf.Variable)):
                     raise ValueError('TF Mappings can only be created for tf.Tensor objects or list/tuple of those')
                 placeHolderList = placeHolderList | tfutils.list_data_placeholders(dataManager, tensor)
-        elif isinstance(tensorNode, tf.Tensor):
+        elif isinstance(tensorNode, (tf.Tensor, tf.Variable)):
             placeHolderList = tfutils.list_data_placeholders(dataManager, tensorNode)
         else:
             raise ValueError('TF Mappings can only be created for tf.Tensor objects or list/tuple of those')
