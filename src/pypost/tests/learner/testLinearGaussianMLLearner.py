@@ -47,7 +47,7 @@ class testLinearGaussianMLLearner(unittest.TestCase):
         gaussianDistLearner.setWeightName('weights')
         data >> gaussianDistLearner
 
-        data >> gaussianDist
+        data >> gaussianDist >> data
 
         meanVecLearned = gaussianDist.getMean()
         betaVecLearned = gaussianDist.getBeta()

@@ -3,12 +3,14 @@ import unittest
 import numpy as np
 
 from pypost.data import DataManager
-from pypost.mappings import GaussianLinearInFeatures
+from pypost.mappings.Gaussian import DiagonalGaussian_Base
+from pypost.common import tfutils
+import tensorflow as tf
 
 
 class testGaussianLinearInFeatures(unittest.TestCase):
 
-    if __name__ == "__main__":
+    def testDiagionalGaussian(self):
         num_cpu = 1
         tf_config = tf.ConfigProto(inter_op_parallelism_threads=num_cpu, intra_op_parallelism_threads=num_cpu)
         session = tf.Session(config=tf_config)
@@ -29,4 +31,7 @@ class testGaussianLinearInFeatures(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    test = testGaussianLinearInFeatures()
+    test.testDiagionalGaussian()
+
     unittest.main()

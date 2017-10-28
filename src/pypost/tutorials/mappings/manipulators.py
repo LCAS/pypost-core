@@ -38,18 +38,14 @@ manipulator = DummyManipulator(dataManager)
 print(data[...].X)
 
 # The >> operator calls the data manipulator, stores the result in the data structure and returns the new data structure
-data[...] >> manipulator.computeSomething
+data[...] >> manipulator.computeSomething >> data
 print('data.Y:', data[...].Y)
 
-data[...] >> manipulator.computeSomethingSequential
+data[...] >> manipulator.computeSomethingSequential >> data
 print('data.Z:', data[...].Z)
 
 # The >= operator calls the data manipulator, stores the result in the data structure and returns the result of evaluating the data manipulator
 
-Y = data[...] >= manipulator.computeSomething
-
-# The >= operator calls the data manipulator, returns the result of evaluating the data manipulator but does not store the result in the data structure
-
-Y = data[...] > manipulator.computeSomething
+Y = data[...] >> manipulator.computeSomething >= data
 
 manipulator.listManipulationFunctions()

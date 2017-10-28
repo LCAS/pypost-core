@@ -1,5 +1,6 @@
 from pypost.data.DataManager import DataManager
 from pypost.common.SettingsClient import SettingsClient
+from pypost.data.Data import DataWriter
 
 import numpy as np
 from enum import Enum
@@ -34,6 +35,7 @@ class DataManipulationFunction():
         self.depthEntry = None
         self.dataFunctionObject = None
         self.lazyEvaluation = lazyEvaluation
+        self.dataWriter = DataWriter()
 
         if not isinstance(self.inputArguments, list):
             self.inputArguments = [self.inputArguments]
@@ -153,17 +155,20 @@ class DataManipulationFunction():
 
                 outArgList = outArgsAll
                 validFlag[:] = True
-                data.setDataEntry(self.outputArguments[0] + '_validFlag', indices, validFlag)
+                self.dataWrite.addWriteEntry(self.outputArguments[0] + '_validFlag', indices, validFlag)
 
             if registerOutput:
                 if (len(outArgList) < len(dataStruct.outputArguments) or not all(x is not None for x in outArgList[:len(dataStruct.outputArguments)]) ):
                     raise ValueError("Function {0} returns {1} values but must return {2} values which are not None".format(function.__name__, len(outArgList), len(dataStruct.outputArguments)))
-                data.setDataEntryList(dataStruct.outputArguments, indices, outArgList)
-                # try:
-                #     data.setDataEntryList(dataStruct.outputArguments, indices, outArgList)
-                # except ValueError as error:
-                #     raise ValueError('Error when registering output arguments of function ' + function.__name__ +
-                #                      ': ' + error.args[0] + '. Please check your output arguments!')
+
+                #self.dataWriter.writeEntriesValues = outArgList
+
+                #data.setDataEntryList(dataStruct.outputArguments, indices, outArgList)
+                try:
+                    self.dataWriter.addWriteEntries(dataStruct.outputArguments, indices, outArgList)
+                except ValueError as error:
+                     raise ValueError('Error when registering output arguments of function ' + function.__name__ +
+                                      ': ' + error.args[0] + '. Please check your output arguments!')
             outArgs = outArgList
 
         if (outArgs and len(outArgs) == 1):
@@ -276,16 +281,21 @@ class DataManipulationFunction():
         if hasattr(function, '__self__') and not self.dataFunctionObject:
 
             function.__self__.callData = data
-            outArgs = function.__self__.dataManipulationMethodsInstance[function.__name__].dataFunction(function, data, indices, registerOutput)
+            dataFunctionInstance = function.__self__.dataManipulationMethodsInstance[function.__name__]
+            outArgs = dataFunctionInstance.dataFunction(function, data, indices, registerOutput)
             function.__self__.callData = None
-
+            self.dataWriter = dataFunctionInstance.dataWriter
+            self.dataWriter.setResult(outArgs)
             return outArgs
         else:
             if (not self.isInitialized):
                 self.inialized = True
                 self.preprocessArguments()
 
+            self.dataWriter.reset()
             output = self._callDataFunctionInternal(function, data, indices, registerOutput)
+            self.dataWriter.setResult(output)
+
             return output
 
 

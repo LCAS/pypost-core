@@ -49,7 +49,7 @@ class DistributionWithMeanAndVariance(Distribution):
         '''
         samples = None
 
-        (expectation, sigma) = data > self.getExpectationAndSigma
+        (expectation, sigma) = data >= self.getExpectationAndSigma
 
         if sigma.shape[2] == 1:
             # If the third dimension of the sigma matrix is 1, the

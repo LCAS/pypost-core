@@ -15,7 +15,7 @@ def runExperiment(numTrials):
     experiment.defaultSettings.temperature = 2
     experiment.create()
 
-    evaluation1 = experiment.addEvaluationCollection(['numIterations'], [1, 2], numTrials = 3)
+    evaluation1 = experiment.addEvaluationCollection(['temperature'], [1, 2, 5], numTrials = 3)
 
     experiment.startLocal()
     #experiment.startSLURM()

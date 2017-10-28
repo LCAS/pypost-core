@@ -14,6 +14,7 @@ from pypost.data.DataEntry import DataEntry, DataType
 from pypost.common import SettingsManager
 from pypost.common.SettingsClient import SettingsClient
 from pypost.data.DataStructure import DataStructure
+import pypost.common.tfutils as tfutils
 
 
 def createDataManagers(names, isTimeSeries):
@@ -331,6 +332,48 @@ class DataManager(SettingsClient):
 
         return False
 
+    def getTensorInputOutput(self, tensorNode):
+        if isinstance(tensorNode, (list, tuple)):
+            placeHolderList = set()
+            for tensor in tensorNode:
+                if not isinstance(tensor, (tf.Tensor, tf.Variable)):
+                    raise ValueError('TF Mappings can only be created for tf.Tensor objects or list/tuple of those')
+                placeHolderList = placeHolderList | tfutils.list_data_placeholders(self, tensor)
+        elif isinstance(tensorNode, (tf.Tensor, tf.Variable)):
+            placeHolderList = tfutils.list_data_placeholders(self, tensorNode)
+        else:
+            raise ValueError('TF Mappings can only be created for tf.Tensor objects or list/tuple of those')
+        inputVariables = []
+
+        for placeHolder in placeHolderList:
+            inputVariables.append(self.getEntryForTensor(placeHolder))
+
+        if isinstance(tensorNode, (list, tuple)):
+            outputVariables = []
+            tensorNodes = []
+            tensorNodesEntry = []
+
+            for tensor in tensorNode:
+                if self.isEntryTensor(tensor):
+                    outputVariables.append(self.getEntryForTensor(tensor))
+                    tensorNodesEntry.append(tensor)
+                else:
+                    tensorNodes.append(tensor)
+
+            tensorNode = tensorNodesEntry + tensorNodes
+
+        else:
+            if self.isEntryTensor(tensorNode):
+                outputVariables = self.getEntryForTensor(tensorNode)
+            else:
+                outputVariables = []
+
+        return inputVariables, outputVariables, placeHolderList, tensorNode
+
+    def printTensorInputOutput(self, tensorNode):
+        inputVariables, outputVariables, *args = self.getTensorInputOutput(tensorNode)
+        print('{} -> {}'.format(inputVariables, outputVariables))
+
     def createTensorForEntry(self, entryName, suffix = None):
 
         if suffix:
@@ -635,6 +678,8 @@ class DataManager(SettingsClient):
         if entryName not in self._depthMap:
             raise ValueError("Entry %s is not registered!" % entryName)
         return self._depthMap[entryName]
+
+
 
     def getNumDimensions(self, entryNames):
         '''

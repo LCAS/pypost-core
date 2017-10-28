@@ -32,13 +32,13 @@ y1 = x - z
 dataManager.connectTensorToEntry(z, 'Z')
 dataManager.connectTensorToEntry(y1, 'Y')
 
-data[...] >> (z, y1)
+data[...] >> (z, y1) >> data
 
 print(data[...].Y)
 
 print(data[...].Z)
 
-TFMapping.printTensorInputOutput(dataManager, y1)
+dataManager.printTensorInputOutput(y1)
 
 output = tfutils.create_layers_linear_ouput(x, 'policy', [100,100], 10)
 tfutils.initialize()

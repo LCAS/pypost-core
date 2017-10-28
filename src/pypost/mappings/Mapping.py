@@ -42,6 +42,8 @@ class Mapping(DataManipulator, metaclass=MappingMetaClass):
     '''
     callFunctionName = ''
 
+    mappingDict = {}
+
     @classmethod
     def MappingMethod(cls, inputArguments ='self.inputVariables', outputArguments ='self.outputVariables', callType=CallType.ALL_AT_ONCE, takesNumElements=False,
                       takesData=False, lazyEvaluation = False):
@@ -53,6 +55,7 @@ class Mapping(DataManipulator, metaclass=MappingMetaClass):
             return function
 
         return wrapper
+
 
 
     def __init__(self, dataManager, inputVariables=None, outputVariables=None,
@@ -72,7 +75,21 @@ class Mapping(DataManipulator, metaclass=MappingMetaClass):
         '''
         DataManipulator.__init__(self, dataManager)
 
-        self.name = name
+        newName = name + '0'
+        if (not newName in self.mappingDict):
+            self.name = newName
+            self.mappingDict[self.name] = self
+        else:
+
+            id = 1
+            newName = '%s%d' % (name, id)
+            while newName in self.mappingDict:
+                id = id + 1
+                newName = '%s%d' % (name, id)
+
+            self.name = newName
+            self.mappingDict[self.name] = self
+
         '''
         Name of the mapping function
         '''

@@ -68,7 +68,7 @@ sampler.setRewardFunction(reward)
 
 data = dataManager.createDataObject([1, 20])
 
-data[...] >> sampler
+data[...] >> sampler >> data
 
 states = data.getDataEntry('states', 1)
 actions = data.getDataEntry('actions', 2)

@@ -68,7 +68,7 @@ class Data(object):
 
     def _addTensorToDictionary(self, tensor):
         from pypost.mappings import TFMapping
-        tensorMapping = TFMapping(self.dataManager, tensor)
+        tensorMapping = TFMapping(self.dataManager, tensorNode=tensor, name='data_tfmapping')
         self.tensorDictionary[tensor] = tensorMapping
         return tensorMapping
 
@@ -156,35 +156,34 @@ class Data(object):
         else:
             return super().__getattribute__(name)
 
-    def __rshift__(self, function):
-        '''Operator for applying data manipulation functions'''
-
+    def apply(self, function):
         if (isinstance(function, (tf.Tensor, tf.Variable)) or (isinstance(function, tuple) and all(isinstance(x, (tf.Tensor, tf.Variable)) for x in function))):
             function = self._getTensorMappingForTensor(function)
 
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
             function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput = True)
+            function.dataFunctionDecorator.dataWriter.apply(self)
             return self
         else:
-            raise ValueError('Operator >> can only be applied to manipulation functions or tuples of manipulation functions'
+            raise ValueError('Operator >> / apply can only be applied to manipulation functions or tuples of manipulation functions'
                              'and index')
 
-    def __ge__(self, function):
-        '''Operator for applying data manipulation functions'''
+    def applyReturn(self, function):
         if (isinstance(function, (tf.Tensor, tf.Variable)) or (
             isinstance(function, tuple) and all(isinstance(x, (tf.Tensor, tf.Variable)) for x in function))):
 
             function = self._getTensorMappingForTensor(function)
 
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
-            return function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput = True)
 
+            function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput = True)
+
+            return function.dataFunctionDecorator.dataWriter.apply(self)
         else:
-            raise ValueError('Operator >> can only be applied to manipulation functions or tuples of manipulation functions'
+            raise ValueError('Operator >= / applyReturn can only be applied to manipulation functions or tuples of manipulation functions'
                              'and index')
 
-    def __gt__(self, function):
-        '''Operator for applying data manipulation functions'''
+    def applyNoWrite(self, function):
         if (isinstance(function, (tf.Tensor, tf.Variable)) or (isinstance(function, tuple) and all(isinstance(x, (tf.Tensor, tf.Variable)) for x in function))):
             function = self._getTensorMappingForTensor(function)
 
@@ -193,8 +192,59 @@ class Data(object):
 
         else:
             raise ValueError(
-                'Operator >> can only be applied to manipulation functions or tuples of manipulation functions'
+                'Operator > / applyNoWrite can only be applied to manipulation functions or tuples of manipulation functions'
                 'and index')
+
+    def __rshift__(self, function):
+        '''Operator for applying data manipulation functions'''
+        if (isinstance(function, (tf.Tensor, tf.Variable)) or (isinstance(function, tuple) and all(isinstance(x, (tf.Tensor, tf.Variable)) for x in function))):
+            function = self._getTensorMappingForTensor(function)
+
+        if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
+            function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput = True)
+            return function.dataFunctionDecorator.dataWriter
+        else:
+            raise ValueError('Operator >> can only be applied to manipulation functions or tuples of manipulation functions'
+                             'and index')
+
+    def __rrshift__(self, function):
+
+
+        if (isinstance(function, (tf.Tensor, tf.Variable)) or (
+            isinstance(function, tuple) and all(isinstance(x, (tf.Tensor, tf.Variable)) for x in function))):
+            function = self._getTensorMappingForTensor(function)
+
+        if isinstance(function, DataWriter):
+            dataWriter = function
+            dataWriter.apply(self)
+            return self
+        elif (hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator')):
+            if len(function.dataFunctionDecorator.inputArguments) > 0:
+                raise ValueError('Operator >> can only be applied on rhs to data if lhs is the output of a mapping operation (using >>) or directly to a mapping if the mapping does not get any data entry as input')
+            else:
+                self.apply(function)
+                return self
+
+    def __le__(self, function):
+
+        if (isinstance(function, (tf.Tensor, tf.Variable)) or (
+                    isinstance(function, tuple) and all(isinstance(x, (tf.Tensor, tf.Variable)) for x in function))):
+            function = self._getTensorMappingForTensor(function)
+
+        if isinstance(function, DataWriter):
+            dataWriter = function
+            return dataWriter.apply(self)
+        elif (hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator')):
+            if len(function.dataFunctionDecorator.inputArguments) > 0:
+                raise ValueError(
+                    'Operator >> can only be applied on rhs to data if lhs is the output of a mapping operation (using >>) or directly to a mapping if the mapping does not get any data entry as input')
+            else:
+                return self.apply(function)
+
+    def __ge__(self, function):
+        '''Operator for applying data manipulation functions'''
+        return self.applyNoWrite(function)
+
 
     def completeLayerIndex(self, depth, indices):
         '''This function completes the hierarchical indicing for the internal
@@ -310,7 +360,7 @@ class Data(object):
             if (dataEntryInfo.callBackGetter):
                 callBack = dataEntryInfo.callBackGetter
                 dataEntryInfo.callBackGetter = None
-                self[indices] >> callBack
+                self[indices] >> callBack >> self
                 dataEntryInfo.callBackGetter = callBack
 
         if isinstance(path, str):
@@ -460,3 +510,36 @@ class Data(object):
         for key, value in self.entryInfoMap.items():
 
             print(key, ': NumDimensions: ', value.numDimensions, ', Depth: ', value.depth, ', entryList: ', value.entryList);
+
+
+class DataWriter(object):
+
+    def __init__(self):
+
+        self.writeEntries = []
+        self.result = None
+
+    def addWriteEntry(self, writeEntry, indices, writeValues):
+
+        self.writeEntries.append((writeEntry, indices, writeValues))
+
+    def addWriteEntries(self, writeEntries, indices, writeValues):
+
+        for (entry, value) in zip(writeEntries,writeValues):
+            self.writeEntries.append((entry, indices, value))
+
+    def reset(self):
+        self.writeEntries.clear()
+
+    def apply(self, data):
+        for (entry, index, value) in self.writeEntries:
+            data.setDataEntry(entry, index, value)
+
+        result = self.result
+        self.result = None
+        self.reset()
+        return result
+
+    def setResult(self, result):
+        self.result = result
+
