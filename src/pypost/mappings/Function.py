@@ -17,8 +17,6 @@ class Function_Base(TFMapping):
         self.setMappingTensorNode(self.mean)
         self._setLayersFromTensor(self.mean)
 
-        tfutils.initialize()
-
     def clone(self, name):
 
         clone = Function_Base(self.dataManager, self.inputVariables, self.outputVariables, self.meanTensorGenerator, name)
@@ -36,6 +34,10 @@ class LinearFunction(Function_Base):
     def __init__(self, dataManager, inputArguments, outputArguments, useBias = True, name = 'Function'):
 
         Function_Base.__init__(self, dataManager, inputArguments, outputArguments, tfutils.linear_layer_generator(useBias), name = name)
+
+    def setWeightsAndBias(self, BetaA, MuA):
+        self.params_final_w = BetaA
+        self.params_final_b = MuA
 
 
 if __name__ == "__main__":

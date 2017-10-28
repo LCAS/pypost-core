@@ -177,6 +177,11 @@ def diagional_log_std_generator():
         return tf.get_variable("logstd", shape=[dimOutput], initializer=tf.zeros_initializer())
     return generate
 
+def constant_covariance_generator():
+    def generate(inputTensor, dimOutput):
+        return tf.get_variable("covmat", shape=[dimOutput, dimOutput], initializer=tf.ones_initializer())
+    return generate
+
 
 ###### Flatten vectors
 
@@ -221,6 +226,14 @@ def flatgrad(loss, var_list, clip_norm=None):
         tf.reshape(grad if grad is not None else tf.zeros_like(v), [numel(v)])
         for (v, grad) in zip(var_list, grads)
     ])
+
+
+def singlegrad(loss, var_list):
+
+    y_list = tf.unstack(loss)
+    jacobian_list = [tf.gradients(y_, var_list)[0] for y_ in y_list]  # list [grad(y0, x), grad(y1, x), ...]
+    jacobian = tf.stack(jacobian_list)
+    return jacobian
 
 
 class GetFlat(object):

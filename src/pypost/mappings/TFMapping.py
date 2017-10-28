@@ -3,6 +3,7 @@ from pypost.data.DataManipulator import DataManipulator
 from pypost.mappings import Mapping
 from pypost.mappings.Mapping import MappingMetaClass
 import pypost.common.tfutils as tfutils
+from pypost.data.DataManipulator import CallType
 
 
 class TFMappingMetaClass(MappingMetaClass):
@@ -29,6 +30,18 @@ class TFMappingMetaClass(MappingMetaClass):
 
         obj = type.__call__(cls, *args, **kw)
         obj.addTensorsForVariables()
+        tfutils.initialize()
+        obj.initialize_params()
+
+        if not isinstance(obj.outputTensors, list):
+            if (hasattr(obj.outputTensors, 'evalSingleSample') and obj.outputTensors.evalSingleSample):
+                obj.tensorFunction.dataFunctionDecorator.callType = CallType.SINGLE_SAMPLE
+                obj.dataFunctionDecorator.callType = CallType.SINGLE_SAMPLE
+
+        else:
+            if any([hasattr(outTensor, 'evalSingleSample') and outTensor.evalSingleSample for outTensor in obj.outputTensors]):
+                obj.tensorFunction.dataFunctionDecorator.callType = CallType.SINGLE_SAMPLE
+                obj.dataFunctionDecorator.callType = CallType.SINGLE_SAMPLE
         return obj
 
 class TFMapping(Mapping, metaclass=TFMappingMetaClass):
@@ -42,6 +55,7 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
             return function
 
         return wrapper
+
 
     def __init__(self, dataManager, inputVariables=[], outputVariables=[], name = '', tensorNode = None):
         Mapping.__init__(self, dataManager, inputVariables = inputVariables, outputVariables = outputVariables, name = name)
@@ -67,6 +81,9 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
         self._in_scope = False
 
         self.layers = []
+
+    def initialize_params(self):
+        return
 
     def _setLayersFromTensor(self, tensorNode):
         self.layers = tfutils._get_layers(tensorNode)
@@ -147,7 +164,16 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
                 variables = [variables]
             return tfutils.flatgrad(tensor, variables)
 
+        def single_gradient(variables=self.tv_variables_list):
+            if (not isinstance(variables, list)):
+                variables = [variables]
+            gradientTensor = tfutils.flatgrad(tensor, variables)
+            gradientTensor.evalSingleSample = True
+            return gradientTensor
+
         tensor.gradient = gradient
+        tensor.single_gradient = single_gradient
+
         self._tensorFunctionsDict[name] = tensor
         if (tensorFunction.connectTensorToOutput):
             self.dataManager.connectTensorToEntry(tensor, self.outputVariables[0])
@@ -202,6 +228,7 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
 
     @Mapping.MappingMethod()
     def tensorFunction(self, *args):
+
 
         feedDict = dict(zip(self.inputTensors, args))
         results = tf.get_default_session().run(self.outputTensors, feed_dict=feedDict)

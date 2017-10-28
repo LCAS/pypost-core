@@ -87,15 +87,17 @@ class DataManipulationFunction():
                             if registerOutput:
                                 self._callDataFunctionInternal(function, data, indicesSingle, registerOutput)
                             else:
-                                tempOut = self._callDataFunctionInternal(function, data,
-                                    registerOutput,
-                                    indicesSingle)
+                                tempOut = self._callDataFunctionInternal(function, data, indicesSingle, registerOutput)
+                                if not isinstance(tempOut, list):
+                                    if (isinstance(tempOut, tuple)):
+                                        tempOut = list(tempOut)
+                                    else:
+                                        tempOut = [tempOut]
                                 if outArgs is None:
                                     outArgs = tempOut
                                 else:
-                                    for i in range(0, len(outArgs)):
-                                        outArgs[i] = np.vstack((outArgs[i],
-                                                                tempOut[i]))
+                                    for k in range(0, len(outArgs)):
+                                        outArgs[k] = np.vstack((outArgs[k],tempOut[k]))
                 if isinstance(indices[i], list):
                     # This is somewhat hacky, but it works!
                     # Maybe clone data and get shape directly?
