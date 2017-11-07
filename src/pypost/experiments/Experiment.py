@@ -2,6 +2,8 @@ import os
 import getpass
 import shutil
 import numpy as np
+import stat
+import itertools
 
 from pypost.common.SettingsManager import setRootSettings
 from pypost.experiments.Evaluation import Evaluation
@@ -102,11 +104,12 @@ class Experiment(object):
 
 
 
-    def create(self, experimentId = 'last'):
+    def create(self, experimentId = 'last', copyCWD=False):
         '''
 
         :param experimentId: desired ID of the experiment (for loading old experiments). If ID equals -1, new experiment
         is autmatically created
+        :param bool copyCWD: copy current working directory to experiment path
         :return:
         '''
         result = self.load(experimentId)
@@ -118,6 +121,12 @@ class Experiment(object):
                 self.path, ('experiment%03d' % self.experimentId))
             if not os.path.exists(self.experimentPath): #pragma: no cover
                 os.mkdir(self.experimentPath)
+
+            if copyCWD:
+                run_folder = os.getcwd()
+                target_folder = self.experimentPath + '/code'
+                self.copy_code_folder(run_folder, target_folder, symlinks=True, ignore='.*')
+
             self.defaultSettings.store(os.path.join(self.experimentPath,
                                                     "settings.yaml"))
 
@@ -195,6 +204,9 @@ class Experiment(object):
     def getEvaluation(self, evalNumber):
         return self.evaluations[evalNumber]
 
+    def getEvaluationList(self):
+        return list(self.evaluations.values())
+
     def getEvaluationIndex(self, evaluation):
         for idKey, evaluationVal in self.evaluations.items():
             if evaluationVal.evaluationName == evaluation.evaluationName:
@@ -225,16 +237,16 @@ class Experiment(object):
         :param list parameterValues: A list of parameter values
         :param int numTrials: The number of trials
         '''
-        if len(parameterValues) != 1:
-            raise RuntimeError(
-                "Only a single parameter is accepted by this method")
+        # if len(parameterValues) != 1:
+        #     raise RuntimeError(
+        #         "Only a single parameter is accepted by this method")
 
         evaluationSettings = self.defaultSettings.clone()
 
         properties = dict()
         i = 0
-        for name in parameterNames:
-            properties[name] = parameterValues[i]
+        for name, value in zip(parameterNames, parameterValues):
+            properties[name] = value
             i += 1
 
         evaluationSettings.setProperties(properties)
@@ -270,20 +282,28 @@ class Experiment(object):
         return evaluationsQuery
 
     def addEvaluationCollection(
-            self, parameterNames, parameterValues, numTrials):
+            self, parameterDict, numTrials, combinations=False):
         '''
         Adds a collection of evaluations to the experiment,
         one for each parameterValue.
-        :param parameterNames: A list of parameter names
-        :param parameterValues: A list of parameter values
+        :param parameterDict: A dictionary of parameter name keys and parameter values of the form
+        {key1: [k1v1, k1v2, ...], key2: [k2v1, k2v2, ...], ...}. If combinations == False each list of values has to be
+        of same length
+        :param combinations: If true, the cartesian product of all parameter keys and values will be evaluated
         :param numTrials: The number of trials
         '''
         evaluations = []
-        for i in range(0, len(parameterValues)):
+        parameterNames = list(parameterDict.keys())
+        parameterValues = list(parameterDict.values())
+        if combinations:
+            parameterValues = list(itertools.product(*parameterValues))
+        else:
+            parameterValues = list(zip(*parameterValues))
+        for parameterValue in parameterValues:
             evaluations.append(
                 self.addEvaluation(
                     parameterNames,
-                    [parameterValues[i]],
+                    parameterValue,
                     numTrials))
 
         return evaluations
@@ -398,6 +418,36 @@ class Experiment(object):
 
         trial = self.loadTrialFromID(trialID)
         trial.start()
+
+    def copy_code_folder(self, src, dst, symlinks=False, ignore=None):
+        ign = shutil.ignore_patterns(ignore)
+        self.copytree(src, dst, symlinks, ign)
+
+    def copytree(self, src, dst, symlinks=False, ignore=None):
+        if not os.path.exists(dst):
+            os.makedirs(dst)
+            shutil.copystat(src, dst)
+        lst = os.listdir(src)
+        if ignore:
+            excl = ignore(src, lst)
+            lst = [x for x in lst if x not in excl]
+        for item in lst:
+            s = os.path.join(src, item)
+            d = os.path.join(dst, item)
+            if symlinks and os.path.islink(s):
+                if os.path.lexists(d):
+                    os.remove(d)
+                os.symlink(os.readlink(s), d)
+                try:
+                    st = os.lstat(s)
+                    mode = stat.S_IMODE(st.st_mode)
+                    os.lchmod(d, mode)
+                except:
+                    pass  # lchmod not available
+            elif os.path.isdir(s):
+                self.copytree(s, d, symlinks, ignore)
+            else:
+                shutil.copy2(s, d)
 
 
     def getTrialIDs(self):
