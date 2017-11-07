@@ -1,13 +1,11 @@
 import numpy as np
-
-from pypost.experiments.Trial import TrialStoringType
-from pypost.experiments.Trial import Trial
-
 from pypost.mappings.GaussianLinearInFeatures import GaussianLinearInFeatures
-from pypost.supervisedLearner.LinearGaussianMLLearner import LinearGaussianMLLearner
-from pypost.banditEnvironments.RosenbrockReward import RosenbrockReward
 
-from pypost.sampler.EpisodeSampler import  EpisodeSampler
+from pypost.banditEnvironments.RosenbrockReward import RosenbrockReward
+from pypost.experiments.Trial import Trial
+from pypost.learner.LinearGaussianMLLearner import LinearGaussianMLLearner
+from pypost.sampler.EpisodeSampler import EpisodeSampler
+
 
 class DummyTrial(Trial):
 
@@ -62,7 +60,7 @@ class DummyTrial(Trial):
             self.nextIteration()
 
             # create new samples
-            newData >> self.sampler
+            self.sampler >> newData
 
             # get return vector
             returns = newData[...].returns

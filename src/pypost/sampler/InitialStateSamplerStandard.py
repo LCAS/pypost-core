@@ -1,8 +1,20 @@
-from pypost.initialSampler.InitialStateSampler import InitialStateSampler
 import numpy as np
 import warnings
+import abc
+from pypost.mappings import Mapping
 
-class InitialStateSamplerStandard(InitialStateSampler):
+class InitialStateSampler_Base(Mapping):
+
+    def __init__(self, dataManager):
+        super().__init__(dataManager, inputVariables=None, outputVariables=['states'])
+        #self.addDataManipulationFunction(self.sampleInitState, [], ['states'], True, True)
+
+    @Mapping.MappingMethod()
+    @abc.abstractmethod
+    def sampleInitState(self, numElements, *args):
+        return
+
+class InitialStateSamplerStandard(InitialStateSampler_Base):
 
     def __init__(self, dataSampler):
 

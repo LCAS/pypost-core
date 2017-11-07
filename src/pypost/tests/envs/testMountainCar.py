@@ -27,7 +27,7 @@ class Test(unittest.TestCase):
     def test_sampleData(self):
         self.sampler.setParallelSampling(True)
         newData = self.dataManager.createDataObject([3, 20])
-        newData[...] >> self.sampler
+        self.sampler >> newData[...]
         print('States:', newData[1, :].states)
         print('NextStates:', newData[1, :].nextStates)
         #print('Actions:', newData[...].actions)

@@ -514,10 +514,7 @@ class Experiment(object):
             else:
                 numDim = 1
 
-            #if (numIter > 1):
             iterationManager.addDataEntry(dataKey, numDim)
-            #else:
-            #    trialManager.addDataEntry(dataKey, numDim)
 
         data = evaluationManager.createDataObject([len(evaluationCollection), 4, 4])
 

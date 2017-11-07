@@ -1,5 +1,7 @@
 from pypost.data import DataManager
+from pypost.data import DataManipulator
 from pypost.mappings import Mapping
+import numpy as np
 
 #define our mapping class. A mapping is a callable object, where the call function is implemented by the MappingMethod decorator
 
@@ -12,6 +14,9 @@ class DummyMapping(Mapping):
     def computeSomething(self, X):
         return X + 1
 
+    @DataManipulator.DataMethod(inputArguments=[], outputArguments=['X'], takesNumElements=True)
+    def reset(self, numElements):
+        return np.zeros((numElements,2))
 
 # Create a dataManager that can handle the input (X) and output (Y) of a 1 dimensional
 # function
@@ -25,24 +30,18 @@ mapping = DummyMapping(dataManager)
 print(data[...].X)
 
 # apply mapping
-data[...] >> mapping
+data[...] >> mapping >> data
 print(data[...].X)
 
-# apply mapping 2 times (>> operator always returns data object)
+mapping.reset >> data
 
-data[...] >> mapping >> mapping
+
+# Applying the >> to the mapping and writing the result back to data. Using the >> operator for the second operation returns the data object
+data[slice(0,5)] >> mapping >> data
 print(data[...].X)
 
-# apply mapping for first 5 elements
-data[slice(0,5)] >> mapping
-print(data[...].X)
-
-# >= operator is similar to >> but returns the result of the mapping function instead of data
-temp = data[...] >= mapping
+# Applying the >> to the mapping and writing the result back to data. Using the >= operator for the second operation returns the resulting matrices
+temp = data[...] >> mapping >= data
 print(data[...].X, temp)
 
-# > operator executes the mapping, but does not store the result in data. Result is returned
-
-temp = data[...] > mapping
-print(data[...].X, temp)
 

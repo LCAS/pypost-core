@@ -35,7 +35,7 @@ class testDataSuffix(unittest.TestCase):
         data.setDataEntry('parameters1Agent1', ..., np.ones((10,1)) * 5)
 
         dummyManipulator = TestSuffixManipulator(dataManager)
-        data >> dummyManipulator.dummyFunction
+        data[...] >> dummyManipulator.dummyFunction >> data
 
         self.assertTrue(np.all(data.getDataEntry("parameters2Agent1") == data.getDataEntry("parameters1Agent1") + 10))
         self.assertTrue(np.all(data.getDataEntry("parametersAgent1") == np.hstack((data.getDataEntry("parameters1Agent1"), data.getDataEntry("parameters2Agent1")))))

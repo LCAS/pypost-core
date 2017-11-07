@@ -1,9 +1,8 @@
 from pypost.learner.InputOutputLearner import InputOutputLearner
-from pypost.parameterOptimization.HyperParameterObject import HyperParameterObject
 import numpy as np
 from pypost.data.DataManipulator import DataManipulator
 
-class LinearFeatureFunctionMLLearner(InputOutputLearner, HyperParameterObject):
+class LinearFeatureFunctionMLLearner(InputOutputLearner):
     ''' The LinearFeatureFunctionMLLearner fits a linear model using a weighted maximum likelihood estimate. It implements the
     supervised learner interface, i.e., the learning functionality is implemented in the method learnFunction
     The flags < tt > inputDataNormalization < / tt > and < tt > outputDataNormalization < / tt > determine if the

@@ -48,10 +48,10 @@ class testDataManipulator(unittest.TestCase):
         context.resize(10,1)
         data.setDataEntry('contexts', ..., context)
 
-        data >> testDecorator.sampleParameters
+        data >> testDecorator.sampleParameters >> data
 
         self.assertTrue((data.getDataEntry('parameters') == np.ones((10,5))).all())
-        data[slice(0,5)] >> testDecorator.sampleParameters2
+        data[slice(0,5)] >> testDecorator.sampleParameters2 >> data
 
         self.assertTrue((data.getDataEntry('parameters', slice(0,5)) == np.ones((5,5)) * 2).all())
         self.assertTrue((data.getDataEntry('parameters', slice(5, 10)) == np.ones((5, 5))).all())
@@ -62,10 +62,10 @@ class testDataManipulator(unittest.TestCase):
                               [6., 6., 6., 6., 6.],
                               [7., 7., 7., 7., 7.]])
 
-        testArray2 = data[slice(0,5)] > testDecorator.sampleParametersFromContext
+        testArray2 = data[slice(0,5)] >> testDecorator.sampleParametersFromContext >= data
         self.assertTrue((testArray2 == testArray).all())
 
-        data[slice(0, 5)] >> testDecorator.sampleParametersFromContext
+        data[slice(0, 5)] >> testDecorator.sampleParametersFromContext >> data
         self.assertTrue((data.getDataEntry('parameters', slice(0,5)) == testArray).all())
 
         # Now test using a simpl function as data manipulation function
@@ -73,7 +73,7 @@ class testDataManipulator(unittest.TestCase):
         def dummyFunction(contexts):
             return np.ones((contexts.shape[0], 5)) * 4 + contexts
 
-        data[...] >> dummyFunction
+        data[...] >> dummyFunction >> data
         self.assertTrue((data.getDataEntry('parameters', slice(0, 5)) == testArray + 1).all())
 
 

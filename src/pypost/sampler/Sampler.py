@@ -175,7 +175,7 @@ class Sampler(Mapping):
         :param indices: hierarchical indexing of the data structure
         '''
         for (object, dataFunction) in pool.samplerList:
-            data[indices] >> dataFunction
+            data[indices] >> dataFunction >> data
 
     def sampleAllPools(self, data, indices):
         '''

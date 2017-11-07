@@ -81,6 +81,18 @@ def list_trainable_variables(tensor_node):
     train_var.sort(key=get_name)
     return train_var
 
+def _get_layers(tensor_node):
+    layerList = []
+
+    for tfNode in tensor_node.op.inputs:
+        layerList = layerList + _get_layers(tfNode)
+
+    name = tensor_node.name[:-2]
+    if name.endswith('_out'):
+        layerList.append(tensor_node)
+    return layerList
+
+
 
 def list_data_placeholders(dataManager, tensor_node):
     place_set = set()
@@ -101,8 +113,12 @@ def normc_initializer(std=1.0):
     return _initializer
 
 def dense(x, size, name, weight_init=None, bias=True):
-    w = tf.get_variable(name + "w", [x.get_shape()[1], size], initializer=weight_init)
-    ret = tf.matmul(x, w)
+
+    if (x is not None):
+        w = tf.get_variable(name + "w", [x.get_shape()[1], size], initializer=weight_init)
+        ret = tf.matmul(x, w)
+    else:
+        ret = 0
 
     if bias:
         b = tf.get_variable(name + "b", [size], initializer=tf.zeros_initializer())
@@ -110,16 +126,21 @@ def dense(x, size, name, weight_init=None, bias=True):
     else:
         return ret
 
-def create_layers(inputTensor, name, hiddenNodes):
+def create_layers(inputTensor, hiddenNodes):
     last_out = inputTensor
     for i in range(len(hiddenNodes)):
-        last_out = tf.nn.tanh(dense(last_out, hiddenNodes[i], name + '__layer%d_' % (i + 1), weight_init = normc_initializer(1.0)))
+        last_out = tf.nn.tanh(dense(last_out, hiddenNodes[i], 'layer%d_' % (i + 1), weight_init = normc_initializer(1.0)), name = 'layer%d_out' % (i + 1))
     return last_out
 
-def create_layers_linear_ouput(inputTensor, name, hiddenNodes, outputNodes):
-    last_out = create_layers(inputTensor=inputTensor, name=name, hiddenNodes=hiddenNodes)
-    last_out = dense(last_out, outputNodes, name + '__final_', weight_init=normc_initializer(0.01))
+def create_layers_linear_ouput(inputTensor, hiddenNodes, outputNodes):
+    last_out = create_layers(inputTensor=inputTensor, hiddenNodes=hiddenNodes)
+    last_out = dense(last_out, outputNodes, 'final_', weight_init=normc_initializer(0.01))
     return last_out
+
+def create_linear_layer(inputTensor, outputNodes, useBias):
+    last_out = dense(inputTensor, outputNodes, 'final_', weight_init=normc_initializer(0.01), bias = useBias)
+    return last_out
+
 
 ###### Initializer
 
@@ -135,14 +156,32 @@ def initialize():
 ###### MLP generators
 
 def continuous_MLP_generator(hiddenNodes):
-    def generate(inputTensor, dimOutput, name):
-        return create_layers_linear_ouput(inputTensor, name, hiddenNodes, dimOutput)
+    def generate(inputTensor, dimOutput):
+        return create_layers_linear_ouput(inputTensor, hiddenNodes, dimOutput)
     return generate
 
-def diagional_log_std_generator():
-    def generate(inputTensor, dimOutput, name):
-        return tf.get_variable(name=name + "__logstd", shape=[1, dimOutput], initializer=tf.zeros_initializer())
+
+def linear_layer_generator(useBias = True):
+    def generate(inputTensor, dimOutput):
+        return create_linear_layer(inputTensor, dimOutput, useBias)
     return generate
+
+def constant_generator():
+    def generate(inputTensor, dimOutput):
+        return create_linear_layer(None, dimOutput, True)
+    return generate
+
+
+def diagional_log_std_generator():
+    def generate(inputTensor, dimOutput):
+        return tf.get_variable("logstd", shape=[dimOutput], initializer=tf.zeros_initializer())
+    return generate
+
+def constant_covariance_generator():
+    def generate(inputTensor, dimOutput):
+        return tf.get_variable("covmat", shape=[dimOutput, dimOutput], initializer=tf.ones_initializer())
+    return generate
+
 
 ###### Flatten vectors
 
@@ -179,6 +218,22 @@ class SetFromFlat(object):
         tf.get_default_session().run(self.op, feed_dict={self.theta: theta})
 
 
+def flatgrad(loss, var_list, clip_norm=None):
+    grads = tf.gradients(loss, var_list)
+    if clip_norm is not None:
+        grads = [tf.clip_by_norm(grad, clip_norm=clip_norm) for grad in grads]
+    return tf.concat(axis=0, values=[
+        tf.reshape(grad if grad is not None else tf.zeros_like(v), [numel(v)])
+        for (v, grad) in zip(var_list, grads)
+    ])
+
+
+def singlegrad(loss, var_list):
+
+    y_list = tf.unstack(loss)
+    jacobian_list = [tf.gradients(y_, var_list)[0] for y_ in y_list]  # list [grad(y0, x), grad(y1, x), ...]
+    jacobian = tf.stack(jacobian_list)
+    return jacobian
 
 
 class GetFlat(object):
