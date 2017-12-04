@@ -403,7 +403,7 @@ class Experiment(object):
             tline = tline.replace('§§numParallelJobs§§', '%d' % numParallelJobs)
             tline = tline.replace('§§clusterJobID§§', '%d' % clusterJobID)
             tline = tline.replace('§§memory§§', '%d' % memory)
-            tline = tline.replace('§§nvidia§§', accelerator)
+            tline = tline.replace('§§accelerator§§', accelerator)
 
             fidOut.write(tline)
 
