@@ -349,7 +349,9 @@ class Experiment(object):
 
             trial.start(restart = restart)
 
-    def startSLURM(self, trialIndices = None, restart = False, numParallelJobs=20, memory = 5000, computationTime= 23 * 60 + 59):
+    def startSLURM(self, trialIndices = None, restart = False,
+                   numParallelJobs=20, memory = 5000, computationTime= 23 * 60 + 59,
+                   accelerator=""):
 
         if not trialIndices:
             trialIndices = list(self.trialIndexToDirectorymap.keys())
@@ -368,13 +370,14 @@ class Experiment(object):
         with open(clusterJobFile, 'w') as stream:
             yaml.dump(clusterJobDict , stream)
 
-        self._createSLURMFile(clusterJobID, len(trialIndices), numParallelJobs = numParallelJobs, memory = memory, computationTime = computationTime)
+        self._createSLURMFile(clusterJobID, len(trialIndices), numParallelJobs = numParallelJobs,
+                              memory = memory, computationTime = computationTime, accelerator=accelerator)
 
         cmd = "sbatch " + self.experimentPath + "/jobs.slurm"
 
         subprocess.check_output(cmd, shell=True)
 
-    def _createSLURMFile(self, clusterJobID, numJobs, numParallelJobs, memory, computationTime):
+    def _createSLURMFile(self, clusterJobID, numJobs, numParallelJobs, memory, computationTime, accelerator):
 
         LSF = '%s/jobs.slurm' % self.experimentPath
         experimentId = 'IAS_%s_%s_%s' % (self.category, self.experimentId, clusterJobID)
@@ -400,6 +403,7 @@ class Experiment(object):
             tline = tline.replace('§§numParallelJobs§§', '%d' % numParallelJobs)
             tline = tline.replace('§§clusterJobID§§', '%d' % clusterJobID)
             tline = tline.replace('§§memory§§', '%d' % memory)
+            tline = tline.replace('§§nvidia§§', accelerator)
 
             fidOut.write(tline)
 
