@@ -36,12 +36,13 @@ source /usr/local/bin/virtualenvwrapper.sh
 * If the environment has to be activated.
 * Install the following packages with pip install
 
-pip install numpy scipy bpython pudb pyyaml matplotlib
+pip install numpy scipy bpython pudb pyyaml matplotlib matplotlib2tikz
 
 * Install jupyter with virtualenv
 pip install jupyter
 python -m ipykernel install --user --name=pyposEnv
 
+* Install tensorflow (see tensorflow documentation)
 
 === Documentation ===
 
