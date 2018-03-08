@@ -1,6 +1,8 @@
 from pypost.sampler.StepSampler import StepSampler
 from pypost.sampler.EpisodeSampler import EpisodeSampler
 from pypost.data.DataManager import DataManager
+from pypost.data.DataManager import DataManagerTimeSeries
+
 
 class EpisodeWithStepsSampler(EpisodeSampler):
 
@@ -13,7 +15,7 @@ class EpisodeWithStepsSampler(EpisodeSampler):
 
         if not dataManager:
             dataManager = DataManager(samplerNameEpisodes)
-            dataManager.subDataManager = DataManager(samplerNameSteps, isTimeSeries=True)
+            dataManager.subDataManager = DataManagerTimeSeries(samplerNameSteps)
 
         super().__init__(dataManager, samplerNameEpisodes)
         self.stepSampler = StepSampler(dataManager, samplerNameSteps)

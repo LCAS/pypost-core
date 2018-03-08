@@ -1,5 +1,7 @@
 import numpy as np
-from pypost.data.DataManager import DataManager
+from pypost.data import DataManagerTimeSeries
+from pypost.data import DataType
+
 from pypost.sampler.SequentialSampler import SequentialSampler
 from pypost.sampler.SamplerPool import SamplerPool
 
@@ -47,7 +49,7 @@ class StepSampler(SequentialSampler):
         :change: dataManager is no longer optional
         '''
         if dataManager is None:
-            dataManager = DataManager(samplerName, isTimeSeries=True)
+            dataManager = DataManagerTimeSeries(samplerName)
         else:
             dataManager = dataManager.getDataManagerForName(samplerName)
 
@@ -59,8 +61,6 @@ class StepSampler(SequentialSampler):
         self.addSamplerPool(SamplerPool("Policy", 20))
         self.addSamplerPool(SamplerPool("TransitionSampler", 50))
         self.addSamplerPool(SamplerPool("RewardSampler", 80))
-
-        self.dataManager.addDataEntry("timeSteps", 1)
 
     def setInitStateSampler(self, initStateSampler):
         '''

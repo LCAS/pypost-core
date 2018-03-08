@@ -1,5 +1,5 @@
 from pypost.mappings.Mapping import Mapping
-
+import tensorflow as tf
 
 class Sampler(Mapping):
     '''
@@ -150,7 +150,7 @@ class Sampler(Mapping):
         if (hasattr(dataFunction, '__self__')):
             object = dataFunction.__self__
 
-        if (not hasattr(dataFunction, 'dataFunctionDecorator')):
+        if (not hasattr(dataFunction, 'dataFunctionDecorator') and not isinstance(dataFunction, tf.Tensor)):
             raise Warning('Sampling functions need to use the DataDecorators from the DataManipulation interface')
 
         pool = self._samplerPools[samplerPoolName]

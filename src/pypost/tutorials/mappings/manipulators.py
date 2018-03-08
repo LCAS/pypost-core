@@ -1,6 +1,7 @@
 from pypost.data import DataManager
-from pypost.data import DataManipulator
-from pypost.data import CallType
+from pypost.mappings import DataManipulator
+from pypost.mappings import additional_inputs
+from pypost.mappings import CallType
 
 
 #define our manipulator. A manipulator can define several data manipulation methods with the DataMethod decoration interface
@@ -22,6 +23,10 @@ class DummyManipulator(DataManipulator):
         print('computeSomethingSequential got called with!', X)
         return X + 2
 
+    @DataManipulator.DataMethod(inputArguments=['self.input1'], outputArguments=[], additionalArguments=['dummy'])
+    def computeSomethingAdditional(self, X, dummy):
+        print('computeSomethingSequential got called with:', X + ' and ' + dummy)
+        return
 
 
 # Create a dataManager that can handle the input (X) and output (Y) of a 1 dimensional
@@ -49,3 +54,7 @@ print('data.Z:', data[...].Z)
 Y = data[...] >> manipulator.computeSomething >= data
 
 manipulator.listManipulationFunctions()
+
+# Test manipulator with additional arguments that are not in the data object
+
+data[...] >> (additional_inputs(5) >> manipulator.computeSomethingAdditional)

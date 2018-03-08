@@ -5,6 +5,11 @@ from .Function import LinearFunction
 from .Gaussian import DiagonalGaussian_Base
 from .Gaussian import ConstantDiagionalGaussian
 from .Gaussian import LinearDiagionalGaussian
+from .Gaussian import FullGaussian_Base
+from .Gaussian import LinearFullGaussian
+from .Gaussian import ConstantFullGaussian
+
+from .DataManipulator import CallType, DataManipulator, additional_inputs
 
 #from .FunctionLinearInFeatures import FunctionLinearInFeatures
 #from .GaussianLinearInFeatures import GaussianLinearInFeatures

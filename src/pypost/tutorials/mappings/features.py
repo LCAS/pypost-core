@@ -20,6 +20,7 @@ dataManager = DataManager('values')
 dataManager.addDataEntry('X', 2)
 dataManager.addDataEntry('Y', 2)
 f = DummyMapping(dataManager)
+f.setLazyEvaluation(False)
 
 
 data = dataManager.createDataObject(10)

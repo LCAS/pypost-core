@@ -2,7 +2,8 @@ import numpy as np
 
 from pypost.learner.LinearFeatureFunctionMLLearner import LinearFeatureFunctionMLLearner
 from pypost.learner.utils import boundCovariance, regularizeCovariance
-
+from pypost.mappings import FullGaussian_Base
+from pypost.mappings import DiagonalGaussian_Base
 
 class LinearGaussianMLLearner(LinearFeatureFunctionMLLearner):
     '''
@@ -13,7 +14,7 @@ class LinearGaussianMLLearner(LinearFeatureFunctionMLLearner):
         - < tt > priorCov < / tt > (default 1): prior used for the fit. Can be seen as shrinkage matrix.
         - < tt > priorCovWeight < / tt > (default 10 ^ -16): factor of the prior (in terms of number of samples)
     '''
-    def __init__(self, dataManager, functionApproximator,  weightName = "", inputVariables = None, outputVariable = None):
+    def __init__(self, dataManager, functionApproximator,  weightName = None, inputVariables = None, outputVariable = None):
         '''
         :param dataManager:
         :param functionApproximator:
@@ -34,9 +35,9 @@ class LinearGaussianMLLearner(LinearFeatureFunctionMLLearner):
         mapName = mapName[0].upper() + mapName[1:]
 
         #self.linkProperty('maxCorr', 'maxCorr' + mapName)
-        self.linkPropertyToSettings('minCov', 'minCov' + mapName)
-        self.linkPropertyToSettings('priorCov', 'priorCov' + mapName)
-        self.linkPropertyToSettings('priorCovWeight', 'priorCovWeight' + mapName)
+        self.linkPropertyToSettings('minCov', globalName = 'minCov' + mapName)
+        self.linkPropertyToSettings('priorCov', globalName = 'priorCov' + mapName)
+        self.linkPropertyToSettings('priorCovWeight', globalName = 'priorCovWeight' + mapName)
 
 
     def updateModel(self, inputData, outputData, weighting = None):
@@ -58,22 +59,29 @@ class LinearGaussianMLLearner(LinearFeatureFunctionMLLearner):
         priorCovWeight = self.priorCovWeight
         rangeOutput = self.dataManager.getMaxRange(self.functionApproximator.outputVariables[0]) - self.dataManager.getMinRange(self.functionApproximator.outputVariables[0])
 
+
         if Z > 0:
-            expectedOutput = self.functionApproximator.computeOutput(inputData)
+            expectedOutput = self.functionApproximator.mean.mapping(inputData)
 
             difference = expectedOutput - outputData
             differenceW = difference * weighting
 
-            SigmaA = np.dot(difference.transpose(), differenceW)
+            if isinstance(self.functionApproximator, FullGaussian_Base):
 
-            SigmaA = 1 / Z * SigmaA
+                SigmaA = np.dot(difference.transpose(), differenceW)
 
-            minCov = self.minCov * rangeOutput
+                SigmaA = 1 / Z * SigmaA
 
-            numEffectiveSamples = 1.0 / weighting.max()
+                minCov = self.minCov * rangeOutput
 
-            SigmaA = boundCovariance(SigmaA, minCov)
-            SigmaA, cholA = regularizeCovariance(SigmaA, np.diag(rangeOutput) * priorCov, numEffectiveSamples, priorCovWeight)
+                numEffectiveSamples = 1.0 / weighting.max()
 
-            self.functionApproximator.setSigma(cholA)
+                SigmaA = boundCovariance(SigmaA, minCov)
+                SigmaA, cholA = regularizeCovariance(SigmaA, np.diag(rangeOutput) * priorCov, numEffectiveSamples, priorCovWeight)
 
+                self.functionApproximator.param_stdmat = cholA.transpose()
+            elif  isinstance(self.functionApproximator, DiagonalGaussian_Base):
+
+                varA = np.sum(difference * differenceW, axis=0) / Z
+
+                self.functionApproximator.param_logstd = 0.5 * np.log(varA.reshape(self.functionApproximator.param_logstd))

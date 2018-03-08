@@ -19,7 +19,7 @@ class SettingsClient():
         self._localPropertyMap = {}
 
 
-    def linkPropertyToSettings(self, clientPropName, settingsPropName = None, takeValueFromClient = False):
+    def linkPropertyToSettings(self, localName, defaultValue = None, globalName = None, takeValueFromClient = False):
         '''Registers the property 'clientPropName' of the object into the parameter pool.
 
         The parameter 'settingsPropName' sets the global name of the
@@ -37,16 +37,20 @@ class SettingsClient():
         NOTE: ALL properties that are linked must be declared as
         'AbortSet' and 'SetObservable'!
 
-        :param clientPropName: Name of the property as defined in the client
-        :param settingsPropName: Name of the property as defined in the settings
+        :param localName: Name of the property as defined in the client
+        :param globalName: Name of the property as defined in the settings
         :param settings: The Settings to be used
         '''
-        if settingsPropName is None:
-            settingsPropName = clientPropName
+        if globalName is None:
+            globalName = localName
+
+        if defaultValue is not None:
+            setattr(self, localName, defaultValue)
+
+        self.settings.linkProperty(self, localName, self.getNameWithSuffix(globalName), takeValueFromClient = takeValueFromClient)
+        self._localPropertyMap[localName] = globalName
 
 
-        self.settings.linkProperty(self, clientPropName, self.getNameWithSuffix(settingsPropName), takeValueFromClient = takeValueFromClient)
-        self._localPropertyMap[clientPropName] = settingsPropName
 
     def getNameWithSuffix(self, name):
         if self.suffixString:

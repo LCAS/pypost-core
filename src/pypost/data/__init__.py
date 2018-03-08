@@ -5,7 +5,6 @@ from .DataEntry import DataEntry, DataType
 from .DataManager import DataManager
 from .DataManager import DataManagerTimeSeries
 from .DataManager import createDataManagers
-from .DataManipulator import DataManipulationFunction, CallType, DataManipulator, DataFunction, ManipulatorMetaClass
 from .DataStructure import DataStructure
 
 __all__ = ['Data',

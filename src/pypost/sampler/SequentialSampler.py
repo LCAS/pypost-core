@@ -118,7 +118,7 @@ class SequentialSampler(Sampler):
         if isinstance(activeIndex[0], slice):
             activeIndex[0] = list(range(activeIndex[0].start, activeIndex[0].stop))
 
-        isActive = data[activeIndex] > self.terminationFunction.isNonTerminalState  # @mw ASK: *args?
+        isActive = data[activeIndex] >= self.terminationFunction.isNonTerminalState  # @mw ASK: *args?
         tCurrent = activeIndex[-1]
 
         if not isinstance(isActive, np.ndarray):

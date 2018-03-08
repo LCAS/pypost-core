@@ -12,7 +12,7 @@ Tuple storing a reference to the client and the name of the property in the clie
 '''
 
 
-class Settings():
+class Settings:
     '''
     The Settings class implements a parameter pool where we can link
     properties of several objects. The value of the linked properties
@@ -121,13 +121,14 @@ class Settings():
         if (hasattr(self, '_properties') and self.hasProperty(name)):
             self.setProperty(name, value)
 
-        super().__setattr__( name, value)
+        super(Settings, self).__setattr__( name, value)
 
     def __getattr__(self, name):
         if (name != '_properties' and hasattr(self, '_properties') and self.hasProperty(name)):
             return self.getProperty(name)
         else:
-            super().__getattr__(name)
+            #raise ValueError('AttributeError: Unknown property \'{}\' for settings'.format(name))
+            super(Settings, self).__getattr__(name)
 
     def unregisterProperty(self, propName):
         '''Unregisters the property with the given name.

@@ -1,13 +1,14 @@
-from pypost.data.Data import Data
-from pypost.data.DataManipulator import DataManipulator
-from pypost.data.DataManipulator import CallType
+from pypost.mappings.DataManipulator import DataManipulator
+from itertools import cycle
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.pyplot import cm
+
+from pypost.mappings.DataManipulator import CallType
+from pypost.mappings.DataManipulator import DataManipulator
 from pypost.mappings.Mapping import Mapping
 
-import numpy as np
-import matplotlib.pyplot as plt
-from cycler import cycler
-from matplotlib.pyplot import cm
-from itertools import cycle
 
 class PlotterEvaluationsBase(Mapping):
 

@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 from pypost.data.DataStructure import DataStructure
 
+
 class DataEntryInfo():
     '''
     Stores meta data about entries and aliases.
@@ -28,6 +29,13 @@ class DataEntryInfo():
 
 
 class Data(object):
+
+
+    class FlatIndex():
+
+        def __init__(self, flatIndex):
+            self.flatIndex = flatIndex
+
     '''
     Stores meta data for each data entry to make access simple and fast.
     '''
@@ -41,6 +49,7 @@ class Data(object):
         self.dataStructure = dataStructure
 
         self.activeIndex = [Ellipsis]
+        self.isFlatIndex = False
         # create the entryInfoMap
 
         aliasNames = self.dataManager.getAliasNames()
@@ -60,6 +69,40 @@ class Data(object):
                 self.entryInfoMap[name].isFeature = entry.isFeature
                 self.entryInfoMap[name].callBackGetter = entry.callBackGetter
 
+
+            setattr(self, name, None)
+
+    def __getstate__(self):
+        dictState = {}
+        dictState['dataManager'] = self.dataManager
+        dictState['dataStructure'] = self.dataStructure
+        return dictState
+
+    def __setstate__(self, state):
+        from pypost.data import DataManager
+        self.entryInfoMap = {}
+
+        self.dataManager = state['dataManager']
+
+        aliasNames = self.dataManager.getAliasNames()
+        entryNames = self.dataManager.getEntryNames()
+
+        self.dataStructure = state['dataStructure']
+        self.activeIndex = [Ellipsis]
+
+        self.tensorDictionary = {}
+        for name in aliasNames:
+            depth = self.dataManager.getDataEntryLevel(name)
+            alias = self.dataManager.getDataAlias(name)
+            self.entryInfoMap[name] = \
+                DataEntryInfo(depth, alias.entryList, alias.numDimensions,
+                              self.dataManager.getMinRange(name),
+                              self.dataManager.getMaxRange(name))
+
+            if name in entryNames:
+                entry = self.dataManager.getDataEntry(name)
+                self.entryInfoMap[name].isFeature = entry.isFeature
+                self.entryInfoMap[name].callBackGetter = entry.callBackGetter
 
             setattr(self, name, None)
 
@@ -117,6 +160,13 @@ class Data(object):
         return dataStructure
 
     def __getitem__(self, index):
+
+        if isinstance(index, Data.FlatIndex):
+            index = index.flatIndex
+            self.isFlatIndex = True
+        else:
+            self.isFlatIndex = False
+
         if isinstance(index, list):
             self.activeIndex = index.copy()
         else:
@@ -140,19 +190,26 @@ class Data(object):
         else:
             nameEntry = name
         if (value is not None and name != 'entryInfoMap' and nameEntry in self.entryInfoMap):
-            return self.setDataEntry(name, self.activeIndex, value)
+            if self.isFlatIndex:
+                return self.setDataEntryFlat(name, self.activeIndex, value)
+            else:
+                return self.setDataEntry(name, self.activeIndex, value)
         else:
             return super().__setattr__(name, value)
 
     def __getattribute__(self, name):
+
         indexPreprocessor = name.find('__')
         if indexPreprocessor > 0:
             nameEntry = name[:indexPreprocessor]
         else:
             nameEntry = name
 
-        if (name != 'entryInfoMap' and nameEntry in self.entryInfoMap):
-            return self.getDataEntry(name, self.activeIndex)
+        if (name != 'entryInfoMap' and hasattr(self, 'entryInfoMap') and nameEntry in self.entryInfoMap):
+            if (not self.isFlatIndex):
+                return self.getDataEntry(name, self.activeIndex)
+            else:
+                return self.getDataEntryFlat(name, self.activeIndex)
         else:
             return super().__getattribute__(name)
 
@@ -197,7 +254,7 @@ class Data(object):
 
     def __rshift__(self, function):
         '''Operator for applying data manipulation functions'''
-        if (isinstance(function, (tf.Tensor, tf.Variable)) or (isinstance(function, tuple) and all(isinstance(x, (tf.Tensor, tf.Variable)) for x in function))):
+        if (isinstance(function, (tf.Tensor, tf.Variable, tf.Operation)) or (isinstance(function, tuple) and all(isinstance(x, (tf.Tensor, tf.Variable, tf.Operation)) for x in function))):
             function = self._getTensorMappingForTensor(function)
 
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
@@ -245,6 +302,14 @@ class Data(object):
         '''Operator for applying data manipulation functions'''
         return self.applyNoWrite(function)
 
+    def __lt__(self, function):
+        if (hasattr(function, 'linkedDataEnties') and function.linkedDataEnties):
+            function.writeDataPropertiesToData(self, self.activeIndex)
+
+    def __gt__(self, function):
+        if (hasattr(function, 'linkedDataEnties') and function.linkedDataEnties):
+            function.readDataPropertiesFromData(self, self.activeIndex)
+
 
     def completeLayerIndex(self, depth, indices):
         '''This function completes the hierarchical indicing for the internal
@@ -270,7 +335,7 @@ class Data(object):
                 indices[i] = slice(0, dataStructure.numElements)
             manager = manager.subDataManager
             if manager is not None:
-                dataStructure = dataStructure[manager.name][0]
+                dataStructure = dataStructure.nextLayer[0]
         return indices
 
     def getNumElements(self, entryName=None):
@@ -324,6 +389,36 @@ class Data(object):
         else:
             return (path[:index], path[index + 1:])
 
+    def callBackGetter(self, entryName, indices):
+
+        index = entryName.find('__')
+        if index > 0:
+            entryName = entryName[:index]
+
+        dataEntryInfo = self.entryInfoMap[entryName]
+        if (dataEntryInfo.callBackGetter):
+            callBack = dataEntryInfo.callBackGetter
+            dataEntryInfo.callBackGetter = None
+            self[indices] >> callBack >> self
+            dataEntryInfo.callBackGetter = callBack
+
+        for entry in dataEntryInfo.entryList:
+            if (entry[0] != entryName):
+                self.callBackGetter(entry[0], indices)
+
+    def getDataEntryFlat(self, path, flatIndex):
+        
+        data = self.getDataEntry(path, ...)
+        return data[flatIndex, :]
+
+    def setDataEntryFlat(self, path, flatIndex, dataNew):
+
+        data = self.getDataEntry(path, ...)
+        data[flatIndex,:] = dataNew
+        self.setDataEntry(path, ..., data)
+
+        return
+
 
     def getDataEntry(self, path, indices=[], cloneData=True, hStack = False):
         '''
@@ -355,13 +450,7 @@ class Data(object):
         else:
             entryName = path
 
-        if entryName in self.entryInfoMap:
-            dataEntryInfo = self.entryInfoMap[entryName]
-            if (dataEntryInfo.callBackGetter):
-                callBack = dataEntryInfo.callBackGetter
-                dataEntryInfo.callBackGetter = None
-                self[indices] >> callBack >> self
-                dataEntryInfo.callBackGetter = callBack
+        self.callBackGetter(entryName, indices)
 
         if isinstance(path, str):
             path = self._resolveEntryPath(path)
@@ -518,6 +607,7 @@ class DataWriter(object):
 
         self.writeEntries = []
         self.result = None
+        self.isFlatIndex = False
 
     def addWriteEntry(self, writeEntry, indices, writeValues):
 
@@ -532,8 +622,12 @@ class DataWriter(object):
         self.writeEntries.clear()
 
     def apply(self, data):
-        for (entry, index, value) in self.writeEntries:
-            data.setDataEntry(entry, index, value)
+        if self.isFlatIndex:
+            for (entry, index, value) in self.writeEntries:
+                data.setDataEntryFlat(entry, index, value)
+        else:
+            for (entry, index, value) in self.writeEntries:
+                data.setDataEntry(entry, index, value)
 
         result = self.result
         self.result = None
@@ -542,4 +636,6 @@ class DataWriter(object):
 
     def setResult(self, result):
         self.result = result
+
+
 

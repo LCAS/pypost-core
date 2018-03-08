@@ -1,9 +1,10 @@
 import tensorflow as tf
-from pypost.data.DataManipulator import DataManipulator
-from pypost.mappings import Mapping
-from pypost.mappings.Mapping import MappingMetaClass
+import numpy as np
+
 import pypost.common.tfutils as tfutils
-from pypost.data.DataManipulator import CallType
+from pypost.mappings import Mapping
+from pypost.mappings.DataManipulator import CallType
+from pypost.mappings.Mapping import MappingMetaClass
 
 
 class TFMappingMetaClass(MappingMetaClass):
@@ -26,32 +27,51 @@ class TFMappingMetaClass(MappingMetaClass):
                     setattr(cls, 'tm_' + name, function)
                     cls.tensorFunctionsList.append(name)
 
+                    if (function.isMappingTensor):
+                        cls.callTensor = name
+                        cls.callFunctionName = 'tensorFunction'
+
+                        callFunction = getattr(cls, cls.callFunctionName)
+                        setattr(cls, '__call__', callFunction)
+
     def __call__(cls, *args, **kw):
 
         obj = type.__call__(cls, *args, **kw)
+        obj._addAllTensorFunctions()
         obj.addTensorsForVariables()
+        if cls.callTensor:
+            obj._setMappingTensorNode(getattr(obj,cls.callTensor))
+
         tfutils.initialize()
         obj.initialize_params()
 
+
         if not isinstance(obj.outputTensors, list):
-            if (hasattr(obj.outputTensors, 'evalSingleSample') and obj.outputTensors.evalSingleSample):
-                obj.tensorFunction.dataFunctionDecorator.callType = CallType.SINGLE_SAMPLE
-                obj.dataFunctionDecorator.callType = CallType.SINGLE_SAMPLE
+            if (hasattr(obj.outputTensors, 'callType')):
+                obj.tensorFunction.dataFunctionDecorator.callType = obj.outputTensors.callType
+                obj.dataFunctionDecorator.callType = obj.outputTensors.callType
 
         else:
-            if any([hasattr(outTensor, 'evalSingleSample') and outTensor.evalSingleSample for outTensor in obj.outputTensors]):
+            if any([hasattr(outTensor, 'callType') and outTensor.callType == CallType.SINGLE_SAMPLE for outTensor in obj.outputTensors]):
                 obj.tensorFunction.dataFunctionDecorator.callType = CallType.SINGLE_SAMPLE
                 obj.dataFunctionDecorator.callType = CallType.SINGLE_SAMPLE
         return obj
 
 class TFMapping(Mapping, metaclass=TFMappingMetaClass):
 
+    callTensor = None
+
     @staticmethod
-    def TensorMethod(useAsMapping=False, connectTensorToOutput=False):
+    def TensorMethod(useAsMapping=False, additionalInputTensors = None, connectTensorToOutput=None, callType = CallType.ALL_AT_ONCE):
         def wrapper(function):
             function.isTensorFunction = True
             function.isMappingTensor = useAsMapping
             function.connectTensorToOutput = connectTensorToOutput
+            function.callType = callType
+            
+            function.additionalInputTensors = additionalInputTensors
+            function.additionalFeedDict = {}
+            
             return function
 
         return wrapper
@@ -62,17 +82,21 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
 
         self.outputTensors = tensorNode
 
-        self.inputTensors = []
+        self.inputTensorsEntry = []
+        self.inputTensorsProperty = []
+
+        self.inputProperties = []
         self._tensorFunctionsDict = {}
 
         if (self.outputTensors is not None):
-            self.setMappingTensorNode(self.outputTensors)
+            self._setMappingTensorNode(self.outputTensors)
 
         for tensorFunction in self.tensorFunctionsList:
             self._tensorFunctionsDict[tensorFunction] = None
 
         self._parameter_dict = {}
         self._variable_dict = {}
+        self._dataPropertiesTensors = []
 
         self.tv_variables_list = []
         self._parameters_flat = None
@@ -81,6 +105,10 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
         self._in_scope = False
 
         self.layers = []
+        self.isTensorNodeSet = False
+
+        if (tensorNode is not None):
+            self._setMappingTensorNode(tensorNode)
 
     def initialize_params(self):
         return
@@ -133,6 +161,9 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
         if (value is not None and name != '_parameter_dict' and hasattr(self, '_parameter_dict') and name in self._parameter_dict):
             return self._setTensorVariable(name, value)
         else:
+            #if not hasattr(self, name):
+            #    raise ValueError('AttributeError: \'{}\' object has no attribute \'{}\''.format(self.__class__.name, name))
+
             return super().__setattr__(name, value)
 
     def _setTensorVariable(self, name, value):
@@ -147,6 +178,50 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
             tf.get_default_session().run(op)
         return value
 
+    def _addAllTensorFunctions(self):
+        for name in self._tensorFunctionsDict.keys():
+            if self._tensorFunctionsDict[name] == None:
+                self._addTensorFunction(name)
+
+    def _preprocessTensor(self, tensor):
+
+        #TODO: preprocess additional Input Tensors (evaluate)
+
+        if (hasattr(tensor, 'addtionalInputTensors')):
+            tensor.addtionalInputTensors = [eval(tensorName) for tensorName in tensor.additionalInputTensors]
+        else:
+            tensor.addtionalInputTensors = []
+
+        def gradient(variables=None):
+            if (variables == None):
+                variables = self.tv_variables_list
+
+            if (not isinstance(variables, list)):
+                variables = [variables]
+            return tfutils.flatgrad(tensor, variables)
+
+        def single_gradient(variables=None):
+            if (variables == None):
+                variables = self.tv_variables_list
+            if (not isinstance(variables, list)):
+                variables = [variables]
+            gradientTensor = tfutils.flatgrad(tensor, variables)
+            gradientTensor.callType = CallType.SINGLE_SAMPLE
+            return gradientTensor
+        
+        def additional_inputs(*argc):
+            assert(len(argc) <= len(tensor.additionalInputTensors))
+            #TODO: Make dictionary out of tensor.additionalInputTensors and argc
+            # put in tensor.additionalFeedDict
+            return tensor
+
+        tensor.gradient = gradient
+        tensor.single_gradient = single_gradient
+        tensor.additional_inputs = additional_inputs
+
+        tensor.mapping = TFMapping(self.dataManager, tensorNode=tensor)
+        return tensor
+
     def _addTensorFunction(self, name):
         tensorFunction = getattr(self, 'tm_' + name)
 
@@ -159,24 +234,19 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
                     tensor = tensorFunction()
                     self._in_scope = False
 
-        def gradient(variables=self.tv_variables_list):
-            if (not isinstance(variables, list)):
-                variables = [variables]
-            return tfutils.flatgrad(tensor, variables)
+        tensor.callType = tensorFunction.callType
 
-        def single_gradient(variables=self.tv_variables_list):
-            if (not isinstance(variables, list)):
-                variables = [variables]
-            gradientTensor = tfutils.flatgrad(tensor, variables)
-            gradientTensor.evalSingleSample = True
-            return gradientTensor
-
-        tensor.gradient = gradient
-        tensor.single_gradient = single_gradient
-
-        self._tensorFunctionsDict[name] = tensor
         if (tensorFunction.connectTensorToOutput):
-            self.dataManager.connectTensorToEntry(tensor, self.outputVariables[0])
+            if (isinstance(tensorFunction.connectTensorToOutput, bool)):
+                self.dataManager.connectTensorToEntry(tensor, self.outputVariables[0])
+            elif isinstance(tensorFunction.connectTensorToOutput, string):
+                if (tensorFunction.connectTensorToOutput.startsWith('self.')):
+                    outEntry = eval(tensorFunction.connectTensorToOutput)
+                    self.dataManager.connectTensorToEntry(tensor, outEntry)
+                else:
+                    self.dataManager.connectTensorToEntry(tensor, tensorFunction.connectTensorToOutput)
+
+        self._tensorFunctionsDict[name] = self._preprocessTensor(tensor)
 
     def __getattribute__(self, name):
 
@@ -205,12 +275,26 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
         return tensor.eval()
 
 
-    def setMappingTensorNode(self, tensorNode):
+    def _setMappingTensorNode(self, tensorNode):
         inputVariables, outputVariables, placeHolderList, tensorNode = self.dataManager.getTensorInputOutput(tensorNode)
-        self.setInputVariables(inputVariables)
+
+        self.inputVariables = []
+        self.inputProperties = []
+        self.inputTensorsEntry = []
+        self.inputTensorsProperty = []
+
+        for i in range(0, len(placeHolderList)):
+            if hasattr(placeHolderList[i], 'propertyObject'):
+                self.inputProperties.append(inputVariables[i])
+                self.inputTensorsProperty.append(placeHolderList[i])
+            else:
+                self.inputVariables.append(inputVariables[i])
+                self.inputTensorsEntry.append(placeHolderList[i])
+
+        self.setInputVariables(self.inputVariables)
         self.setOutputVariables(outputVariables)
-        self.inputTensors = placeHolderList
         self.outputTensors = tensorNode
+        self.isTensorNodeSet = True
 
     def getAllInputTensor(self):
 
@@ -221,20 +305,77 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
         allInputTensor = tf.concat(inputTensors, 1)
         return allInputTensor
 
-    def getInputTensor(self, index):
+    def getInputTensorIndex(self, index):
         inputTensor = self.dataManager.createTensorForEntry(self.inputVariables[index])
         return inputTensor
+
+    def getInputTensorName(self, name):
+        tensor =  self.dataManager.createTensorForEntry(name)
+        if (name in self._dataProperties and not tensor in self._dataPropertiesTensors):
+            self._dataPropertiesTensors.append(tensor)
+            tensor.propertyObject = self
+            tensor.propertyName = name
+
+        return tensor
 
 
     @Mapping.MappingMethod()
     def tensorFunction(self, *args):
+        if (not self.isTensorNodeSet):
+            raise ValueError('TFMapping has not been correctly intialized. No TensorMethod was indicated for the Mapping. '
+                             'Use property useAsMapping = True for exactly one TensorMethod.')
+
+        if len(args) != len(self.inputVariables):
+            raise ValueError(
+                'Error calling tensor method. Please provide the correct number of inputs as given in .inputVariables!')
+
+        newArgs = []
+
+        singleSample = False
+        oneDArray = False
+        scalarValue = False
+
+        args = list(args)
+        for tensorProperty in self.inputTensorsProperty:
+            args.append(getattr(tensorProperty.propertyObject, tensorProperty.propertyName))
+
+        for i in range(0, len(args)):
+            if (not isinstance(args[i], np.ndarray)):
+                newArgs.append(np.array([[args[i]]]))
+                scalarValue = True
+            elif len(args[i].shape) == 1:
+                if (self.dataManager.getNumDimensions(self.inputVariables[i]) == 1):
+                    newArgs.append(args[i].reshape((args[i].shape[0],1)))
+                    oneDArray = True
+                else:
+                    newArgs.append(args[i].reshape((1, args[i].shape[0])))
+                    singleSample = True
+            else:
+                newArgs.append(args[i])
 
 
-        feedDict = dict(zip(self.inputTensors, args))
+        feedDict = dict(zip(self.inputTensorsEntry + self.inputTensorsProperty, newArgs))
         results = tf.get_default_session().run(self.outputTensors, feed_dict=feedDict)
 
-        return results
+        def convertResults(resultItem):
+            if not isinstance(resultItem, np.ndarray):
+                return resultItem
+            if (resultItem.shape[0] == 1):
+                if (resultItem.shape[1] == 1 and scalarValue):
+                    return resultItem[0,0]
+                elif singleSample:
+                    return resultItem.reshape((resultItem.shape[1],))
+                else:
+                    return resultItem
+            elif len(resultItem.shape) > 1 and resultItem.shape[1] == 1 and oneDArray:
+                return resultItem.reshape((resultItem.shape[0],))
+            else:
+                return resultItem
 
+        if not isinstance(results, (list, tuple)):
+            return convertResults(results)
+        else:
+            return tuple([convertResults(resultItem) for resultItem in results])
 
 
 #

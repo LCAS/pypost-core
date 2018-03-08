@@ -1,7 +1,7 @@
 import numpy as np
 
 from pypost.common.SettingsClient import SettingsClient
-from pypost.data.DataManipulator import DataManipulator
+from pypost.mappings.DataManipulator import DataManipulator
 from pypost.mappings.Mapping import Mapping
 
 

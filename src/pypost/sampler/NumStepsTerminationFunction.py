@@ -39,9 +39,9 @@ class NumStepsTerminationFunction(TerminationFunction, SettingsClient):
 
         if (numTimeSteps):
             self.numTimeSteps = numTimeSteps
-            self.linkPropertyToSettings("numTimeSteps", "num" + stepName[0].upper() + stepName[1:], True)
+            self.linkPropertyToSettings("numTimeSteps", globalName="num" + stepName[0].upper() + stepName[1:], takeValueFromClient=True)
         else:
-            self.linkPropertyToSettings("numTimeSteps", "num" + stepName[0].upper() + stepName[1:])
+            self.linkPropertyToSettings("numTimeSteps", globalName="num" + stepName[0].upper() + stepName[1:])
 
     # getter & setters
 

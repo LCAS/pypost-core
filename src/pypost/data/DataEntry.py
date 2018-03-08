@@ -5,12 +5,13 @@ import scipy
 from enum import Enum
 
 class DataType(Enum):
+    index = 0
     continuous = 1
     discrete  = 2
     sparse = 3
 
 
-class DataEntry(SettingsClient):
+class DataEntry():
     '''
     DataEntry stores the properties of a data entry.
     '''
@@ -19,8 +20,6 @@ class DataEntry(SettingsClient):
         '''
         Constructor
         '''
-
-        SettingsClient.__init__(self)
 
         self.name = name
         self.numDimensions = numDimensions
@@ -62,20 +61,6 @@ class DataEntry(SettingsClient):
 
         self.isValid = False
 
-
-    def getEntryFromSettings(self, indices, numElements):
-        if indices is Ellipsis:
-            numElementsFunc = numElements
-        if isinstance(indices, int):
-            numElementsFunc = 1
-        elif isinstance(indices, list):
-            numElementsFunc = len(indices)
-        elif isinstance(indices, slice):
-            numElementsFunc = indices.stop - indices.start
-        singleEntry = self.settings.getProperty(self.name)
-        entry = np.tile(singleEntry, (numElementsFunc, 1))
-        return entry
-
     def createDataMatrix(self, numElements):
         if (self.dataType == DataType.continuous):
             self.data = np.zeros((numElements,) + self.numDimensions, dtype=np.float_) + (self.minRange + self.maxRange) / 2
@@ -83,6 +68,8 @@ class DataEntry(SettingsClient):
             self.data = np.zeros((numElements,) + self.numDimensions, dtype=np.int_) + self.minRange
         if (self.dataType == DataType.sparse):
             self.data = csr_matrix((numElements, self.numDimensions[0]))
+        if (self.dataType == DataType.index):
+            self.data = np.array(range(0,numElements)).reshape((numElements,1))
 
         self.isValid = np.zeros((numElements, 1), dtype=bool)
 
@@ -99,6 +86,9 @@ class DataEntry(SettingsClient):
             if (self.dataType == DataType.sparse):
                 newData = csr_matrix((numElementsEntry - currentSize, self.numDimensions[0]))
                 self.data = scipy.sparse.vstack((self.data, newData))
+            if (self.dataType == DataType.index):
+                newData = np.array(range(currentSize, numElementsEntry)).reshape((numElementsEntry - currentSize, 1))
+                self.data = np.vstack((self.data, newData))
             self.isValid = np.vstack((self.isValid, np.zeros((numElementsEntry - currentSize, 1), dtype=bool)))
         else:
             self.data = self.data[:numElementsEntry]

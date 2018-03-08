@@ -3,7 +3,7 @@ import cProfile
 import numpy as np
 
 import pypost.tests.DataUtil as DataUtil
-from pypost.data.DataManipulator import DataManipulator
+from pypost.mappings.DataManipulator import DataManipulator
 from pypost.mappings.Mapping import Mapping
 from pypost.sampler.StepSampler import StepSampler
 

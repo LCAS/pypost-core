@@ -13,8 +13,6 @@ class Function_Base(TFMapping):
 
         self.meanTensorGenerator = meanTensorGenerator
 
-        #self.setTensorsForVariables([self.mean])
-        self.setMappingTensorNode(self.mean)
         self._setLayersFromTensor(self.mean)
 
     def clone(self, name):
@@ -23,7 +21,7 @@ class Function_Base(TFMapping):
         clone.parameters = self.parameters
         return clone
 
-    @TFMapping.TensorMethod(connectTensorToOutput=True)
+    @TFMapping.TensorMethod(connectTensorToOutput=True, useAsMapping=True)
     def mean(self):
         meanTensor = self.meanTensorGenerator(self.getAllInputTensor(), self.dimOutput)
         return meanTensor
@@ -32,7 +30,6 @@ class Function_Base(TFMapping):
 class LinearFunction(Function_Base):
 
     def __init__(self, dataManager, inputArguments, outputArguments, useBias = True, name = 'Function'):
-
         Function_Base.__init__(self, dataManager, inputArguments, outputArguments, tfutils.linear_layer_generator(useBias), name = name)
 
     def setWeightsAndBias(self, BetaA, MuA):
@@ -59,5 +56,3 @@ if __name__ == "__main__":
     data = dataManager.createDataObject([10])
 
     data[...].states = np.random.normal(0, 1, data[...].states.shape)
-
-

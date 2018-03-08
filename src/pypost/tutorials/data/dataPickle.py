@@ -12,14 +12,6 @@ to retrieve it.
 # create data managers with 3 hierarchical layers (episodes, steps, subSteps)
 dataManager = DataManager('episodes')
 subDataManager = DataManager('steps')
-subSubDataManager = DataManager('subSteps')
-
-# add data entries to each of the layers
-# here we add an entry named 'parameters' with 5 elements in range [-2,2]
-dataManager.addDataEntry('parameters', 5, -2*np.ones(5), 2*np.ones(5))
-# here we add an entry named 'context' with 2 elements in range [-1,1]
-# (this is the default for minRange and maxRange)
-dataManager.addDataEntry('context', 2)
 
 # do the same with the sub-manager: we have states and actions as data for
 # each steps
@@ -39,20 +31,13 @@ myData = dataManager.createDataObject([100, 10])
 
 # show all states (1000)
 
-temp = myData[...].states
 
-assert(temp.shape == (1000,1))
+myData[...].states = np.random.normal(0, 1, myData[...].states.shape)
 
-myData[...].states = np.random.normal(0, 1, temp.shape)
+import pickle
 
-# show states of first episode (10)
+pickle.dump(myData, open('testPickle.pkl', 'wb'))
 
-temp = myData[0].states
-assert(temp.shape == (10,1))
+newData = pickle.load(open('testPickle.pkl', 'rb'))
 
-
-# show states of first time step (100)
-temp = myData[..., 0].states
-assert(temp.shape == (100,1))
-
-
+assert(np.sum(np.abs(myData[...].states - newData[...].states)) == 0)

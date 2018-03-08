@@ -1,6 +1,8 @@
-from pypost.learner.InputOutputLearner import InputOutputLearner
 import numpy as np
-from pypost.data.DataManipulator import DataManipulator
+
+from pypost.learner.InputOutputLearner import InputOutputLearner
+from pypost.mappings import Mapping
+
 
 class LinearFeatureFunctionMLLearner(InputOutputLearner):
     ''' The LinearFeatureFunctionMLLearner fits a linear model using a weighted maximum likelihood estimate. It implements the
@@ -29,7 +31,7 @@ class LinearFeatureFunctionMLLearner(InputOutputLearner):
 
         self.linkPropertyToSettings('regularizationRegression')
 
-    @DataManipulator.DataMethod(inputArguments=['self.inputVariables', 'self.outputVariables', 'self.weightName'], outputArguments=[])
+    @Mapping.MappingMethod(inputArguments=['self.inputVariables', 'self.outputVariables', 'self.weightName'], outputArguments=[])
     def updateModel(self, inputData, outputData, weighting = None):
         if weighting is None:
             weighting = np.ones((outputData.shape[0], 1))
@@ -87,5 +89,5 @@ class LinearFeatureFunctionMLLearner(InputOutputLearner):
         if self.outputDataNormalization:
             MuA = MuA * rangeOutput.transpose() + meanRangeOutput.transpose()
 
-
-        self.functionApproximator.setWeightsAndBias(BetaA, MuA)
+        self.functionApproximator.param_final_b = MuA.reshape(self.functionApproximator.param_final_b.shape)
+        self.functionApproximator.param_final_w = BetaA.transpose()

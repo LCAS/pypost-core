@@ -13,6 +13,22 @@ class CallType(Enum):
     PER_EPISODE = 3
 
 
+class DataParsedFunction(object):
+
+    def __init__(self, inputArgs, function, indices, isFlatIndex = False):
+
+        self.inputArgs = inputArgs
+        self.function = function
+        self.indices = indices
+        self.isFlatIndex = False
+        self.writeData = None
+
+    def setWriteData(self, data):
+        self.writeData = data
+
+    def __call__(self, *args):
+        args = self.inputArgs + args
+
 
 
 class DataManipulationFunction():
@@ -20,7 +36,7 @@ class DataManipulationFunction():
     Represents a data manipulation function used in the DataManipulator class.
     '''
 
-    def __init__(self, name, inputArguments, outputArguments, callType = CallType.ALL_AT_ONCE, takesNumElements = False, takesData = False, lazyEvaluation = False):
+    def __init__(self, name, inputArguments, outputArguments, additionalArguments = [], callType = CallType.ALL_AT_ONCE, takesNumElements = False, takesData = False, lazyEvaluation = True, writeDataProperties = False):
         '''
         Constructor
         '''
@@ -36,6 +52,9 @@ class DataManipulationFunction():
         self.dataFunctionObject = None
         self.lazyEvaluation = lazyEvaluation
         self.dataWriter = DataWriter()
+        self.writeDataProperties = writeDataProperties
+        self.additionalInputs = [None] * len(additionalArguments)
+        self.additionalArguments = additionalArguments
 
         if not isinstance(self.inputArguments, list):
             self.inputArguments = [self.inputArguments]
@@ -125,11 +144,18 @@ class DataManipulationFunction():
 
             if dataStruct.depthEntry:
                 outputDepth = data.dataManager.getDataEntryLevel(dataStruct.depthEntry)
-                numElements = data.getNumElementsForIndex(outputDepth, indices)
+                if data.isFlatIndex:
+                    numElements = len(indices)
+                else:
+                    numElements = data.getNumElementsForIndex(outputDepth, indices)
             else:
                 numElements = 1
 
-            inputArgs = data.getDataEntryList(dataStruct.inputArguments, indices)
+            if (not data.isFlatIndex):
+                inputArgs = data.getDataEntryList(dataStruct.inputArguments, indices)
+            else:
+                inputArgs = [data.getDataEntryFlat(inputArg, indices) for inputArg in dataStruct.inputArguments]
+
             if (self.lazyEvaluation):
                 validFlag = data.getDataEntry(self.outputArguments[0] + '_validFlag', indices)
                 notValidFlag = np.where(~validFlag)[0]
@@ -144,7 +170,10 @@ class DataManipulationFunction():
                 outArgs = self._callDataFuntionInternalMatrices(function, data, numElements, inputArgs)
 
                 if not isinstance(outArgs, list):  # pragma: no branch
-                    outArgList = [outArgs]
+                    if (isinstance(outArgs, tuple)):
+                        outArgList = list(outArgs)
+                    else:
+                        outArgList = [outArgs]
                 else:
                     outArgList = outArgs
 
@@ -157,7 +186,7 @@ class DataManipulationFunction():
 
                 outArgList = outArgsAll
                 validFlag[:] = True
-                self.dataWrite.addWriteEntry(self.outputArguments[0] + '_validFlag', indices, validFlag)
+                self.dataWrite.addWriteEntry(self.outputArguments[0] + '_validFlag', indices.copy(), validFlag)
 
             if registerOutput:
                 if (len(outArgList) < len(dataStruct.outputArguments) or not all(x is not None for x in outArgList[:len(dataStruct.outputArguments)]) ):
@@ -167,10 +196,16 @@ class DataManipulationFunction():
 
                 #data.setDataEntryList(dataStruct.outputArguments, indices, outArgList)
                 try:
-                    self.dataWriter.addWriteEntries(dataStruct.outputArguments, indices, outArgList)
+                    self.dataWriter.addWriteEntries(dataStruct.outputArguments, indices.copy(), outArgList)
                 except ValueError as error:
-                     raise ValueError('Error when registering output arguments of function ' + function.__name__ +
+                    raise ValueError('Error when registering output arguments of function ' + function.__name__ +
                                       ': ' + error.args[0] + '. Please check your output arguments!')
+
+                if dataStruct.writeDataProperties:
+                    if (dataStruct.dataFunctionObject is not None and hasattr(dataStruct.dataFunctionObject, '_activeDataProperties')):
+                        for dataProperty in dataStruct.dataFunctionObject._activeDataProperties:
+                            self.dataWriter.addWriteEntries([dataProperty], indices.copy(), [getattr(dataStruct.dataFunctionObject, dataProperty)])
+
             outArgs = outArgList
 
         if (outArgs and len(outArgs) == 1):
@@ -192,7 +227,11 @@ class DataManipulationFunction():
         args.extend(inputArgs)
         args = tuple(args)
 
+        data > function
+
         # print(dataManipulationStruct.function, args)
+        if (self.additionalInputs):
+            args = args + list(self.additionalInputs)
         return function(*args)
 
     def preprocessArguments(self):
@@ -350,6 +389,24 @@ class ManipulatorMetaClass(type):
 
 
 
+class additional_inputs:
+
+    def __init__(self, *argc):
+
+        self.inputs = argc
+
+    def __rshift__(self, function):
+
+        if not hasattr(function, 'dataFunctionDecorator'):
+            raise ValueError('<< Operator from additional inputs can only be applied to data manipulation functions to set the additional input!')
+
+        if (len(self.inputs) != len(function.dataFunctionDecorator.additionalArguments)):
+            raise ValueError(
+                '<< Operator from additional inputs is applied with too many arguments. Data manipulator has the following inputs:' +function.dataFunctionDecorator.additionalArguments )
+
+        function.dataFunctionDecorator.additionalInputs = self.inputs
+
+        return function
 
 
 class DataManipulator(SettingsClient, metaclass=ManipulatorMetaClass):
@@ -416,12 +473,15 @@ class DataManipulator(SettingsClient, metaclass=ManipulatorMetaClass):
     the function addDataFunctionAlias and the test scripts.
     '''
 
+
+
     @staticmethod
-    def DataMethod( inputArguments, outputArguments, callType=CallType.ALL_AT_ONCE, takesNumElements=False, takesData = False, lazyEvaluation = False):
+    def DataMethod( inputArguments, outputArguments, additionalArguments = [], callType=CallType.ALL_AT_ONCE, takesNumElements=False, takesData = False, lazyEvaluation = False, writeDataProperties = False):
 
             def wrapper(function):
 
-                function.dataFunctionDecorator = DataManipulationFunction(function.__name__, inputArguments, outputArguments, callType, takesNumElements, takesData, lazyEvaluation)
+                function.dataFunctionDecorator = DataManipulationFunction(function.__name__, inputArguments, outputArguments, additionalArguments=additionalArguments, callType=callType, takesNumElements=takesNumElements, takesData=takesData, lazyEvaluation=lazyEvaluation, writeDataProperties = writeDataProperties)
+
                 return function
 
             return wrapper

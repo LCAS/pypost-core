@@ -1,12 +1,11 @@
 import numbers
 
-from pypost.data.DataManipulator import CallType
-from pypost.data.DataManipulator import DataManipulator
-from pypost.data.DataManipulator import DataManipulationFunction
 from pypost.data.Data import Data
-import tensorflow as tf
+from pypost.mappings.DataManipulator import CallType
+from pypost.mappings.DataManipulator import DataManipulationFunction
+from pypost.mappings.DataManipulator import DataManipulator
+from pypost.mappings.DataManipulator import ManipulatorMetaClass
 
-from pypost.data.DataManipulator import ManipulatorMetaClass
 
 class MappingMetaClass(ManipulatorMetaClass):
     def __init__(cls, name, bases, dct):
@@ -41,16 +40,17 @@ class Mapping(DataManipulator, metaclass=MappingMetaClass):
     added with the addMappingFunction()
     '''
     callFunctionName = ''
+    linkedDataEnties = True
 
     mappingDict = {}
 
     @classmethod
     def MappingMethod(cls, inputArguments ='self.inputVariables', outputArguments ='self.outputVariables', callType=CallType.ALL_AT_ONCE, takesNumElements=False,
-                      takesData=False, lazyEvaluation = False):
+                      takesData=False, lazyEvaluation = False, writeDataProperties = False):
 
         def wrapper(function):
             function.dataFunctionDecorator = DataManipulationFunction(function.__name__, inputArguments, outputArguments,
-                                                             callType, takesNumElements, takesData, lazyEvaluation)
+                                                             callType=callType, takesNumElements=takesNumElements, takesData=takesData, lazyEvaluation=lazyEvaluation, writeDataProperties = writeDataProperties)
             function.isMappingFunction = True
             return function
 
@@ -94,6 +94,8 @@ class Mapping(DataManipulator, metaclass=MappingMetaClass):
         Name of the mapping function
         '''
         self.inputVariables = []
+        self._dataProperties = []
+        self._activeDataProperties = []
         '''
         Input variables for mapping functions
         '''
@@ -110,6 +112,27 @@ class Mapping(DataManipulator, metaclass=MappingMetaClass):
         if (self.callFunctionName):
             self.dataFunctionDecorator = self.dataManipulationMethodsInstance[self.callFunctionName]
             self.__name__ = self.callFunctionName
+
+    def linkPropertyToData(self, name, defaultValue, defaultGuard, numDimensions, minRange = None, maxRange = None, parameterPoolName = None, level = 0, transformation = None):
+
+        self.linkPropertyToSettings(name, defaultValue=defaultValue)
+        if self.dataManager.isDataAlias(name):
+            useAsEntry = True
+        else:
+            useAsEntry = self.dataManager.addOptionalDataEntry(name, defaultGuard, numDimensions, minRange = minRange, maxRange = maxRange, parameterPoolName = parameterPoolName, level = level, transformation = transformation)
+
+        if (useAsEntry):
+            self._activeDataProperties.append(name)
+        self._dataProperties.append(name)
+
+    def readDataPropertiesFromData(self, data, indices):
+        for dataProperty in self._activeDataProperties:
+            setattr(self, dataProperty, data.getDataEntry(dataProperty, indices))
+
+
+    def writeDataPropertiesToData(self, data, indices):
+        for dataProperty in self._activeDataProperties:
+            data.setDataEntry(dataProperty, indices, getattr(self, dataProperty))
 
     def getNumElementsAndInput(self, input):
         if (len(self.inputVariables) > 0):

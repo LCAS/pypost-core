@@ -1,8 +1,5 @@
-from pypost.data.DataManipulator import DataManipulator
+from pypost.mappings import CallType
 from pypost.mappings import Mapping
-from pypost.data import CallType
-
-import abc
 
 
 # Todo Periodicity? Not supported by Data Manager in Python

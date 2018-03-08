@@ -31,17 +31,8 @@ class MountainCar(TransitionFunction):
         self.stepManager.setRange('states', np.asarray([self.limitPosition[0], self.limitVelocity[0]]),
                                   np.asarray([self.limitPosition[1], self.limitPosition[1]]))
 
-        #self.stepManager.setRange('nextStates', np.asarray([self.limitPosition[0], self.limitVelocity[0]]),
-        #                          np.asarray([self.limitPosition[1], self.limitPosition[1]]))
-
         self.stepManager.addDataEntry('rewards', 1, -1, 1)
 
-        #self.addDataManipulationFunction(self.sampleContext,  [], ['contexts'])
-        #self.addDataManipulationFunction(self.sampleAction, ['states'], ['actions'])
-        #self.addDataManipulationFunction(self.sampleReward, ['nextStates'], ['rewards'])
-        #self.addDataManipulationFunction(self.sampleInitState, ['contexts'], ['states'])
-
-        #self.initObject()
 
     @TransitionFunction.DataMethod(inputArguments=[], outputArguments=['contexts'], takesNumElements=True)
     def sampleContext(self, numElements):

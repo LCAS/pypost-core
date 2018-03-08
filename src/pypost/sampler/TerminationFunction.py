@@ -1,4 +1,4 @@
-from pypost.data.DataManipulator import DataManipulator
+from pypost.mappings.DataManipulator import DataManipulator
 
 
 class TerminationFunction(DataManipulator):

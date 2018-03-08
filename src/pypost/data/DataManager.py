@@ -42,6 +42,29 @@ def createDataManagers(names, isTimeSeries):
     return dataManager
 
 
+def makePeriodic(data, dataItem, index):
+    isPeriodic = np.array(self.getPeriodicity(dataItem.name), dtype=bool)
+    data[:, isPeriodic] = data[:, isPeriodic] % (2 * np.pi)
+    return data
+
+
+def restrictData(data, dataItem, index):
+    minRange = self.getMinRange(dataItem.name)
+    maxRange = self.getMaxRange(dataItem.name)
+
+    data = np.clip(data, minRange, maxRange)
+    return data
+
+
+def setDataValidTag(data, dataItem, index):
+    dataItem.isValid[index] = data
+    return dataItem.data[index]
+
+
+def getDataValidTag(data, dataItem, index):
+    return dataItem.isValid[index]
+
+
 class DataManager(SettingsClient):
 
     '''
@@ -108,30 +131,63 @@ class DataManager(SettingsClient):
         self.tensorDict = {}
         self.tensorToEntryMap = {}
 
-        def makePeriodic(data, dataItem, index):
-            isPeriodic = np.array(self.getPeriodicity(dataItem.name), dtype=bool)
-            data[:, isPeriodic] = data[:, isPeriodic] % (2 * np.pi)
-            return data
-
-        def restrictData(data, dataItem, index):
-            minRange = self.getMinRange(dataItem.name)
-            maxRange = self.getMaxRange(dataItem.name)
-
-            data = np.clip(data, minRange, maxRange)
-            return data
-
-        def setDataValidTag(data, dataItem, index):
-            dataItem.isValid[index] = data
-            return dataItem.data[index]
-
-        def getDataValidTag(data, dataItem, index):
-            return dataItem.isValid[index]
-
         self.addDataPreprocessor('periodic', makePeriodic)
         self.addDataPreprocessor('restricted', restrictData)
         self.addDataPreprocessor('validFlag', getDataValidTag, setDataValidTag)
 
+    def __getnewargs__(self):
+        return (self.name,)
 
+    def __getstate__(self):
+        import copy
+        subManagerState = None
+        if (self.subDataManager):
+            subManagerState = self.subDataManager.__getstate__()
+
+        dictState = {}
+        dictState['name'] = self.name
+        dictState['subDataManager'] = self.subDataManager
+        dataEntriesNoFeatures = {}
+        for key in self.dataEntries:
+            dataEntry = copy.copy(self.dataEntries[key])
+            dataEntry.isFeature = False
+            dataEntry.callBackGetter = None
+            dataEntriesNoFeatures[key] = dataEntry
+
+        dictState['dataEntries'] = dataEntriesNoFeatures
+        dictState['dataAliases'] = self.dataAliases
+
+        dictState['_dirty'] = self._dirty
+        dictState['_finalized'] = self._finalized
+        dictState['_depthMap'] = self._depthMap
+        dictState['_subDataManagerList'] = self._subDataManagerList
+
+        return dictState
+
+    def __setstate__(self, state):
+
+        self.name = state['name']
+
+        self.subDataManager = None
+        if (state['subDataManager'] is not None):
+            self.subDataManager = state['subDataManager']
+
+        self.dataEntries = state['dataEntries']
+        self.dataAliases = state['dataAliases']
+        self._dirty = True
+        self._finalized = False
+        self._depthMap = state['_depthMap']
+        self._subDataManagerList = state['_subDataManagerList']
+
+        self.dataPreprocessorsForward = {}
+        self.dataPreprocessorsInverse = {}
+
+        self.tensorDict = {}
+        self.tensorToEntryMap = {}
+
+        self.addDataPreprocessor('periodic', makePeriodic)
+        self.addDataPreprocessor('restricted', restrictData)
+        self.addDataPreprocessor('validFlag', getDataValidTag, setDataValidTag)
 
     @property
     def finalized(self):
@@ -219,6 +275,8 @@ class DataManager(SettingsClient):
         self._dirty = True
         self.settings.lockProperty(guard)
 
+        return self.settings.getProperty(guard)
+
 
     def addDataEntry(self, name, numDimensions, minRange=-1, maxRange=1, isPeriodic = None, dataType = DataType.continuous, takeFromSettings = False, level = 0):
         '''
@@ -252,7 +310,8 @@ class DataManager(SettingsClient):
 
             if self.finalized:
                 raise RuntimeError("The data manager cannot be modified after "
-                                   "it has been finalized")
+                                   "it has been finalized (data object has been created). Please apply all modifications"
+                                   "to the manager before creating data objects!")
 
             # Ensure that the name of the data entry does not conflict with an
             # alias name
@@ -280,12 +339,21 @@ class DataManager(SettingsClient):
         return
 
     def addFeatureMapping(self, mapping):
+
+        if isinstance(mapping, tf.Tensor):
+            from pypost.mappings import TFMapping
+            mapping = TFMapping(self, tensorNode = mapping)
+
         outputVariable = mapping.getOutputVariables()[0]
         if (not outputVariable in self.dataEntries):
-            raise ValueError('Can only add Feature Mapping for existing data entries (aliases are not supported). Current Entry %s does not exist' % outputVariable)
+            if (self.subDataManager):
+                self.subDataManager.addFeatureMapping(mapping)
+            else:
+                raise ValueError('Can only add Feature Mapping for existing data entries (aliases are not supported). Current Entry %s does not exist' % outputVariable)
 
-        self.dataEntries[outputVariable].isFeature = True
-        self.dataEntries[outputVariable].callBackGetter = mapping
+        else:
+            self.dataEntries[outputVariable].isFeature = True
+            self.dataEntries[outputVariable].callBackGetter = mapping
 
     def checkDataEntries(self, entryList, errorMessage):
 
@@ -336,15 +404,15 @@ class DataManager(SettingsClient):
         if isinstance(tensorNode, (list, tuple)):
             placeHolderList = set()
             for tensor in tensorNode:
-                if not isinstance(tensor, (tf.Tensor, tf.Variable)):
+                if not isinstance(tensor, (tf.Tensor, tf.Variable, tf.Operation)):
                     raise ValueError('TF Mappings can only be created for tf.Tensor objects or list/tuple of those')
                 placeHolderList = placeHolderList | tfutils.list_data_placeholders(self, tensor)
-        elif isinstance(tensorNode, (tf.Tensor, tf.Variable)):
+        elif isinstance(tensorNode, (tf.Tensor, tf.Variable, tf.Operation)):
             placeHolderList = tfutils.list_data_placeholders(self, tensorNode)
         else:
             raise ValueError('TF Mappings can only be created for tf.Tensor objects or list/tuple of those')
         inputVariables = []
-
+        placeHolderList = list(placeHolderList)
         for placeHolder in placeHolderList:
             inputVariables.append(self.getEntryForTensor(placeHolder))
 
@@ -1023,6 +1091,8 @@ class DataManagerTimeSeries(DataManager):
     def __init__(self, name):
 
         DataManager.__init__(self, name)
+
+        self.addDataEntry('timeSteps', 1, dataType=DataType.index)
 
     def addIndexModifiers(self, name, numDimensions):
         # add Aliases for time series

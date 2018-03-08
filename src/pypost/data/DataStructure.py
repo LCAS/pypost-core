@@ -22,10 +22,58 @@ class DataStructure(SettingsClient):
         self.dataEntries = dict()
         self.numElements = numElements
         self.nextLayer = None
+        self.nextLayerName = ''
         self.isTimeSeries = isTimeSeries
         self.dataManager = dataManager
 
         self.currentData = None
+
+    def __getstate__(self):
+
+        dictState = {}
+
+        dataEntriesNoFeatures = {}
+        for key in self.dataStructureLocalLayer:
+            dataEntry = copy.copy(self.dataStructureLocalLayer[key])
+            dataEntry.isFeature = False
+            dataEntry.callBackGetter = None
+            dataEntriesNoFeatures[key] = dataEntry
+
+        dictState['dataStructureLocalLayer'] = dataEntriesNoFeatures
+
+        dataEntriesNoFeatures = {}
+        for key in self.dataEntries:
+            dataEntry = copy.copy(self.dataEntries[key])
+            dataEntry.isFeature = False
+            dataEntry.callBackGetter = None
+            dataEntriesNoFeatures[key] = dataEntry
+
+        dictState['dataEntries'] = dataEntriesNoFeatures
+        dictState['numElements'] = self.numElements
+        dictState['dataManager'] = self.dataManager
+        if self.nextLayer != None:
+            #dictState['nextLayer'] = [nextL.__getstate__() for nextL in self.nextLayer]
+            dictState['nextLayer'] = [nextL for nextL in self.nextLayer]
+        else:
+            dictState['nextLayer'] = None
+        return dictState
+
+    def __setstate__(self, dictState):
+
+        self.dataManager = dictState['dataManager']
+        self.dataStructureLocalLayer = dictState['dataStructureLocalLayer']
+        self.dataEntries = dictState['dataEntries']
+
+
+        self.numElements = dictState['numElements']
+
+        self.nextLayer = []
+        if dictState['nextLayer'] != None:
+            for i in range(0, len(dictState['nextLayer'])):
+                dataStructure = dictState['nextLayer'][i]
+                self.nextLayer.append(dataStructure)
+        return
+
 
     def getNumElementsForIndex(self, depth, indices=[]):
         if not isinstance(indices, list):
@@ -38,7 +86,7 @@ class DataStructure(SettingsClient):
             if (not self.nextLayer):
                 raise ValueError('Hierarchical Index: Could not find hierarchy! {0}',format(indices))
             numElements = 0
-            nextLayer = self.dataStructureLocalLayer[self.nextLayer]
+            nextLayer = self.nextLayer
             if indices[0] == Ellipsis:
                 nextLayerStructures = nextLayer
             elif isinstance(indices[0], slice):
@@ -99,8 +147,10 @@ class DataStructure(SettingsClient):
         self.dataStructureLocalLayer[name] = aliasObj
 
     def createAliasSubDataStructure(self, name, aliasObj):
-        self.nextLayer = name
-        self.createAlias(name, aliasObj)
+        self.nextLayerName = name
+        self.nextLayer = aliasObj
+
+#        self.createAlias(name, aliasObj)
 
     def __len__(self):
         return len(self.dataStructureLocalLayer)
@@ -320,7 +370,7 @@ class DataStructure(SettingsClient):
         else:
             # needs to be DataEntry
             if dataItem.takeFromSettings:
-                data = dataItem.getEntryFromSettings(index, self.numElements)
+                data = self.getEntryFromSettings(dataItem.name, index, self.numElements)
             else:
                 if (index == Ellipsis):
                     index = slice(0, self.numElements)
@@ -331,6 +381,19 @@ class DataStructure(SettingsClient):
 
 
         return data
+
+    def getEntryFromSettings(self, entryName, indices, numElements):
+        if indices is Ellipsis:
+            numElementsFunc = numElements
+        if isinstance(indices, int):
+            numElementsFunc = 1
+        elif isinstance(indices, list):
+            numElementsFunc = len(indices)
+        elif isinstance(indices, slice):
+            numElementsFunc = indices.stop - indices.start
+        singleEntry = self.settings.getProperty(entryName)
+        entry = np.tile(singleEntry, (numElementsFunc, 1))
+        return entry
 
     def getDataEntry(self, dataObject, path, indices, hStack = False):
         '''
@@ -388,13 +451,13 @@ class DataStructure(SettingsClient):
                 hStack = True
 
             if indices[0] == Ellipsis:
-                subLayers = self.dataStructureLocalLayer[path[0]]
+                subLayers = self.nextLayer
             elif isinstance(indices[0], slice):
-                subLayers = self.dataStructureLocalLayer[path[0]][indices[0]]
+                subLayers = self.nextLayer[indices[0]]
             elif isinstance(indices[0], int):
-                subLayers = [self.dataStructureLocalLayer[path[0]][indices[0]]]
+                subLayers = [self.nextLayer[indices[0]]]
             elif isinstance(indices[0], list):
-                subLayers = [self.dataStructureLocalLayer[path[0]][i] for i in indices[0]]
+                subLayers = [self.nextLayer[i] for i in indices[0]]
             else:
                 raise ValueError("Invalid data type: indices[0]: %s" % str(indices[0]))
 
@@ -519,12 +582,12 @@ class DataStructure(SettingsClient):
                 # devide the data into several parts (depending on the given
                 # slice) and pass each of these to the corresponding subLayer.
                 if isinstance(indices[0], slice):
-                    subLayers = self.dataStructureLocalLayer[path[0]][indices[0]]
+                    subLayers = self.nextLayer[indices[0]]
                 elif isinstance(indices[0], list):
-                    subLayers = [self.dataStructureLocalLayer[path[0]][i] for i in indices[0]]
+                    subLayers = [self.nextLayer[i] for i in indices[0]]
                 else:
                     # index is Ellipsis... take all sublayers
-                    subLayers = self.dataStructureLocalLayer[path[0]]
+                    subLayers = self.nextLayer
 
                 numElementsList = [layer.getNumElementsForIndex(len(path) - 2, indices[1:]) for layer in subLayers]
                 numElemetsSum = np.sum(numElementsList)
@@ -550,7 +613,7 @@ class DataStructure(SettingsClient):
             else:
                 # pass the data to exactly one lower layer
                 # index is only an int
-                subLayer = self.dataStructureLocalLayer[path[0]][indices[0]]
+                subLayer = self.nextLayer[indices[0]]
                 subLayer.setDataEntry(dataObject, path[1:], indices[1:], data)
 
 
@@ -574,7 +637,7 @@ class DataStructure(SettingsClient):
         if not self.nextLayer:
             raise ValueError('Can not find given hierarchical index')
 
-        nextLayer = self.dataStructureLocalLayer[self.nextLayer]
+        nextLayer = self.nextLayer
         if len(indices) == 1:
             if isinstance(indices[0], (slice, int)):
                 return nextLayer[indices[0]]
@@ -613,9 +676,9 @@ class DataStructure(SettingsClient):
         if self.nextLayer is not None:
 
             if (inFront):
-                self.dataStructureLocalLayer[self.nextLayer] = dataStructure.dataStructureLocalLayer[self.nextLayer] + self.dataStructureLocalLayer[self.nextLayer]
+                self.nextLayer = dataStructure.nextLayer + self.nextLayer
             else:
-                self.dataStructureLocalLayer[self.nextLayer] = self.dataStructureLocalLayer[self.nextLayer] + dataStructure.dataStructureLocalLayer[self.nextLayer]
+                self.nextLayer = self.nextLayer + dataStructure.nextLayer
 
 
 
@@ -654,7 +717,7 @@ class DataStructure(SettingsClient):
 
         if self.nextLayer is not None and numElements:
 
-            subStructureList = self.dataStructureLocalLayer[self.nextLayer]
+            subStructureList = self.nextLayer
             currentSize = len(subStructureList)
             diff = numElementsLocal - currentSize
             # adapt amount of sub structures

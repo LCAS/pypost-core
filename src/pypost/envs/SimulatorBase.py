@@ -1,8 +1,5 @@
-from pypost.data.DataManipulator import DataManipulator
+from pypost.mappings.DataManipulator import DataManipulator
 from pypost.mappings.Mapping import Mapping
-from pypost.mappings.Mapping import MappingMetaClass
-
-import abc
 
 
 class SimulatorBase(Mapping):

@@ -1,8 +1,10 @@
 from pypost.common.SettingsClient import SettingsClient
-from pypost.mappings.Mapping import Mapping
+from pypost.mappings import Mapping
+from pypost.mappings import TFMapping
 
 
-class BatchLearner(Mapping, SettingsClient):
+
+class BatchLearner(TFMapping, SettingsClient):
     '''
     The Learner class serves as a base class for all learners and predefines
     all necessary methods.
@@ -13,7 +15,7 @@ class BatchLearner(Mapping, SettingsClient):
         Constructor
         '''
 
-        Mapping.__init__(self,dataManager, inputVariables=[], outputVariables=[])
+        TFMapping.__init__(self,dataManager)
         SettingsClient.__init__(self)
         self.iterations = 0
 

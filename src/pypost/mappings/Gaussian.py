@@ -15,9 +15,6 @@ class DiagonalGaussian_Base(Function_Base):
         self.meanTensorGenerator = meanTensorGenerator
         self.logStdTensorGenerator = logStdTensorGenerator
 
-        #self.setTensorsForVariables([self.mean, self.logStd])
-        self.setMappingTensorNode(self.sample)
-
     def clone(self, name):
         clone = DiagonalGaussian_Base(self.dataManager, self.inputVariables, self.outputVariables, self.meanTensorGenerator, self.logStdTensorGenerator, name)
         clone.parameters = self.parameters
@@ -66,18 +63,15 @@ class ConstantDiagionalGaussian(DiagonalGaussian_Base):
 
 class FullGaussian_Base(Function_Base):
 
-    def __init__(self, dataManager, inputArguments, outputArguments, meanTensorGenerator, covMatrixTensorGenerator, name = 'FullGaussian'):
+    def __init__(self, dataManager, inputArguments, outputArguments, meanTensorGenerator, stdMatrixTensorGenerator, name = 'FullGaussian'):
 
         Function_Base.__init__(self, dataManager, inputArguments, outputArguments, meanTensorGenerator, name = name)
 
         self.meanTensorGenerator = meanTensorGenerator
-        self.covMatrixTensorGenerator = covMatrixTensorGenerator
-
-        #self.setTensorsForVariables([self.mean, self.covMatrix])
-        self.setMappingTensorNode(self.sample)
+        self.stdMatrixTensorGenerator = stdMatrixTensorGenerator
 
     def initialize_params(self):
-        self.param_covmat = np.eye(self.dimOutput)
+        self.param_stdmat = np.eye(self.dimOutput)
 
     def clone(self, name):
         clone = FullGaussian_Base(self.dataManager, self.inputVariables, self.outputVariables, self.meanTensorGenerator, self.covMatrixTensorGenerator, name)
@@ -92,12 +86,12 @@ class FullGaussian_Base(Function_Base):
 
     @TFMapping.TensorMethod()
     def stdMatrix(self):
-        stdMatrixTensor = tf.cholesky(self.covMatrix)
+        stdMatrixTensor = self.stdMatrixTensorGenerator(self.getAllInputTensor(), self.dimOutput)
         return stdMatrixTensor
 
     @TFMapping.TensorMethod()
     def covMatrix(self):
-        return self.covMatrixTensorGenerator(self.getAllInputTensor(), self.dimOutput)
+        return tf.matmul(tf.transpose(self.stdMatrix), self.stdMatrix)
 
     @TFMapping.TensorMethod()
     def logLike(self):
@@ -115,3 +109,13 @@ class FullGaussian_Base(Function_Base):
     @TFMapping.TensorMethod(useAsMapping=True, connectTensorToOutput=True)
     def sample(self):
         return self.mean + tf.matmul(tf.random_normal(tf.shape(self.mean)), tf.transpose(self.stdMatrix))
+
+class LinearFullGaussian(FullGaussian_Base):
+    def __init__(self, dataManager, inputArguments, outputArguments, useBias = True, name = 'Function'):
+        FullGaussian_Base.__init__(self, dataManager, inputArguments, outputArguments,
+            meanTensorGenerator=tfutils.linear_layer_generator(useBias), stdMatrixTensorGenerator=tfutils.constant_covariance_generator(), name = name)
+
+class ConstantFullGaussian(FullGaussian_Base):
+    def __init__(self, dataManager, inputArguments, outputArguments, useBias = True, name = 'Function'):
+        FullGaussian_Base.__init__(self, dataManager, inputArguments, outputArguments,
+            meanTensorGenerator=tfutils.constant_generator(), stdMatrixTensorGenerator=tfutils.constant_covariance_generator(), name = name)

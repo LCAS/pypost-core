@@ -96,11 +96,26 @@ def _get_layers(tensor_node):
 
 def list_data_placeholders(dataManager, tensor_node):
     place_set = set()
-    for tfNode in tensor_node.op.inputs:
-        if tfNode.op.type == 'Placeholder' and dataManager.isEntryTensor(tfNode):
-            place_set.add(tfNode)
-        else:
+    if (isinstance(tensor_node, (tf.Tensor, tf.Variable))):
+        for tfNode in tensor_node.op.inputs:
+            if tfNode.op.type == 'Placeholder' and dataManager.isEntryTensor(tfNode):
+                place_set.add(tfNode)
+            else:
+                place_set = place_set.union(list_data_placeholders(dataManager, tfNode))
+
+    else:
+        # its an operation
+
+        for tfNode in tensor_node._control_inputs:
             place_set = place_set.union(list_data_placeholders(dataManager, tfNode))
+
+        for tfNode in tensor_node.inputs:
+            if tfNode.op.type == 'Placeholder' and dataManager.isEntryTensor(tfNode):
+                place_set.add(tfNode)
+            else:
+                place_set = place_set.union(list_data_placeholders(dataManager, tfNode))
+
+
     return place_set
 
 ### create layer functions
@@ -149,8 +164,9 @@ ALREADY_INITIALIZED = set()
 def initialize():
     """Initialize all the uninitialized variables in the global scope."""
     new_variables = set(tf.global_variables()) - ALREADY_INITIALIZED
-    tf.get_default_session().run(tf.variables_initializer(new_variables))
-    ALREADY_INITIALIZED.update(new_variables)
+    if (new_variables):
+        tf.get_default_session().run(tf.variables_initializer(new_variables))
+        ALREADY_INITIALIZED.update(new_variables)
 
 
 ###### MLP generators
@@ -179,7 +195,7 @@ def diagional_log_std_generator():
 
 def constant_covariance_generator():
     def generate(inputTensor, dimOutput):
-        return tf.get_variable("covmat", shape=[dimOutput, dimOutput], initializer=tf.ones_initializer())
+        return tf.get_variable("stdmat", shape=[dimOutput, dimOutput], initializer=tf.ones_initializer())
     return generate
 
 
@@ -242,6 +258,10 @@ class GetFlat(object):
 
     def __call__(self):
         return tf.get_default_session().run(self.op)
+
+def minimize(optimizer, loss, variables):
+    operation = optimizer.minimize(loss, variables)
+    operation.loss = loss
 
 ###### TensorFlow Decorator
 

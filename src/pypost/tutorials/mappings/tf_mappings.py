@@ -40,8 +40,13 @@ print(data[...].Z)
 
 dataManager.printTensorInputOutput(y1)
 
-output = tfutils.create_layers_linear_ouput(x, 'policy', [100,100], 10)
+output = tfutils.create_layers_linear_ouput(x, [100,100], 10)
 tfutils.initialize()
 
 tfutils.list_trainable_variables(output)
 
+import pickle
+stringDump = pickle.dumps(dataManager)
+dataManager1 = pickle.loads(stringDump)
+
+stringDump = pickle.dumps(dataManager)

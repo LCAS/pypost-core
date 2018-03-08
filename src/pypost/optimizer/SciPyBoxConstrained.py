@@ -17,8 +17,7 @@ class SciPyBoxConstrained(BoxConstrained):
     def __init__(self, numParams, optimizationName=''):
         super().__init__(numParams, optimizationName)
 
-        self.method = SciPyBoxConstrainedAlgorithms.L_BFGS_B
-        self.linkPropertyToSettings('method', optimizationName + 'method')
+        self.linkPropertyToSettings('method', defaultValue = SciPyBoxConstrainedAlgorithms.L_BFGS_B, globalName= optimizationName + 'method')
 
     def _optimize_internal(self, **kwargs):
         if self.verbose:
