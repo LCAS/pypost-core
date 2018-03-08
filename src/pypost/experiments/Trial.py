@@ -202,7 +202,7 @@ class Trial(SettingsClient):
 
             commitCount = subprocess.getoutput(["git rev-list --count HEAD"])
             revNumber = subprocess.getoutput(["git rev-list --full-history --all | head -1"])
-            date = subprocess.getoutput('date +%Y/%m/%d_%H:%M')
+            date = time.strftime('%Y/%m/%d_%H:%M')
 
             self.gitRevisionNumber = commitCount + ':' + revNumber + ':' + date
             self.isRunning = True

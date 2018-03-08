@@ -1,11 +1,11 @@
 import numpy as np
-from pypost.mappings.GaussianLinearInFeatures import GaussianLinearInFeatures
+from pypost.mappings.Gaussian import LinearFullGaussian
 
 from pypost.banditEnvironments.RosenbrockReward import RosenbrockReward
 from pypost.experiments.Trial import Trial
 from pypost.learner.LinearGaussianMLLearner import LinearGaussianMLLearner
 from pypost.sampler.EpisodeSampler import EpisodeSampler
-
+import tensorflow as tf
 
 class DummyTrial(Trial):
 
@@ -14,6 +14,11 @@ class DummyTrial(Trial):
 
     def _configure(self):
         # set some basic parameters
+
+        num_cpu = 1
+        tf_config = tf.ConfigProto(inter_op_parallelism_threads=num_cpu, intra_op_parallelism_threads=num_cpu)
+        session = tf.Session(config=tf_config)
+        session.__enter__()
 
         self.settings.setProperty("temperature", 1)
         self.settings.setProperty("numEpisodes", 10)
@@ -34,7 +39,7 @@ class DummyTrial(Trial):
             numParameters = 10)
 
         # set the parameter policy
-        self.parameterPolicy = GaussianLinearInFeatures(self.dataManager, inputVariables=['contexts'], outputVariables=['parameters'], name = 'parameterPolicy')
+        self.parameterPolicy = LinearFullGaussian(self.dataManager, inputArguments=['contexts'], outputArguments=['parameters'], name = 'parameterPolicy')
         self.dataManager.addDataEntry('returnWeighting', 1)
         self.policyLearner = LinearGaussianMLLearner(self.dataManager, self.parameterPolicy, 'returnWeighting')
 
