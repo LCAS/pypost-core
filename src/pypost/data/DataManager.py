@@ -458,6 +458,7 @@ class DataManager(SettingsClient):
             else:
                 tensor = tf.placeholder(tf.float32, shape=(None, dim), name=dictEntry)
             self.tensorToEntryMap[tensor] = entryName
+            self.tensorDict[dictEntry] = tensor
             return tensor
 
     def isEntryTensor(self, tensor):
