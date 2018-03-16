@@ -9,6 +9,7 @@ tf_config = tf.ConfigProto(inter_op_parallelism_threads=num_cpu, intra_op_parall
 session = tf.Session(config=tf_config)
 session.__enter__()
 
+
 #define our mapping class. A mapping is a callable object, where the call function is implemented by the MappingMethod decorator
 
 # Create a dataManager that can handle the input (X) and output (Y) of a 1 dimensional

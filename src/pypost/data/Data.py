@@ -264,6 +264,8 @@ class Data(object):
             raise ValueError('Operator >> can only be applied to manipulation functions or tuples of manipulation functions'
                              'and index')
 
+
+
     def __rrshift__(self, function):
 
 

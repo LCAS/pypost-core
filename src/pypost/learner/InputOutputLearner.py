@@ -85,9 +85,9 @@ class L2GradientLearner(InputOutputLearner):
 
         if self.weightName is not None:
             weighting = self.dataManager.createTensorForEntry(self.weightName)
-            loss = tf.losses.mean_squared_error(labels, self.functionApproximator.mean, weights=weighting)
+            loss = tf.losses.mean_squared_error(labels, self.functionApproximator.output, weighting)
         else:
-            loss = tf.losses.mean_squared_error(labels, self.functionApproximator.mean, weights=1.0)
+            loss = tf.losses.mean_squared_error(labels, self.functionApproximator.mean)
 
         return loss
 
@@ -97,6 +97,36 @@ class L2GradientLearner(InputOutputLearner):
         data >> self.optimizer
 
 
+class CrossEntropyLossGradientLearner(InputOutputLearner):
+    '''
+    The Learner class serves as interface for all learners that learn an input output mapping.
+    '''
+
+    def __init__(self, dataManager, functionApproximator, weightName=None, inputVariables=None, outputVariable=None):
+
+        InputOutputLearner.__init__(self, dataManager, functionApproximator, weightName=weightName, inputVariables=inputVariables, outputVariable=outputVariable)
+
+        self.optimizer = TFOptimizer(dataManager, self.lossFunction, variables_list=self.functionApproximator.tv_variables_list)
+
+
+    @TFMapping.TensorMethod()
+    def lossFunction(self):
+
+        labels = self.dataManager.createTensorForEntry(self.outputVariables[0])
+
+        if self.weightName is not None:
+            weighting = self.dataManager.createTensorForEntry(self.weightName)
+            loss = tf.reduce_sum(tf.nn.weighted_cross_entropy_with_logits(targets = labels, logits=self.functionApproximator.output, pos_weight=weighting))
+        else:
+            loss = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels = labels, logits=self.functionApproximator.output))
+
+        return loss
+
+
+    @Mapping.MappingMethod(inputArguments=[], outputArguments=[], takesData=True)
+    def updateModel(self, data):
+
+        data >> self.optimizer
 
 class LogLikeGradientLearner(InputOutputLearner):
     '''

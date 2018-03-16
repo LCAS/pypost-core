@@ -60,7 +60,7 @@ class TFOptimizer(Mapping):
         numElements = data.getNumElements(self.tm_minimize.inputVariables[0])
 
         if (self.tfOptimizerBatchSize == -1):
-            mini_batch_indices = range(0,numElements)
+            mini_batch_indices = [list(range(0,numElements))]
         else:
             inds = np.arange(numElements)
             np.random.shuffle(inds)
