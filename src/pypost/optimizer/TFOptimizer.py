@@ -12,7 +12,7 @@ class TFOptimizerType(Enum):
 
 class TFOptimizer(Mapping):
 
-    def __init__(self, dataManager, lossFunction, variables_list = None, name = None):
+    def __init__(self, dataManager, lossFunction, variables_list = None, name = None, printIterations=True):
         super().__init__(dataManager)
 
         self.loss = lossFunction
@@ -49,7 +49,7 @@ class TFOptimizer(Mapping):
         self.minimize = self.optimizer.minimize(self.loss, var_list=self.variables_list)
         self.tm_minimize = TFMapping(dataManager, tensorNode = self.minimize)
 
-        self._printIterations = True
+        self._printIterations = printIterations
         self.lossLogger = []
 
     @Mapping.MappingMethod(takesData=True)
