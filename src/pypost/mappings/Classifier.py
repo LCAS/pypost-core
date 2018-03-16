@@ -17,7 +17,7 @@ class SigmoidClassifier_Base(TFMapping):
 
     def clone(self, name):
 
-        clone = Classifier_Base(self.dataManager, self.inputVariables, self.outputVariables, self.outputTensorGenerator, name)
+        clone = SigmoidClassifier_Base(self.dataManager, self.inputVariables, self.outputVariables, self.outputTensorGenerator, name)
         clone.parameters = self.parameters
         return clone
 

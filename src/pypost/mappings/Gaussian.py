@@ -115,7 +115,7 @@ class LinearFullGaussian(FullGaussian_Base):
         FullGaussian_Base.__init__(self, dataManager, inputArguments, outputArguments,
             meanTensorGenerator=tfutils.linear_layer_generator(useBias), stdMatrixTensorGenerator=tfutils.constant_covariance_generator(), name = name)
 
-class ConstantFullGaussian(FullGaussian_Base):
+class FullGaussian(FullGaussian_Base):
     def __init__(self, dataManager, inputArguments, outputArguments, useBias = True, name = 'Function'):
         FullGaussian_Base.__init__(self, dataManager, inputArguments, outputArguments,
             meanTensorGenerator=tfutils.constant_generator(), stdMatrixTensorGenerator=tfutils.constant_covariance_generator(), name = name)

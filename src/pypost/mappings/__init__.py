@@ -7,7 +7,7 @@ from .Gaussian import ConstantDiagionalGaussian
 from .Gaussian import LinearDiagionalGaussian
 from .Gaussian import FullGaussian_Base
 from .Gaussian import LinearFullGaussian
-from .Gaussian import ConstantFullGaussian
+from .Gaussian import FullGaussian
 
 from .DataManipulator import CallType, DataManipulator, additional_inputs
 
