@@ -20,7 +20,7 @@ generatorCovMat = tfutils.constant_covariance_generator()
 
 gaussian = FullGaussian_Base(dataManager, ['states'], ['actions'], generatorMean, generatorCovMat)
 
-data = dataManager.createDataObject([1000])
+data = dataManager.createDataObject([100])
 data[...].states = np.random.normal(0, 1, data[...].states.shape)
 
 A = np.random.normal(0,1,(5,5))
@@ -32,6 +32,12 @@ data[...] >> gaussian >= data
 
 # compute logLikelihood
 data[...] >= gaussian.logLike
+
+# compute logLikelihood
+data[...] >= gaussian.logLike.single_gradient()
+# compute logLikelihood
+data[...] >= gaussian.logLike.single_gradient()
+
 
 # Compute log likelihood
 gaussianOther = FullGaussian_Base(dataManager, ['states'], ['actions'], generatorMean, generatorCovMat)

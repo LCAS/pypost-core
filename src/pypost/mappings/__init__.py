@@ -2,6 +2,7 @@ from .Mapping import Mapping
 from .TFMapping import TFMapping
 from .Function import Function_Base
 from .Function import LinearFunction
+from .Function import ConstantFunction
 from .Gaussian import DiagonalGaussian_Base
 from .Gaussian import ConstantDiagionalGaussian
 from .Gaussian import LinearDiagionalGaussian

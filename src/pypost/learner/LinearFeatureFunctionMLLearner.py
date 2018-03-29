@@ -36,6 +36,8 @@ class LinearFeatureFunctionMLLearner(InputOutputLearner):
         if weighting is None:
             weighting = np.ones((outputData.shape[0], 1))
 
+        inputData = self.functionApproximator.getLinearFeatures(inputData)
+
         numSamples = outputData.shape[0]
 
         if (self.outputDataNormalization):
@@ -52,12 +54,12 @@ class LinearFeatureFunctionMLLearner(InputOutputLearner):
 
             inputData = (inputData - meanRangeInput) /  rangeInput
 
-        valididxs = inputData.std(0) > 0
 
-        if inputData.shape[1] > 0:
-            Shat = np.hstack((np.ones((numSamples, 1)), inputData[:, valididxs]))
-        else:
-            Shat = np.ones((numSamples, 1))
+        inputStd = inputData.std(0)
+        inputMean = inputData.mean(0)
+
+        valididxs = np.logical_or(inputStd > 0, abs(inputMean) != 0)
+        Shat = inputData[:, valididxs]
 
         sumW = weighting.sum()
         weighting = weighting / sumW
@@ -71,23 +73,17 @@ class LinearFeatureFunctionMLLearner(InputOutputLearner):
 
         thetaL = np.linalg.solve(matrixtoInvert, np.dot(SW.transpose(), outputData)).transpose()
 
-        MuATemp = thetaL[:, 0]
-        MuA = MuATemp[:, np.newaxis]
-
-        BetaA = np.zeros((outputData.shape[1], inputData.shape[1]))
+        BetaA = thetaL
 
         if inputData.shape[1] > 0:
-            BetaA[:, valididxs]  = thetaL[:, 1:]
             if self.outputDataNormalization:
                 BetaA = BetaA * rangeOutput.transpose()
 
         if self.inputDataNormalization and inputData.shape[1] > 0:
             temp = np.dot(BetaA, meanRangeInput.transpose())
-            MuA = MuA - temp[:,np.newaxis]
             BetaA = BetaA / rangeInput
 
-        if self.outputDataNormalization:
-            MuA = MuA * rangeOutput.transpose() + meanRangeOutput.transpose()
+        #if self.outputDataNormalization:
+        #    MuA = MuA * rangeOutput.transpose() + meanRangeOutput.transpose()
 
-        self.functionApproximator.param_final_b = MuA.reshape(self.functionApproximator.param_final_b.shape)
-        self.functionApproximator.param_final_w = BetaA.transpose()
+        self.functionApproximator.setLinearParameters(BetaA)

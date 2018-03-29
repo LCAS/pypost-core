@@ -177,6 +177,8 @@ class Data(object):
             #    self.activeIndex = [self.activeIndex]
             #else:
             self.activeIndex = list(self.activeIndex)
+        elif isinstance(self.activeIndex, list):
+            self.activeIndex = [self.activeIndex]
 
         if not isinstance(self.activeIndex, list):
             self.activeIndex = [self.activeIndex]

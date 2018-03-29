@@ -182,10 +182,6 @@ def linear_layer_generator(useBias = True):
         return create_linear_layer(inputTensor, dimOutput, useBias)
     return generate
 
-def constant_generator():
-    def generate(inputTensor, dimOutput):
-        return create_linear_layer(None, dimOutput, True)
-    return generate
 
 
 def diagional_log_std_generator():
@@ -196,6 +192,27 @@ def diagional_log_std_generator():
 def constant_covariance_generator():
     def generate(inputTensor, dimOutput):
         return tf.get_variable("stdmat", shape=[dimOutput, dimOutput], initializer=tf.ones_initializer())
+    return generate
+
+def constant_generator(name = 'constTerm'):
+    def generate(inputTensor, dimOutput):
+        return tf.get_variable(name, shape=[1], initializer=tf.zeros_initializer())
+    return generate
+
+def constant_vector_generator(name = 'linearTerm'):
+    def generate(inputTensor, dimOutput):
+        return tf.get_variable(name, shape=[inputTensor.getshape()[1],1], initializer=tf.zeros_initializer())
+    return generate
+
+
+def constant_quadmat_generator(name = 'quadTerm'):
+    def generate(inputTensor, dimOutput):
+        quadMat_temp = tf.get_variable(name, shape=[dimOutput, dimOutput], initializer=tf.ones_initializer())
+
+        quadMat = tf.matrix_band_part(quadMat_temp, -1, 0)
+        quadMat = quadMat + tf.transpose(quadMat) - tf.matrix_band_part(quadMat_temp, 0, 0)
+
+        return quadMat
     return generate
 
 

@@ -40,7 +40,7 @@ class TFMappingMetaClass(MappingMetaClass):
         obj._addAllTensorFunctions()
         obj.addTensorsForVariables()
         if cls.callTensor:
-            obj._setMappingTensorNode(getattr(obj,cls.callTensor))
+            obj._setMappingTensorNode(getattr(obj,'tn_' + cls.callTensor))
 
         tfutils.initialize()
         obj.initialize_params()
@@ -86,32 +86,40 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
         self.inputTensorsProperty = []
 
         self.inputProperties = []
+
         self._tensorFunctionsDict = {}
+        self._tensorNodeDict = {}
 
         if (self.outputTensors is not None):
             self._setMappingTensorNode(self.outputTensors)
 
         for tensorFunction in self.tensorFunctionsList:
             self._tensorFunctionsDict[tensorFunction] = None
+            self._tensorNodeDict['tn_' + tensorFunction] = None
 
         self._parameter_dict = {}
         self._variable_dict = {}
         self._dataPropertiesTensors = []
+
 
         self.tv_variables_list = []
         self._parameters_flat = None
         self._parameters_setter = None
 
         self._in_scope = False
+        self.additionalScopes = []
 
         self.layers = []
         self.isTensorNodeSet = False
-
+        self.useEmpty = False
         if (tensorNode is not None):
             self._setMappingTensorNode(tensorNode)
 
     def initialize_params(self):
         return
+
+    def tensor(self):
+        return self.outputTensors
 
     def _setLayersFromTensor(self, tensorNode):
         self.layers = tfutils._get_layers(tensorNode)
@@ -122,6 +130,10 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
     def addTensorsForVariables(self):
 
         self.tv_variables_list = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=self.name)
+
+        for scopeNames in self.additionalScopes:
+            self.tv_variables_list = self.tv_variables_list + tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=scopeNames)
+
 
         if len(self.tv_variables_list) > 0:
             self._addTensorVariables(self.tv_variables_list)
@@ -187,10 +199,15 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
 
         #TODO: preprocess additional Input Tensors (evaluate)
 
+        if (hasattr(tensor, 'preprocessed')) and tensor.preprocessed:
+            tensorMapping = TFMapping(self.dataManager, tensorNode=tensor)
+
+            return tensorMapping
+
         if (hasattr(tensor, 'addtionalInputTensors')):
-            tensor.addtionalInputTensors = [eval(tensorName) for tensorName in tensor.additionalInputTensors]
+            tensor.additionalInputTensors = [eval(tensorName) for tensorName in tensor.additionalInputTensors]
         else:
-            tensor.addtionalInputTensors = []
+            tensor.additionalInputTensors = []
 
         def gradient(variables=None):
             if (variables == None):
@@ -217,10 +234,11 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
 
         tensor.gradient = gradient
         tensor.single_gradient = single_gradient
-        tensor.additional_inputs = additional_inputs
+        tensor.preprocessed = True
 
-        tensor.mapping = TFMapping(self.dataManager, tensorNode=tensor)
-        return tensor
+        tensorMapping = TFMapping(self.dataManager, tensorNode=tensor)
+
+        return tensorMapping
 
     def _addTensorFunction(self, name):
         tensorFunction = getattr(self, 'tm_' + name)
@@ -246,11 +264,14 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
                 else:
                     self.dataManager.connectTensorToEntry(tensor, tensorFunction.connectTensorToOutput)
 
-        self._tensorFunctionsDict[name] = self._preprocessTensor(tensor)
+        tensorMapping = self._preprocessTensor(tensor)
+        self._tensorFunctionsDict[name] = tensorMapping
+        self._tensorNodeDict['tn_' + name] = tensorMapping.tensor()
+
 
     def __getattribute__(self, name):
 
-        if (name == '_parameter_dict' or name == '_tensorFunctionsDict' or name == '_variable_dict'):
+        if (name == '_parameter_dict' or name == '_tensorFunctionsDict' or name == '_variable_dict' or name == '_tensorNodeDict'):
             return super().__getattribute__(name)
 
         if (hasattr(self, '_parameter_dict') and name in self._parameter_dict):
@@ -259,6 +280,14 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
             if self._tensorFunctionsDict[name] == None:
                 self._addTensorFunction(name)
             return self._tensorFunctionsDict[name]
+        elif (hasattr(self, '_tensorNodeDict') and name in self._tensorNodeDict):
+            #remove 'tn_' prefix
+            nameNode = name[3:]
+
+            if self._tensorFunctionsDict[nameNode] == None:
+                self._addTensorFunction(nameNode)
+            return self._tensorNodeDict[name]
+
         elif (hasattr(self, '_variable_dict') and name in self._variable_dict):
             return self._variable_dict[name]
         else:
@@ -302,7 +331,13 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
         for input in self.inputVariables:
             inputTensors.append(self.dataManager.createTensorForEntry(input))
 
-        allInputTensor = tf.concat(inputTensors, 1)
+        if len(inputTensors) > 0:
+            allInputTensor = tf.concat(inputTensors, 1)
+            self.useEmpty = False
+        else:
+            allInputTensor = self.dataManager.createTensorForEntry('empty')
+            self.useEmpty = True
+
         return allInputTensor
 
     def getInputTensorIndex(self, index):
@@ -361,12 +396,15 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
             if not isinstance(resultItem, np.ndarray):
                 return resultItem
             if (resultItem.shape[0] == 1):
-                if (resultItem.shape[1] == 1 and scalarValue):
-                    return resultItem[0,0]
-                elif singleSample:
-                    return resultItem.reshape((resultItem.shape[1],))
-                else:
+                if len(resultItem.shape) == 1:
                     return resultItem
+                else:
+                    if (resultItem.shape[1] == 1 and scalarValue):
+                        return resultItem[0,0]
+                    elif singleSample:
+                        return resultItem.reshape((resultItem.shape[1],))
+                    else:
+                        return resultItem
             elif len(resultItem.shape) > 1 and resultItem.shape[1] == 1 and oneDArray:
                 return resultItem.reshape((resultItem.shape[0],))
             else:

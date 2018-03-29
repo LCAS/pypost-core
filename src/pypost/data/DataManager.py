@@ -135,6 +135,10 @@ class DataManager(SettingsClient):
         self.addDataPreprocessor('restricted', restrictData)
         self.addDataPreprocessor('validFlag', getDataValidTag, setDataValidTag)
 
+        self.addDataEntry('empty', 0)
+
+
+
     def __getnewargs__(self):
         return (self.name,)
 
@@ -441,6 +445,10 @@ class DataManager(SettingsClient):
     def printTensorInputOutput(self, tensorNode):
         inputVariables, outputVariables, *args = self.getTensorInputOutput(tensorNode)
         print('{} -> {}'.format(inputVariables, outputVariables))
+
+    def getEmptyTensor(self):
+        return self.emptyTensor
+
 
     def createTensorForEntry(self, entryName, suffix = None):
 

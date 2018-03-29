@@ -14,7 +14,7 @@ class LinearGaussianMLLearner(LinearFeatureFunctionMLLearner):
         - < tt > priorCov < / tt > (default 1): prior used for the fit. Can be seen as shrinkage matrix.
         - < tt > priorCovWeight < / tt > (default 10 ^ -16): factor of the prior (in terms of number of samples)
     '''
-    def __init__(self, dataManager, functionApproximator,  weightName = None, inputVariables = None, outputVariable = None):
+    def __init__(self, dataManager, gaussian,  weightName = None, inputVariables = None, outputVariable = None):
         '''
         :param dataManager:
         :param functionApproximator:
@@ -24,14 +24,15 @@ class LinearGaussianMLLearner(LinearFeatureFunctionMLLearner):
         '''
 
 
-        LinearFeatureFunctionMLLearner.__init__(self, dataManager, functionApproximator,  weightName, inputVariables, outputVariable)
+        LinearFeatureFunctionMLLearner.__init__(self, dataManager, gaussian.meanFunction,  weightName, inputVariables, outputVariable)
 
         self.minCov = 10 ** -12
         self.priorCov = 1.0
         self.priorCovWeight = 10 ** -16
         self.KL = 0
+        self.gaussian = gaussian
 
-        mapName = functionApproximator.outputVariables[0]
+        mapName = gaussian.outputVariables[0]
         mapName = mapName[0].upper() + mapName[1:]
 
         #self.linkProperty('maxCorr', 'maxCorr' + mapName)

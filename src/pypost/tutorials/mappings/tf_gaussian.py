@@ -17,7 +17,7 @@ dataManager.addDataEntry('actions', 5)
 generatorMean = tfutils.continuous_MLP_generator([100, 100])
 generatorLogStd = tfutils.diagional_log_std_generator()
 
-gaussian = DiagonalGaussian_Base(dataManager, ['states'], ['actions'], generatorMean, generatorLogStd)
+gaussian = DiagonalGaussian(dataManager, ['states'], ['actions'], generatorMean)
 
 data = dataManager.createDataObject([10])
 data[...].states = np.random.normal(0, 1, data[...].states.shape)
