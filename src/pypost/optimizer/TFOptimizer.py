@@ -6,9 +6,11 @@ from pypost.data import Data
 
 from enum import Enum
 
+
 class TFOptimizerType(Enum):
     Adam = 1
     GradientDescent = 2
+
 
 class TFOptimizer(Mapping):
 

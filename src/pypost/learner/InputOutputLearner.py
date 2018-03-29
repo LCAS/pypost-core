@@ -103,30 +103,28 @@ class CrossEntropyLossGradientLearner(InputOutputLearner):
     '''
 
     def __init__(self, dataManager, functionApproximator, weightName=None, inputVariables=None, outputVariable=None):
-
         InputOutputLearner.__init__(self, dataManager, functionApproximator, weightName=weightName, inputVariables=inputVariables, outputVariable=outputVariable)
-
-        self.optimizer = TFOptimizer(dataManager, self.lossFunction, variables_list=self.functionApproximator.tv_variables_list)
-
+        self.optimizer = TFOptimizer(dataManager, self.tn_lossFunction, variables_list=self.functionApproximator.tv_variables_list)
 
     @TFMapping.TensorMethod()
     def lossFunction(self):
-
         labels = self.dataManager.createTensorForEntry(self.outputVariables[0])
 
         if self.weightName is not None:
             weighting = self.dataManager.createTensorForEntry(self.weightName)
-            loss = tf.reduce_sum(tf.nn.weighted_cross_entropy_with_logits(targets = labels, logits=self.functionApproximator.output, pos_weight=weighting))
+            loss = tf.reduce_sum(tf.nn.weighted_cross_entropy_with_logits(targets=labels,
+                                                                          logits=self.functionApproximator.tn_output,
+                                                                          pos_weight=weighting))
         else:
-            loss = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels = labels, logits=self.functionApproximator.output))
+            loss = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=labels,
+                                                                         logits=self.functionApproximator.tn_output))
 
         return loss
 
-
     @Mapping.MappingMethod(inputArguments=[], outputArguments=[], takesData=True)
     def updateModel(self, data):
-
         data >> self.optimizer
+
 
 class LogLikeGradientLearner(InputOutputLearner):
     '''

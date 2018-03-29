@@ -13,7 +13,7 @@ class SigmoidClassifier_Base(TFMapping):
 
         self.outputTensorGenerator = outputTensorGenerator
 
-        self._setLayersFromTensor(self.classify)
+        self._setLayersFromTensor(self.tn_classify)
 
     def clone(self, name):
 
@@ -28,13 +28,13 @@ class SigmoidClassifier_Base(TFMapping):
 
     @TFMapping.TensorMethod(connectTensorToOutput=True, useAsMapping=True)
     def classify(self):
-        return tf.sigmoid(self.output)
+        return tf.sigmoid(self.tn_output)
 
     @TFMapping.TensorMethod(connectTensorToOutput=True, useAsMapping=False)
     def sample(self):
-        z = tf.random_uniform(tf.shape(self.classify), minval=0, maxval=1)
+        z = tf.random_uniform(tf.shape(self.tn_classify), minval=0, maxval=1)
 
-        return tf.cast(tf.greater(z, self.classify), tf.int32)
+        return tf.cast(tf.greater(z, self.tn_classify), tf.int32)
 
 
 class LinearClassifier(SigmoidClassifier_Base):
