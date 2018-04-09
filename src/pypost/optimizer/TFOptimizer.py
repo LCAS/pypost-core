@@ -14,7 +14,7 @@ class TFOptimizerType(Enum):
 
 class TFOptimizer(Mapping):
 
-    def __init__(self, dataManager, lossFunction, variables_list = None, name = None, printIterations=True):
+    def __init__(self, dataManager, lossFunction, variables_list = None, name = None, printIterations=False):
         super().__init__(dataManager)
 
         self.loss = lossFunction
@@ -26,7 +26,7 @@ class TFOptimizer(Mapping):
             self.name = name + '_'
 
         self.linkPropertyToSettings('tfOptimizerType', globalName = self.name + 'tfOptimizerType', defaultValue=TFOptimizerType.Adam)
-        self.linkPropertyToSettings('tfOptimizerNumIterations', globalName = self.name + 'tfOptimizerNumIterations', defaultValue=10)
+        self.linkPropertyToSettings('tfOptimizerNumIterations', globalName = self.name + 'tfOptimizerNumIterations', defaultValue=1000)
         self.linkPropertyToSettings('tfOptimizerBatchSize', globalName=self.name + 'tfOptimizerBatchSize', defaultValue = -1)
 
         if self.tfOptimizerType == TFOptimizerType.Adam:
@@ -57,7 +57,7 @@ class TFOptimizer(Mapping):
     @Mapping.MappingMethod(takesData=True)
     def optimize(self, data):
         if (self._printIterations):
-            print('Loss Iteration 0: ', data >= self.loss)
+            print('Loss Iteration 0: ', data[...] >= self.loss)
 
         numElements = data.getNumElements(self.tm_minimize.inputVariables[0])
 

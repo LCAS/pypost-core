@@ -19,7 +19,7 @@ class DiagonalGaussian_Base(TFMapping):
 
     def clone(self, name):
         clone = DiagonalGaussian_Base(self.dataManager, self.inputVariables, self.outputVariables, name)
-        clone.parameters = self.parameters
+        clone.params = self.params
         return clone
 
     def klDivergence(self, other):
@@ -65,8 +65,8 @@ class LinearDiagionalGaussian(DiagonalGaussian_Base):
 
 
 class ConstantDiagionalGaussian(DiagonalGaussian_Base):
-    def __init__(self, dataManager, inputArguments, outputArguments, name = 'DiagGaussian'):
-        DiagonalGaussian_Base.__init__(self, dataManager, inputArguments, outputArguments, meanFunction = ConstantFunction(dataManager, inputArguments, outputArguments, name = name), name = name)
+    def __init__(self, dataManager, outputArguments, name = 'DiagGaussian'):
+        DiagonalGaussian_Base.__init__(self, dataManager, [], outputArguments, meanFunction = ConstantFunction(dataManager, outputArguments, name = name), name = name)
 
 
     @TFMapping.TensorMethod()
@@ -85,8 +85,8 @@ class FullGaussian_Base(TFMapping):
         self.param_stdmat = np.eye(self.dimOutput)
 
     def clone(self, name):
-        clone = FullGaussian_Base(self.dataManager, self.inputVariables, self.outputVariable, name)
-        clone.parameters = self.parameters
+        clone = FullGaussian_Base(self.dataManager, self.inputVariables, self.outputVariables, name)
+        clone.params = self.params
         return clone
 
     @TFMapping.TensorMethod()
@@ -137,12 +137,24 @@ class LinearFullGaussian(FullGaussian_Base):
 
 
 class FullGaussian(FullGaussian_Base):
-    def __init__(self, dataManager, inputArguments, outputArguments, name = 'FullGaussian'):
-        FullGaussian_Base.__init__(self, dataManager, inputArguments, outputArguments, meanFunction=ConstantFunction(dataManager, inputArguments, outputArguments, name = name), name = name)
+    def __init__(self, dataManager, outputArguments, name = 'FullGaussian'):
+        FullGaussian_Base.__init__(self, dataManager, [], outputArguments, meanFunction=ConstantFunction(dataManager, outputArguments, name = name), name = name)
+
+    def clone(self, name):
+        clone = FullGaussian(self.dataManager, self.outputVariables, name)
+        clone.meanFunction = clone.meanFunction.clone(name + 'Mean')
+        clone.params = self.params
+        return clone
 
     @TFMapping.TensorMethod()
     def stdMatrix(self):
         return tf.get_variable("stdmat", shape=[self.dimOutput, self.dimOutput], initializer=tf.ones_initializer())
+
+    def setMean(self, mu):
+        self.param_output = mu.reshape((-1))
+
+    def setCov(self, covMat):
+        self.param_stdmat = np.linalg.cholesky(covMat)
 
 
 class NaturalFullGaussian_Base(TFMapping):
@@ -157,7 +169,7 @@ class NaturalFullGaussian_Base(TFMapping):
 
     def clone(self, name):
         clone = NaturalFullGaussian_Base(self.dataManager, self.inputVariables, self.outputVariables, name)
-        clone.parameters = self.parameters
+        clone.params = self.params
         return clone
 
     def klDivergence(self, other):
@@ -235,8 +247,8 @@ class NaturalLinearFullGaussian(NaturalFullGaussian_Base):
 
 
 class NaturalFullGaussian(NaturalFullGaussian_Base):
-    def __init__(self, dataManager, inputArguments, outputArguments, useBias = True, name = 'Function'):
-        NaturalFullGaussian_Base.__init__(self, dataManager, inputArguments, outputArguments, name = name)
+    def __init__(self, dataManager, outputArguments, useBias = True, name = 'Function'):
+        NaturalFullGaussian_Base.__init__(self, dataManager, [], outputArguments, name = name)
 
     @TFMapping.TensorMethod(connectTensorToOutput=True)
     def linearTerm(self):

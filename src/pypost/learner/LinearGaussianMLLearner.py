@@ -62,12 +62,12 @@ class LinearGaussianMLLearner(LinearFeatureFunctionMLLearner):
 
 
         if Z > 0:
-            expectedOutput = self.functionApproximator.mean.mapping(inputData)
+            expectedOutput = self.functionApproximator(inputData)
 
             difference = expectedOutput - outputData
             differenceW = difference * weighting
 
-            if isinstance(self.functionApproximator, FullGaussian_Base):
+            if isinstance(self.gaussian, FullGaussian_Base):
 
                 SigmaA = np.dot(difference.transpose(), differenceW)
 
@@ -80,9 +80,9 @@ class LinearGaussianMLLearner(LinearFeatureFunctionMLLearner):
                 SigmaA = boundCovariance(SigmaA, minCov)
                 SigmaA, cholA = regularizeCovariance(SigmaA, np.diag(rangeOutput) * priorCov, numEffectiveSamples, priorCovWeight)
 
-                self.functionApproximator.param_stdmat = cholA.transpose()
-            elif  isinstance(self.functionApproximator, DiagonalGaussian_Base):
+                self.gaussian.param_stdmat = cholA.transpose()
+            elif  isinstance(self.gaussian, DiagonalGaussian_Base):
 
                 varA = np.sum(difference * differenceW, axis=0) / Z
 
-                self.functionApproximator.param_logstd = 0.5 * np.log(varA.reshape(self.functionApproximator.param_logstd))
+                self.gaussian.param_logstd = 0.5 * np.log(varA.reshape(self.gaussian.param_logstd))

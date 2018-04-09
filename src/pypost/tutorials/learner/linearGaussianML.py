@@ -11,8 +11,6 @@ from pypost.optimizer import TFOptimizerType
 
 from pypost.mappings.Gaussian import LinearFullGaussian
 
-
-
 num_cpu = 1
 tf_config = tf.ConfigProto(inter_op_parallelism_threads=num_cpu, intra_op_parallelism_threads=num_cpu)
 session = tf.Session(config=tf_config)
@@ -53,11 +51,11 @@ print('Bias2: {0}'.format(gaussianLearned.param_final_b))
 print('Weights1: {0}'.format(gaussian.param_final_w))
 print('Weights2: {0}'.format(gaussianLearned.param_final_w))
 
-print('CovMat1: {0}'.format(gaussian.param_stdmat))
-print('CovMat2: {0}'.format(gaussianLearned.param_stdmat))
+print('CovMat1: {0}'.format(gaussian.covMatrix()))
+print('CovMat2: {0}'.format(gaussianLearned.covMatrix()))
 
-gradient = data[...] >= gaussian.logLike.gradient()
-print(gradient)
+#gradient = data[...] >= gaussian.logLike.gradient()
+#print(gradient)
 
 settings.setProperty('tfOptimizerType', TFOptimizerType.Adam)
 settings.setProperty('tfOptimizerNumIterations', 10000)

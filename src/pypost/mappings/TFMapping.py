@@ -186,7 +186,22 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
             self._parameters_setter(value)
         else:
             tensor = self._parameter_dict[name]
+
+            desShape = tensor.shape.as_list()
+
+            #if (isinstance(value, np.ndarray)):
+            #    if ()
+            #    if (len(desShape) > len(value.shape)):
+
+
+            if isinstance(value, (float, int)):
+                value = np.ones(tuple(tensor.shape.as_list())) * value
+
+
+
             op = tensor.assign(value)
+
+
             tf.get_default_session().run(op)
         return value
 
@@ -360,6 +375,9 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
             raise ValueError('TFMapping has not been correctly intialized. No TensorMethod was indicated for the Mapping. '
                              'Use property useAsMapping = True for exactly one TensorMethod.')
 
+        if len(args) == 0 and len(self.inputVariables) == 1 and self.inputVariables[0] == 'empty':
+            args = [np.zeros((1,0))]
+
         if len(args) != len(self.inputVariables):
             raise ValueError(
                 'Error calling tensor method. Please provide the correct number of inputs as given in .inputVariables!')
@@ -397,14 +415,14 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
                 return resultItem
             if (resultItem.shape[0] == 1):
                 if len(resultItem.shape) == 1:
-                    return resultItem
+                    return resultItem[0]
                 else:
                     if (resultItem.shape[1] == 1 and scalarValue):
                         return resultItem[0,0]
                     elif singleSample:
                         return resultItem.reshape((resultItem.shape[1],))
                     else:
-                        return resultItem
+                        return resultItem.transpose()
             elif len(resultItem.shape) > 1 and resultItem.shape[1] == 1 and oneDArray:
                 return resultItem.reshape((resultItem.shape[0],))
             else:

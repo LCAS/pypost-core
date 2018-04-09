@@ -2,6 +2,7 @@ import numpy as np
 
 from pypost.learner.InputOutputLearner import InputOutputLearner
 from pypost.mappings import Mapping
+from pypost.mappings import DataManipulator
 
 
 class LinearFeatureFunctionMLLearner(InputOutputLearner):
@@ -31,6 +32,16 @@ class LinearFeatureFunctionMLLearner(InputOutputLearner):
 
         self.linkPropertyToSettings('regularizationRegression')
 
+    @DataManipulator.DataMethod(inputArguments=['self.inputVariables', 'self.outputVariables', 'self.weightName'], outputArguments=[])
+    def lossFunction(self, inputData, outputData, weighting = None):
+
+        prediction = self.functionApproximator.output(inputData)
+        if weighting:
+            mse = np.sum(np.sum((prediction - outputData) ** 2, axis=1) * weighting)
+        else:
+            mse = np.sum(np.sum((prediction - outputData) ** 2, axis=1))
+        return mse
+
     @Mapping.MappingMethod(inputArguments=['self.inputVariables', 'self.outputVariables', 'self.weightName'], outputArguments=[])
     def updateModel(self, inputData, outputData, weighting = None):
         if weighting is None:
@@ -47,18 +58,18 @@ class LinearFeatureFunctionMLLearner(InputOutputLearner):
 
             outputData = (outputData - meanRangeOutput) / rangeOutput
 
-        if inputData.shape[1] > 0 and self.inputDataNormalization:
-            rangeInput = inputData.std(axis = 0)
-            rangeInput[rangeInput < 1e-10] = 1e-10
-            meanRangeInput = inputData.mean(axis = 0)
-
-            inputData = (inputData - meanRangeInput) /  rangeInput
-
-
         inputStd = inputData.std(0)
         inputMean = inputData.mean(0)
 
         valididxs = np.logical_or(inputStd > 0, abs(inputMean) != 0)
+        if inputData.shape[1] > 0 and self.inputDataNormalization:
+            rangeInput = inputData.std(axis = 0)
+            idx = rangeInput > 1e-10
+            meanRangeInput = inputData.mean(axis = 0)
+
+            inputData[:,  idx] = (inputData[:,  idx] - meanRangeInput[idx]) /  rangeInput[idx]
+
+
         Shat = inputData[:, valididxs]
 
         sumW = weighting.sum()
@@ -67,8 +78,8 @@ class LinearFeatureFunctionMLLearner(InputOutputLearner):
 
         SW = Shat * weighting
 
-        regressionMatrix = np.identity(dimInput + 1)
-        regressionMatrix[0,0] = 0
+        regressionMatrix = np.zeros((Shat.shape[1],Shat.shape[1]))
+        regressionMatrix[idx,idx] = 1
         matrixtoInvert = np.dot(SW.transpose(), Shat) + self.regularizationRegression * regressionMatrix
 
         thetaL = np.linalg.solve(matrixtoInvert, np.dot(SW.transpose(), outputData)).transpose()
@@ -80,8 +91,11 @@ class LinearFeatureFunctionMLLearner(InputOutputLearner):
                 BetaA = BetaA * rangeOutput.transpose()
 
         if self.inputDataNormalization and inputData.shape[1] > 0:
-            temp = np.dot(BetaA, meanRangeInput.transpose())
-            BetaA = BetaA / rangeInput
+
+            BetaA[:, idx] = BetaA[:, idx] / rangeInput[idx]
+            temp = np.dot(BetaA[:, idx], meanRangeInput[idx].transpose())
+
+            BetaA[:, np.logical_not(idx)] = BetaA[:, np.logical_not(idx)] - temp[:, np.newaxis]
 
         #if self.outputDataNormalization:
         #    MuA = MuA * rangeOutput.transpose() + meanRangeOutput.transpose()

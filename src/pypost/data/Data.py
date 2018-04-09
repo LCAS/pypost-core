@@ -48,7 +48,7 @@ class Data(object):
         self.dataManager = dataManager
         self.dataStructure = dataStructure
 
-        self.activeIndex = [Ellipsis]
+        self.activeIndex = (Ellipsis,)
         self.isFlatIndex = False
         # create the entryInfoMap
 
@@ -88,7 +88,7 @@ class Data(object):
         entryNames = self.dataManager.getEntryNames()
 
         self.dataStructure = state['dataStructure']
-        self.activeIndex = [Ellipsis]
+        self.activeIndex = (Ellipsis,)
 
         self.tensorDictionary = {}
         for name in aliasNames:
@@ -105,6 +105,11 @@ class Data(object):
                 self.entryInfoMap[name].callBackGetter = entry.callBackGetter
 
             setattr(self, name, None)
+
+    def clone(self):
+        newData = self.dataManager.createDataObject(self.getNumElementsForDepth(0))
+        newData.__setstate__(self.__getstate__())
+        return newData
 
     def getDataManager(self):
         return self.dataManager
@@ -172,16 +177,8 @@ class Data(object):
         else:
             self.activeIndex = index
 
-        if isinstance(self.activeIndex, tuple):
-            #if (self.activeIndex[0] == Ellipsis):
-            #    self.activeIndex = [self.activeIndex]
-            #else:
-            self.activeIndex = list(self.activeIndex)
-        elif isinstance(self.activeIndex, list):
-            self.activeIndex = [self.activeIndex]
-
-        if not isinstance(self.activeIndex, list):
-            self.activeIndex = [self.activeIndex]
+        if not isinstance(self.activeIndex, tuple):
+            self.activeIndex = (self.activeIndex,)
 
         return self
 
@@ -192,10 +189,14 @@ class Data(object):
         else:
             nameEntry = name
         if (value is not None and name != 'entryInfoMap' and nameEntry in self.entryInfoMap):
+            index = self.activeIndex
+            if (isinstance(index, tuple)):
+                index = list(index)
+
             if self.isFlatIndex:
-                return self.setDataEntryFlat(name, self.activeIndex, value)
+                return self.setDataEntryFlat(name, index, value)
             else:
-                return self.setDataEntry(name, self.activeIndex, value)
+                return self.setDataEntry(name, index, value)
         else:
             return super().__setattr__(name, value)
 
@@ -207,11 +208,16 @@ class Data(object):
         else:
             nameEntry = name
 
+
         if (name != 'entryInfoMap' and hasattr(self, 'entryInfoMap') and nameEntry in self.entryInfoMap):
+            index = self.activeIndex
+            if (isinstance(index, tuple)):
+                index = list(index)
+
             if (not self.isFlatIndex):
-                return self.getDataEntry(name, self.activeIndex)
+                return self.getDataEntry(name, index)
             else:
-                return self.getDataEntryFlat(name, self.activeIndex)
+                return self.getDataEntryFlat(name, index)
         else:
             return super().__getattribute__(name)
 
@@ -220,7 +226,7 @@ class Data(object):
             function = self._getTensorMappingForTensor(function)
 
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
-            function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput = True)
+            function.dataFunctionDecorator.dataFunction(function, self, list(self.activeIndex), registerOutput = True)
             function.dataFunctionDecorator.dataWriter.apply(self)
             return self
         else:
@@ -235,7 +241,7 @@ class Data(object):
 
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
 
-            function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput = True)
+            function.dataFunctionDecorator.dataFunction(function, self, list(self.activeIndex), registerOutput = True)
 
             return function.dataFunctionDecorator.dataWriter.apply(self)
         else:
@@ -247,7 +253,7 @@ class Data(object):
             function = self._getTensorMappingForTensor(function)
 
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
-            return function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput=False)
+            return function.dataFunctionDecorator.dataFunction(function, self, (self.activeIndex), registerOutput=False)
 
         else:
             raise ValueError(
@@ -260,7 +266,7 @@ class Data(object):
             function = self._getTensorMappingForTensor(function)
 
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
-            function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput = True)
+            function.dataFunctionDecorator.dataFunction(function, self, list(self.activeIndex), registerOutput = True)
             return function.dataFunctionDecorator.dataWriter
         else:
             raise ValueError('Operator >> can only be applied to manipulation functions or tuples of manipulation functions'
@@ -308,11 +314,11 @@ class Data(object):
 
     def __lt__(self, function):
         if (hasattr(function, 'linkedDataEnties') and function.linkedDataEnties):
-            function.writeDataPropertiesToData(self, self.activeIndex)
+            function.writeDataPropertiesToData(self, list(self.activeIndex))
 
     def __gt__(self, function):
         if (hasattr(function, 'linkedDataEnties') and function.linkedDataEnties):
-            function.readDataPropertiesFromData(self, self.activeIndex)
+            function.readDataPropertiesFromData(self, list(self.activeIndex))
 
 
     def completeLayerIndex(self, depth, indices):
@@ -413,7 +419,7 @@ class Data(object):
     def getDataEntryFlat(self, path, flatIndex):
         
         data = self.getDataEntry(path, ...)
-        return data[flatIndex, :]
+        return data[flatIndex[0], :]
 
     def setDataEntryFlat(self, path, flatIndex, dataNew):
 

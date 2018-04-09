@@ -8,7 +8,7 @@ from pypost.common import getDefaultSettings
 from pypost.optimizer import TFOptimizerType
 
 from pypost.mappings.Classifier import LinearClassifier
-
+from pypost.mappings.Function import QuadraticFeatureExpansion
 
 
 num_cpu = 1
@@ -25,8 +25,11 @@ settings = getDefaultSettings()
 settings.setProperty('tfOptimizerType', TFOptimizerType.Adam)
 settings.setProperty('tfOptimizerNumIterations', 10000)
 
-classifier = LinearClassifier(dataManager, ['states'], ['labels'])
+quadraticFeatureExpansion = QuadraticFeatureExpansion(dataManager, ['states'], 'stateFeatures')
+
+classifier = LinearClassifier(dataManager, ['stateFeatures'], ['labels'])
 learner = CrossEntropyLossGradientLearner(dataManager, classifier)
+
 
 data = dataManager.createDataObject([200])
 
@@ -43,6 +46,9 @@ data[slice(0,100)].labels = np.zeros((100,))
 data[slice(100,200)].states = np.random.multivariate_normal(mean2, var2, 100)
 data[slice(100,200)].labels = np.ones((100,))
 
+data[...] >> quadraticFeatureExpansion >> data
+
 data[...] >> learner
 
 prediction = data[...] >= classifier
+

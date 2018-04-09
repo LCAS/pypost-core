@@ -1,6 +1,6 @@
 import tensorflow as tf
 import pypost.common.tfutils as tfutils
-from pypost.mappings import TFMapping
+from pypost.mappings import TFMapping, Mapping
 from pypost.data import DataManager
 import numpy as np
 
@@ -15,8 +15,8 @@ class Function_Base(TFMapping):
 
     def clone(self, name):
 
-        clone = Function_Base(self.dataManager, self.inputVariables, self.outputVariables, self.meanTensorGenerator, name)
-        clone.parameters = self.parameters
+        clone = Function_Base(self.dataManager, self.inputVariables, self.outputVariables, name)
+        clone.params = self.params
         return clone
 
     @TFMapping.TensorMethod(connectTensorToOutput=True, useAsMapping=True)
@@ -40,9 +40,14 @@ class LinearParameterInterface():
 
 class ConstantFunction(Function_Base, LinearParameterInterface):
 
-    def __init__(self, dataManager, inputArguments, outputArguments, useBias = True, name = 'Function'):
-        Function_Base.__init__(self, dataManager, inputArguments, outputArguments, name = name)
-        self.useBias = useBias
+    def __init__(self, dataManager, outputArguments, name = 'Function'):
+        Function_Base.__init__(self, dataManager, [], outputArguments, name = name)
+
+    def clone(self, name):
+
+        clone = ConstantFunction(self.dataManager, self.outputVariables,  name)
+        clone.params = self.params
+        return clone
 
     def setLinearParameters(self, parameterMatrix):
         self.params_output = parameterMatrix
@@ -67,12 +72,18 @@ class LinearFunction(Function_Base, LinearParameterInterface):
         Function_Base.__init__(self, dataManager, inputArguments, outputArguments, name = name)
         self.useBias = useBias
 
+    def clone(self, name):
+
+        clone = LinearFunction(self.dataManager, self.inputVariables, self.outputVariables,  useBias=self.useBias, name = name)
+        clone.parameters = self.parameters
+        return clone
+
     def setLinearParameters(self, parameterMatrix):
-        self.params_final_w = parameterMatrix[:, 1:]
-        self.params_final_b = parameterMatrix[:,0]
+        self.param_final_w = parameterMatrix[:, 1:].transpose()
+        self.param_final_b = parameterMatrix[:,0].squeeze()
 
     def getLinearParameters(self):
-        return np.hstack((self.params_final_b,self.params_final_w))
+        return np.hstack((self.param_final_b.reshape((self.param_final_b[0],1)),self.param_final_w)).transpose()
 
     def getLinearFeatures(self, input):
         if (self.useBias):
@@ -116,6 +127,28 @@ class QuadraticFunction_Base(Function_Base):
         return meanTensor
 
 
+class QuadraticFeatureExpansion(Mapping):
+
+    def __init__(self, dataManager, inputArguments, outputName = None):
+
+
+
+        if outputName == None:
+            outputName = inputArguments[0] + 'SquaredFeatures'
+        dim = dataManager.getNumDimensions(inputArguments[0])
+        dim = 1 + dim  + dim * (dim + 1) / 2
+        dataManager.addDataEntry(outputName, int(dim))
+
+        super().__init__(dataManager, inputArguments, outputName)
+
+        dataManager.addFeatureMapping(self)
+        self.setLazyEvaluation(False)
+
+    @Mapping.MappingMethod()
+    def squaredFeatures(self, input):
+
+        return np.array([[x1 * x2 for i, x1 in enumerate(x) for x2 in x[i:]] + list(x) + [1] for x in input])
+
 
 class QuadraticFunction(QuadraticFunction_Base, LinearParameterInterface):
     def __init__(self, dataManager, inputArguments, outputArguments, name='QuadraticFunctionConstCoeff'):
@@ -142,7 +175,7 @@ class QuadraticFunction(QuadraticFunction_Base, LinearParameterInterface):
         r0 = theta[-1]
 
         self.param_quadTerm = R
-        self.param_linearTerm = r
+        self.param_linearTerm = r.reshape((-1,1))
         self.param_constTerm = r0
 
     def getLinearParameters(self):
@@ -185,10 +218,13 @@ if __name__ == "__main__":
 
     function = LinearFunction(dataManager, ['states'], ['actions'])
 
+    quadraticFeatures = QuadraticFeatureExpansion(dataManager, ['actions'])
+
     data = dataManager.createDataObject([10])
     data[...].states = np.random.normal(0, 1, data[...].states.shape)
 
     quadraticFunction = QuadraticFunction(dataManager, ['actions'], ['rewards'])
+
 
     print('Hello')
 
