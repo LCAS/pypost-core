@@ -4,6 +4,7 @@ import numpy as np
 import pypost.common.tfutils as tfutils
 from pypost.mappings import Mapping
 from pypost.mappings.DataManipulator import CallType
+from pypost.mappings.DataManipulator import DataManipulator
 from pypost.mappings.Mapping import MappingMetaClass
 
 
@@ -433,6 +434,15 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
         else:
             return tuple([convertResults(resultItem) for resultItem in results])
 
+    @DataManipulator.DataMethod(inputArguments='self.inputVariables', outputArguments='self.outputVariables')
+    def tensorFunctionPlain(self, *args):
+        if (not self.isTensorNodeSet):
+            raise ValueError(
+                'TFMapping has not been correctly intialized. No TensorMethod was indicated for the Mapping. '
+                'Use property useAsMapping = True for exactly one TensorMethod.')
+
+        feedDict = dict(zip(self.inputTensorsEntry + self.inputTensorsProperty, args))
+        results = tf.get_default_session().run(self.outputTensors, feed_dict=feedDict)
 
 #
 #

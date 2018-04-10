@@ -102,9 +102,9 @@ class CrossEntropyLossGradientLearner(InputOutputLearner):
     The Learner class serves as interface for all learners that learn an input output mapping.
     '''
 
-    def __init__(self, dataManager, functionApproximator, weightName=None, inputVariables=None, outputVariable=None):
-        InputOutputLearner.__init__(self, dataManager, functionApproximator, weightName=weightName, inputVariables=inputVariables, outputVariable=outputVariable)
-        self.optimizer = TFOptimizer(dataManager, self.tn_lossFunction, variables_list=self.functionApproximator.tv_variables_list)
+    def __init__(self, dataManager, functionApproximator, labels = 'labels', weightName=None, inputVariables=None):
+        InputOutputLearner.__init__(self, dataManager, functionApproximator, weightName=weightName, inputVariables=inputVariables, outputVariable=labels)
+        self.optimizer = TFOptimizer(dataManager, self.tn_lossFunction, variables_list=self.functionApproximator.tv_variables_list, name='ClassifierLeaner')
 
     @TFMapping.TensorMethod()
     def lossFunction(self):

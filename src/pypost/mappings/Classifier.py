@@ -40,7 +40,7 @@ class LinearClassifier(SigmoidClassifier_Base):
         SigmoidClassifier_Base.__init__(self, dataManager, inputArguments, outputArguments, name = name)
         self.useBias = useBias
 
-    @TFMapping.TensorMethod(connectTensorToOutput=True, useAsMapping=True)
+    @TFMapping.TensorMethod(connectTensorToOutput=True)
     def logit(self):
         return tfutils.create_linear_layer(self.getAllInputTensor(), self.dimOutput, self.useBias)
 

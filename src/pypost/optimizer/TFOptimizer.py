@@ -50,6 +50,7 @@ class TFOptimizer(Mapping):
 
         self.minimize = self.optimizer.minimize(self.loss, var_list=self.variables_list)
         self.tm_minimize = TFMapping(dataManager, tensorNode = self.minimize)
+        self.tm_loss = TFMapping(dataManager, tensorNode = self.loss)
 
         self._printIterations = printIterations
         self.lossLogger = []
@@ -72,12 +73,22 @@ class TFOptimizer(Mapping):
 
         self.lossLogger = []
         self.lossLogger.append(data[...] >= self.loss)
+
+        import time
+        start = time.clock()
+
+        inputData = data.getDataEntryList(self.tm_minimize.inputVariables, data.activeIndex)
+        inputDataLoss = data.getDataEntryList(self.tm_loss.inputVariables, data.activeIndex)
         for i in range(0, self.tfOptimizerNumIterations):
             indices = list(mini_batch_indices[i % len(mini_batch_indices)])
-            data[Data.FlatIndex(indices)] >> self.tm_minimize
-            self.lossLogger.append(data[...] >= self.loss)
+
+            miniBatchInputData = [dataItem[indices,:] for dataItem in inputData]
+
+            self.tm_minimize(*miniBatchInputData )
 
             if (self._printIterations):
+                self.lossLogger.append(self.tm_loss(*inputDataLoss))
                 print('Loss Iteration {}: '.format(i + 1), self.lossLogger[-1])
 
+        print('Optimization Duration: ', (time.clock() - start))
 
