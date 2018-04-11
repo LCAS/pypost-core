@@ -33,7 +33,6 @@ class SigmoidClassifier_Base(TFMapping):
 
         return tf.cast(tf.greater(z, self.tn_logit), tf.int32)
 
-
 class LinearClassifier(SigmoidClassifier_Base):
 
     def __init__(self, dataManager, inputArguments, outputArguments, useBias = True, name = 'Classifier'):
@@ -47,10 +46,18 @@ class LinearClassifier(SigmoidClassifier_Base):
 class QuadraticClassifier(LinearClassifier):
 
     def __init__(self, dataManager, inputArguments, outputArguments, name = 'Classifier'):
-        quadraticFeatures = QuadraticFeatureExpansion(dataManager, inputArguments=inputArguments)
-        LinearClassifier.__init__(self, dataManager, quadraticFeatures.outputVariables, outputArguments, useBias = False, name = name)
+        self.quadraticFeatures = QuadraticFeatureExpansion(dataManager, inputArguments=inputArguments)
+        LinearClassifier.__init__(self, dataManager, self.quadraticFeatures.outputVariables, outputArguments, useBias = False, name = name)
 
+class MLPClassifier(SigmoidClassifier_Base):
 
+    def __init__(self, dataManager, inputArguments, outputArguments, hiddenNodes, name = 'Classifier'):
+        SigmoidClassifier_Base.__init__(self, dataManager, inputArguments, outputArguments, name = name)
+        self.hiddenNodes = hiddenNodes
+
+    @TFMapping.TensorMethod(connectTensorToOutput=True)
+    def logit(self):
+        return tfutils.create_layers_linear_ouput(self.getAllInputTensor(), self.hiddenNodes, 1)
 
 
 if __name__ == "__main__":

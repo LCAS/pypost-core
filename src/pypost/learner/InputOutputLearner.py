@@ -104,7 +104,10 @@ class CrossEntropyLossGradientLearner(InputOutputLearner):
 
     def __init__(self, dataManager, functionApproximator, labels = 'labels', weightName=None, inputVariables=None):
         InputOutputLearner.__init__(self, dataManager, functionApproximator, weightName=weightName, inputVariables=inputVariables, outputVariable=labels)
+        self.linkPropertyToSettings('l2Regularizer', globalName=functionApproximator.name + 'l2Regularizer', defaultValue=10**-2)
+
         self.optimizer = TFOptimizer(dataManager, self.tn_lossFunction, variables_list=self.functionApproximator.tv_variables_list, name='ClassifierLeaner')
+
 
     @TFMapping.TensorMethod()
     def lossFunction(self):
@@ -118,6 +121,7 @@ class CrossEntropyLossGradientLearner(InputOutputLearner):
         else:
             loss = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=labels,
                                                                          logits=self.functionApproximator.tn_logit))
+        loss = loss + self.l2Regularizer * tf.reduce_sum(self.functionApproximator.getParamsFlatTensor() ** 2)
 
         return loss
 

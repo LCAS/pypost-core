@@ -319,6 +319,8 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
             tensor = self._parameter_dict[name]
         return tensor.eval()
 
+    def getParamsFlatTensor(self):
+        return self._parameters_flat
 
     def _setMappingTensorNode(self, tensorNode):
         inputVariables, outputVariables, placeHolderList, tensorNode = self.dataManager.getTensorInputOutput(tensorNode)

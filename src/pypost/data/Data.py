@@ -76,6 +76,7 @@ class Data(object):
         dictState = {}
         dictState['dataManager'] = self.dataManager
         dictState['dataStructure'] = self.dataStructure
+        dictState['isFlatIndex'] = self.isFlatIndex
         return dictState
 
     def __setstate__(self, state):
@@ -89,6 +90,7 @@ class Data(object):
 
         self.dataStructure = state['dataStructure']
         self.activeIndex = (Ellipsis,)
+        self.isFlatIndex = state['isFlatIndex']
 
         self.tensorDictionary = {}
         for name in aliasNames:
@@ -107,8 +109,12 @@ class Data(object):
             setattr(self, name, None)
 
     def clone(self):
-        newData = self.dataManager.createDataObject(self.getNumElementsForDepth(0))
-        newData.__setstate__(self.__getstate__())
+        import pickle
+
+        newData = self.dataManager.createDataObject(0)
+        b = pickle.dumps(self.dataStructure)
+        newData.dataStructure = pickle.loads(b)
+
         return newData
 
     def getDataManager(self):
