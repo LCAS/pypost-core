@@ -4,8 +4,8 @@ from .Function import Function_Base
 from .Function import LinearFunction
 from .Function import ConstantFunction
 from .Gaussian import DiagonalGaussian_Base
-from .Gaussian import ConstantDiagionalGaussian
-from .Gaussian import LinearDiagionalGaussian
+from .Gaussian import ConstantDiagonalGaussian
+from .Gaussian import LinearDiagonalGaussian
 from .Gaussian import FullGaussian_Base
 from .Gaussian import LinearFullGaussian
 from .Gaussian import FullGaussian
@@ -17,8 +17,8 @@ from .DataManipulator import CallType, DataManipulator, additional_inputs
 
 
 __all__ = ['DiagonalGaussian_Base',
-           'ConstantDiagionalGaussian',
-           'LinearDiagionalGaussian',
+           'ConstantDiagonalGaussian',
+           'LinearDiagonalGaussian',
            'FeatureGenerator',
            'Function_Base',
            'LinearFunction',

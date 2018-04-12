@@ -14,7 +14,7 @@ class SigmoidClassifier_Base(TFMapping):
     def clone(self, name):
 
         clone = SigmoidClassifier_Base(self.dataManager, self.inputVariables, self.outputVariables, self.outputTensorGenerator, name)
-        clone.parameters = self.parameters
+        clone.params = self.params
         return clone
 
     @TFMapping.TensorMethod()
@@ -43,11 +43,31 @@ class LinearClassifier(SigmoidClassifier_Base):
     def logit(self):
         return tfutils.create_linear_layer(self.getAllInputTensor(), self.dimOutput, self.useBias)
 
+    def clone(self, name, inputVariables = None):
+
+        if inputVariables is None:
+            inputVariables = self.inputVariables
+
+        clone = LinearClassifier(self.dataManager, inputVariables, self.outputVariables, name)
+        clone.params = self.params
+        return clone
+
+
 class QuadraticClassifier(LinearClassifier):
 
     def __init__(self, dataManager, inputArguments, outputArguments, name = 'Classifier'):
         self.quadraticFeatures = QuadraticFeatureExpansion(dataManager, inputArguments=inputArguments)
         LinearClassifier.__init__(self, dataManager, self.quadraticFeatures.outputVariables, outputArguments, useBias = False, name = name)
+
+
+    def clone(self, name, inputVariables = None):
+
+        if inputVariables is None:
+            inputVariables = self.inputVariables
+
+        clone = QuadraticClassifier(self.dataManager, inputVariables, self.outputVariables, name)
+        clone.params = self.params
+        return clone
 
 class MLPClassifier(SigmoidClassifier_Base):
 
@@ -58,6 +78,16 @@ class MLPClassifier(SigmoidClassifier_Base):
     @TFMapping.TensorMethod(connectTensorToOutput=True)
     def logit(self):
         return tfutils.create_layers_linear_ouput(self.getAllInputTensor(), self.hiddenNodes, 1)
+
+    def clone(self, name, inputVariables = None):
+
+        if inputVariables is None:
+            inputVariables = self.inputVariables
+
+        clone = MLPClassifier(self.dataManager, inputVariables, self.outputVariables, hiddenNodes = self.hiddenNodes, name = name)
+        clone.params = self.params
+        return clone
+
 
 
 if __name__ == "__main__":

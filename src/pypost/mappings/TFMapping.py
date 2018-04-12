@@ -79,6 +79,14 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
 
 
     def __init__(self, dataManager, inputVariables=[], outputVariables=[], name = '', tensorNode = None):
+
+        if (isinstance(inputVariables, (tf.Tensor, tf.Variable))):
+            inputTensor = inputVariables
+            inputVariables = []
+        else:
+            inputTensor = None
+
+
         Mapping.__init__(self, dataManager, inputVariables = inputVariables, outputVariables = outputVariables, name = name)
 
         self.outputTensors = tensorNode
@@ -87,6 +95,7 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
         self.inputTensorsProperty = []
 
         self.inputProperties = []
+        self.inputTensor = inputTensor
 
         self._tensorFunctionsDict = {}
         self._tensorNodeDict = {}
@@ -345,18 +354,21 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
 
     def getAllInputTensor(self):
 
-        inputTensors = []
-        for input in self.inputVariables:
-            inputTensors.append(self.dataManager.createTensorForEntry(input))
-
-        if len(inputTensors) > 0:
-            allInputTensor = tf.concat(inputTensors, 1)
-            self.useEmpty = False
+        if (self.inputTensor is not None):
+            return self.inputTensor
         else:
-            allInputTensor = self.dataManager.createTensorForEntry('empty')
-            self.useEmpty = True
+            inputTensors = []
+            for input in self.inputVariables:
+                inputTensors.append(self.dataManager.createTensorForEntry(input))
 
-        return allInputTensor
+            if len(inputTensors) > 0:
+                allInputTensor = tf.concat(inputTensors, 1)
+                self.useEmpty = False
+            else:
+                allInputTensor = self.dataManager.createTensorForEntry('empty')
+                self.useEmpty = True
+
+            return allInputTensor
 
     def getInputTensorIndex(self, index):
         inputTensor = self.dataManager.createTensorForEntry(self.inputVariables[index])

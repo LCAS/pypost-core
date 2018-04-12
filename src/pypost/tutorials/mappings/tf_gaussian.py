@@ -2,7 +2,7 @@ from pypost.data import DataManager
 import pypost.common.tfutils as tfutils
 import tensorflow as tf
 import numpy as np
-from pypost.mappings.Gaussian import DiagonalGaussian_Base
+from pypost.mappings.Gaussian import LinearDiagonalGaussian
 
 
 num_cpu = 1
@@ -14,10 +14,7 @@ dataManager = DataManager('data')
 dataManager.addDataEntry('states', 10)
 dataManager.addDataEntry('actions', 5)
 
-generatorMean = tfutils.continuous_MLP_generator([100, 100])
-generatorLogStd = tfutils.diagional_log_std_generator()
-
-gaussian = DiagonalGaussian(dataManager, ['states'], ['actions'], generatorMean)
+gaussian = LinearDiagonalGaussian(dataManager, ['states'], ['actions'])
 
 data = dataManager.createDataObject([10])
 data[...].states = np.random.normal(0, 1, data[...].states.shape)
@@ -29,7 +26,7 @@ data[...] >> gaussian >= data
 data[...] >= gaussian.logLike
 
 # Compute log likelihood
-gaussianOther = DiagonalGaussian_Base(dataManager, ['states'], ['actions'], generatorMean, generatorLogStd)
+gaussianOther = LinearDiagonalGaussian(dataManager, ['states'], ['actions'])
 
 # the param_* properties are created automatically by parsing the mean and logStd tensors. They can be set and read as normal numpy arrays
 gaussianOther.param_final_b = np.random.normal(0, 1, (5,))
@@ -52,9 +49,16 @@ data[...] >= gaussian.mean
 
 # Or the different layers
 
-data[...] >= gaussian.layers[0]
+#data[...] >= gaussian.layers[0]
 
 
+# We can also generate TFMappings such as Gaussians wich get tensors as input:
+
+stateTensor = dataManager.createTensorForEntry('states')
+stateTensor = stateTensor * 2
+
+gaussianTensor = gaussianOther.clone('clonedGaussian', stateTensor)
+data[...] >= gaussianTensor.mean
 
 
 

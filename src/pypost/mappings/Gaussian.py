@@ -55,19 +55,34 @@ class DiagonalGaussian_Base(TFMapping):
         return self.tn_mean + self.tn_std * tf.random_normal(tf.shape(self.tn_mean))
 
 
-class LinearDiagionalGaussian(DiagonalGaussian_Base):
+class LinearDiagonalGaussian(DiagonalGaussian_Base):
     def __init__(self, dataManager, inputArguments, outputArguments, useBias = True, name = 'DiagGaussian'):
         DiagonalGaussian_Base.__init__(self, dataManager, inputArguments, outputArguments, meanFunction = LinearFunction(dataManager, inputArguments, outputArguments, useBias=useBias, name = name), name = name)
+
+    def clone(self, name, inputVariables=None):
+        if inputVariables is None:
+            inputVariables = self.inputVariables
+
+        clone = LinearDiagonalGaussian(self.dataManager, inputVariables, self.outputVariables, name=name)
+        clone.params= self.params
+        return clone
 
     @TFMapping.TensorMethod()
     def logStd(self):
         return tf.get_variable("logstd", shape=[self.dimOutput], initializer=tf.zeros_initializer())
 
 
-class ConstantDiagionalGaussian(DiagonalGaussian_Base):
+class ConstantDiagonalGaussian(DiagonalGaussian_Base):
     def __init__(self, dataManager, outputArguments, name = 'DiagGaussian'):
         DiagonalGaussian_Base.__init__(self, dataManager, [], outputArguments, meanFunction = ConstantFunction(dataManager, outputArguments, name = name), name = name)
 
+    def clone(self, name, inputVariables=None):
+        if inputVariables is None:
+            inputVariables = self.inputVariables
+
+        clone = ConstantDiagonalGaussian(self.dataManager, inputVariables, self.outputVariables, name=name)
+        clone.params= self.params
+        return clone
 
     @TFMapping.TensorMethod()
     def logStd(self):
@@ -135,6 +150,14 @@ class LinearFullGaussian(FullGaussian_Base):
     def stdMatrix(self):
         return tf.get_variable("stdmat", shape=[self.dimOutput, self.dimOutput], initializer=tf.ones_initializer())
 
+    def clone(self, name, inputVariables=None):
+        if inputVariables is None:
+            inputVariables = self.inputVariables
+
+        clone = LinearFullGaussian(self.dataManager, inputVariables, self.outputVariables, name=name)
+        clone.params= self.params
+        return clone
+
 
 class FullGaussian(FullGaussian_Base):
     def __init__(self, dataManager, outputArguments, name = 'FullGaussian'):
@@ -145,6 +168,15 @@ class FullGaussian(FullGaussian_Base):
         clone.meanFunction = clone.meanFunction.clone(name + 'Mean')
         clone.params = self.params
         return clone
+
+    def clone(self, name, inputVariables=None):
+        if inputVariables is None:
+            inputVariables = self.inputVariables
+
+        clone = FullGaussian(self.dataManager, inputVariables, self.outputVariables, name=name)
+        clone.params= self.params
+        return clone
+
 
     @TFMapping.TensorMethod()
     def stdMatrix(self):
