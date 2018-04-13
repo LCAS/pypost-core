@@ -77,10 +77,8 @@ class ConstantDiagonalGaussian(DiagonalGaussian_Base):
         DiagonalGaussian_Base.__init__(self, dataManager, [], outputArguments, meanFunction = ConstantFunction(dataManager, outputArguments, name = name), name = name)
 
     def clone(self, name, inputVariables=None):
-        if inputVariables is None:
-            inputVariables = self.inputVariables
 
-        clone = ConstantDiagonalGaussian(self.dataManager, inputVariables, self.outputVariables, name=name)
+        clone = ConstantDiagonalGaussian(self.dataManager, self.outputVariables, name=name)
         clone.params= self.params
         return clone
 
@@ -169,11 +167,9 @@ class FullGaussian(FullGaussian_Base):
         clone.params = self.params
         return clone
 
-    def clone(self, name, inputVariables=None):
-        if inputVariables is None:
-            inputVariables = self.inputVariables
+    def clone(self, name):
 
-        clone = FullGaussian(self.dataManager, inputVariables, self.outputVariables, name=name)
+        clone = FullGaussian(self.dataManager, self.outputVariables, name=name)
         clone.params= self.params
         return clone
 
