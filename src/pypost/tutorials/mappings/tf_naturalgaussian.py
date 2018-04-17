@@ -17,8 +17,8 @@ dataManager = DataManager('data')
 dataManager.addDataEntry('states', 10)
 dataManager.addDataEntry('actions', 5)
 
-gaussian = FullGaussian(dataManager, [], ['actions'])
-naturalGaussian = NaturalFullGaussian(dataManager, [], ['actions'])
+gaussian = FullGaussian(dataManager, ['actions'])
+naturalGaussian = NaturalFullGaussian(dataManager, ['actions'])
 
 data = dataManager.createDataObject([100])
 data[...].states = np.random.normal(0, 1, data[...].states.shape)
@@ -27,7 +27,7 @@ A = np.random.normal(0,1,(5,5))
 covMat = A.dot(A.transpose())
 gaussian.param_stdmat = np.linalg.cholesky(covMat)
 naturalGaussian.param_precMat = np.linalg.inv(covMat)
-naturalGaussian.param_linearTerm = naturalGaussian.param_precMat.dot(gaussian.param_mean)
+naturalGaussian.param_linearTerm = naturalGaussian.param_precMat.dot(gaussian.param_output)
 
 data[1,2].empty
 

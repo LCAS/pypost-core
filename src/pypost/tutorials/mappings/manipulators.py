@@ -56,5 +56,5 @@ Y = data[...] >> manipulator.computeSomething >= data
 manipulator.listManipulationFunctions()
 
 # Test manipulator with additional arguments that are not in the data object
-
-data[...] >> (additional_inputs(5) >> manipulator.computeSomethingAdditional)
+# Not supported at the moment!
+#data[...] >> (additional_inputs(5) >> manipulator.computeSomethingAdditional)

@@ -11,7 +11,7 @@ class Function_Base(TFMapping):
 
         TFMapping.__init__(self, dataManager, inputArguments, outputArguments, name = name)
 
-        #self._setLayersFromTensor(self.mean)
+
 
     def clone(self, name):
 
@@ -75,7 +75,7 @@ class LinearFunction(Function_Base, LinearParameterInterface):
     def clone(self, name):
 
         clone = LinearFunction(self.dataManager, self.inputVariables, self.outputVariables,  useBias=self.useBias, name = name)
-        clone.parameters = self.parameters
+        clone.params = self.params
         return clone
 
     def setLinearParameters(self, parameterMatrix):
@@ -94,6 +94,25 @@ class LinearFunction(Function_Base, LinearParameterInterface):
     @TFMapping.TensorMethod(connectTensorToOutput=True, useAsMapping=True)
     def output(self):
         return tfutils.create_linear_layer(self.getAllInputTensor(), self.dimOutput, self.useBias)
+
+
+class MLPFunction(Function_Base):
+
+    def __init__(self, dataManager, inputArguments, outputArguments, hiddenNodes, name = 'Function'):
+        Function_Base.__init__(self, dataManager, inputArguments, outputArguments, name = name)
+        self.hiddenNodes = hiddenNodes
+
+        self._setLayersFromTensor(self.tn_output)
+
+    def clone(self, name):
+
+        clone = MLPFunction(self.dataManager, self.inputVariables, self.outputVariables,  hiddenNodes=self.hiddenNodes, name = name)
+        clone.params = self.params
+        return clone
+
+    @TFMapping.TensorMethod(connectTensorToOutput=True, useAsMapping=True)
+    def output(self):
+        return tfutils.create_layers_linear_ouput(self.getAllInputTensor(), self.hiddenNodes, self.dimOutput)
 
 
 class QuadraticFunction_Base(Function_Base):

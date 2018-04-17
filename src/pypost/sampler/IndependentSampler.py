@@ -71,8 +71,8 @@ class IndependentSampler(Sampler):
         numSamples = self.getNumSamples(newData)
         if not isinstance(numSamples, list):
             numSamples = [numSamples]
-        if not isinstance(indices, list):
-            indices = [indices]
+        if isinstance(indices, tuple):
+            indices = list(indices)
 
         if (len(indices) > self.samplerDepth + 1 or len(indices) < self.samplerDepth):
             raise ValueError('Invalid Index for sampler. Hierarchical Index must not be larger than {0} and smaller than {0}'.format(self.samplerDepth + 1, self.samplerDepth))

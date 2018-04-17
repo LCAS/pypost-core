@@ -1,7 +1,7 @@
 import numpy as np
 
 from pypost.sampler import EpisodeWithStepsSampler
-from pypost.data import DataManipulator
+from pypost.mappings import DataManipulator
 from pypost.mappings import Mapping
 '''
 In this tutorial, we will learn how to create samples
@@ -23,7 +23,7 @@ class TestEnvironment(Mapping):
     def transitionFunction(self, states, actions):
         return states + 1
 
-    @DataManipulator.DataMethod(inputArguments=[], outputArguments=['states'])
+    @DataManipulator.DataMethod(takesNumElements=True, inputArguments=[], outputArguments=['states'])
     def initState(self, numElements):
         return np.ones((numElements,2))
 
@@ -31,7 +31,7 @@ class TestEnvironment(Mapping):
     def initStateFromContext(self, contexts):
         return np.sum(contexts, axis=1) * np.ones(2)
 
-    @DataManipulator.DataMethod(inputArguments=[], outputArguments=['contexts'])
+    @DataManipulator.DataMethod(takesNumElements=True, inputArguments=[], outputArguments=['contexts'])
     def initContexts(self, numElements):
         return np.ones((numElements, 1)) * 0.5
 

@@ -9,7 +9,7 @@ class DummyMapping(Mapping):
         Mapping.__init__(self, dataManager, ['X'], ['Y'])
 
         # features mapping gets called every time now when we access data.Y (as Y is the output of the mapping!)
-        dataManager.addFeatureMapping(f)
+        dataManager.addFeatureMapping(self)
 
     @Mapping.MappingMethod()
     def dummyFunction(self, X):

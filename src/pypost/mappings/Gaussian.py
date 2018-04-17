@@ -6,6 +6,7 @@ from pypost.mappings import TFMapping
 from pypost.mappings import Function_Base
 from pypost.mappings import LinearFunction
 from pypost.mappings import ConstantFunction
+from pypost.mappings import MLPFunction
 
 
 
@@ -173,7 +174,6 @@ class FullGaussian(FullGaussian_Base):
         clone.params= self.params
         return clone
 
-
     @TFMapping.TensorMethod()
     def stdMatrix(self):
         return tf.get_variable("stdmat", shape=[self.dimOutput, self.dimOutput], initializer=tf.ones_initializer())
@@ -183,6 +183,22 @@ class FullGaussian(FullGaussian_Base):
 
     def setCov(self, covMat):
         self.param_stdmat = np.linalg.cholesky(covMat)
+
+class MLPFullGaussian(FullGaussian_Base):
+    def __init__(self, dataManager, inputArguments, outputArguments, hiddenLayers, name = 'FullGaussian'):
+        FullGaussian_Base.__init__(self, dataManager, inputArguments, outputArguments, meanFunction=MLPFunction(dataManager, inputArguments, outputArguments, hiddenLayers, name = name), name = name)
+        self.hiddenLayers = hiddenLayers
+
+    def clone(self, name):
+        clone = MLPFullGaussian(self.dataManager,  self.inputVariables, self.outputVariables, self.hiddenLayers, name)
+        clone.meanFunction = clone.meanFunction.clone(name + 'Mean')
+        clone.params = self.params
+        return clone
+
+    @TFMapping.TensorMethod()
+    def stdMatrix(self):
+        return tf.get_variable("stdmat", shape=[self.dimOutput, self.dimOutput], initializer=tf.ones_initializer())
+
 
 
 class NaturalFullGaussian_Base(TFMapping):

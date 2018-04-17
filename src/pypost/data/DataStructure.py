@@ -69,6 +69,7 @@ class DataStructure(SettingsClient):
 
         self.nextLayer = None
         if dictState['nextLayer'] != None:
+            self.nextLayer = []
             for i in range(0, len(dictState['nextLayer'])):
                 dataStructure = dictState['nextLayer'][i]
                 self.nextLayer.append(dataStructure)

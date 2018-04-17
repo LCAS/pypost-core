@@ -59,7 +59,7 @@ class SequentialSampler(Sampler):
         :param args: hierarchical indexing of the data structure
         '''
 
-        activeIndex = data.activeIndex.copy()
+        activeIndex = list(data.activeIndex)
 
         if not isinstance(activeIndex, list):
             activeIndex = [activeIndex]
@@ -118,7 +118,7 @@ class SequentialSampler(Sampler):
         if isinstance(activeIndex[0], slice):
             activeIndex[0] = list(range(activeIndex[0].start, activeIndex[0].stop))
 
-        isActive = data[activeIndex] >= self.terminationFunction.isNonTerminalState  # @mw ASK: *args?
+        isActive = data[tuple(activeIndex)] >= self.terminationFunction.isNonTerminalState  # @mw ASK: *args?
         tCurrent = activeIndex[-1]
 
         if not isinstance(isActive, np.ndarray):

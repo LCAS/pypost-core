@@ -359,6 +359,8 @@ class DataManager(SettingsClient):
             self.dataEntries[outputVariable].isFeature = True
             self.dataEntries[outputVariable].callBackGetter = mapping
 
+        self.addDataEntry(outputVariable + '_validFlag', 1)
+
     def checkDataEntries(self, entryList, errorMessage):
 
         for i in range(0, len(entryList)):
@@ -465,6 +467,7 @@ class DataManager(SettingsClient):
                 tensor = tf.placeholder(tf.float32, shape=(None,) + dim, name = dictEntry)
             else:
                 tensor = tf.placeholder(tf.float32, shape=(None, dim), name=dictEntry)
+
             self.tensorToEntryMap[tensor] = entryName
             self.tensorDict[dictEntry] = tensor
             return tensor

@@ -65,7 +65,7 @@ class DummyTrial(Trial):
             self.nextIteration()
 
             # create new samples
-            self.sampler >> newData
+            self.sampler >> newData[...]
 
             # get return vector
             returns = newData[...].returns

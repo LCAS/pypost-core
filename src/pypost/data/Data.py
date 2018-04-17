@@ -232,7 +232,7 @@ class Data(object):
             function = self._getTensorMappingForTensor(function)
 
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
-            function.dataFunctionDecorator.dataFunction(function, self, list(self.activeIndex), registerOutput = True)
+            function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput = True)
             function.dataFunctionDecorator.dataWriter.apply(self)
             return self
         else:
@@ -247,7 +247,7 @@ class Data(object):
 
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
 
-            function.dataFunctionDecorator.dataFunction(function, self, list(self.activeIndex), registerOutput = True)
+            function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput = True)
 
             return function.dataFunctionDecorator.dataWriter.apply(self)
         else:
@@ -272,7 +272,7 @@ class Data(object):
             function = self._getTensorMappingForTensor(function)
 
         if hasattr(function, '__call__') and hasattr(function, 'dataFunctionDecorator'):
-            function.dataFunctionDecorator.dataFunction(function, self, list(self.activeIndex), registerOutput = True)
+            function.dataFunctionDecorator.dataFunction(function, self, self.activeIndex, registerOutput = True)
             return function.dataFunctionDecorator.dataWriter
         else:
             raise ValueError('Operator >> can only be applied to manipulation functions or tuples of manipulation functions'
@@ -320,11 +320,11 @@ class Data(object):
 
     def __lt__(self, function):
         if (hasattr(function, 'linkedDataEnties') and function.linkedDataEnties):
-            function.writeDataPropertiesToData(self, list(self.activeIndex))
+            function.writeDataPropertiesToData(self, self.activeIndex)
 
     def __gt__(self, function):
         if (hasattr(function, 'linkedDataEnties') and function.linkedDataEnties):
-            function.readDataPropertiesFromData(self, list(self.activeIndex))
+            function.readDataPropertiesFromData(self, self.activeIndex)
 
 
     def completeLayerIndex(self, depth, indices):
@@ -337,7 +337,11 @@ class Data(object):
         :returns: The complete indices array
         '''
         if not isinstance(indices, list):
-            indices = [indices]
+            if isinstance(indices, tuple):
+                indices = list(indices)
+            else:
+                indices = [indices]
+
         while len(indices) <= depth:
             indices.append(...)
         if len(indices) > depth + 1:
@@ -373,7 +377,12 @@ class Data(object):
 
     def getNumElementsForIndex(self, depth, indices=[]):
         if not isinstance(indices, list):
-            indices = [indices]
+            if isinstance(indices, tuple):
+                indices = list(indices)
+            else:
+                indices = [indices]
+
+
         while len(indices) <= depth:
             indices.append(...)
 
@@ -415,7 +424,7 @@ class Data(object):
         if (dataEntryInfo.callBackGetter):
             callBack = dataEntryInfo.callBackGetter
             dataEntryInfo.callBackGetter = None
-            self[indices] >> callBack >> self
+            self[tuple(indices)] >> callBack >> self
             dataEntryInfo.callBackGetter = callBack
 
         for entry in dataEntryInfo.entryList:
@@ -472,7 +481,11 @@ class Data(object):
             path = self._resolveEntryPath(path)
 
         if not isinstance(indices, list):
-            indices = [indices]
+            if isinstance(indices, tuple):
+                indices = list(indices)
+            else:
+                indices = [indices]
+
 
 
         data = self.dataStructure.getDataEntry(self, path, indices, hStack)
@@ -508,7 +521,10 @@ class Data(object):
             entryName = self._resolveEntryPath(entryName)
 
         if not isinstance(indices, list):
-            indices = [indices]
+            if isinstance(indices, tuple):
+                indices = list(indices)
+            else:
+                indices = [indices]
 
         if (isinstance(data, np.ndarray) and len(data.shape) == 1):
             if numDimensions > 1:

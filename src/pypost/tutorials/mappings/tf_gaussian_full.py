@@ -3,7 +3,7 @@ import pypost.common.tfutils as tfutils
 import tensorflow as tf
 import numpy as np
 import time
-from pypost.mappings.Gaussian import FullGaussian_Base
+from pypost.mappings.Gaussian import MLPFullGaussian
 
 
 num_cpu = 1
@@ -18,7 +18,7 @@ dataManager.addDataEntry('actions', 5)
 generatorMean = tfutils.continuous_MLP_generator([100, 100])
 generatorCovMat = tfutils.constant_covariance_generator()
 
-gaussian = FullGaussian_Base(dataManager, ['states'], ['actions'], generatorMean, generatorCovMat)
+gaussian = MLPFullGaussian(dataManager, ['states'], ['actions'], [30, 30])
 
 data = dataManager.createDataObject([100])
 data[...].states = np.random.normal(0, 1, data[...].states.shape)
@@ -34,13 +34,13 @@ data[...] >> gaussian >= data
 data[...] >= gaussian.logLike
 
 # compute logLikelihood
-data[...] >= gaussian.logLike.single_gradient()
+data[...] >= gaussian.tn_logLike.single_gradient()
 # compute logLikelihood
-data[...] >= gaussian.logLike.single_gradient()
+data[...] >= gaussian.tn_logLike.single_gradient()
 
 
 # Compute log likelihood
-gaussianOther = FullGaussian_Base(dataManager, ['states'], ['actions'], generatorMean, generatorCovMat)
+gaussianOther = gaussian.clone('learnedGaussian')
 
 # the param_* properties are created automatically by parsing the mean and logStd tensors. They can be set and read as normal numpy arrays
 gaussianOther.params = gaussian.params
@@ -61,16 +61,16 @@ data[...] >= gaussian.mean
 
 # Or the different layers
 
-data[...] >= gaussian.layers[0]
+data[...] >= gaussian.meanFunction.layers[0]
 
 # We can compute gradients: Tensorflow computes only the sum of the gradients for a loss
 start = time.clock()
-gradientSum = data[...] >= gaussian.logLike.gradient(gaussian.tv_layer1_w)
+gradientSum = data[...] >= gaussian.tn_logLike.gradient(gaussian.tv_layer1_w)
 print((time.clock() - start)*1000)
 
 # We can compute also the gradients per sample... but thats rather slow
 start = time.clock()
-gradientSingle = data[...] >= gaussian.logLike.single_gradient(gaussian.tv_layer1_w)
+gradientSingle = data[...] >= gaussian.tn_logLike.single_gradient(gaussian.tv_layer1_w)
 print((time.clock() - start)*1000)
 
 print('Gradient: {0}'.format(gradientSum))

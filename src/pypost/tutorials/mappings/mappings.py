@@ -1,5 +1,5 @@
 from pypost.data import DataManager
-from pypost.data import DataManipulator
+from pypost.mappings import DataManipulator
 from pypost.mappings import Mapping
 import numpy as np
 

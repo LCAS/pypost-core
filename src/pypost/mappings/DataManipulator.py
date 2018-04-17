@@ -158,7 +158,7 @@ class DataManipulationFunction():
 
             if (self.lazyEvaluation):
                 validFlag = data.getDataEntry(self.outputArguments[0] + '_validFlag', indices)
-                notValidFlag = np.where(~validFlag)[0]
+                notValidFlag = np.where(np.logical_not(validFlag))[0]
 
                 for i in range(0, len(inputArgs)):
                     if isinstance(inputArgs[i], np.ndarray):
@@ -186,7 +186,7 @@ class DataManipulationFunction():
 
                 outArgList = outArgsAll
                 validFlag[:] = True
-                self.dataWrite.addWriteEntry(self.outputArguments[0] + '_validFlag', indices.copy(), validFlag)
+                self.dataWriter.addWriteEntry(self.outputArguments[0] + '_validFlag', indices, validFlag)
 
             if registerOutput:
                 if (len(outArgList) < len(dataStruct.outputArguments) or not all(x is not None for x in outArgList[:len(dataStruct.outputArguments)]) ):
@@ -196,7 +196,7 @@ class DataManipulationFunction():
 
                 #data.setDataEntryList(dataStruct.outputArguments, indices, outArgList)
                 try:
-                    self.dataWriter.addWriteEntries(dataStruct.outputArguments, indices.copy(), outArgList)
+                    self.dataWriter.addWriteEntries(dataStruct.outputArguments, indices, outArgList)
                 except ValueError as error:
                     raise ValueError('Error when registering output arguments of function ' + function.__name__ +
                                       ': ' + error.args[0] + '. Please check your output arguments!')

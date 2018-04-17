@@ -108,6 +108,8 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
             self._tensorNodeDict['tn_' + tensorFunction] = None
 
         self._parameter_dict = {}
+        self._parameter_placeholder = {}
+        self._parameter_settensor = {}
         self._variable_dict = {}
         self._dataPropertiesTensors = []
 
@@ -151,6 +153,7 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
             self._parameters_flat = tf.concat(axis=0, values=[tf.reshape(v, [tfutils.numel(v)]) for v in self.tv_variables_list])
 
             self._parameter_dict['params'] = self._parameters_flat
+
             setattr(self, 'params', None)
 
             self._parameters_setter = tfutils.SetFromFlat(self.tv_variables_list)
@@ -174,6 +177,10 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
 
             self._parameter_dict[name] = tensor
             self._variable_dict[name_var] = tensor
+
+            placeHolder = tf.placeholder(dtype=tf.float32, shape = tensor.shape.as_list())
+            self._parameter_placeholder[name] = placeHolder
+            self._parameter_settensor[name] = tensor.assign(placeHolder)
 
             setattr(self, name, None)
             setattr(self, name_var, None)
@@ -207,12 +214,7 @@ class TFMapping(Mapping, metaclass=TFMappingMetaClass):
             if isinstance(value, (float, int)):
                 value = np.ones(tuple(tensor.shape.as_list())) * value
 
-
-
-            op = tensor.assign(value)
-
-
-            tf.get_default_session().run(op)
+            tf.get_default_session().run(self._parameter_settensor[name], {self._parameter_placeholder[name] : value})
         return value
 
     def _addAllTensorFunctions(self):
