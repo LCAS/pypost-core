@@ -112,7 +112,7 @@ class FullGaussian_Base(TFMapping):
         assert isinstance(other, FullGaussian_Base)
 
         return tfutils.sum(tf.log(tf.diag_part(other.tn_stdMatrix)) - tf.log(tf.diag_part(self.tn_stdMatrix))) +  0.5 * tf.trace(tf.matrix_solve(other.tn_covMatrix, self.tn_covMatrix)) + \
-            0.5 * tfutils.sum(tf.square(tf.matrix_triangular_solve(other.tn_stdMatrix, tf.transpose(other.tn_mean - self.tn_mean))), axis=0) + 0.5 * self.dimOutput
+            0.5 * tfutils.sum(tf.square(tf.matrix_triangular_solve(other.tn_stdMatrix, tf.transpose(other.tn_mean - self.tn_mean))), axis=0) - 0.5 * self.dimOutput
 
     @TFMapping.TensorMethod()
     def stdMatrix(self):
