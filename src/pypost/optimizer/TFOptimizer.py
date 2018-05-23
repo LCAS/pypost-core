@@ -88,7 +88,7 @@ class TFOptimizer(Mapping):
 
             if (self._printIterations):
                 self.lossLogger.append(self.tm_loss(*inputDataLoss))
-                print('Loss Iteration {}: '.format(i + 1), self.lossLogger[-1])
+                print('\rLoss Iteration %i: %.4f ' % (i + 1, self.lossLogger[-1]), end="")
 
         print('Optimization Duration: ', (time.clock() - start))
 
