@@ -14,7 +14,6 @@ __all__ = ['Data',
            'DataEntry',
            'DataManager',
            'DataManagerTimeSeries',
-           'DataManipulator',
            'DataStructure'
            'createDataManagers']
 
