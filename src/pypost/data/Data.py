@@ -81,6 +81,7 @@ class Data(object):
 
     def __setstate__(self, state):
         from pypost.data import DataManager
+
         self.entryInfoMap = {}
 
         self.dataManager = state['dataManager']
@@ -171,22 +172,7 @@ class Data(object):
         return dataStructure
 
     def __getitem__(self, index):
-
-        if isinstance(index, Data.FlatIndex):
-            index = index.flatIndex
-            self.isFlatIndex = True
-        else:
-            self.isFlatIndex = False
-
-        if isinstance(index, list):
-            self.activeIndex = index.copy()
-        else:
-            self.activeIndex = index
-
-        if not isinstance(self.activeIndex, tuple):
-            self.activeIndex = (self.activeIndex,)
-
-        return self
+        return DataView(self, index)
 
     def __setattr__(self, name, value):
         indexPreprocessor = name.find('__')
@@ -670,4 +656,19 @@ class DataWriter(object):
         self.result = result
 
 
+class DataView(Data):
+    def __init__(self, data, index):
+        for key in ('entryInfoMap', 'states', 'dataManager', 'empty', 'tensorDictionary', 'dataStructure'):
+            self.__dict__[key] = data.__dict__[key]
 
+        self.isFlatIndex = False
+        if isinstance(index, Data.FlatIndex):
+            self.activeIndex = index.flatIndex
+            self.isFlatIndex = True
+        elif isinstance(index, list):
+            self.activeIndex = index.copy()
+        else:
+            self.activeIndex = index
+
+        if not isinstance(self.activeIndex, tuple):
+            self.activeIndex = (self.activeIndex,)

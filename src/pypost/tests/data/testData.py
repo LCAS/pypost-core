@@ -7,6 +7,16 @@ from scipy.sparse import csr_matrix
 
 class testDataManager(unittest.TestCase):
 
+    def test_datavew_indexing(self):
+        from pypost.data.DataManager import DataManager
+        dataManager = DataManager("test")
+        dataManager.addDataEntry("states", 100)
+        data = dataManager.createDataObject(100)
+        data_single = data[0].states
+        data_all = data.states
+        assert data_single.shape != data_all.shape
+
+
     def test_assert(self):
         dataManager = DataUtil.createTestManager()
         data = dataManager.createDataObject([10, 20, 30])
