@@ -658,7 +658,7 @@ class DataWriter(object):
 
 class DataView(Data):
     def __init__(self, data, index):
-        for key in ('entryInfoMap', 'states', 'dataManager', 'empty', 'tensorDictionary', 'dataStructure'):
+        for key in data.__dict__:
             self.__dict__[key] = data.__dict__[key]
 
         self.isFlatIndex = False
