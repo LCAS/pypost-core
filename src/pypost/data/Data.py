@@ -354,6 +354,9 @@ class Data(object):
             depth = self.entryInfoMap[entryName].depth
         return self.getNumElementsForDepth(depth)
 
+    def __len__(self):
+        return self.getNumElements()
+
     def getNumElementsForDepth(self, depth):
         '''
         Returns the number of elements for the given depth of
