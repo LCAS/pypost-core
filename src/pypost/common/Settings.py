@@ -13,46 +13,39 @@ Tuple storing a reference to the client and the name of the property in the clie
 
 
 class Settings:
-    '''
-    The Settings class implements a parameter pool where we can link
-    properties of several objects. The value of the linked properties
-    will be set to the value set in the parameter pool. If we link a
-    property that is so far not registered in the parameter pool, the
-    property name is registered with the current value of the property
-    set in the parameter pool. Important functions of this class for the
-    user are Settings.registerProperty, Settings.setProperty,
-    Settings.getProperty and Settings.hasProperty. The class also offers
-    the functionality to create several parameter pools (for example if
-    we want to use different parameters for different instances of the
-    same class). However, typically just a single, global parameter pool
-    is used. The global parameter pool can be accessed by calling the
-    empty constructor, i.e., Common.Settings().
+    """
+    The Settings class implements a parameter pool where we can link properties of several objects.
+    The value of the linked properties will be set to the value set in the parameter pool.
 
-    It is recommended to access the variables directly via the getter and setter instead of linking it, if you care about performance.
+    If we link a property that is so far not registered in the parameter pool, the property name is
+    registered with the current value of the property set in the parameter pool.
+
+    Important functions of this class for the user are Settings.registerProperty, Settings.setProperty,
+    Settings.getProperty and Settings.hasProperty.
+
+    The class also offers the functionality to create several parameter pools (for example if  we want to use different
+    parameters for different instances of the same class). However, typically just a single, global parameter pool
+    is used. The global parameter pool can be accessed by calling the empty constructor, i.e., Common.Settings().
+
+    It is recommended to access the variables directly via the getter and setter instead of linking it,
+    if you care about performance.
 
     :change: The notation 'id' has been replaced with 'name' due to name conflicts
     :change: isSameSettings() has been replaced with getDifferentProperties()
     :change: getPropertyNames() and getNumProperties() are not implemented
-    '''
+    """
 
     def __init__(self, name):
         '''Creates a new Settings object with the given name.
-
         :param name: The name of the Settings
-        :change: Just creates an object and doesn't care about existing instances in the SettingsManager. For getting the default settings use: SettingsManager.getDefaultSettings()
+        :change: Just creates an object and doesn't care about existing instances in the SettingsManager.
+        For getting the default settings use: SettingsManager.getDefaultSettings()
         '''
+        self.__dict__["_properties"] = {}
+        self.__dict__["_lockedDict"] = {}
+        self.__dict__["suffixStack"] = []
+
         self.name = name
-        '''
-        Name of the Settings
-        '''
-        self._properties = {}
-        self._lockedDict = {}
-        self.suffixStack = []
-        '''
-        Contains the properties that are stored in the pool and the corresponding clients.
-        It should be structured after the following pattern: {propertyName: Property(value=<value of the property>, ClientInfo(client=<client object>, clientPropName=<property name in client>)}
-        Property and ClientInfo are namedtuples
-        '''
 
     def pushSuffixStack(self, suffix):
         self.suffixStack.append(suffix)
@@ -71,37 +64,32 @@ class Settings:
         return len(self.getDifferentProperties(other)) == 0
 
     def querySettings(self, dictionary):
-
-        for name,value in dictionary.items():
+        for name, value in dictionary.items():
             if self.hasProperty(name):
-                if (self.getProperty(name) != value):
+                if self.getProperty(name) != value:
                     return False
             else:
                 return False
         return True
 
     def clean(self):
-        '''Removes all properties in this pool.
-        '''
+        # Removes all properties in this pool.
         self._properties = {}
 
     def removeClients(self):
-        '''Unregisters all registered clients.
-        '''
+        # Unregisters all registered clients.
         for p in self._properties.values():
             del p.clients[:]
 
-    def registerProperty(self, propName, value, setValueIfAlreadyRegistered = False):
+    def registerProperty(self, propName, value, setValueIfAlreadyRegistered=False):
         '''Registers a the specified property.
-
         :param propName: Name of the property in the settings
         :param value: value of the property
         '''
 
-
         if propName in self._properties:
-            if (setValueIfAlreadyRegistered):
-                if (self._lockedDict[propName]):
+            if setValueIfAlreadyRegistered:
+                if self._lockedDict[propName]:
                     raise ValueError('Property %s is already locked! Can not change value any more...' % propName)
                 self._properties[propName] = PropertyInfo(value, self._properties[propName].clients)
         else:
@@ -116,30 +104,28 @@ class Settings:
         for propName in self._lockedDict:
             self._lockedDict[propName] = False
 
-            # NOTE: Use properties for changes?
     def __setattr__(self, name, value):
-        if (hasattr(self, '_properties') and self.hasProperty(name)):
+        if hasattr(self, '_properties') and self.hasProperty(name):
             self.setProperty(name, value)
 
-        super(Settings, self).__setattr__( name, value)
+        super(Settings, self).__setattr__(name, value)
 
     def __getattr__(self, name):
-        if (name != '_properties' and hasattr(self, '_properties') and self.hasProperty(name)):
+        if name == '_properties':
+            return self.__dict__["_properties"]
+        if name != '_properties' and hasattr(self, '_properties') and self.hasProperty(name):
             return self.getProperty(name)
         else:
-            #raise ValueError('AttributeError: Unknown property \'{}\' for settings'.format(name))
-            super(Settings, self).__getattr__(name)
+            raise AttributeError('AttributeError: Unknown property \'{}\' for settings'.format(name))
+            # super(Settings, self).__getattr__(name)
 
     def unregisterProperty(self, propName):
-        '''Unregisters the property with the given name.
-
-        :param propName: Name of the property to unregister
-        '''
         if propName in self._properties:
             del self._properties[propName]
 
     def linkProperty(self, client, clientPropName, settingsPropName, takeValueFromClient = False):
-        '''Links a property in the settings with the specified property of the given client. If the property isn't already present in the settings, it will be registered.
+        '''Links a property in the settings with the specified property of the given client. If the property isn't
+         already present in the settings, it will be registered.
 
         :param client: The client owning the property to be linked.
         :param clientPropName: The property's name as defined in the client
@@ -271,15 +257,9 @@ class Settings:
             print('{}: {}'.format(p, v.value))
 
     def store(self, fileName):
-        '''Store properties in file using yaml
-        :param fileName: Filename used to store properties
-        '''
-        dataToStore = dict()
-        for propKey in self._properties.keys():
-            dataToStore[propKey] = self._properties[propKey].value
-
+        # Store properties in file using yaml
         with open(fileName, 'w') as stream:
-            yaml.dump(dataToStore, stream)
+            yaml.dump(self.getProperties(), stream, default_flow_style=False)
 
     def load(self, fileName):
         '''Load properties from file using yaml format
