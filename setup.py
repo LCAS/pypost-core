@@ -55,7 +55,8 @@ setup(
               'pypost.tutorials.settings'
               ],
     # TODO Fix error concerning pyyaml directory and uncomment
-    install_requires=['pyyaml', 'scipy', 'matplotlib', 'matplotlib2tikz', 'tensorflow']
+    install_requires=['pyyaml', 'scipy', 'matplotlib', 'matplotlib2tikz', 'tensorflow',
+                        'fasteners', 'gitpython']
     # TODO Convert to Python Wheels for security reasons
 )
 
