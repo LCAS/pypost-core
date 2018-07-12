@@ -1,14 +1,15 @@
 import tensorflow as tf
 import numpy as np
 
+
 def sum(x, axis=None, keepdims=False):
     axis = None if axis is None else [axis]
-    return tf.reduce_sum(x, axis=axis, keep_dims=keepdims)
+    return tf.reduce_sum(x, axis=axis, keepdims=keepdims)
 
 
 def mean(x, axis=None, keepdims=False):
     axis = None if axis is None else [axis]
-    return tf.reduce_mean(x, axis=axis, keep_dims=keepdims)
+    return tf.reduce_mean(x, axis=axis, keepdims=keepdims)
 
 
 def var(x, axis=None, keepdims=False):
@@ -22,12 +23,12 @@ def std(x, axis=None, keepdims=False):
 
 def max(x, axis=None, keepdims=False):
     axis = None if axis is None else [axis]
-    return tf.reduce_max(x, axis=axis, keep_dims=keepdims)
+    return tf.reduce_max(x, axis=axis, keepdims=keepdims)
 
 
 def min(x, axis=None, keepdims=False):
     axis = None if axis is None else [axis]
-    return tf.reduce_min(x, axis=axis, keep_dims=keepdims)
+    return tf.reduce_min(x, axis=axis, keepdims=keepdims)
 
 
 def concatenate(arrs, axis=0):
@@ -57,6 +58,7 @@ def switch(condition, then_expression, else_expression):
 
 ### Utilities for parsing tensors
 
+
 def _list_trainable_variables(tensor_node):
     if (isinstance(tensor_node, list)):
         place_set = set()
@@ -74,12 +76,16 @@ def _list_trainable_variables(tensor_node):
                 place_set = place_set.union(_list_trainable_variables(tfNode))
         return place_set
 
+
 def list_trainable_variables(tensor_node):
     train_var = list(_list_trainable_variables(tensor_node))
+
     def get_name(tensor):
         return tensor.name
+
     train_var.sort(key=get_name)
     return train_var
+
 
 def _get_layers(tensor_node):
     layerList = []
@@ -93,19 +99,16 @@ def _get_layers(tensor_node):
     return layerList
 
 
-
 def list_data_placeholders(dataManager, tensor_node):
     place_set = set()
-    if (isinstance(tensor_node, (tf.Tensor, tf.Variable))):
+    if isinstance(tensor_node, (tf.Tensor, tf.Variable)):
         for tfNode in tensor_node.op.inputs:
             if tfNode.op.type == 'Placeholder' and dataManager.isEntryTensor(tfNode):
                 place_set.add(tfNode)
             else:
                 place_set = place_set.union(list_data_placeholders(dataManager, tfNode))
 
-    else:
-        # its an operation
-
+    else:  # its an operation
         for tfNode in tensor_node._control_inputs:
             place_set = place_set.union(list_data_placeholders(dataManager, tfNode))
 
@@ -115,8 +118,8 @@ def list_data_placeholders(dataManager, tensor_node):
             else:
                 place_set = place_set.union(list_data_placeholders(dataManager, tfNode))
 
-
     return place_set
+
 
 ### create layer functions
 
@@ -127,8 +130,8 @@ def normc_initializer(std=1.0):
         return tf.constant(out)
     return _initializer
 
-def dense(x, size, name, weight_init=None, bias=True):
 
+def dense(x, size, name, weight_init=None, bias=True):
     if (x is not None):
         w = tf.get_variable(name + "w", [x.get_shape()[1], size], initializer=weight_init)
         ret = tf.matmul(x, w)
@@ -141,16 +144,19 @@ def dense(x, size, name, weight_init=None, bias=True):
     else:
         return ret
 
+
 def create_layers(inputTensor, hiddenNodes):
     last_out = inputTensor
     for i in range(len(hiddenNodes)):
         last_out = tf.nn.tanh(dense(last_out, hiddenNodes[i], 'layer%d_' % (i + 1), weight_init = normc_initializer(1.0)), name = 'layer%d_out' % (i + 1))
     return last_out
 
+
 def create_layers_linear_ouput(inputTensor, hiddenNodes, outputNodes):
     last_out = create_layers(inputTensor=inputTensor, hiddenNodes=hiddenNodes)
     last_out = dense(last_out, outputNodes, 'final_', weight_init=normc_initializer(0.01))
     return last_out
+
 
 def create_linear_layer(inputTensor, outputNodes, useBias):
     last_out = dense(inputTensor, outputNodes, 'final_', weight_init=normc_initializer(0.01), bias = useBias)
@@ -161,6 +167,7 @@ def create_linear_layer(inputTensor, outputNodes, useBias):
 
 ALREADY_INITIALIZED = set()
 
+
 def initialize():
     """Initialize all the uninitialized variables in the global scope."""
     new_variables = set(tf.global_variables()) - ALREADY_INITIALIZED
@@ -170,6 +177,7 @@ def initialize():
 
 
 ###### MLP generators
+
 
 def continuous_MLP_generator(hiddenNodes):
     def generate(inputTensor, dimOutput):
@@ -183,27 +191,28 @@ def linear_layer_generator(useBias = True):
     return generate
 
 
-
 def diagional_log_std_generator():
     def generate(inputTensor, dimOutput):
         return tf.get_variable("logstd", shape=[dimOutput], initializer=tf.zeros_initializer())
     return generate
+
 
 def constant_covariance_generator():
     def generate(inputTensor, dimOutput):
         return tf.get_variable("stdmat", shape=[dimOutput, dimOutput], initializer=tf.ones_initializer())
     return generate
 
+
 def constant_generator(name = 'constTerm'):
     def generate(inputTensor, dimOutput):
         return tf.get_variable(name, shape=[1], initializer=tf.zeros_initializer())
     return generate
 
+
 def constant_vector_generator(name = 'linearTerm'):
     def generate(inputTensor, dimOutput):
         return tf.get_variable(name, shape=[inputTensor.getshape()[1],1], initializer=tf.zeros_initializer())
     return generate
-
 
 def constant_quadmat_generator(name = 'quadTerm'):
     def generate(inputTensor, dimOutput):
@@ -218,6 +227,7 @@ def constant_quadmat_generator(name = 'quadTerm'):
 
 ###### Flatten vectors
 
+
 def var_shape(x):
     out = x.get_shape().as_list()
     assert all(isinstance(a, int) for a in out), \
@@ -231,6 +241,7 @@ def numel(x):
 
 def intprod(x):
     return int(np.prod(x))
+
 
 class SetFromFlat(object):
     def __init__(self, var_list, dtype=tf.float32):
@@ -276,11 +287,13 @@ class GetFlat(object):
     def __call__(self):
         return tf.get_default_session().run(self.op)
 
+
 def minimize(optimizer, loss, variables):
     operation = optimizer.minimize(loss, variables)
     operation.loss = loss
 
 ###### TensorFlow Decorator
+
 
 def tensor(**kwargs):
     def decorate(func):
