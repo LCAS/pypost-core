@@ -36,7 +36,11 @@ class Trial(SettingsClient):
         if trialSettings is None:
             self.trialSettings = Settings('trialSettings')
         else:
-            self.trialSettings = trialSettings.clone()
+            if type(trialSettings) is dict:
+                self.trialSettings = Settings('trialSettings')
+                self.trialSettings.setProperties(trialSettings)
+            else:
+                self.trialSettings = trialSettings.clone()
 
         self.settings = Settings('trialSettings')
 
