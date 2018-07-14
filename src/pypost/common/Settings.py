@@ -104,6 +104,15 @@ class Settings:
         for propName in self._lockedDict:
             self._lockedDict[propName] = False
 
+    def items(self):
+        return [(name, prop_info.value) for name, prop_info in self._properties.items()]
+
+    def values(self):
+        return [prop_info.value for prop_info in self._properties.values()]
+
+    def keys(self):
+        return self._properties.keys()
+
     def __setattr__(self, name, value):
         if hasattr(self, '_properties') and self.hasProperty(name):
             self.setProperty(name, value)
@@ -256,15 +265,31 @@ class Settings:
         for p, v in self._properties.items():
             print('{}: {}'.format(p, v.value))
 
-    def store(self, fileName):
+    def store(self, file):
         # Store properties in file using yaml
-        with open(fileName, 'w') as stream:
-            yaml.dump(self.getProperties(), stream, default_flow_style=False)
+        if type(file) is str:
+            with open(file, 'w') as stream:
+                yaml.dump(self.getProperties(), stream, default_flow_style=False)
+        elif hasattr(file, "write"):
+            yaml.dump(self.getProperties(), file, default_flow_style=False)
+        else:
+            raise RuntimeError("Expected file or string, got %s" % file)
 
-    def load(self, fileName):
+    def load(self, file):
         '''Load properties from file using yaml format
-        :param fileName: Filename that is loaded
+        :param file: Filename that is loaded
         '''
-        with open(fileName, 'r') as stream:
-            settings = yaml.load(stream)
-            self.setProperties(settings)
+        if type(file) is str:
+            with open(file, 'r') as stream:
+                settings = yaml.load(stream)
+        elif hasattr(file, "read"):
+            settings = yaml.load(file)
+        else:
+            raise RuntimeError("Expected file or string, got %s"%file)
+        self.setProperties(settings)
+
+
+if __name__ == "__main__":
+    settings = Settings("test")
+    settings.message  = "hello"
+    

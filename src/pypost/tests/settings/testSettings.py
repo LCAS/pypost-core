@@ -143,12 +143,15 @@ class testSettings(unittest.TestCase):
         cli.test2 = 42
         cli.linkPropertyToSettings('test2', globalName='testProp2')
 
-        settings.store('/tmp/pypost.test.settings')
+        import io
+        f = io.StringIO()
+        settings.store(f)
+        f.seek(0)
         settings.setProperty('testProp2', 8)
         self.assertEqual(cli.getVar('test2'), 8)
         settings2 = Settings('testSettings2')
         settings2.setProperty('testProp1', 9)
-        settings.load('/tmp/pypost.test.settings')
+        settings.load(f)
 
         self.assertEqual(settings.getProperty('testProp1'), 42)
         self.assertEqual(settings2.getProperty('testProp1'), 9)
