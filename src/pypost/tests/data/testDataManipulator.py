@@ -1,7 +1,8 @@
 import unittest
 import numpy as np
-from pypost.data import DataManipulator, DataFunction
 
+from pypost.mappings import DataManipulator
+from pypost.mappings.DataManipulator import DataFunction
 from pypost.tests import DataUtil
 
 class TestDecorator(DataManipulator):

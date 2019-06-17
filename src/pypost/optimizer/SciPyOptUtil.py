@@ -1,4 +1,3 @@
-import warnings
 
 def build_dict(unconstrained, opt_dict=None):
     if opt_dict is None:
@@ -10,12 +9,4 @@ def build_dict(unconstrained, opt_dict=None):
     opt_dict['ftol'] = unconstrained.optiAbsfTol
     opt_dict['epsilon'] = unconstrained.epsilon
     return opt_dict
-
-def custom_formatwarning(msg, *a):
-    # ignore everything except the message
-    return str(msg) + '\n'
-warnings.formatwarning = custom_formatwarning
-
-
-
 

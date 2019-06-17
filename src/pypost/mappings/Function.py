@@ -6,24 +6,17 @@ import numpy as np
 
 
 class Function_Base(TFMapping):
-
     def __init__(self, dataManager, inputArguments, outputArguments, name = 'Function'):
-
         TFMapping.__init__(self, dataManager, inputArguments, outputArguments, name = name)
 
-
-
     def clone(self, name):
-
         clone = Function_Base(self.dataManager, self.inputVariables, self.outputVariables, name)
         clone.params = self.params
         return clone
 
     @TFMapping.TensorMethod(connectTensorToOutput=True, useAsMapping=True)
     def output(self):
-
-        assert(False, 'Not implemented in base clase')
-        return None
+        raise NotImplementedError()
 
 
 class LinearParameterInterface():
@@ -68,8 +61,8 @@ class ConstantFunction(Function_Base, LinearParameterInterface):
 
 class LinearFunction(Function_Base, LinearParameterInterface):
 
-    def __init__(self, dataManager, inputArguments, outputArguments, useBias = True, name = 'Function'):
-        Function_Base.__init__(self, dataManager, inputArguments, outputArguments, name = name)
+    def __init__(self, dataManager, inputArguments, outputArguments, useBias=True, name='Function'):
+        Function_Base.__init__(self, dataManager, inputArguments, outputArguments, name=name)
         self.useBias = useBias
 
     def clone(self, name):
@@ -86,7 +79,7 @@ class LinearFunction(Function_Base, LinearParameterInterface):
         return np.hstack((self.param_final_b.reshape((self.param_final_b[0],1)),self.param_final_w)).transpose()
 
     def getLinearFeatures(self, input):
-        if (self.useBias):
+        if self.useBias:
             return np.hstack((np.ones((input.shape[0], 1)), input))
         else:
             return input
@@ -101,12 +94,12 @@ class MLPFunction(Function_Base):
     def __init__(self, dataManager, inputArguments, outputArguments, hiddenNodes, name = 'Function'):
         Function_Base.__init__(self, dataManager, inputArguments, outputArguments, name = name)
         self.hiddenNodes = hiddenNodes
-
         self._setLayersFromTensor(self.tn_output)
 
     def clone(self, name):
 
-        clone = MLPFunction(self.dataManager, self.inputVariables, self.outputVariables,  hiddenNodes=self.hiddenNodes, name = name)
+        clone = MLPFunction(self.dataManager, self.inputVariables, self.outputVariables,
+                            hiddenNodes=self.hiddenNodes, name=name)
         clone.params = self.params
         return clone
 
@@ -121,41 +114,35 @@ class QuadraticFunction_Base(Function_Base):
 
         TFMapping.__init__(self, dataManager, inputArguments, outputArguments, name = name)
 
-
     @TFMapping.TensorMethod()
     def quadraticTerm(self):
-        assert (False, 'Not implemented in base clase')
-        return None
+        raise NotImplementedError()
 
     @TFMapping.TensorMethod()
     def linearTerm(self):
-        assert (False, 'Not implemented in base clase')
-        return None
+        raise NotImplementedError()
 
     @TFMapping.TensorMethod()
     def constantTerm(self):
-        assert(False, 'Not implemented in base clase')
-        return None
+        raise NotImplementedError()
 
     @TFMapping.TensorMethod(connectTensorToOutput=True, useAsMapping=True)
     def output(self):
         entrySample = self.getAllInputTensor()
 
-        meanTensor = tfutils.sum(tf.multiply(tf.transpose(entrySample),tf.matmul(self.tn_quadraticTerm, tf.transpose(entrySample))), axis=0) \
-               + tf.matmul(tf.transpose(self.tn_linearTerm), tf.transpose(entrySample)) + self.tn_constantTerm
+        meanTensor = tfutils.sum(tf.multiply(tf.transpose(entrySample),
+                                             tf.matmul(self.tn_quadraticTerm, tf.transpose(entrySample))), axis=0) \
+                     + tf.matmul(tf.transpose(self.tn_linearTerm), tf.transpose(entrySample)) + self.tn_constantTerm
         return meanTensor
 
 
 class QuadraticFeatureExpansion(Mapping):
 
-    def __init__(self, dataManager, inputArguments, outputName = None):
-
-
-
-        if outputName == None:
+    def __init__(self, dataManager, inputArguments, outputName=None):
+        if outputName is None:
             outputName = inputArguments[0] + 'SquaredFeatures'
         dim = dataManager.getNumDimensions(inputArguments[0])
-        dim = 1 + dim  + dim * (dim + 1) / 2
+        dim = 1 + dim + dim * (dim + 1) / 2
         dataManager.addDataEntry(outputName, int(dim))
 
         super().__init__(dataManager, inputArguments, outputName)
@@ -165,15 +152,12 @@ class QuadraticFeatureExpansion(Mapping):
 
     @Mapping.MappingMethod()
     def squaredFeatures(self, input):
-
         return np.array([[x1 * x2 for i, x1 in enumerate(x) for x2 in x[i:]] + list(x) + [1] for x in input])
 
 
 class QuadraticFunction(QuadraticFunction_Base, LinearParameterInterface):
     def __init__(self, dataManager, inputArguments, outputArguments, name='QuadraticFunctionConstCoeff'):
         QuadraticFunction_Base.__init__(self, dataManager, inputArguments, outputArguments, name=name)
-
-
         self.indicesRow = []
         self.indicesColumn = []
         self.multiplier = []
@@ -206,10 +190,8 @@ class QuadraticFunction(QuadraticFunction_Base, LinearParameterInterface):
     @TFMapping.TensorMethod()
     def quadraticTerm(self):
         quadMat_temp = tf.get_variable('quadTerm', shape=[self.dimInput, self.dimInput], initializer=tf.ones_initializer())
-
         quadMat = tf.matrix_band_part(quadMat_temp, -1, 0)
         quadMat = quadMat + tf.transpose(quadMat) - tf.matrix_band_part(quadMat_temp, 0, 0)
-
         return quadMat
 
     @TFMapping.TensorMethod()
@@ -219,8 +201,6 @@ class QuadraticFunction(QuadraticFunction_Base, LinearParameterInterface):
     @TFMapping.TensorMethod()
     def constantTerm(self):
         return tf.get_variable('constTerm', shape=[1], initializer=tf.zeros_initializer())
-
-
 
 
 if __name__ == "__main__":

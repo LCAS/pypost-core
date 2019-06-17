@@ -65,7 +65,7 @@ class DataEntry():
         if (self.dataType == DataType.continuous):
             self.data = np.zeros((numElements,) + self.numDimensions, dtype=np.float_) + (self.minRange + self.maxRange) / 2
         if (self.dataType == DataType.discrete):
-            self.data = np.zeros((numElements,) + self.numDimensions, dtype=np.int_) + self.minRange
+            self.data = np.zeros((numElements,) + self.numDimensions, dtype=np.int_) + (self.minRange + self.maxRange)/2
         if (self.dataType == DataType.sparse):
             self.data = csr_matrix((numElements, self.numDimensions[0]))
         if (self.dataType == DataType.index):

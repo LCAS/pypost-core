@@ -23,22 +23,12 @@ class Experiment(object):
     epsilon for REPS.
     '''
 
-    def __init__(self, rootDir, category, TrialClass, create = True):
-        '''
-        Constructor
-        '''
-
-
+    def __init__(self, rootDir, category, TrialClass, create=False):
         self.category = category
-
         self.evaluations = {}
-
-
-
         self.user = getpass.getuser()
 
         self.experimentId = -1
-
         self.trialToEvaluationMap = {}
         self.trialIndexToDirectorymap = {}
 
@@ -58,20 +48,17 @@ class Experiment(object):
 
         self.TrialClass = TrialClass
         self.defaultTrial = self.createTrial(self.path, 0)
-        self.defaultTrial.configure()
-        if (create):
+
+        if create:
+            self.defaultTrial.configure()
             self.defaultTrial.storeTrial(True)
         self.defaultSettings = self.defaultTrial.settings
         self.rootDir = rootDir
         self.maxId = -1
 
     def load(self, experimentId = 'last'):
-        '''
-
-        :param experimentId: desired ID of the experiment (for loading old experiments). If ID equals -1, new experiment
-        is autmatically created
-        :return:
-        '''
+        """ :param experimentId: desired ID of the experiment (for loading old experiments).
+                                 If ID equals -1, new experiment is autmatically created """
         while not os.path.exists(self.path):
             path = self.path
             while not os.path.exists(os.path.abspath(os.path.join(path, os.pardir))): #pragma: no cover
@@ -93,7 +80,7 @@ class Experiment(object):
                     self._load()
                     return True
 
-        if (experimentId == 'last' and self.maxId >= 0):
+        if experimentId == 'last' and self.maxId >= 0:
             print('Reusing last experiment...(%03d)' % self.maxId)
             self.experimentId = self.maxId
             self.experimentPath = os.path.join(self.path, ('experiment%03d' % self.maxId))
@@ -102,16 +89,12 @@ class Experiment(object):
         else:
             return False
 
-
-
-    def create(self, experimentId = 'last', copyCWD=False):
-        '''
-
-        :param experimentId: desired ID of the experiment (for loading old experiments). If ID equals -1, new experiment
-        is autmatically created
+    def create(self, experimentId='last', copyCWD=False):
+        """
+        :param experimentId: desired ID of the experiment (for loading old experiments).
+               If ID equals -1, new experiment is autmatically created
         :param bool copyCWD: copy current working directory to experiment path
-        :return:
-        '''
+        """
         result = self.load(experimentId)
 
         if not result:
@@ -127,8 +110,7 @@ class Experiment(object):
                 target_folder = self.experimentPath + '/code'
                 self.copy_code_folder(run_folder, target_folder, symlinks=True, ignore='.*')
 
-            self.defaultSettings.store(os.path.join(self.experimentPath,
-                                                    "settings.yaml"))
+            self.defaultSettings.store(os.path.join(self.experimentPath, "settings.yaml"))
 
     '''
     @staticmethod
@@ -180,10 +162,7 @@ class Experiment(object):
 
                 evaluationIndex = int(file[-2:])
 
-                evaluation = Evaluation(
-                    self,
-                    evaluationIndex,
-                    filePath)
+                evaluation = Evaluation(self, evaluationIndex, filePath)
                 self.evaluations[evaluationIndex] = evaluation
                 self.evaluations[evaluationIndex].createFileStructure(True)
 
@@ -230,8 +209,7 @@ class Experiment(object):
 
 
     def addEvaluation(self, parameterNames, parameterValues, numTrials):
-        '''
-        Adds a new evaluation to the experiment.
+        ''' Adds a new evaluation to the experiment.
         This is only for a single evaluation. Please use evaluation collections for multiple ones
         :param list parameterNames: A list of parameter names
         :param list parameterValues: A list of parameter values
@@ -281,11 +259,8 @@ class Experiment(object):
 
         return evaluationsQuery
 
-    def addEvaluationCollection(
-            self, parameterDict, numTrials, combinations=False):
-        '''
-        Adds a collection of evaluations to the experiment,
-        one for each parameterValue.
+    def addEvaluationCollection(self, parameterDict, numTrials, combinations=False):
+        ''' Adds a collection of evaluations to the experiment, one for each parameterValue.
         :param parameterDict: A dictionary of parameter name keys and parameter values of the form
         {key1: [k1v1, k1v2, ...], key2: [k2v1, k2v2, ...], ...}. If combinations == False each list of values has to be
         of same length
@@ -301,57 +276,42 @@ class Experiment(object):
             parameterValues = list(zip(*parameterValues))
         for parameterValue in parameterValues:
             evaluations.append(
-                self.addEvaluation(
-                    parameterNames,
-                    parameterValue,
-                    numTrials))
+                self.addEvaluation(parameterNames, parameterValue, numTrials))
 
         return evaluations
 
     def loadTrialFromID(self, trialIDglobal):
-        '''
-        Loads the trials with the given ID from file system.
+        """ Loads the trials with the given ID from file system.
         :param int trialID: The ID of the trial to load
         :return: The loaded trial
         :rtype: experiments.Trial
-        '''
+        """
         if trialIDglobal not in self.trialIndexToDirectorymap:
             raise KeyError("Trial not found")
         trialDir = self.trialIndexToDirectorymap[trialIDglobal]
         #print("Loading trial %s" % trialDir)
         trialIDeval = int(trialDir.split('/')[-1][-2:])
-        trial = self.createTrial(os.path.abspath(os.path.join(trialDir, os.path.pardir)),trialIDeval)
+        trial = self.createTrial(os.path.abspath(os.path.join(trialDir, os.path.pardir)), trialIDeval)
         trial.loadTrial()
         return trial
 
     def getNumTrials(self):
-        '''
-        Returns the number of trials.
-        :return: The number of trials
-        :rtype: int
-        '''
+        # Returns the number of trials.
         return len(self.trialIndexToDirectorymap)
 
     def startLocal(self, trialIndices=None, restart = False):
-        '''
-        Executes the experiment on the local machine.
-        :param trialIndices: A list containg the indices of the trials to run.
-                              If None, all trials are executed.
-        '''
+        """ Executes the experiment on the local machine.
+        :param trialIndices: A list containg the indices of the trials to run.  If None, all trials are executed. """
         if not trialIndices:
             trialIndices = self.trialIndexToDirectorymap
 
         for key in trialIndices:
             print('Starting Trial {0} locally\n'.format(key))
-
-
             trial = Experiment.loadTrialFromID(self, key)
+            trial.start(restart=restart)
 
-            trial.start(restart = restart)
-
-    def startSLURM(self, trialIndices = None, restart = False,
-                   numParallelJobs=20, memory = 5000, computationTime= 23 * 60 + 59,
-                   accelerator=""):
+    def startSLURM(self, trialIndices = None, restart = False, numParallelJobs=20, memory=5000,
+                   computationTime= 23 * 60 + 59, accelerator=""):
 
         if not trialIndices:
             trialIndices = list(self.trialIndexToDirectorymap.keys())
@@ -455,11 +415,8 @@ class Experiment(object):
 
 
     def getTrialIDs(self):
-        '''
-        Returns a list of trial IDs.
-        :return: The trial list.
-        :rtype: list of integers
-        '''
+        """ Returns a list of trial IDs.
+        :return: The trial list. """
         return self.trialIndexToDirectorymap.keys()
 
     def setDefaultParameter(self, parameterName, parameterValue):
@@ -469,12 +426,10 @@ class Experiment(object):
         self.defaultSettings.setProperty(parameterName, parameterValue)
 
     def createTrial(self, evalPath, trialIdx, settings=None):
-        '''
-        Creates a new trial with given path and index.
+        """ Creates a new trial with given path and index.
         :param evalPath: Path of the evaluation
         :param trialIdx: Trial index
-        :return: The newly created trial object
-        '''
+        :return: The newly created trial object """
         return self.TrialClass(evalPath, trialIdx, settings)
 
     def getNumTrials(self):

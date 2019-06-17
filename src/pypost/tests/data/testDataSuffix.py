@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
-from pypost.data import DataManager, DataManipulator
+from pypost.data import DataManager
+from pypost.mappings import DataManipulator
 from pypost.common import SettingsManager
 
 class TestSuffixManipulator(DataManipulator):
